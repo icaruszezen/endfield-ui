@@ -1,0 +1,5 @@
+# 这里列的提交只改格式。GitHub 的 blame 会自动跳过它们；
+# 本地用：git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# 加上 Prettier，全仓库格式化一遍
+e58b1458e45aed9b99c694f48259cf4b484bb2f8
