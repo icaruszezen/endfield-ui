@@ -10,6 +10,8 @@ pnpm dev
 
 打开 `http://localhost:6106`。`pnpm build:docs` 生成静态站点到 `storybook-static/`。
 
+在线版本：<https://icaruszezen.github.io/endfield-ui/>。每次推送到 `main`，[.github/workflows/deploy.yml](../../.github/workflows/deploy.yml) 会先跑类型检查、测试和组件库构建，全部通过后再构建 Storybook 并发布到 GitHub Pages；任何一步失败都不会发布。也可以在仓库的 Actions 页面手动触发。
+
 ## 现在有什么
 
 - `stories/` 下每个组件一个文件，覆盖变体、尺寸、状态；

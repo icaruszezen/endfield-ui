@@ -1,0 +1,65 @@
+name: 构建与部署
+
+# 推送到 main 后：类型检查、测试、构建组件库与 Storybook，
+# 再把 Storybook 发布到 GitHub Pages。
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# 同一时间只跑一次部署；排队中的旧任务会被新的推送顶掉，正在部署的不打断
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: 检查与构建
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      STORYBOOK_DISABLE_TELEMETRY: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      # pnpm 的版本取自根 package.json 的 packageManager 字段
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+
+      - name: 类型检查
+        run: pnpm typecheck
+
+      - name: 单元测试
+        run: pnpm test
+
+      - name: 构建组件库
+        run: pnpm build
+
+      - name: 构建 Storybook
+        run: pnpm build:docs
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: apps/docs/storybook-static
+
+  deploy:
+    name: 发布到 GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

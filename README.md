@@ -11,7 +11,7 @@
 | 设计风格文档 | 可读 | [docs/](docs/README.md) |
 | 设计令牌 | 草案，随组件一起使用 | [packages/ui/src/styles/theme.css](packages/ui/src/styles/theme.css) |
 | 组件库 | 第一期基础控件已实现，适配亮 / 暗主题；尚未发布 | [packages/ui/](packages/ui/README.md) |
-| 预览站 | Storybook，可并排对比亮暗两套 | [apps/docs/](apps/docs/README.md) |
+| 预览站 | Storybook，可并排对比亮暗两套；[在线预览](https://icaruszezen.github.io/endfield-ui/) | [apps/docs/](apps/docs/README.md) |
 
 第一期的控件：Button、IconButton、Tag / TagPair、Badge、SectionTitle、Tabs、Panel。
 
@@ -24,6 +24,8 @@ pnpm dev
 ```
 
 第二条命令启动 Storybook（`http://localhost:6106`）。其余命令见 [packages/ui/README.md](packages/ui/README.md)。
+
+每次推送到 `main`，[GitHub Actions](.github/workflows/deploy.yml) 会跑类型检查、测试和构建，并把 Storybook 发布到 <https://icaruszezen.github.io/endfield-ui/>。
 
 ## 这套风格是什么
 
