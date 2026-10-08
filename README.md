@@ -10,20 +10,23 @@
 | --- | --- | --- |
 | 设计风格文档 | 可读 | [docs/](docs/README.md) |
 | 设计令牌 | 草案，随组件一起使用 | [packages/ui/src/styles/theme.css](packages/ui/src/styles/theme.css) |
-| 组件库 | 基础、表单、反馈、展示与导航类控件已实现，适配亮 / 暗主题；尚未发布 | [packages/ui/](packages/ui/README.md) |
+| 组件库 | 基础、表单、反馈、展示、导航与母题类控件已实现，适配亮 / 暗主题；尚未发布 | [packages/ui/](packages/ui/README.md) |
 | 预览站 | Storybook，可并排对比亮暗两套；[在线预览](https://icaruszezen.github.io/endfield-ui/) | [apps/docs/](apps/docs/README.md) |
 
 已有的控件：
 
 | 类别 | 控件 |
 | --- | --- |
-| 基础 | Button、IconButton、Tag / TagPair、Badge、SectionTitle、Tabs、Panel |
+| 基础 | Button / ButtonGroup、IconButton、Tag / TagPair、Badge、Kbd、SectionTitle、Tabs、Panel |
 | 表单 | Field、Input、Textarea、Checkbox、Radio / RadioGroup、Switch、Stepper、FilterChip |
-| 反馈 | Alert、Progress / ProgressRing、Skeleton、EmptyState、Loader |
-| 展示 | Stat、List / ListRow、MediaCard、Timeline、ResourceChip、Countdown、Marquee、ScrollHint |
+| 反馈 | Alert、Progress / ProgressRing、Spinner、Skeleton、EmptyState、Loader、CompletionBanner、RecIndicator |
+| 展示 | Stat、List / ListRow、MediaCard、ItemSlot、Timeline、ResourceChip、Countdown、Marquee、ScrollHint |
 | 导航 | Breadcrumb、Pagination、Navigator、DashIndicator |
+| 母题 | CornerBrackets、Viewfinder、GhostText、Hatch、RegistrationStrip、TickRing、HazardStripe |
 
-还没做的（下拉、轻提示、弹窗等浮层，切角一类的母题控件，表格，侧轨等外壳）见 [组件规范](docs/design/components/README.md) 的各期清单。
+切角、斜楔、角括号、镂空字、斜纹这些母题同时是 Tailwind 工具类（`cut-tr`、`wedge-r`、`corner-brackets`…），见 [styles/README.md](packages/ui/src/styles/README.md)。
+
+还没做的（下拉、轻提示、弹窗等浮层，表格与数据行带，侧轨等外壳）见 [组件规范](docs/design/components/README.md) 的各期清单。
 
 ```bash
 pnpm install
@@ -147,7 +150,8 @@ import { Button, Field, Input, Tag } from "@endfield-ui/react";
 4. ~~第二期组件：表单字段、输入框、复选 / 单选 / 开关、进度、提示条，以及一批纯展示控件~~（下拉与轻提示挪到下一步）
 5. ~~不依赖浮层的一批：分页、胶囊导航器、时间线、媒体卡、步进器、进度环、跑马灯、滚动提示、加载页~~
 6. 文档站——组件预览（Storybook）已有；把设计文档渲染成站点还没做
-7. 母题工具类与依赖它的控件（切角页签、物品格、角括号）→ 浮层（先选定无障碍基元）→ 表格与外壳
+7. ~~母题工具类（切角、斜楔、角括号、镂空字、警示条纹）与依赖它的控件：楔形页签、物品格、菱形表单符号、完成态，以及七个装饰组件~~
+8. 浮层（先选定无障碍基元）→ 表格与外壳
 
 各期的组件清单见 [组件规范](docs/design/components/README.md)。
 

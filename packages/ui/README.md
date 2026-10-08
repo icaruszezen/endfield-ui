@@ -6,11 +6,12 @@
 
 | 类别 | 控件 |
 | --- | --- |
-| 基础 | Button、IconButton、Tag / TagPair、Badge、SectionTitle、Tabs、Panel |
+| 基础 | Button / ButtonGroup、IconButton、Tag / TagPair、Badge、Kbd、SectionTitle、Tabs、Panel |
 | 表单 | Field、Input、Textarea、Checkbox、Radio / RadioGroup、Switch、Stepper、FilterChip |
-| 反馈 | Alert、Progress / ProgressRing、Skeleton、EmptyState、Loader |
-| 展示 | Stat、List / ListRow、MediaCard、Timeline、ResourceChip、Countdown、Marquee、ScrollHint |
+| 反馈 | Alert、Progress / ProgressRing、Spinner、Skeleton、EmptyState、Loader、CompletionBanner、RecIndicator |
+| 展示 | Stat、List / ListRow、MediaCard、ItemSlot、Timeline、ResourceChip、Countdown、Marquee、ScrollHint |
 | 导航 | Breadcrumb、Pagination、Navigator、DashIndicator |
+| 母题 | CornerBrackets、Viewfinder、GhostText、Hatch、RegistrationStrip、TickRing、HazardStripe |
 
 包还没有发布到 npm，目前只在本仓库的工作区里使用。
 
@@ -124,6 +125,66 @@ import { Loader } from "@endfield-ui/react";
 ```
 
 不知道真实进度就不传 `value`。只想盖住页面的一块区域时加 `fullscreen={false}`，并让那块区域带 `relative` 与 `overflow-hidden`。
+
+### 游戏风格的控件
+
+物品格的宽度跟着所在的网格走。格子里只有图标，`name` 是给读屏的名称；选中是四角的角括号，画在格子之外 4px，所以网格四周要留出这段空隙：
+
+```tsx
+import { ItemSlot, Tab, TabList, Tabs } from "@endfield-ui/react";
+
+<Tabs defaultValue="supply" variant="wedge">
+  <TabList aria-label="仓库分类">
+    <Tab value="supply">物资</Tab>
+    <Tab value="gear">装备</Tab>
+  </TabList>
+</Tabs>
+
+<div className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-2 p-1">
+  <ItemSlot
+    name="合金锭"
+    count={128}
+    rarity={2}
+    selected={selected === "alloy"}
+    onClick={() => setSelected("alloy")}
+  >
+    <OreIcon size={32} />
+  </ItemSlot>
+</div>
+```
+
+复选与单选可以整体换成菱形符号。它不是组件上的属性，而是和主题一样写在 `<html>`（或局部容器）上的开关，全库选一套：
+
+```html
+<html data-theme="dark" data-choice="diamond">
+```
+
+菱形方案下复选和单选长得一样，"能选几个"要靠分组标题讲清楚。
+
+### 母题
+
+镂空巨字、斜纹、注册色条、刻度圆环、取景角、警示条纹、角括号各有一个组件。除了角括号（它表示选中），其余都是纯装饰：对读屏隐藏、不挡点击，高对比模式与打印时不显示。
+
+```tsx
+import { GhostText, TickRing, Viewfinder } from "@endfield-ui/react";
+
+<section className="relative overflow-clip">
+  <GhostText className="absolute -right-6 -bottom-5">//Archive</GhostText>
+  <div className="relative">…</div>
+</section>
+
+<Viewfinder data-theme="dark" crosshair readouts={{ bottomRight: "16 : 9" }}>
+  <img src={scene} alt="谷地北侧的地形" />
+</Viewfinder>
+
+<TickRing size={200} spin>
+  <Model />
+</TickRing>
+```
+
+叠在画面上的东西（取景角、刻度圆环、录制指示）颜色跟的是**画面**，不是页面：画面是深色的就在它上面加 `data-theme="dark"`。
+
+用 Tailwind 的项目也可以直接用工具类（`cut-tr`、`wedge-r`、`corner-brackets`、`ghost-hatch`、`hatch`、`hazard`），见 [styles/README.md](src/styles/README.md)。这些母题最容易用过头，什么时候该用见 [母题文档](../../docs/design/elements/corner-and-wedge.md)。
 
 ### 主题
 

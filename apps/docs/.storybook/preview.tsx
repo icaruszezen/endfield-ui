@@ -23,7 +23,9 @@ function ThemeFrame({
   }, [mode]);
 
   if (mode !== "both") {
-    return <div className="p-6">{children}</div>;
+    // 文字色显式写在外壳上，不只靠 body 继承：主题是挂载后才写到 <html> 上的，
+    // 无头浏览器截图时继承来的颜色偶尔停在切换前
+    return <div className="p-6 text-ink">{children}</div>;
   }
 
   return (

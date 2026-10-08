@@ -1,6 +1,6 @@
 # 组件规范
 
-把基础规范落到具体控件上：每个组件长什么样、有哪些状态、多大。这里是 [`packages/ui`](../../../packages/ui/README.md) 的设计输入。**第一期、第二期，以及后面几期里不依赖浮层与切角的控件已经实现**，各期清单里逐项标了状态；没标"已实现"的还只有规范。
+把基础规范落到具体控件上：每个组件长什么样、有哪些状态、多大。这里是 [`packages/ui`](../../../packages/ui/README.md) 的设计输入。**第一期、第二期、第五期，以及第三、第四期里不依赖浮层的控件已经实现**，各期清单里逐项标了状态；没标"已实现"的还只有规范。
 
 ## 怎么读
 
@@ -93,10 +93,10 @@
 | IconButton | [按钮](button.md) | 圆形与方形两种 |
 | Tag / TagPair / Badge | [数据展示](data-display.md) | 名值对、类型标签、日期块、通知角标 |
 | SectionTitle | [分节标题](../elements/section-title.md) | 标准、色带、竖排三种形态，外加一个简化版 |
-| Tabs | [导航](navigation.md) | 激活时文字让位给箭头 |
+| Tabs | [导航](navigation.md) | 激活时文字让位给箭头；另有胶囊、楔形两种变体 |
 | Panel | [卡片](card.md) | 直角、1px 线、无阴影 |
 
-这一期当时没做、后来补上的：列表行、媒体卡、胶囊族的筛选 / 资源 / 倒计时徽章、增益签、日期块的小红角。仍然没做的：物品格（[卡片](card.md)）、页签的 `wedge` 变体——都要等切角工具类。
+这一期当时没做、后来补上的：按钮组、列表行、媒体卡、物品格、胶囊族的筛选 / 资源 / 倒计时徽章、增益签、日期块的小红角、页签的 `wedge` 变体。
 
 ### 第二期：表单与反馈
 
@@ -108,12 +108,12 @@
 | Input / Textarea | [表单](form.md) | 已实现（凹陷与描边两种） |
 | Checkbox / Radio / Switch | [表单](form.md) | 已实现 |
 | FilterChip | [数据展示](data-display.md) | 已实现 |
-| Progress / ProgressRing | [反馈](feedback.md) | 已实现 |
+| Progress / ProgressRing / Spinner | [反馈](feedback.md) | 已实现 |
 | Alert | [反馈](feedback.md) | 已实现 |
 | Select | [表单](form.md) | 未做，挪到第三期 |
 | Toast | [反馈](feedback.md) | 未做，挪到第三期 |
 | Stepper、双标签开关 | [表单](form.md) | 已实现 |
-| 菱形表单符号（方案 B） | [表单](form.md) | 未做，和母题组件一起做 |
+| 菱形表单符号（方案 B） | [表单](form.md) | 已实现（全局开关 `data-choice="diamond"`） |
 
 Select 的面板和 Toast 的容器都是浮层，需要定位与焦点管理。它们和第三期的浮层共用同一套无障碍基元，所以等基元选定后一起做。
 
@@ -143,17 +143,26 @@ Select 的面板和 Toast 的容器都是浮层，需要定位与焦点管理。
 | ResourceChip / Countdown | [数据展示](data-display.md) | 已实现 |
 | List / ListRow | [卡片](card.md) | 已实现 |
 | Timeline | [数据展示](data-display.md) | 已实现 |
-| ItemSlot | [卡片](card.md) | |
+| ItemSlot | [卡片](card.md) | 已实现 |
 | EmptyState / Skeleton | [反馈](feedback.md) | 已实现 |
 | Loader（加载页） | [反馈](feedback.md) | 已实现 |
+| CompletionBanner、列表行的完成态 | [反馈](feedback.md) | 已实现 |
 
-### 第五期：母题组件
+### 第五期：母题组件（已实现）
 
-把 [母题](../elements/corner-and-wedge.md) 做成可复用的装饰组件：GhostText、Hatch、RegistrationStrip、TickRing、CornerBrackets、Viewfinder、Marquee、ScrollHint。
+把 [母题](../elements/corner-and-wedge.md) 做成可复用的装饰组件：
 
-Marquee 与 ScrollHint 已实现：它们只用到现成的动画，不依赖切角。其余几个要先把切角、角括号落进 [utilities.css](../../../packages/ui/src/styles/utilities.css)。
+| 组件 | 规范 |
+| --- | --- |
+| GhostText | [镂空字与微文字](../elements/ghost-and-micro-text.md) |
+| Hatch、HazardStripe、RegistrationStrip | [斜纹与色条](../elements/stripes-and-strips.md) |
+| CornerBrackets | [括号与标记](../elements/brackets-and-markers.md) |
+| Viewfinder、TickRing、ScrollHint、RecIndicator、Kbd | [测绘叠层](../elements/hud-overlays.md) |
+| Marquee | [动效](../foundations/motion.md) |
 
-这些放在最后，是因为它们最容易被滥用。先有扎实的基础组件，再提供装饰。
+切角、斜楔、角括号、镂空字、斜纹、警示条纹同时是 [utilities.css](../../../packages/ui/src/styles/utilities.css) 里的工具类；切角与斜楔只有工具类，没有组件——"形状是变体的一部分"，谁能切角由控件自己决定（目前是楔形页签和物品格的 `NEW` 签）。
+
+这些放在最后，是因为它们最容易被滥用。先有扎实的基础组件，再提供装饰。底纹（点阵、工程网格、等高线）还没有落成工具类。
 
 ## 不做什么
 
