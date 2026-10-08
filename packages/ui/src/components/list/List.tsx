@@ -1,14 +1,43 @@
-import type { ComponentProps, MouseEvent, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  type ComponentProps,
+  type MouseEvent,
+  type ReactNode,
+} from "react";
 import { cn } from "../../lib/cn";
 import { focusRingInset } from "../../lib/focus-ring";
 import { GhostText } from "../ghost-text/GhostText";
+import { bandCanvas, bandGap, bandRow } from "./band-style";
 
-export type ListProps = ComponentProps<"ul">;
+export type ListVariant = "plain" | "band";
 
-/** 列表行的容器：行间一条 1px 的线，外圈不描边。里面只放 `ListRow`。 */
-export function List({ className, ...props }: ListProps) {
+export type ListProps = ComponentProps<"ul"> & {
+  /**
+   * - `plain` 行间一条 1px 的线，默认；
+   * - `band` 浅色画布上一条条固定深色的行，行间留缝；选中行整行反转成白底墨字。
+   */
+  variant?: ListVariant;
+};
+
+const ListVariantContext = createContext<ListVariant>("plain");
+
+/** 列表行的容器，外圈不描边。里面只放 `ListRow`。 */
+export function List({ variant = "plain", className, ...props }: ListProps) {
   return (
-    <ul {...props} className={cn("divide-y divide-line text-ink", className)} />
+    <ListVariantContext value={variant}>
+      <ul
+        {...props}
+        data-variant={variant}
+        className={cn(
+          "text-ink",
+          variant === "band"
+            ? ["flex flex-col", bandCanvas, bandGap]
+            : "divide-y divide-line",
+          className,
+        )}
+      />
+    </ListVariantContext>
   );
 }
 
@@ -21,7 +50,7 @@ export type ListRowProps = Omit<ComponentProps<"li">, "onClick"> & {
   end?: ReactNode;
   /** 标题下的一行次要说明 */
   description?: ReactNode;
-  /** 选中：浅灰底 + 左缘黄条 + 标题加粗 */
+  /** 选中：浅灰底 + 左缘黄条 + 标题加粗；在 `band` 列表里是整行反转成白底墨字 */
   selected?: boolean;
   /** 已完成：整行降一档对比，行尾数值前多一个低对比的描边词，读屏多读一句"已完成" */
   completed?: boolean;
@@ -70,6 +99,7 @@ export function ListRow({
   children,
   ...props
 }: ListRowProps) {
+  const band = useContext(ListVariantContext) === "band";
   const isLink = href !== undefined;
   const isButton = !isLink && onClick !== undefined;
   const interactive = (isLink || isButton) && !disabled;
@@ -79,11 +109,18 @@ export function ListRow({
     sizeClass[size],
     // 完成：降低对比但保持可读
     completed && "text-ink-secondary",
+    // 行带：选中靠整行换主题来表达（见下面的 data-theme），这里只管底和边线
+    band && bandRow,
     selected &&
+      !band &&
       "bg-surface-muted before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-action before:content-['']",
     interactive && [
       "transition-colors duration-(--duration-fast) ease-standard",
-      !selected && "hover:bg-ink/5 active:bg-ink/10",
+      !selected &&
+        (band
+          ? // 行带的底是实色，悬停换成提亮一档的实色；半透明的底会把画布透出来
+            "hover:bg-surface-raised active:bg-surface-muted"
+          : "hover:bg-ink/5 active:bg-ink/10"),
       focusRingInset,
     ],
     disabled && "cursor-not-allowed text-ink-disabled",
@@ -173,6 +210,9 @@ export function ListRow({
 
   return (
     <li
+      // 行带是一块固定的深色，选中的那一行反过来是固定的浅色：
+      // 整行换主题，里面的次要文字、焦点环跟着取值
+      data-theme={band ? (selected ? "light" : "dark") : undefined}
       {...props}
       data-selected={selected ? "" : undefined}
       data-completed={completed ? "" : undefined}

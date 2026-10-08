@@ -131,3 +131,52 @@ export const Completed: Story = {
     </List>
   ),
 };
+
+function BandSelectable() {
+  const [current, setCurrent] = useState("b");
+  return (
+    <List variant="band" aria-label="采样点">
+      {samples.map((sample) => (
+        <ListRow
+          key={sample.id}
+          selected={sample.id === current}
+          onClick={() => setCurrent(sample.id)}
+          start={
+            <Tag variant="inverse" size="sm" numeric>
+              {sample.date}
+            </Tag>
+          }
+          end={sample.depth}
+          description={`// 采样　2026.${sample.date}`}
+        >
+          {sample.name}
+        </ListRow>
+      ))}
+    </List>
+  );
+}
+
+export const Band: Story = {
+  name: "深色行带：选中行反转成白底",
+  render: () => <BandSelectable />,
+};
+
+export const BandStates: Story = {
+  name: "深色行带：链接、禁用、完成与紧凑",
+  render: () => (
+    <List variant="band">
+      <ListRow href="#north" end="42.5 m">
+        管廊北段
+      </ListRow>
+      <ListRow href="#layer" end="118.0 m" disabled>
+        第三岩层（封闭中）
+      </ListRow>
+      <ListRow completed end="9.2 m">
+        旧输料口
+      </ListRow>
+      <ListRow size="sm" end="0.6 m">
+        沉降观测点
+      </ListRow>
+    </List>
+  ),
+};

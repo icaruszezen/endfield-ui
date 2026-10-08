@@ -10,7 +10,7 @@
 | 表单 | Field、Input、Textarea、Select、Checkbox、Radio / RadioGroup、Switch、Stepper、FilterChip |
 | 反馈 | Alert、Toast、Progress / ProgressRing、Spinner、Skeleton、EmptyState、Loader、CompletionBanner、RecIndicator |
 | 浮层 | Tooltip、Popover、Dialog、Drawer、DropdownMenu、FlyoutBar |
-| 展示 | Stat、List / ListRow、MediaCard、ItemSlot、Timeline、Term、ResourceChip、Countdown、Marquee、ScrollHint |
+| 展示 | Stat、Sparkline、DataRowList / DataRow、List / ListRow、MediaCard、ItemSlot、Timeline、Term、ResourceChip、Countdown、Marquee、ScrollHint |
 | 导航 | Breadcrumb、Pagination、Navigator、DashIndicator |
 | 母题 | CornerBrackets、Viewfinder、GhostText、Hatch、Texture、RegistrationStrip、TickRing、HazardStripe |
 
@@ -274,6 +274,33 @@ import { ItemSlot, Tab, TabList, Tabs } from "@endfield-ui/react";
 ```
 
 菱形方案下复选和单选长得一样，"能选几个"要靠分组标题讲清楚。
+
+数据行带是游戏里数据面板的样子：浅色画布上一条条深色的行。语义是一张表格，列由 `columns` 决定：
+
+```tsx
+import { DataRow, DataRowList } from "@endfield-ui/react";
+
+<DataRowList
+  label="本周收支"
+  columns={{ name: "项目", trend: "走势", value: "当前", reference: "理论" }}
+>
+  <DataRow
+    name="钢材"
+    categoryColor="var(--color-special)"
+    favorite={favorites.has("steel")}
+    onFavoriteChange={(next) => toggle("steel", next)}
+    series={[42, 58, 51, 77, 69, 88]}
+    value="+128"
+    tone="info"
+    reference="+140"
+  />
+</DataRowList>
+```
+
+- `tone` 是当前值的含义：`info` 产出、`accent` 消耗、`danger` 超支。正负号连同数值一起传，颜色之外还要有符号。
+- `series` 画成行内的小型面积图；这种图也可以单独用：`<Sparkline data variant tone />`，撑满给它的盒子。
+- 不给 `trend` 或 `reference` 的列名就没有那一列；容器变窄时也是先收这两列。
+- 普通的列表要这种深色行带时写 `<List variant="band">`，选中行整行反转成白底墨字。
 
 ### 母题
 

@@ -14,6 +14,9 @@ const pages = [
   "控件-tooltip-文字提示--docs",
   "控件-popover-气泡卡片--docs",
   "控件-flyoutbar-展开条--docs",
+  "控件-datarow-数据行带--docs",
+  "控件-sparkline-小型面积图--docs",
+  "控件-list-列表行--docs",
   "母题-texture-底纹--docs",
 ];
 

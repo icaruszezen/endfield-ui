@@ -16,6 +16,64 @@ describe("List", () => {
   });
 });
 
+describe("List variant=band", () => {
+  it("列表铺一块画布，每一行是一块固定的深色，行间不画线", () => {
+    render(
+      <List variant="band">
+        <ListRow>甲</ListRow>
+        <ListRow>乙</ListRow>
+      </List>,
+    );
+    const list = screen.getByRole("list");
+    expect(list).toHaveAttribute("data-variant", "band");
+    expect(list).toHaveClass("bg-surface-sunken", "gap-1.5");
+    expect(list).not.toHaveClass("divide-y");
+    for (const row of screen.getAllByRole("listitem")) {
+      expect(row).toHaveAttribute("data-theme", "dark");
+      expect(row.firstElementChild).toHaveClass("bg-surface", "border-line");
+    }
+  });
+
+  it("选中行整行反转成浅色，不画黄色左缘条", () => {
+    render(
+      <List variant="band">
+        <ListRow onClick={() => {}} selected>
+          甲
+        </ListRow>
+        <ListRow onClick={() => {}} selected={false}>
+          乙
+        </ListRow>
+      </List>,
+    );
+    const [selected, other] = screen.getAllByRole("listitem");
+    expect(selected).toHaveAttribute("data-theme", "light");
+    expect(other).toHaveAttribute("data-theme", "dark");
+
+    const button = screen.getByRole("button", { name: "甲" });
+    expect(button).toHaveAttribute("aria-pressed", "true");
+    expect(button).not.toHaveClass("before:bg-action", "bg-surface-muted");
+    expect(screen.getByText("甲")).toHaveClass("font-bold");
+    // 行带的底是实色，悬停换成另一档实色；选中行悬停不变
+    expect(screen.getByRole("button", { name: "乙" })).toHaveClass(
+      "hover:bg-surface-raised",
+    );
+    expect(button).not.toHaveClass("hover:bg-surface-raised");
+  });
+
+  it("默认的 plain 不受影响", () => {
+    render(
+      <List>
+        <ListRow selected>甲</ListRow>
+      </List>,
+    );
+    expect(screen.getByRole("list")).toHaveClass("divide-y");
+    expect(screen.getByRole("listitem")).not.toHaveAttribute("data-theme");
+    expect(screen.getByRole("listitem").firstElementChild).toHaveClass(
+      "bg-surface-muted",
+    );
+  });
+});
+
 describe("ListRow", () => {
   it("默认是静态行，没有可点击元素", () => {
     render(

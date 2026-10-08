@@ -21,7 +21,7 @@
 | 表单 | Field、Input、Textarea、Select、Checkbox、Radio / RadioGroup、Switch、Stepper、FilterChip |
 | 反馈 | Alert、Toast、Progress / ProgressRing、Spinner、Skeleton、EmptyState、Loader、CompletionBanner、RecIndicator |
 | 浮层 | Tooltip、Popover、Dialog、Drawer、DropdownMenu、FlyoutBar |
-| 展示 | Stat、List / ListRow、MediaCard、ItemSlot、Timeline、Term、ResourceChip、Countdown、Marquee、ScrollHint |
+| 展示 | Stat、Sparkline、DataRowList / DataRow、List / ListRow、MediaCard、ItemSlot、Timeline、Term、ResourceChip、Countdown、Marquee、ScrollHint |
 | 导航 | Breadcrumb、Pagination、Navigator、DashIndicator |
 | 母题 | CornerBrackets、Viewfinder、GhostText、Hatch、Texture、RegistrationStrip、TickRing、HazardStripe |
 
