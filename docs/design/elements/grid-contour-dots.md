@@ -12,6 +12,18 @@
 
 一个视口选一种。
 
+## 实现状态
+
+三种都已经是 [utilities.css](../../../packages/ui/src/styles/utilities.css) 里的工具类，另有一个铺满父容器的装饰组件 `<Texture variant="dots" | "grid" | "contour">`。
+
+| 工具类 | 可调的变量 | 默认 |
+| --- | --- | --- |
+| `dot-grid` | `--dot-color`、`--dot-size`、`--dot-gap` | 墨色 10%、1px、16px |
+| `blueprint-grid` | `--grid-color`、`--grid-gap` | 墨色 6%、72px |
+| `contour` | `--contour-color`、`--contour-size`、`--contour-position`、`--contour-image` | 墨色 18%、30rem、右下角、内置的一张原创曲线 |
+
+颜色的默认值都是"墨色的一个比例"（`color-mix(in srgb, var(--ef-ink) N%, transparent)`），跟着主题走：亮色下是深色的点线，暗色下自动变成浅色，使用方不用再换。
+
 ## 点阵
 
 官网弹窗的底：`#FAFAFA` 上叠一层点阵图，方格 1.5em，8% 不透明度（实测）。
@@ -26,7 +38,8 @@
 @utility dot-grid {
   background-image: radial-gradient(
     circle,
-    var(--dot-color, rgb(0 0 0 / 0.1)) var(--dot-size, 1px),
+    var(--dot-color, color-mix(in srgb, var(--ef-ink) 10%, transparent))
+      var(--dot-size, 1px),
     transparent calc(var(--dot-size, 1px) + 0.5px)
   );
   background-size: var(--dot-gap, 16px) var(--dot-gap, 16px);
@@ -35,7 +48,7 @@
 
 用在**面**上（弹窗内容区、空状态的背景），不用在窄条上——窄条用斜纹。
 
-暗色主题下把 `--dot-color` 换成白色 10% 左右。
+`--dot-size` 是点的半径，默认 1px，即点径 2px。
 
 ## 工程网格
 
@@ -49,14 +62,15 @@
 
 ```css
 @utility blueprint-grid {
+  --_g: var(--grid-color, color-mix(in srgb, var(--ef-ink) 6%, transparent));
   background-image:
-    linear-gradient(var(--grid-color, rgb(0 0 0 / 0.06)) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-color, rgb(0 0 0 / 0.06)) 1px, transparent 1px);
+    linear-gradient(var(--_g) 1px, transparent 1px),
+    linear-gradient(90deg, var(--_g) 1px, transparent 1px);
   background-size: var(--grid-gap, 72px) var(--grid-gap, 72px);
 }
 ```
 
-交点的十字用一张小 SVG 平铺，或者只在关键位置手工放几个，不必每个交点都有。
+交点的十字用一张小 SVG 平铺，或者只在关键位置手工放几个，不必每个交点都有。工具类只画线，不带十字。
 
 规则：
 
@@ -81,6 +95,13 @@
 - 手绘几圈不规则的闭合贝塞尔曲线，由内向外逐圈放大并微调形状；
 - 或用噪声函数生成高度场再取等值线（社区项目 dsh-theme-endfield 做了一个可动的版本，线条会缓慢流动）。
 
+实现：
+
+- 内置的是八圈闭合曲线：用同一组谐波按半径逐圈放大，圆心逐圈偏一点，所以圈距不均匀、一侧贴近。曲线是自己生成的，不描摹任何现成的地形图。
+- 它贴在容器的右下角、被边缘截断，朝左上方淡出，不会在容器中间留下一条生硬的断口。要放到别的角，把这一层翻转（`-scale-x-100`、`-scale-y-100`）。
+- 画法是**遮罩**：曲线是 `mask-image`，颜色由 `background-color` 给，这样才能跟着主题变色。代价是它会把元素自己的内容一起遮掉——`contour` 只能用在空的装饰层上，不能像另外两种那样直接写在内容容器上。
+- 需要别的形状时覆盖 `--contour-image`。
+
 规则：
 
 - 等高线与真实的地图内容同时出现时，等高线要更淡，并且不能和路径、区域边界混淆。
@@ -103,6 +124,8 @@
   <div class="relative bg-surface-raised p-6">垫了实色底的内容</div>
 </section>
 ```
+
+用组件写是 `<Texture />`：它已经带上 `aria-hidden`、不挡点击、高对比模式与打印时隐藏，默认铺满最近的定位祖先。
 
 ## 宜 / 忌
 

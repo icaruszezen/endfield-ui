@@ -1,4 +1,5 @@
 import {
+  BracketTitle,
   Breadcrumb,
   BreadcrumbItem,
   Button,
@@ -163,15 +164,9 @@ function Depot() {
           <BreadcrumbItem current>仓库</BreadcrumbItem>
         </Breadcrumb>
         <div className="max-w-md">
-          <h1 className="flex items-baseline gap-[0.4em] text-3xl">
-            <span aria-hidden="true" className="font-medium text-ink-tertiary">
-              [
-            </span>
-            <span className="font-bold">仓库</span>
-            <span aria-hidden="true" className="font-medium text-ink-tertiary">
-              ]
-            </span>
-          </h1>
+          <BracketTitle level={1} className="text-3xl">
+            仓库
+          </BracketTitle>
           <RegistrationStrip rule className="mt-3" />
         </div>
       </header>

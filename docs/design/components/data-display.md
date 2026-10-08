@@ -208,6 +208,18 @@
 - 亮色表面上用各语义色的文字档（`danger`、`success`、`warning`、`info`、`accent-ink`），不要直接用填充色；
 - 着色的词同时加粗或配图标，不只靠颜色。
 
+已经做成组件 `<Term tone icon>`，渲染成 `<strong>`：
+
+| `tone` | 颜色 | 建议的含义 |
+| --- | --- | --- |
+| `accent`（默认） | `accent-ink` | 数值、一般的强调 |
+| `info` | `info` | 中性的机制 |
+| `success` | `success` | 增益、获得 |
+| `warning` | `warning` | 消耗、代价 |
+| `danger` | `danger` | 伤害、减益 |
+
+"建议的含义"只是起点：每个产品自己定一张表，然后全产品只用这一张。这些都是页面表面上的文字档颜色，压在反转块上不够亮，不要用在那里。
+
 ## 行为与无障碍
 
 - 表格用语义化的 `<table>`；表头用 `<th scope>`；排序状态用 `aria-sort`。

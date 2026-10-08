@@ -49,11 +49,15 @@
 | `wedge`、`wedge-l`、`wedge-r` | 两侧 / 单侧斜切 | `--wedge` |
 | `corner-brackets` | 四角的 L 形短线，画在 `::after` 上 | `--bracket-color`、`--bracket-arm`、`--bracket-width`、`--bracket-offset` |
 | `ghost-hatch`、`ghost-outline` | 镂空字的斜纹与描边两种画法 | `--ghost-ink` |
+| `dot-grid` | 点阵底纹 | `--dot-color`、`--dot-size`、`--dot-gap` |
+| `blueprint-grid` | 工程网格底纹 | `--grid-color`、`--grid-gap` |
+| `contour` | 等高线底纹，贴在右下角、朝左上淡出 | `--contour-color`、`--contour-size`、`--contour-position`、`--contour-image` |
 | `marker-bar`、`marker-arrow` | 按钮里竖条变箭头的两个形状 | `--marker-bar` |
 
-- 跟着主题走的颜色（斜纹、角括号、镂空字）默认取 `--ef-ink`；警示条纹和斜纹的"中"档有意不随主题变。
+- 跟着主题走的颜色（斜纹、角括号、镂空字、三种底纹）默认取 `--ef-ink`；警示条纹和斜纹的"中"档有意不随主题变。
 - `cut-*` 与 `wedge*` 用的是 `clip-path`，会把焦点环一起裁掉。可聚焦的元素把它们写在伪元素上：`before:cut-tr before:bg-action`。
 - `corner-brackets` 不替宿主设 `position`，宿主自己要是 `relative` 或 `absolute`。
+- `contour` 是遮罩（`mask-image`），会把元素自己的内容一起遮掉：只能写在空的装饰层上。`dot-grid` 和 `blueprint-grid` 是背景，没有这个限制，但同样建议画在独立的装饰层上。
 - 镂空字不叫 `text-hatch`：`text-*` 是字号和文字颜色的名字空间，`cn()` 合并类名时会把它当成颜色。
 
 这些类只画形状。什么东西可以切角、哪里能放斜纹，见 [docs/design/elements](../../../../docs/design/elements/corner-and-wedge.md) 各篇的"什么时候用"。预编译的 `styles.css` 里只有组件自己用到的那几个；不用 Tailwind 的项目用对应的装饰组件。

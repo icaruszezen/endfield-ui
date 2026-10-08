@@ -147,6 +147,7 @@ Select 的面板和 Toast 的容器都是浮层，需要定位与焦点管理。
 | EmptyState / Skeleton | [反馈](feedback.md) | 已实现 |
 | Loader（加载页） | [反馈](feedback.md) | 已实现 |
 | CompletionBanner、列表行的完成态 | [反馈](feedback.md) | 已实现 |
+| Term（富文本的语义着色词） | [数据展示](data-display.md) | 已实现 |
 
 ### 第五期：母题组件（已实现）
 
@@ -159,10 +160,12 @@ Select 的面板和 Toast 的容器都是浮层，需要定位与焦点管理。
 | CornerBrackets | [括号与标记](../elements/brackets-and-markers.md) |
 | Viewfinder、TickRing、ScrollHint、RecIndicator、Kbd | [测绘叠层](../elements/hud-overlays.md) |
 | Marquee | [动效](../foundations/motion.md) |
+| Texture（点阵、工程网格、等高线） | [网格、等高线、点阵](../elements/grid-contour-dots.md) |
+| BracketTitle | [括号与标记](../elements/brackets-and-markers.md) |
 
-切角、斜楔、角括号、镂空字、斜纹、警示条纹同时是 [utilities.css](../../../packages/ui/src/styles/utilities.css) 里的工具类；切角与斜楔只有工具类，没有组件——"形状是变体的一部分"，谁能切角由控件自己决定（目前是楔形页签和物品格的 `NEW` 签）。
+切角、斜楔、角括号、镂空字、斜纹、警示条纹、三种底纹同时是 [utilities.css](../../../packages/ui/src/styles/utilities.css) 里的工具类；切角与斜楔只有工具类，没有组件——"形状是变体的一部分"，谁能切角由控件自己决定（目前是楔形页签和物品格的 `NEW` 签）。
 
-这些放在最后，是因为它们最容易被滥用。先有扎实的基础组件，再提供装饰。底纹（点阵、工程网格、等高线）还没有落成工具类。
+这些放在最后，是因为它们最容易被滥用。先有扎实的基础组件，再提供装饰。
 
 ## 不做什么
 

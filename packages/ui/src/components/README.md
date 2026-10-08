@@ -10,6 +10,8 @@
 | `countdown/` | `Countdown` | [数据展示](../../../../docs/design/components/data-display.md) |
 | `stat/` | `Stat` | [数据展示](../../../../docs/design/components/data-display.md) |
 | `section-title/` | `SectionTitle` | [分节标题](../../../../docs/design/elements/section-title.md) |
+| `bracket-title/` | `BracketTitle` | [括号与标记](../../../../docs/design/elements/brackets-and-markers.md) |
+| `term/` | `Term` | [数据展示](../../../../docs/design/components/data-display.md) |
 | `kbd/` | `Kbd` | [测绘叠层](../../../../docs/design/elements/hud-overlays.md) |
 | `tabs/` | `Tabs`、`TabList`、`Tab`、`TabPanel`（格子、胶囊、楔形三种） | [导航](../../../../docs/design/components/navigation.md) |
 | `breadcrumb/` | `Breadcrumb`、`BreadcrumbItem` | [导航](../../../../docs/design/components/navigation.md) |
@@ -45,6 +47,7 @@
 | `hatch/` | `Hatch` | [斜纹与色条](../../../../docs/design/elements/stripes-and-strips.md) |
 | `hazard-stripe/` | `HazardStripe` | [斜纹与色条](../../../../docs/design/elements/stripes-and-strips.md) |
 | `registration-strip/` | `RegistrationStrip` | [斜纹与色条](../../../../docs/design/elements/stripes-and-strips.md) |
+| `texture/` | `Texture`（点阵、工程网格、等高线） | [网格、等高线、点阵](../../../../docs/design/elements/grid-contour-dots.md) |
 
 几个目录里有不对外导出的样式文件，供外观相同的控件共用，免得两边走样：
 

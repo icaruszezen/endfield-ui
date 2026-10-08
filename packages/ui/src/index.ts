@@ -1,5 +1,6 @@
 export * from "./components/alert";
 export * from "./components/badge";
+export * from "./components/bracket-title";
 export * from "./components/breadcrumb";
 export * from "./components/button";
 export * from "./components/checkbox";
@@ -37,7 +38,9 @@ export * from "./components/stepper";
 export * from "./components/switch";
 export * from "./components/tabs";
 export * from "./components/tag";
+export * from "./components/term";
 export * from "./components/textarea";
+export * from "./components/texture";
 export * from "./components/tick-ring";
 export * from "./components/timeline";
 export * from "./components/viewfinder";
