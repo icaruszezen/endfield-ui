@@ -81,7 +81,8 @@ export function MediaCard({
         )}
       </div>
       {(tag !== undefined || hasMeta) && (
-        <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-secondary">
+        // 行高按类型标签的高度留足：一排卡片里有的带标签、有的不带，标题仍然对齐
+        <p className="mt-3 flex min-h-5 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-secondary">
           {tag}
           {hasMeta && (
             <span className="font-tech">
