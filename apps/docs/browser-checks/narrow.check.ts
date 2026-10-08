@@ -58,6 +58,8 @@ const stories = [
   "控件-combobox-组合框--in-field",
   "控件-combobox-组合框--multiple",
   "控件-itemslot-物品格--grid",
+  "控件-table-表格--playground",
+  "控件-table-表格--rich-cells",
   "控件-brackettitle-方括号标题--sizes",
   "母题-texture-底纹--variants",
 ];

@@ -45,6 +45,7 @@ export * from "./components/spinner";
 export * from "./components/stat";
 export * from "./components/stepper";
 export * from "./components/switch";
+export * from "./components/table";
 export * from "./components/tabs";
 export * from "./components/tag";
 export * from "./components/term";

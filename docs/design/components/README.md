@@ -159,7 +159,7 @@ Select 的面板和 Toast 的容器都是浮层，需要定位与焦点管理，
 
 | 组件 | 规范 | 状态 |
 | --- | --- | --- |
-| Table | [数据展示](data-display.md) | 下一步 |
+| Table | [数据展示](data-display.md) | 已实现 |
 | DataRow | [数据展示](data-display.md) | 已实现（`DataRowList` + `DataRow`） |
 | Sparkline（行内的小型面积图） | [数据展示](data-display.md) | 已实现 |
 | Stat | [数据展示](data-display.md) | 已实现 |

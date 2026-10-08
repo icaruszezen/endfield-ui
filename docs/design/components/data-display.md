@@ -182,7 +182,7 @@
 | 表头 | `surface-inverse` 底、`ink-inverse` 文字，`text-sm font-medium`，高 28 – 32px |
 | 行高 | 36 – 44px |
 | 行分隔 | 1px `line`；不画竖线 |
-| 悬停行 | `surface-sunken` |
+| 悬停行 | `ink` 叠 5%（`hover:bg-ink/5`） |
 | 选中行 | `surface-muted` + 左缘 4px `action` 色条 |
 | 数字列 | 右对齐，`font-tech`，等宽 |
 | 文字列 | 左对齐 |
@@ -194,6 +194,54 @@
 - 窄屏：横向滚动并冻结首列；或把每行改成一张属性卡。
 
 浅表头的变体：`surface-muted` 底、`ink` 文字——用在页面已经有很多深色块的时候。
+
+悬停行原先写的是 `surface-sunken`，改成了全库统一的 `ink` 5%：`surface-sunken` 在暗色主题下是纯黑，悬停会变暗而选中变亮，方向相反（页签、列表行是同一条理由）。
+
+### 实现
+
+包一层原生 `<table>`，组合着用：
+
+```tsx
+<Table label="运输批次">
+  <TableHead>
+    <TableRow>
+      <TableHeaderCell>批次</TableHeaderCell>
+      <TableHeaderCell numeric sort={direction} onSort={setDirection}>
+        件数
+      </TableHeaderCell>
+    </TableRow>
+  </TableHead>
+  <TableBody>
+    <TableRow selected>
+      <TableCell rowHeader>TR-2041</TableCell>
+      <TableCell numeric>12</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>
+```
+
+| 部件 | 属性 |
+| --- | --- |
+| `Table` | `label`（名称，必填）、`headerVariant`、`size`、`stickyFirstColumn`、`ruled` |
+| `TableHeaderCell` | `numeric`、`align`、`sort`、`onSort` |
+| `TableRow` | `selected` |
+| `TableCell` | `numeric`、`align`、`rowHeader`、`reveal` |
+
+- **表头** 32px 高。`headerVariant="band"`（默认）是反转的标题带，和面板的标题带是同一个样子；`"muted"` 是上面说的浅表头。
+- **行高**两档：`sm` 36px、`md` 44px（默认）。行间 1px `line`，最后一行下面不画；`ruled` 打开后每隔五行换成 `line-strong`。
+- **单元格默认不折行。** 放不下的时候表格在自己的容器里横向滚动，不把字挤成两行，也不撑破页面。确实要折行的长文字列，自己加 `whitespace-normal` 并给一个最小宽度。
+- **只有真的溢出时**，滚动的那一层才是一个能聚焦的区域（`role="region"`，名称同表格）：键盘得能滚它，但不溢出的时候不该白占一个 Tab 停靠点。
+- **`stickyFirstColumn` 冻结首列**，溢出时它的右缘多一条线。冻结的那一格必须不透明，否则滚过去的内容会从它下面透出来——所以它的底不是透明的：平时是表格所在的底色，悬停时是"`ink` 5% 混进这个底色"算出来的实色（看上去和其余单元格上那层半透明的悬停底一样），选中时是 `surface-muted`。表格默认认为自己压在 `surface` 上；压在别的底色上（比如面板里）时，给 `Table` 加 `className="[--table-surface:var(--ef-surface-raised)]"`。
+- **排序**的状态由使用方自己拿着。传了 `onSort` 的列，列名变成一个铺满整格的按钮，右侧一个 8px 的实心三角；`onSort` 拿到的是点了之后该换成的方向（没排或降序时是升序，升序时是降序）。
+  - 没按这一列排时三角是 40% 的不透明度，朝下；按它排时三角指明方向（升序朝上、降序朝下），颜色换成强调色。
+  - 强调色在反转的标题带上用 `accent-ink-inverse`——暗色主题下标题带是近白，黄色压在上面看不见；浅表头上用 `accent-ink`。焦点环同理：标题带上的焦点环也用 `accent-ink-inverse`，普通的焦点色在那上面看不见。
+  - 数字列的三角放在列名**左边**，列名的右缘才能和下面的数字对齐。
+  - `aria-sort` 只写在当前排序的那一列上。
+- **选中行**：`surface-muted` 底 + 左缘 4px 的 `action` 色条，输出 `aria-selected`。色条是第一格上的一道内阴影，冻结首列时跟着它不动。
+- **整行不可点。** 要进详情，把名称写成链接；要勾选，在第一列放 `Checkbox`，表头里放一个全选（部分选中时是半选）。表头里要放复选框时用 `muted` 表头：反转的标题带上，已选的方格和底是同一个颜色，只剩一个对勾。
+- **行内操作**放在加了 `reveal` 的单元格里：有鼠标的设备上平时藏着，悬停这一行、或者键盘焦点进了这一行就显示；触屏上没有悬停，所以常显。藏着的时候它们仍然在 Tab 序列里。
+- 没有数据时，放一行通栏的单元格（`colSpan`），里面是 [空状态](feedback.md)。
+- 窄屏的另一种做法——每行改成一张属性卡——没有做成表格的属性：那是另一种布局，不是同一张表换个样子。需要时用 [面板](card.md) 的属性行另搭，按断点切换。
 
 ## 时间线
 
