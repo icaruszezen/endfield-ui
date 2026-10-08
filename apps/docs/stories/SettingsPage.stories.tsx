@@ -4,6 +4,7 @@ import {
   BreadcrumbItem,
   Button,
   Checkbox,
+  Combobox,
   Countdown,
   EmptyState,
   Field,
@@ -30,6 +31,7 @@ import {
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState, type FormEvent } from "react";
 import { FuelIcon, OreIcon } from "./_shared/ResourceIcons";
+import { stationGroups } from "./_shared/stations";
 
 /**
  * 用表单与反馈类控件搭一个设置页。文案与数据全部虚构。
@@ -193,6 +195,19 @@ function Settings() {
               defaultValue={["site", "mail"]}
               name="channels"
               placeholder="不通知"
+            />
+          </Field>
+
+          {/* 二十几个站，下拉里翻不过来：用能打字的组合框 */}
+          <Field
+            label="常驻站点"
+            help="打几个字就能找到，也可以输入编号（N-07）。"
+          >
+            <Combobox
+              items={stationGroups}
+              defaultValue="n7"
+              name="station"
+              placeholder="输入站名或编号"
             />
           </Field>
 

@@ -13,6 +13,7 @@ import {
   Field,
   GhostText,
   HazardStripe,
+  ItemGrid,
   ItemSlot,
   Kbd,
   Panel,
@@ -189,9 +190,6 @@ const sorters = {
 
 type Sort = keyof typeof sorters;
 
-const slotGrid =
-  "grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-2 p-1";
-
 function Depot() {
   const toast = useToast();
   const [watched, setWatched] = useState(() => new Set(["alloy"]));
@@ -312,7 +310,8 @@ function Depot() {
                 </Field>
               </div>
 
-              <div className={slotGrid}>
+              {/* 整个矩阵只占一个 Tab 停靠点，进去之后用方向键走 */}
+              <ItemGrid aria-label="物资">
                 {sorted.map(({ icon: Icon, order: _order, ...item }) => (
                   <ItemSlot
                     key={item.id}
@@ -324,7 +323,16 @@ function Depot() {
                     <Icon size={32} />
                   </ItemSlot>
                 ))}
-              </div>
+              </ItemGrid>
+              <p className="-mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-secondary">
+                <Kbd>←</Kbd>
+                <Kbd>↑</Kbd>
+                <Kbd>↓</Kbd>
+                <Kbd>→</Kbd>
+                在格子之间移动
+                <Kbd>Enter</Kbd>
+                选中
+              </p>
 
               <section className="flex flex-col gap-3">
                 <h2 className="font-medium">本周收支</h2>
@@ -466,7 +474,7 @@ function Depot() {
         </TabPanel>
 
         <TabPanel value="index" className="pt-6">
-          <div className={slotGrid}>
+          <ItemGrid aria-label="图鉴">
             {stock.map(
               ({ icon: Icon, order: _order, isNew: _isNew, ...item }) => (
                 <ItemSlot key={item.id} {...item} count={undefined}>
@@ -477,7 +485,7 @@ function Depot() {
             {unseen.map((name) => (
               <ItemSlot key={name} name={name} unowned />
             ))}
-          </div>
+          </ItemGrid>
           <p className="mt-4 text-sm text-ink-secondary">
             {`已登记 ${stock.length} / ${stock.length + unseen.length}`}
           </p>

@@ -1,4 +1,4 @@
-// 三个示例页里几种浮层配合起来的流程
+// 几个示例页里各种控件配合起来的流程
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { useStorybook, type Page } from "./lib/harness.ts";
@@ -156,6 +156,26 @@ test("设置页：没填必填项时就地报错、不出轻提示；填好后�
     "多选的三个值应该各提交一份",
   );
 
+  // 组合框的那个字段：按编号找到一个站，值随表单提交
+  await page.click("form button[aria-label=清除]");
+  await page.click("input[role=combobox]");
+  await page.type("s-03");
+  await page.waitFor(
+    async () =>
+      (await page.text("[role=listbox] [role=option]")).join() === "南岸三号站",
+    "按编号 s-03 应该只剩南岸三号站",
+  );
+  await page.key("ArrowDown");
+  await page.key("Enter");
+  await page.waitGone("[role=listbox]");
+  assert.equal(
+    await page.evaluate(() =>
+      new FormData(document.querySelector("form")!).get("station"),
+    ),
+    "s3",
+    "组合框选中的值应该随表单提交",
+  );
+
   await page.click("button[type=submit]");
   await waitToast(page, "保存成功后应该出一条轻提示");
 });
@@ -274,4 +294,182 @@ test("列表页：页面窄的时候类别筛选收进抽屉", async () => {
   } finally {
     await page.setSize(1280, 900);
   }
+});
+
+const visibleIn = (page: Page, selector: string) =>
+  page.evaluate((css) => {
+    const element = document.querySelector(css);
+    return !!element && element.getBoundingClientRect().width > 0;
+  }, selector);
+
+const RAIL = "#storybook-root nav[aria-label=主导航]";
+const BAR = "#storybook-root header";
+
+test("调度台：宽屏是侧轨，窄屏换成顶栏和全屏菜单；栏目是同一份状态", async () => {
+  const { page } = storybook;
+  await page.story("示例-调度台--page");
+  assert.ok(await visibleIn(page, RAIL), "1280px 宽应该是侧轨");
+  assert.ok(!(await visibleIn(page, BAR)), "1280px 宽不应该有顶栏");
+  assert.deepEqual(await page.text(`${RAIL} [aria-current=page]`), ["调度"]);
+
+  await page.setSize(500, 900);
+  try {
+    await page.waitFor(
+      async () =>
+        (await visibleIn(page, BAR)) && !(await visibleIn(page, RAIL)),
+      "500px 宽应该换成顶栏，侧轨收掉",
+    );
+
+    await page.click("button[aria-label=打开菜单]");
+    await page.waitVisible("[role=dialog]");
+    assert.deepEqual(await page.text("[role=dialog] [aria-current=page]"), [
+      "调度",
+    ]);
+    await page.click("[role=dialog] li:nth-child(4) button");
+    await page.waitGone("[role=dialog]", "点了栏目之后菜单应该关上");
+    await page.waitFor(
+      () =>
+        page.evaluate(() =>
+          document
+            .querySelector("#storybook-root main")!
+            .textContent!.includes("档案"),
+        ),
+      "主体应该换成档案这一栏",
+    );
+  } finally {
+    await page.setSize(1280, 900);
+  }
+
+  // 回到宽屏：侧轨上的当前项跟着变了
+  await page.waitFor(
+    async () =>
+      (await page.text(`${RAIL} [aria-current=page]`)).join() === "档案",
+    "窄屏上选的栏目，回到宽屏应该还是它",
+  );
+});
+
+test("调度台：组合框按站点筛选，表头排序，勾选之后批量标记", async () => {
+  const { page } = storybook;
+  await page.story("示例-调度台--page");
+  const rows = () => count(page, "#storybook-root tbody tr");
+  const status = async () =>
+    (await page.text("#storybook-root main [role=status]"))[0] ?? "";
+  assert.equal(await rows(), 8, "一页八行");
+  assert.match(await status(), /共 16 个批次/);
+
+  // 筛选：按编号找到北区七号站
+  await page.click("input[role=combobox]");
+  await page.type("n-07");
+  await page.waitFor(
+    async () =>
+      (await page.text("[role=listbox] [role=option]")).join() === "北区七号站",
+    "按编号 n-07 应该只剩北区七号站",
+  );
+  await page.key("ArrowDown");
+  await page.key("Enter");
+  await page.waitFor(
+    async () => /北区七号站/.test(await status()),
+    "选了站点之后应该按它筛选",
+  );
+  assert.ok((await rows()) < 8, "筛选之后行数应该变少");
+  assert.ok(
+    (
+      await page.evaluate(() =>
+        [...document.querySelectorAll("#storybook-root tbody tr")].map(
+          (row) => row.children[2]!.textContent,
+        ),
+      )
+    ).every((text) => text === "北区七号站"),
+    "剩下的行都应该是北区七号站",
+  );
+
+  await page.click("#storybook-root button[aria-label=清除]");
+  await page.waitFor(async () => (await rows()) === 8, "清除之后回到八行");
+
+  // 排序：按件数升序
+  await page.click("#storybook-root thead th:nth-child(6) button");
+  await page.waitFor(
+    async () =>
+      (await page.evaluate(() =>
+        document
+          .querySelector("#storybook-root thead th:nth-child(6)")!
+          .getAttribute("aria-sort"),
+      )) === "ascending",
+    "点件数应该按它升序",
+  );
+  const numbers = await page.evaluate(() =>
+    [...document.querySelectorAll("#storybook-root tbody tr")].map((row) =>
+      Number(row.children[5]!.textContent),
+    ),
+  );
+  assert.deepEqual(
+    numbers,
+    [...numbers].sort((a, b) => a - b),
+  );
+
+  // 勾选：全选本页，批量标记
+  await page.evaluate(() => {
+    // 工具条下面那个"全选本页"
+    const all = [
+      ...document.querySelectorAll<HTMLInputElement>(
+        "#storybook-root main input[type=checkbox]",
+      ),
+    ].find((input) => input.closest("label")?.textContent === "全选本页")!;
+    if (!all.checked) all.click();
+  });
+  await page.waitFor(
+    async () =>
+      (await count(page, "#storybook-root tbody tr[aria-selected=true]")) === 8,
+    "全选之后八行都应该是选中的",
+  );
+  await page.click("text=标记到站 · 8");
+  await waitToast(page, "批量标记之后应该出一条轻提示");
+  await page.waitFor(
+    async () =>
+      (await count(page, "#storybook-root tbody tr[aria-selected=true]")) === 0,
+    "标记之后选中应该清空",
+  );
+  assert.ok(
+    (
+      await page.evaluate(() =>
+        [...document.querySelectorAll("#storybook-root tbody tr")].map(
+          (row) => row.children[3]!.textContent,
+        ),
+      )
+    ).every((text) => text === "已到站"),
+    "这一页的批次都应该变成已到站",
+  );
+});
+
+test("仓库页：物品格矩阵只占一个 Tab 停靠点，方向键换格子", async () => {
+  const { page } = storybook;
+  await page.story("示例-仓库页--page");
+  const stops = await page.evaluate(() => {
+    const grid = document.querySelector(
+      "#storybook-root [role=group][aria-label=物资]",
+    )!;
+    return [...grid.querySelectorAll("[data-slot-control]")].filter(
+      (control) => control.getAttribute("tabindex") === "0",
+    ).length;
+  });
+  assert.equal(stops, 1, "矩阵里应该只有一格能被 Tab 停到");
+
+  await page.evaluate(() =>
+    document
+      .querySelector<HTMLElement>(
+        "#storybook-root [role=group][aria-label=物资] [tabindex='0']",
+      )!
+      .focus(),
+  );
+  const name = () =>
+    page.evaluate(
+      () =>
+        document.activeElement!.querySelector(".sr-only")?.textContent ?? "",
+    );
+  const before = await name();
+  await page.key("ArrowLeft");
+  await page.waitFor(
+    async () => (await name()) !== before,
+    "← 应该把焦点移到左边一格",
+  );
 });

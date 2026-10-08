@@ -47,6 +47,7 @@ const stories = [
   "示例-设置页--page",
   "示例-列表页--page",
   "示例-内容页--page",
+  "示例-调度台--page",
   "控件-select-下拉选择--in-field",
   "控件-toast-轻提示--playground",
   "控件-dropdownmenu-下拉菜单--playground",

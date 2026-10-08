@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | 设计风格文档 | 可读 | [docs/](docs/README.md) |
 | 设计令牌 | 草案，随组件一起使用 | [packages/ui/src/styles/theme.css](packages/ui/src/styles/theme.css) |
-| 组件库 | 基础、表单、反馈、浮层、展示、导航与母题类控件已实现，适配亮 / 暗主题；尚未发布 | [packages/ui/](packages/ui/README.md) |
+| 组件库 | 规范里列的控件已经全部实现，适配亮 / 暗主题；尚未发布 | [packages/ui/](packages/ui/README.md) |
 | 预览站 | Storybook，可并排对比亮暗两套；[在线预览](https://icaruszezen.github.io/endfield-ui/) | [apps/docs/](apps/docs/README.md) |
 
 已有的控件：
@@ -18,18 +18,18 @@
 | 类别 | 控件 |
 | --- | --- |
 | 基础 | Button / ButtonGroup、IconButton、Tag / TagPair、Badge、Kbd、SectionTitle、BracketTitle、Tabs、Panel |
-| 表单 | Field、Input、Textarea、Select、Checkbox、Radio / RadioGroup、Switch、Stepper、FilterChip |
+| 表单 | Field、Input、Textarea、Select、Combobox、Checkbox、Radio / RadioGroup、Switch、Stepper、FilterChip |
 | 反馈 | Alert、Toast、Progress / ProgressRing、Spinner、Skeleton、EmptyState、Loader、CompletionBanner、RecIndicator |
 | 浮层 | Tooltip、Popover、Dialog、Drawer、DropdownMenu、FlyoutBar |
-| 展示 | Stat、Sparkline、DataRowList / DataRow、List / ListRow、MediaCard、ItemSlot、Timeline、Term、ResourceChip、Countdown、Marquee、ScrollHint |
-| 导航 | Breadcrumb、Pagination、Navigator、DashIndicator |
+| 展示 | Table、Stat、Sparkline、DataRowList / DataRow、List / ListRow、MediaCard、ItemSlot / ItemGrid、Timeline、Term、ResourceChip、Countdown、Marquee、ScrollHint |
+| 导航 | SideRail、TopBar、NavMenu、NavAction、Breadcrumb、Pagination、Navigator、DashIndicator |
 | 母题 | CornerBrackets、Viewfinder、GhostText、Hatch、Texture、RegistrationStrip、TickRing、HazardStripe |
 
 切角、斜楔、角括号、镂空字、斜纹、底纹这些母题同时是 Tailwind 工具类（`cut-tr`、`wedge-r`、`corner-brackets`、`dot-grid`…），见 [styles/README.md](packages/ui/src/styles/README.md)。
 
-浮层的行为与无障碍（焦点、键盘、定位）建立在 [Base UI](https://base-ui.com) 上，其余控件用的是原生元素。
+浮层和组合框的行为与无障碍（焦点、键盘、定位）建立在 [Base UI](https://base-ui.com) 上，其余控件用的是原生元素。能当链接用的控件除了 `href` 还收一个 `render`，用来接路由库的链接组件。
 
-还没做的（表格，侧轨、顶栏等外壳）见 [组件规范](docs/design/components/README.md) 的各期清单。
+[组件规范](docs/design/components/README.md) 各期清单里的控件到这里全部做完了；Storybook 里有五个用它们搭出来的示例页。
 
 ```bash
 pnpm install
@@ -158,7 +158,8 @@ import { Button, Field, Input, Tag } from "@endfield-ui/react";
 7. ~~母题工具类（切角、斜楔、角括号、镂空字、警示条纹）与依赖它的控件：楔形页签、物品格、菱形表单符号、完成态，以及七个装饰组件~~
 8. ~~浮层：无障碍基元选定 Base UI，文字提示、弹窗、抽屉、轻提示、下拉选择、下拉菜单；另有三种底纹、方括号标题、语义着色词~~
 9. ~~浮层收尾（气泡卡片、展开条、菜单的复选项与子菜单、下拉多选、弹窗的两处装饰）与数据行带（列表的深色行带、小型面积图）；工程上加了 Prettier 和浏览器实测~~
-10. 表格 → 侧轨、顶栏等外壳
+10. ~~规范里剩下的控件：表格，侧轨、顶栏、全屏菜单与主行动块，组合框；物品格矩阵的方向键导航；带链接形态的控件支持 `render`~~
+11. 控件之外的：发布到 npm、ESLint、截图比对、高对比与触屏的实测，以及第 6 项的文档站
 
 各期的组件清单见 [组件规范](docs/design/components/README.md)。
 

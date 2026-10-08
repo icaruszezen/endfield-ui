@@ -7,11 +7,11 @@
 | 类别 | 控件 |
 | --- | --- |
 | 基础 | Button / ButtonGroup、IconButton、Tag / TagPair、Badge、Kbd、SectionTitle、BracketTitle、Tabs、Panel |
-| 表单 | Field、Input、Textarea、Select、Checkbox、Radio / RadioGroup、Switch、Stepper、FilterChip |
+| 表单 | Field、Input、Textarea、Select、Combobox、Checkbox、Radio / RadioGroup、Switch、Stepper、FilterChip |
 | 反馈 | Alert、Toast、Progress / ProgressRing、Spinner、Skeleton、EmptyState、Loader、CompletionBanner、RecIndicator |
 | 浮层 | Tooltip、Popover、Dialog、Drawer、DropdownMenu、FlyoutBar |
-| 展示 | Stat、Sparkline、DataRowList / DataRow、List / ListRow、MediaCard、ItemSlot、Timeline、Term、ResourceChip、Countdown、Marquee、ScrollHint |
-| 导航 | Breadcrumb、Pagination、Navigator、DashIndicator |
+| 展示 | Table、Stat、Sparkline、DataRowList / DataRow、List / ListRow、MediaCard、ItemSlot / ItemGrid、Timeline、Term、ResourceChip、Countdown、Marquee、ScrollHint |
+| 导航 | SideRail、TopBar、NavMenu、NavAction、Breadcrumb、Pagination、Navigator、DashIndicator |
 | 母题 | CornerBrackets、Viewfinder、GhostText、Hatch、Texture、RegistrationStrip、TickRing、HazardStripe |
 
 包还没有发布到 npm，目前只在本仓库的工作区里使用。
@@ -23,7 +23,7 @@
 | 框架 | React 19 + TypeScript |
 | 样式 | Tailwind CSS v4（CSS-first，`@theme` 令牌，不使用 `tailwind.config.js`） |
 | 变体 | 手写的 `Record<Variant, string>` + `cn()`（`clsx` + `tailwind-merge`） |
-| 无障碍基元 | [Base UI](https://base-ui.com)（`@base-ui/react`），只用在浮层上：文字提示、气泡卡片、弹窗、抽屉、轻提示、下拉选择、下拉菜单、展开条。其余控件建立在原生元素上 |
+| 无障碍基元 | [Base UI](https://base-ui.com)（`@base-ui/react`），用在浮层和组合框上：文字提示、气泡卡片、弹窗、抽屉、全屏菜单、轻提示、下拉选择、组合框、下拉菜单、展开条。其余控件建立在原生元素上 |
 | 构建 | tsdown（ESM + 类型声明）+ `@tailwindcss/cli`（预编译 CSS） |
 | 测试 | Vitest + Testing Library（jsdom） |
 
@@ -69,6 +69,21 @@ export function Bulletin() {
   );
 }
 ```
+
+### 链接与路由
+
+能当链接用的控件（按钮、列表行、媒体卡、物品格、面包屑项、菜单项、侧轨项…）传 `href` 渲染成 `<a>`。用路由库时，把它的链接组件传给 `render`：
+
+```tsx
+import { Link } from "react-router";
+
+<Button render={<Link to="/archive" />}>查看档案</Button>
+<ListRow render={<Link to={`/records/${id}`} />} selected>
+  排水泵检修记录
+</ListRow>
+```
+
+控件算好的类名、状态属性（`aria-current`…）和事件会合并到那个元素上。禁用时它被标上 `aria-disabled` 并拦下点击；地址去不掉，所以它仍然能被聚焦——这一点和 `href` 形态不同。
 
 ### 表单
 
@@ -208,6 +223,29 @@ import { Field, Select } from "@endfield-ui/react";
 
 加 `multiple` 可以选多项：`value` 与 `onValueChange` 换成字符串数组，选项行首多一个小方格，选了不关面板；触发器里把已选项用顿号连起来并带一个计数，换写法用 `renderValue`。
 
+选项多到要找的时候换成组合框——一个能打字的下拉，属性和 `Select` 差不多：
+
+```tsx
+import { Combobox, Field } from "@endfield-ui/react";
+
+<Field label="常驻站点">
+  <Combobox
+    name="station"
+    placeholder="输入站名或编号"
+    items={[
+      { value: "n7", label: "北区七号站", keywords: ["N-07"] },
+      { value: "s3", label: "南岸三号站", keywords: ["S-03"] },
+    ]}
+    value={station}
+    onValueChange={setStation}
+  />
+</Field>
+```
+
+- `label` 必须是字符串；检索匹配 `label` 和 `keywords`（不显示的别名）。要分组就传 `{ label, items }` 的数组。
+- 值只能是选项里有的；清除之后 `onValueChange` 拿到 `null`。
+- 加 `multiple`：值是数组，已选项在框里排成一个个小块，框会跟着长高。
+
 轻提示要先在应用最外层包一个 `ToastProvider`，里面的任何地方用 `useToast()` 弹出。同时只显示一条，新的替换旧的：
 
 ```tsx
@@ -240,12 +278,121 @@ function SaveButton() {
 - **局部主题会跟过去。** 暗色版块（`data-theme="dark"`）里的按钮打开的弹窗也是暗色的：浮层打开时从触发元素往上找最近的 `data-theme` / `data-choice` 抄到自己身上。没有触发元素的受控弹窗跟随 `<html>`；需要时把 `data-theme` 直接传给它。
 - **`@base-ui/react` 是本包的依赖**，装本包时会一起装上，不用另外引入。
 
-### 游戏风格的控件
+### 外壳
 
-物品格的宽度跟着所在的网格走。格子里只有图标，`name` 是给读屏的名称；选中是四角的角括号，画在格子之外 4px，所以网格四周要留出这段空隙：
+宽屏用侧轨，窄屏换成顶栏加全屏菜单——是换一套，不是把侧轨缩小。两边各管各的，什么宽度用哪个由页面的断点决定：
 
 ```tsx
-import { ItemSlot, Tab, TabList, Tabs } from "@endfield-ui/react";
+import {
+  IconButton,
+  Menu,
+  NavAction,
+  NavMenu,
+  NavMenuItem,
+  SideRail,
+  SideRailItem,
+  TopBar,
+} from "@endfield-ui/react";
+
+<div className="flex min-h-dvh">
+  <SideRail
+    aria-label="主导航"
+    className="hidden lg:flex"
+    brand={<Logo />}
+    action={<NavAction href="/console">前往控制台</NavAction>}
+  >
+    <SideRailItem icon={<GridIcon />} href="/overview" current>
+      总览
+    </SideRailItem>
+    <SideRailItem icon={<ArchiveIcon />} href="/archive">
+      档案
+    </SideRailItem>
+  </SideRail>
+
+  <div className="flex min-w-0 flex-1 flex-col">
+    <TopBar
+      className="lg:hidden"
+      brand={<Logo />}
+      action={<NavAction href="/console">控制台</NavAction>}
+      menu={
+        <NavMenu
+          title="菜单"
+          trigger={
+            <IconButton aria-label="打开菜单">
+              <Menu />
+            </IconButton>
+          }
+        >
+          <NavMenuItem icon={<GridIcon />} href="/overview" current>
+            总览
+          </NavMenuItem>
+        </NavMenu>
+      }
+    />
+    <main>…</main>
+  </div>
+</div>
+```
+
+- `SideRail` 默认展开（图标 + 文字）；`collapsed` 收起成只有图标的窄轨，悬停或键盘聚焦时栏目名浮出来。栏目多了用 `SideRailGroup label` 分组。
+- `NavAction` 是"主行动块"：整个产品最主要的那个去处。放进侧轨、顶栏、全屏菜单的底部时，摆法由它们决定。
+- `NavMenu` 打开时焦点移入并被限制在内，背景不可滚动；点一个栏目默认关上。
+- 本库不带标志和栏目图标，都由使用方给。
+- 侧轨和顶栏默认 `sticky`，在 `--z-nav`（200）这一层，比浮层低。
+
+### 表格
+
+包一层原生 `<table>`，组合着用。排序的状态自己拿着，表头只告诉你"该换成哪个方向"：
+
+```tsx
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from "@endfield-ui/react";
+
+<Table label="运输批次" stickyFirstColumn>
+  <TableHead>
+    <TableRow>
+      <TableHeaderCell>批次</TableHeaderCell>
+      <TableHeaderCell
+        numeric
+        sort={sort.key === "count" ? sort.direction : null}
+        onSort={(direction) => setSort({ key: "count", direction })}
+      >
+        件数
+      </TableHeaderCell>
+      <TableHeaderCell align="end">操作</TableHeaderCell>
+    </TableRow>
+  </TableHead>
+  <TableBody>
+    {rows.map((row) => (
+      <TableRow key={row.id} selected={picked.has(row.id)}>
+        <TableCell rowHeader>{row.id}</TableCell>
+        <TableCell numeric>{row.count}</TableCell>
+        <TableCell reveal align="end">
+          <IconButton size="sm" aria-label={`打印 ${row.id}`}>…</IconButton>
+        </TableCell>
+      </TableRow>
+    ))}
+  </TableBody>
+</Table>
+```
+
+- 单元格默认不折行：放不下时表格在自己的容器里横向滚动。`stickyFirstColumn` 冻结第一列。
+- `reveal` 的单元格里放行内操作：悬停或焦点进了这一行才显示，触屏上常显。
+- 整行不可点。要进详情把名称写成链接，要勾选在第一列放 `Checkbox`。
+- 表头两种：`band`（反转的标题带，默认）和 `muted`；`ruled` 每隔五行加重一条线。
+
+### 游戏风格的控件
+
+物品格的宽度跟着所在的网格走。格子里只有图标，`name` 是给读屏的名称；选中是四角的角括号，画在格子之外 4px。一组格子放进 `ItemGrid`：它自带留好空隙的网格，并且整个矩阵只占一个 Tab 停靠点，进去之后用方向键在格子之间走。
+
+```tsx
+import { ItemGrid, ItemSlot, Tab, TabList, Tabs } from "@endfield-ui/react";
 
 <Tabs defaultValue="supply" variant="wedge">
   <TabList aria-label="仓库分类">
@@ -254,7 +401,7 @@ import { ItemSlot, Tab, TabList, Tabs } from "@endfield-ui/react";
   </TabList>
 </Tabs>
 
-<div className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-2 p-1">
+<ItemGrid aria-label="物资">
   <ItemSlot
     name="合金锭"
     count={128}
@@ -264,7 +411,7 @@ import { ItemSlot, Tab, TabList, Tabs } from "@endfield-ui/react";
   >
     <OreIcon size={32} />
   </ItemSlot>
-</div>
+</ItemGrid>
 ```
 
 复选与单选可以整体换成菱形符号。它不是组件上的属性，而是和主题一样写在 `<html>`（或局部容器）上的开关，全库选一套：

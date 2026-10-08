@@ -99,6 +99,7 @@ components/
 - 压在反转块（`surface-inverse`）上的强调记号用 `accent-ink-inverse`，压在页面表面上的用 `accent-ink`，都不直接用 `action`：它在浅色底上看不见。
 - 悬停底用 `hover:bg-ink/5`，不用 `surface-sunken`——后者在暗色主题下是纯黑。
 - 组件 API 用语义命名（`variant="action"`、`tone="danger"`），不把颜色名写进属性（不要 `yellow`）。
+- **能当链接用的控件，`href` 之外同时收 `render`**（路由库的链接组件）。链接形态里的那个 `<a>` 换成 [`LinkElement`](link-element/LinkElement.tsx)，判断写成 `href !== undefined || render !== undefined`；转给 Base UI 部件的（菜单项）用 [`defined()`](../lib/defined.ts) 去掉没有值的属性，免得把那个元素自己的地址盖掉。
 - 变体写成 `Record<Variant, string>`，用 [`cn()`](../lib/cn.ts) 合并，使用方传入的 `className` 排在最后、可以覆盖内置类。
 - 形状是语义的一部分：切角、胶囊、圆形分别对应什么含义见 [形状规范](../../../../docs/design/foundations/shape.md)，不要给所有组件套同一个外形。
 - 每个交互组件都要有 `:focus-visible` 样式，用 [`focusRing`](../lib/focus-ring.ts)；会被滚动容器裁切的地方用 `focusRingInset`；外框自己不能聚焦、里面的控件能（输入框）时用 `focusRingWithin`。焦点环不能被 `clip-path` 裁掉（做法见 [切角与斜楔](../../../../docs/design/elements/corner-and-wedge.md)）。
@@ -108,7 +109,9 @@ components/
 - 装饰元素（竖条、箭头、分隔线）加 `aria-hidden`。
 - 动效遵守 `prefers-reduced-motion`：降级后内容必须停在终态。循环动画停下来的样子不能被看成一个具体的值：不确定进度的色块停在正中，进度环换成一圈虚线。
 - 用 `group` / `peer` 时给 `group` 起名字（`group/card` + `group-hover/card:`）：不起名的 `group-hover:` 会被外层任何一个 `group` 的悬停带着走，控件一旦被放进别的可悬停容器就会出错。
-- `z-index` 不在组件里写数值，用 [theme.css](../styles/theme.css) 里的层叠变量（`z-(--z-overlay)`、`z-(--z-toast)`、`z-(--z-loader)`）。
+- `z-index` 不在组件里写数值，用 [theme.css](../styles/theme.css) 里的层叠变量（`z-(--z-nav)`、`z-(--z-overlay)`、`z-(--z-toast)`、`z-(--z-loader)`）。只在自己内部排先后的（表格冻结的那一列）先用 `isolate` 围起来，再写小的数值。
+- **会粘住不动的格子必须是不透明的**（表格冻结的首列）：滚过去的内容会从半透明的底下面透出来。它的悬停底不能用 `bg-ink/5`，用 `color-mix()` 把同样的比例混进它所在的底色里，得到一个看上去一样的实色。
+- **压在反转块上的焦点环用 `accent-ink-inverse`**（表格的标题带）；压在行动色上的用 `on-action`（全屏菜单的当前项）。普通的焦点色在亮色下是墨色、暗色下是黄色，正好和这两种底撞色。
 
 ### 母题与装饰
 
