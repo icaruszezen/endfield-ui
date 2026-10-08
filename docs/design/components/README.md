@@ -9,7 +9,7 @@
 | [按钮](button.md) | 按钮、图标按钮、按钮组 |
 | [导航](navigation.md) | 侧轨、顶栏、页签、分页、胶囊导航器、面包屑 |
 | [卡片](card.md) | 面板、媒体卡、物品格、列表行 |
-| [表单](form.md) | 输入框、下拉、复选、单选、开关、步进器 |
+| [表单](form.md) | 输入框、下拉、组合框、复选、单选、开关、步进器 |
 | [反馈](feedback.md) | 进度、提示条、轻提示、加载、空状态 |
 | [浮层](overlay.md) | 弹窗、抽屉、下拉菜单、文字提示 |
 | [数据展示](data-display.md) | 标签与徽章、数据行带、统计块、表格、时间线 |
@@ -129,6 +129,7 @@
 | Progress / ProgressRing / Spinner | [反馈](feedback.md) | 已实现 |
 | Alert | [反馈](feedback.md) | 已实现 |
 | Select | [表单](form.md) | 已实现（和第三期的浮层一起做的） |
+| Combobox（组合框） | [表单](form.md) | 已实现（含多选与分组） |
 | Toast | [反馈](feedback.md) | 已实现（同上） |
 | Stepper、双标签开关 | [表单](form.md) | 已实现 |
 | 菱形表单符号（方案 B） | [表单](form.md) | 已实现（全局开关 `data-choice="diamond"`） |

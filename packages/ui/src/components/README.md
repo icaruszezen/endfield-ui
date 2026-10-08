@@ -46,6 +46,7 @@
 | `flyout-bar/` | `FlyoutBar`、`FlyoutBarItem` | [浮层](../../../../docs/design/components/overlay.md) |
 | `popover/` | `Popover`、`PopoverClose` | [浮层](../../../../docs/design/components/overlay.md) |
 | `select/` | `Select`、`SelectItem`、`SelectGroup`、`SelectSeparator` | [表单](../../../../docs/design/components/form.md) |
+| `combobox/` | `Combobox`（可搜索的下拉，含多选与分组） | [表单](../../../../docs/design/components/form.md) |
 | `toast/` | `ToastProvider`、`useToast` | [反馈](../../../../docs/design/components/feedback.md) |
 | `rec-indicator/` | `RecIndicator` | [测绘叠层](../../../../docs/design/elements/hud-overlays.md) |
 | `marquee/` | `Marquee` | [动效](../../../../docs/design/foundations/motion.md) |
@@ -64,12 +65,12 @@
 | 文件 | 谁在用 |
 | --- | --- |
 | `chip/capsule-style.ts` | `FilterChip`、`Tabs` 的 `capsule` 变体 |
-| `input/control-box.ts` | `Input`、`Textarea` 的外框（凹陷与描边两种），`Select` 的触发器也用它 |
+| `input/control-box.ts` | `Input`、`Textarea` 的外框（凹陷与描边两种），`Select` 的触发器和 `Combobox` 的外框也用它 |
 | `checkbox/choice-style.ts` | `Checkbox`、`Radio`、`Switch` 的行与方格（含菱形方案的写法） |
 | `dialog/overlay-style.ts` | `Dialog`、`Drawer` 的遮罩、深色标题带、关闭按钮 |
 | `dialog/initial-focus.ts` | `Dialog`、`Drawer` 打开时焦点落在哪 |
-| `dropdown-menu/menu-style.ts` | `DropdownMenu`、`Select`、`Popover` 的面板，前两者的选项（跟随主题与固定深色两种） |
-| `dropdown-menu/MenuCheck.tsx` | 菜单复选项和多选选项行首的小方格（复选框的画法缩到 16px） |
+| `dropdown-menu/menu-style.ts` | `DropdownMenu`、`Select`、`Combobox`、`Popover` 的面板，前三者的选项（跟随主题与固定深色两种） |
+| `dropdown-menu/MenuCheck.tsx` | 菜单复选项和多选选项（`Select`、`Combobox`）行首的小方格（复选框的画法缩到 16px） |
 | `list/band-style.ts` | 深色行带的画布、行与缝：`List` 的 `band` 变体和 `DataRow` |
 | `link-element/LinkElement.tsx` | 各控件"链接形态"里的那个 `<a>`：传了 `render` 就把属性合并到使用方给的元素上（路由库的链接组件） |
 | [`lib/decor.ts`](../lib/decor.ts) | 所有装饰层：不挡点击、不可选中，高对比模式与打印时去掉 |

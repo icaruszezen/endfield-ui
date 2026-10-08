@@ -5,6 +5,7 @@ export * from "./components/breadcrumb";
 export * from "./components/button";
 export * from "./components/checkbox";
 export * from "./components/chip";
+export * from "./components/combobox";
 export * from "./components/completion-banner";
 export * from "./components/corner-brackets";
 export * from "./components/countdown";
