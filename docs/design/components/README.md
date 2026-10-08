@@ -1,6 +1,6 @@
 # 组件规范
 
-把基础规范落到具体控件上：每个组件长什么样、有哪些状态、多大。这里是后续 `packages/ui` 的设计输入，**目前没有任何组件实现**。
+把基础规范落到具体控件上：每个组件长什么样、有哪些状态、多大。这里是 [`packages/ui`](../../../packages/ui/README.md) 的设计输入。**第一期已经实现**，其余各期还只有规范。
 
 ## 怎么读
 
@@ -63,6 +63,11 @@
 
 所有组件只使用 [theme.css](../../../packages/ui/src/styles/theme.css) 里的语义令牌（`surface`、`ink`、`line`、`action`、`control`…），因此自动适配亮 / 暗主题与主题色接管。组件内不出现十六进制色值。
 
+两条实现时定下的细则：
+
+- **随主题翻转的颜色一律用语义令牌。** 只有"本来就是为某一种底色设计"的填充才直接用 `neutral-*`、在两个主题下保持不变，清单见 [色彩](../foundations/color.md) 的"哪些颜色有意不随主题变"。
+- **压在反转块上的强调记号用 `accent-ink-inverse`，不直接用 `action`。** `surface-inverse` 在暗色主题下是近白，黄色压在上面看不见。
+
 ### 无障碍
 
 - 用原生元素（`button`、`a`、`input`、`dialog`）或成熟的无障碍基元。
@@ -76,18 +81,20 @@
 
 按"先把语言立住，再铺开"的顺序。每一期做完都应该能搭出一类完整的页面。
 
-### 第一期：立住语言
+### 第一期：立住语言（已实现）
 
-能搭出一个官网气质的内容页。
+能搭出一个官网气质的内容页。源码在 [packages/ui/src/components](../../../packages/ui/src/components/README.md)，在仓库根目录 `pnpm dev` 可以在 Storybook 里并排看亮暗两套。
 
 | 组件 | 规范 | 要点 |
 | --- | --- | --- |
 | Button | [按钮](button.md) | 竖条变箭头的悬停是标志性细节 |
 | IconButton | [按钮](button.md) | 圆形与方形两种 |
-| Tag / Badge | [数据展示](data-display.md) | 名值对、类型标签、日期块 |
-| SectionTitle | [分节标题](../elements/section-title.md) | 标准、色带、竖排三种形态 |
+| Tag / TagPair / Badge | [数据展示](data-display.md) | 名值对、类型标签、日期块、通知角标 |
+| SectionTitle | [分节标题](../elements/section-title.md) | 标准、色带、竖排三种形态，外加一个简化版 |
 | Tabs | [导航](navigation.md) | 激活时文字让位给箭头 |
-| Card / Panel | [卡片](card.md) | 直角、1px 线、无阴影 |
+| Panel | [卡片](card.md) | 直角、1px 线、无阴影 |
+
+这一期有意没做的：媒体卡、物品格、列表行（[卡片](card.md)）；页签的 `wedge` 变体；胶囊族的筛选、资源、倒计时徽章；日期块的小红角。
 
 ### 第二期：表单与反馈
 

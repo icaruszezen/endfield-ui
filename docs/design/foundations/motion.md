@@ -75,7 +75,7 @@
     transform var(--duration-base) var(--ease-standard);
 }
 
-@media (any-hover: hover) {
+@media (hover: hover) {
   .btn:hover::after {
     clip-path: polygon(0 20%, 100% 50%, 0 80%, 0 80%);
     transform: translateX(0.625rem);
@@ -85,6 +85,8 @@
 
 两个 `polygon` 的顶点数必须相同才能插值，所以三角形写成四个点（最后两个重合）。
 
+组件库把这两个形状做成了工具类 `marker-bar` 与 `marker-arrow`（见 [utilities.css](../../../packages/ui/src/styles/utilities.css)），写法是 `marker-bar group-hover:marker-arrow`。竖条的宽度用 `--marker-bar` 调，默认 3px。
+
 ### 激活：让位
 
 页签被选中时，文字向左平移一小段，右侧淡入一个箭头块。导航轨的项在悬停时，一块灰色底向右展开，文字随之出现。共同点是：**新元素出现时，旧元素挪开一点给它腾位置**，而不是凭空叠上去。
@@ -92,6 +94,8 @@
 ### 入场：滑块揭示
 
 分节标题进入视口时，一个灰色块从左侧滑入（`translateX(-100%)` → `0`），块内的箭头从 −45° 转正，随后标题文字淡入。顺序是"块 → 箭头 → 字"，每步错开约 0.1 秒（错开量为推断）。
+
+对应三个工具类：`animate-slide-in`、`animate-turn-in`、`animate-fade-in`，各 300ms、`ease-out`，错开量用 `[animation-delay:100ms]` 这样的写法加。
 
 ### 关闭：转 90°
 
@@ -114,6 +118,9 @@
 | `animate-marquee` | 平移 −50% 后停顿，循环 | 巨字跑马灯、过长的单行文字 | 实测 |
 | `animate-spin` | 匀速旋转 | 加载指示、刻度圆环 | 实测 |
 | `animate-blink` | 硬切的明灭 | 输入光标、录制指示 | 观察 |
+| `animate-slide-in` | `translateX(-100%)` → `0`，300ms | 分节标题的滑块（外层要 `overflow: hidden`） | 实测；时长为推断 |
+| `animate-turn-in` | `rotate(-45deg)` → `0`，300ms | 滑块里的斜箭头 | 实测；时长为推断 |
+| `animate-fade-in` | 不透明度 0 → 1，300ms | 分节标题的文字 | 实测；时长为推断 |
 
 ### 闪烁点亮
 
@@ -158,7 +165,7 @@
 - 默认用 `duration-base` + `ease-standard`，不确定时不要调。
 - 用 `transform` 和 `opacity` 做动画。
 - 让新元素的出现伴随旧元素的让位。
-- 给 `:hover` 套 `@media (any-hover: hover)`，避免触屏上粘住悬停态。
+- 给 `:hover` 套 `@media (hover: hover)`，避免触屏上粘住悬停态。Tailwind v4 的 `hover:` 变体默认就是这样，组件里直接用它。
 
 **忌**
 

@@ -6,7 +6,8 @@
  *   @import "./theme.css";
  *
  * 结构：
- *   1. 语义变量      随主题变化；亮色在 :root，暗色在 [data-theme="dark"]
+ *   1. 语义变量      随主题变化；亮色在 :root 与 [data-theme="light"]，
+ *                    暗色在 [data-theme="dark"]。两种都可以加在局部容器上
  *   2. @theme        不随主题变化的原始令牌
  *   3. @theme inline 把语义变量映射成 Tailwind 颜色工具类
  *
@@ -18,7 +19,8 @@
 /* 1. 语义变量                                                         */
 /* ------------------------------------------------------------------ */
 
-:root {
+:root,
+[data-theme="light"] {
   color-scheme: light;
 
   /* 表面 */
@@ -44,12 +46,18 @@
   --ef-action-pressed: #eeea00;
   --ef-on-action: #191919;
   --ef-accent-ink: #6b5d00;
+  /* 反转块（surface-inverse）上的强调记号：亮色主题下反转块是墨色，直接用行动色 */
+  --ef-accent-ink-inverse: var(--ef-action);
 
   /* 中性控件 */
   --ef-control: #383838;
   --ef-control-hover: #484848;
   --ef-control-pressed: #282828;
   --ef-on-control: #eeeeee;
+
+  /* 禁用控件的填充与其上的文字 */
+  --ef-disabled: #b3b3b3;
+  --ef-on-disabled: #626262;
 
   /* 焦点与遮罩 */
   --ef-focus: #191919;
@@ -84,11 +92,16 @@
   --ef-action-pressed: #eeea00;
   --ef-on-action: #191919;
   --ef-accent-ink: #fffa00;
+  /* 暗色主题下反转块是近白，记号换成强调色的文字档 */
+  --ef-accent-ink-inverse: #6b5d00;
 
   --ef-control: #383838;
   --ef-control-hover: #484848;
   --ef-control-pressed: #282828;
   --ef-on-control: #eeeeee;
+
+  --ef-disabled: #282828;
+  --ef-on-disabled: #626262;
 
   --ef-focus: #fffa00;
   --ef-scrim: rgb(0 0 0 / 0.7);
@@ -242,6 +255,9 @@
   --animate-marquee: ef-marquee 20s linear infinite;
   --animate-spin: ef-spin 1s linear infinite;
   --animate-blink: ef-blink 1s step-end infinite;
+  --animate-slide-in: ef-slide-in 300ms ease-out both;
+  --animate-turn-in: ef-turn-in 300ms ease-out both;
+  --animate-fade-in: ef-fade-in 300ms ease-out both;
 
   /* 三次短促闪烁后点亮（官网实测的关键帧节奏） */
   @keyframes ef-flicker {
@@ -332,6 +348,34 @@
       opacity: 0;
     }
   }
+
+  /* 分节标题入场三步：滑块从左滑入 → 箭头转正 → 文字淡入 */
+  @keyframes ef-slide-in {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes ef-turn-in {
+    from {
+      transform: rotate(-45deg);
+    }
+    to {
+      transform: rotate(0);
+    }
+  }
+
+  @keyframes ef-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -358,11 +402,15 @@
   --color-action-pressed: var(--ef-action-pressed);
   --color-on-action: var(--ef-on-action);
   --color-accent-ink: var(--ef-accent-ink);
+  --color-accent-ink-inverse: var(--ef-accent-ink-inverse);
 
   --color-control: var(--ef-control);
   --color-control-hover: var(--ef-control-hover);
   --color-control-pressed: var(--ef-control-pressed);
   --color-on-control: var(--ef-on-control);
+
+  --color-disabled: var(--ef-disabled);
+  --color-on-disabled: var(--ef-on-disabled);
 
   --color-focus: var(--ef-focus);
   --color-scrim: var(--ef-scrim);

@@ -1,11 +1,12 @@
 # lib
 
-纯函数工具的预留位置，目前为空。
+纯函数与常量。这里不放 React 组件和 hooks。
 
-预期内容：
+| 文件 | 内容 |
+| --- | --- |
+| `cn.ts` | `cn()`：合并类名（`clsx` + `tailwind-merge`）。里面登记了 [theme.css](../styles/theme.css) 的自定义令牌名，否则 `text-micro` 会被当成颜色、与 `text-ink` 互相覆盖 |
+| `focus-ring.ts` | `focusRing`、`focusRingInset`：全库统一的焦点环类名 |
 
-- `cn()`：合并类名（`clsx` + `tailwind-merge`）；
-- 变体工具：按 `variant` / `size` / `tone` 生成类名；
-- 与 DOM 无关的格式化函数，例如把数字格式化成等宽的 `01 / 04`。
+没有单独的"变体工具"：各组件直接写 `Record<Variant, string>` 再用 `cn()` 合并，够用且类型清楚。
 
-这里不放 React 组件和 hooks。
+以后可能放进来的：与 DOM 无关的格式化函数，例如把数字格式化成等宽的 `01 / 04`。

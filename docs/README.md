@@ -10,7 +10,8 @@
 | 做一个官网气质的页面 | [官网](design/surfaces/website.md) → [色彩](design/foundations/color.md) → [分节标题](design/elements/section-title.md) |
 | 做游戏风格的界面 | [游戏界面](design/surfaces/game-ui.md) → [形状](design/foundations/shape.md) → [切角与斜楔](design/elements/corner-and-wedge.md) |
 | 做一张长图或活动页 | [宣传物料](design/surfaces/promotional.md) → [纹理](design/foundations/texture.md) |
-| 开始写组件 | [组件规范](design/components/README.md) → [theme.css](../packages/ui/src/styles/theme.css) |
+| 用现成的组件 | [packages/ui](../packages/ui/README.md) |
+| 接着写组件 | [组件规范](design/components/README.md) → [组件约定](../packages/ui/src/components/README.md) → [theme.css](../packages/ui/src/styles/theme.css) |
 | 核对某个数值的依据 | [官网实测数据](design/references/measurements.md) |
 
 ## 全部文档
@@ -101,5 +102,6 @@
 
 - 官网改版后，重新测量并更新 [measurements.md](design/references/measurements.md) 的日期与数值，再检查引用它的文档。
 - 改动任何令牌值时，同步修改 [theme.css](../packages/ui/src/styles/theme.css) 与对应文档里的表格。
+- 组件的实现取值与规范不一致时（多半是为了适配暗色主题），把取值和理由写回对应的组件文档。
 - 把"社区"级别的结论升级为"观察"时，注明游戏版本与观察日期。
 - 新增图解只放原创 SVG。不提交官方截图、立绘、Logo 与字体。

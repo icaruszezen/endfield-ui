@@ -1,6 +1,6 @@
 # endfield-ui
 
-《明日方舟：终末地》设计风格指导文档，以及（规划中的）React + Tailwind CSS v4 组件库。
+《明日方舟：终末地》设计风格指导文档，以及按这套文档实现的 React + Tailwind CSS v4 组件库。
 
 > 非官方的爱好者项目，与鹰角网络（Hypergryph）无关。本仓库不包含任何官方素材。详见 [NOTICE](NOTICE.md)。
 
@@ -9,9 +9,21 @@
 | | 状态 | 位置 |
 | --- | --- | --- |
 | 设计风格文档 | 可读 | [docs/](docs/README.md) |
-| 设计令牌 | 草案，已通过 Tailwind v4 编译验证 | [packages/ui/src/styles/theme.css](packages/ui/src/styles/theme.css) |
-| 组件库 | 未开始，仅预留目录 | [packages/ui/](packages/ui/README.md) |
-| 文档站 | 未开始，仅预留目录 | [apps/docs/](apps/docs/README.md) |
+| 设计令牌 | 草案，随组件一起使用 | [packages/ui/src/styles/theme.css](packages/ui/src/styles/theme.css) |
+| 组件库 | 第一期基础控件已实现，适配亮 / 暗主题；尚未发布 | [packages/ui/](packages/ui/README.md) |
+| 预览站 | Storybook，可并排对比亮暗两套 | [apps/docs/](apps/docs/README.md) |
+
+第一期的控件：Button、IconButton、Tag / TagPair、Badge、SectionTitle、Tabs、Panel。
+
+```bash
+pnpm install
+```
+
+```bash
+pnpm dev
+```
+
+第二条命令启动 Storybook（`http://localhost:6106`）。其余命令见 [packages/ui/README.md](packages/ui/README.md)。
 
 ## 这套风格是什么
 
@@ -57,25 +69,43 @@ docs/design/
 endfield-ui/
 ├── docs/                    设计风格文档
 ├── packages/
-│   └── ui/                  组件库（预留）
+│   └── ui/                  组件库 @endfield-ui/react
 │       └── src/
 │           ├── components/  组件
-│           ├── styles/      令牌与全局样式
+│           ├── styles/      令牌、母题工具类、样式入口
 │           ├── hooks/       通用 hooks
 │           ├── lib/         工具函数
 │           └── icons/       原创图标
 ├── apps/
-│   └── docs/                组件预览与文档站（预留）
+│   └── docs/                Storybook 预览站
+├── package.json
 ├── pnpm-workspace.yaml
 ├── NOTICE.md
 └── LICENSE
 ```
 
-仓库按 pnpm monorepo 组织。目前有意不放 `package.json`，开始组件库开发时再初始化，步骤见 [packages/ui/README.md](packages/ui/README.md)。
+仓库按 pnpm monorepo 组织，需要 Node 22 以上与 pnpm 10。
 
-## 使用设计令牌
+## 使用组件
 
-令牌文件可以独立于组件库使用。在一个已经装好 Tailwind CSS v4 的项目里：
+包还没有发布，目前在本仓库的工作区里使用。样式入口一行，然后直接用组件：
+
+```css
+@import "@endfield-ui/react/tailwind.css";
+```
+
+```tsx
+import { Button, Tag } from "@endfield-ui/react";
+
+<Button variant="action">前往游戏</Button>
+<Tag variant="outline">限时活动</Tag>
+```
+
+默认亮色；在 `<html>` 或任意容器上加 `data-theme="dark"` 切到暗色。不用 Tailwind 的项目、主题切换的 hook 等见 [packages/ui/README.md](packages/ui/README.md)。
+
+## 只使用设计令牌
+
+令牌文件可以独立于组件使用。在一个已经装好 Tailwind CSS v4 的项目里：
 
 ```css
 @import "tailwindcss";
@@ -97,9 +127,9 @@ endfield-ui/
 ## 路线
 
 1. ~~设计风格文档与令牌草案~~
-2. 初始化工程（`package.json`、构建、测试）
-3. 第一期组件：按钮、标签、分节标题、页签、卡片
-4. 文档站
+2. ~~初始化工程（`package.json`、构建、测试）~~
+3. ~~第一期组件：按钮、图标按钮、标签与角标、分节标题、页签、面板~~
+4. 文档站——组件预览（Storybook）已有；把设计文档渲染成站点还没做
 5. 表单与反馈 → 浮层与导航 → 数据与游戏风格 → 母题组件
 
 各期的组件清单见 [组件规范](docs/design/components/README.md)。

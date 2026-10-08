@@ -138,6 +138,8 @@
 
 官网和游戏里亮、暗两套基底都存在，都算"正统"。本规范默认亮色，在根元素上加 `data-theme="dark"` 切到暗色。
 
+`data-theme="dark"` 与 `data-theme="light"` 也可以加在局部容器上：亮色页面里嵌一个深色版块，或者反过来。
+
 | 语义令牌 | 亮色 | 暗色 | 用途 |
 | --- | --- | --- | --- |
 | `surface` | `#FFFFFF` | `#141414` | 页面底 |
@@ -156,16 +158,35 @@
 | `action-pressed` | `#EEEA00` | `#EEEA00` | 按下 |
 | `on-action` | `#191919` | `#191919` | 黄底上的文字 |
 | `accent-ink` | `#6B5D00` | `#FFFA00` | 强调文字 |
+| `accent-ink-inverse` | 同 `action` | `#6B5D00` | 反转块（`surface-inverse`）上的强调记号 |
 | `control` | `#383838` | `#383838` | 中性按钮底 |
 | `control-hover` | `#484848` | `#484848` | 悬停 |
 | `control-pressed` | `#282828` | `#282828` | 按下 |
 | `on-control` | `#EEEEEE` | `#EEEEEE` | 中性按钮上的文字 |
+| `disabled` | `#B3B3B3` | `#282828` | 禁用控件的填充 |
+| `on-disabled` | `#626262` | `#626262` | 禁用填充上的文字与记号 |
 | `focus` | `#191919` | `#FFFA00` | 焦点环 |
 | `scrim` | 黑 50% | 黑 70% | 弹窗遮罩 |
 
 亮色各值与暗色的 `#141414`、`#1F1F1F`、`#000000`、`#383838` 来自官网实测；暗色主题的其余取值是按同一套中性阶反向映射的**推断**。
 
 中性按钮（`control`）在两个主题下取值相同：官网的深色版块里按钮仍是 `#383838`。
+
+三个在实现组件时补上的令牌（**推断**）：
+
+- **`accent-ink-inverse`**——`surface-inverse` 在亮色主题下是墨色、在暗色主题下是近白，压在它上面的强调记号（面板标题带的竖条、反转图标钮的图标）要跟着换档：亮色下直接用行动色，暗色下用强调色的文字档。它和 `accent-ink` 正好相反。
+- **`disabled` / `on-disabled`**——官网的禁用按钮是 `#888888` 底配 `#666666` 字（实测）。这个底色在暗色页面上比正常的 `control` 还亮，所以禁用填充按主题取值：亮色取 `neutral-400`，暗色取 `neutral-850`；文字两边都是 `neutral-600`。
+
+### 哪些颜色有意不随主题变
+
+组件里随主题翻转的颜色一律走上表的语义令牌。只有"本来就是为某一种底色设计"的填充才直接用 `neutral-*`，在两个主题下保持不变：
+
+| 位置 | 取值 | 理由 |
+| --- | --- | --- |
+| `light` 按钮 | `neutral-0` 底、`neutral-900` 字 | 规范里它就是"用在深色底上"的白按钮 |
+| 圆形图标钮 | `neutral-50` 底、`neutral-900` 图标 | 要压在图像和深色版块上（官网的黑底版块里它仍是白的） |
+| 分节标题的滑块 | `neutral-300` 底、`neutral-900` 箭头 | 官网：深色底上滑块保持浅灰 |
+| `control` 系列 | 见上表 | 官网深色版块里按钮仍是 `#383838` |
 
 ## 对比度
 
@@ -185,6 +206,10 @@
 | `ink-secondary` / `surface`（暗） | 8.8:1 | 通过 |
 | `ink-tertiary` / `surface-raised`（暗） | 4.8:1 | 通过 |
 | `accent-ink` / `surface`（暗） | 16.6:1 | 通过 |
+| `accent-ink-inverse` / `surface-inverse`（亮） | 15.9:1 | 通过 |
+| `accent-ink-inverse` / `surface-inverse`（暗） | 6.3:1 | 通过 |
+| `on-disabled` / `disabled`（亮） | 2.9:1 | 仅限禁用态 |
+| `on-disabled` / `disabled`（暗） | 2.4:1 | 仅限禁用态 |
 | `line` / `surface`（亮） | 1.4:1 | 仅作分隔，不能单独表示控件边界 |
 
 `line` 的对比度很低，这是有意的：官网的分隔线就是"刚好看得见"。但输入框这类必须看清边界的控件要用 `line-strong` 或底色区分。
@@ -199,14 +224,22 @@
 .theme-region-wuling {
   --ef-action: #14d0d0;
   --ef-action-pressed: #10b8b8;
-  --ef-accent-ink: #006a6a; /* 亮色表面上的文字档 */
+  --ef-accent-ink: #006a6a; /* 浅色表面上的文字档 */
+  --ef-accent-ink-inverse: #14d0d0; /* 深色表面上直接用行动色 */
+}
+
+/* 暗色主题下表面的明暗反过来，两个文字档对调 */
+[data-theme="dark"] .theme-region-wuling {
+  --ef-accent-ink: #14d0d0;
+  --ef-accent-ink-inverse: #006a6a;
 }
 ```
 
 规则：
 
 - 一个界面只有一个主导主题色。
-- 换的是 `action` 与 `accent-ink`；`danger`、`success`、`warning` 不动。
+- 换的是 `action`、`action-pressed` 和两个强调文字档（`accent-ink`、`accent-ink-inverse`）；`danger`、`success`、`warning` 不动。
+- 强调文字档按"所在表面是深是浅"取值，所以暗色主题下要对调，如上例。只在亮色主题下用的接管可以省掉第二段。
 - 新主题色同样要过对比度：填充上压墨字 ≥ 4.5:1，文字档在所在表面上 ≥ 4.5:1。
 - 主题接管时，字体、纹理也可以跟着换，不只是换色。
 

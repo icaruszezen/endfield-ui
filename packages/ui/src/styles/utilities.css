@@ -1,0 +1,42 @@
+/*
+ * endfield-ui 母题工具类
+ *
+ * 只收录已有组件用到的母题，其余的等用到时再加。
+ * 画法与取值的依据写在 docs/design/elements/ 下的对应文档里。
+ */
+
+/* ------------------------------------------------------------------ */
+/* 斜纹：6px 方格、-45°。默认是"粗"档，用在浅色条带上                    */
+/* ------------------------------------------------------------------ */
+
+@utility hatch {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--hatch-color, rgb(0 0 0 / 0.05)) 0 var(--hatch-width, 1.9px),
+    transparent 0 calc(var(--hatch-size) * 0.7071)
+  );
+}
+
+/* "中"档：比底色亮一档的斜带，压在深色控件上（返回按钮） */
+@utility hatch-mid {
+  --hatch-color: var(--color-neutral-700);
+  --hatch-width: 1.5px;
+}
+
+/* ------------------------------------------------------------------ */
+/* 竖条变箭头：同一个元素的 clip-path 在两个四点多边形之间过渡           */
+/* 顶点数必须相同才能插值，所以三角形写成四个点（最后两个重合）          */
+/* ------------------------------------------------------------------ */
+
+@utility marker-bar {
+  clip-path: polygon(
+    0 0,
+    var(--marker-bar, 3px) 0,
+    var(--marker-bar, 3px) 100%,
+    0 100%
+  );
+}
+
+@utility marker-arrow {
+  clip-path: polygon(0 20%, 100% 50%, 0 80%, 0 80%);
+}

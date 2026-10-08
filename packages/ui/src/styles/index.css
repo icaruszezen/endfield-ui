@@ -1,0 +1,25 @@
+/*
+ * endfield-ui 样式入口
+ *
+ * 已经在用 Tailwind CSS v4 的项目，用它代替 `@import "tailwindcss"`：
+ *   @import "@endfield-ui/react/tailwind.css";
+ *
+ * 不用 Tailwind 的项目，引入预编译好的 `@endfield-ui/react/styles.css`。
+ */
+
+@import "tailwindcss";
+@import "./theme.css";
+@import "./utilities.css";
+
+/*
+ * 让 Tailwind 扫到本包用到的类名。要扫整个 src，不能只扫 components：
+ * 焦点环这类共用的类名写在 lib 里。
+ */
+@source "../";
+
+@layer base {
+  body {
+    background-color: var(--ef-surface);
+    color: var(--ef-ink);
+  }
+}
