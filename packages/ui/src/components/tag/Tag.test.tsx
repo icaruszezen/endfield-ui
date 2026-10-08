@@ -20,6 +20,31 @@ describe("Tag", () => {
     );
     expect(screen.getByText("10.08")).toHaveClass("font-tech", "tabular-nums");
   });
+
+  it("gain 是增益签", () => {
+    render(
+      <Tag variant="gain" numeric>
+        +6%
+      </Tag>,
+    );
+    expect(screen.getByText("+6%")).toHaveAttribute("data-variant", "gain");
+  });
+
+  it("marked 给日期块加一个小红角", () => {
+    const { rerender } = render(
+      <Tag variant="inverse" numeric>
+        10.21
+      </Tag>,
+    );
+    expect(screen.getByText("10.21")).not.toHaveAttribute("data-marked");
+
+    rerender(
+      <Tag variant="inverse" numeric marked>
+        10.21
+      </Tag>,
+    );
+    expect(screen.getByText("10.21")).toHaveAttribute("data-marked");
+  });
 });
 
 describe("TagPair", () => {

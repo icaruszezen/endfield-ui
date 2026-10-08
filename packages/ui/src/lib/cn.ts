@@ -22,6 +22,7 @@ const twMerge = extendTailwindMerge({
         "slide-in",
         "turn-in",
         "fade-in",
+        "indeterminate",
       ],
     },
   },

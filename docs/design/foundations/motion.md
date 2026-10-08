@@ -121,6 +121,8 @@
 | `animate-slide-in` | `translateX(-100%)` → `0`，300ms | 分节标题的滑块（外层要 `overflow: hidden`） | 实测；时长为推断 |
 | `animate-turn-in` | `rotate(-45deg)` → `0`，300ms | 滑块里的斜箭头 | 实测；时长为推断 |
 | `animate-fade-in` | 不透明度 0 → 1，300ms | 分节标题的文字 | 实测；时长为推断 |
+| `animate-indeterminate` | 平移自身宽度的 150% 再返回，匀速，1.2s 一程，循环 | 不确定进度的色块（色块宽为轨道的 40%） | 推断 |
+| `animate-pulse` | 不透明度 1 → 0.6 → 1，2s，循环 | 骨架的明度往返 | 推断 |
 
 ### 闪烁点亮
 

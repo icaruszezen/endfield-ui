@@ -258,6 +258,8 @@
   --animate-slide-in: ef-slide-in 300ms ease-out both;
   --animate-turn-in: ef-turn-in 300ms ease-out both;
   --animate-fade-in: ef-fade-in 300ms ease-out both;
+  --animate-indeterminate: ef-indeterminate 1.2s linear infinite alternate;
+  --animate-pulse: ef-pulse 2s ease-in-out infinite;
 
   /* 三次短促闪烁后点亮（官网实测的关键帧节奏） */
   @keyframes ef-flicker {
@@ -374,6 +376,27 @@
     }
     to {
       opacity: 1;
+    }
+  }
+
+  /* 不确定进度：宽 40% 的色块在轨道上匀速往返，所以走自身宽度的 150% */
+  @keyframes ef-indeterminate {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(150%);
+    }
+  }
+
+  /* 骨架：很轻的明度往返，不是扫光 */
+  @keyframes ef-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.6;
     }
   }
 }

@@ -8,7 +8,7 @@ const meta = {
   argTypes: {
     variant: {
       control: "select",
-      options: ["solid", "outline", "inverse", "muted", "accent"],
+      options: ["solid", "outline", "inverse", "muted", "accent", "gain"],
     },
     size: { control: "inline-radio", options: ["sm", "md"] },
   },
@@ -77,13 +77,33 @@ export const DateBlock: Story = {
         </p>
       </div>
       <div className="flex items-center gap-3">
-        <Tag variant="inverse" numeric>
+        <Tag variant="inverse" numeric marked>
           10.21
         </Tag>
         <p className="font-tech text-xs text-ink-secondary">
-          // 维护　2026.10.21
+          // 维护　2026.10.21　小红角标出需要留意的日期
         </p>
       </div>
+    </div>
+  ),
+};
+
+export const Gain: Story = {
+  name: "增益签",
+  render: () => (
+    <div className="flex flex-wrap items-center gap-3">
+      <Tag variant="gain" numeric>
+        +6%
+      </Tag>
+      <Tag variant="gain" size="sm" numeric>
+        +128
+      </Tag>
+      <span className="font-tech text-sm font-bold text-danger tabular-nums">
+        −2%
+      </span>
+      <p className="text-sm text-ink-secondary">
+        上升用增益签；下降用危险色文字加负号。
+      </p>
     </div>
   ),
 };

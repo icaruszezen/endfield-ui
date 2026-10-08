@@ -20,6 +20,9 @@ describe("cn", () => {
     expect(cn("shadow-xs", "shadow-rail")).toBe("shadow-rail");
     expect(cn("ease-standard", "ease-exit")).toBe("ease-exit");
     expect(cn("animate-spin", "animate-fade-in")).toBe("animate-fade-in");
+    expect(cn("animate-fill", "animate-indeterminate")).toBe(
+      "animate-indeterminate",
+    );
   });
 
   it("忽略假值", () => {
