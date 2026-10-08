@@ -1,6 +1,6 @@
 # 组件规范
 
-把基础规范落到具体控件上：每个组件长什么样、有哪些状态、多大。这里是 [`packages/ui`](../../../packages/ui/README.md) 的设计输入。**第一期和第二期的大部分已经实现**，各期清单里逐项标了状态；没标"已实现"的还只有规范。
+把基础规范落到具体控件上：每个组件长什么样、有哪些状态、多大。这里是 [`packages/ui`](../../../packages/ui/README.md) 的设计输入。**第一期、第二期，以及后面几期里不依赖浮层与切角的控件已经实现**，各期清单里逐项标了状态；没标"已实现"的还只有规范。
 
 ## 怎么读
 
@@ -96,23 +96,24 @@
 | Tabs | [导航](navigation.md) | 激活时文字让位给箭头 |
 | Panel | [卡片](card.md) | 直角、1px 线、无阴影 |
 
-这一期当时没做、后来补上的：列表行、胶囊族的筛选 / 资源 / 倒计时徽章、增益签、日期块的小红角。仍然没做的：媒体卡、物品格（[卡片](card.md)）；页签的 `wedge` 变体。
+这一期当时没做、后来补上的：列表行、媒体卡、胶囊族的筛选 / 资源 / 倒计时徽章、增益签、日期块的小红角。仍然没做的：物品格（[卡片](card.md)）、页签的 `wedge` 变体——都要等切角工具类。
 
 ### 第二期：表单与反馈
 
-能搭出设置页、表单页。在 Storybook 的"示例 / 设置页"里可以看到用它们搭出来的页面。
+能搭出设置页、表单页、列表页。在 Storybook 的"示例 / 设置页"和"示例 / 列表页"里可以看到用它们搭出来的页面。
 
 | 组件 | 规范 | 状态 |
 | --- | --- | --- |
 | Field | [表单](form.md) | 已实现 |
-| Input / Textarea | [表单](form.md) | 已实现 |
+| Input / Textarea | [表单](form.md) | 已实现（凹陷与描边两种） |
 | Checkbox / Radio / Switch | [表单](form.md) | 已实现 |
 | FilterChip | [数据展示](data-display.md) | 已实现 |
-| Progress | [反馈](feedback.md) | 已实现（进度环未做） |
+| Progress / ProgressRing | [反馈](feedback.md) | 已实现 |
 | Alert | [反馈](feedback.md) | 已实现 |
 | Select | [表单](form.md) | 未做，挪到第三期 |
 | Toast | [反馈](feedback.md) | 未做，挪到第三期 |
-| 步进器、双标签开关 | [表单](form.md) | 未做 |
+| Stepper、双标签开关 | [表单](form.md) | 已实现 |
+| 菱形表单符号（方案 B） | [表单](form.md) | 未做，和母题组件一起做 |
 
 Select 的面板和 Toast 的容器都是浮层，需要定位与焦点管理。它们和第三期的浮层共用同一套无障碍基元，所以等基元选定后一起做。
 
@@ -127,7 +128,7 @@ Select 的面板和 Toast 的容器都是浮层，需要定位与焦点管理。
 | DropdownMenu / Tooltip | [浮层](overlay.md) | |
 | Select / Toast | [表单](form.md)、[反馈](feedback.md) | 从第二期挪来 |
 | SideRail / TopBar | [导航](navigation.md) | |
-| Pagination / Navigator | [导航](navigation.md) | |
+| Pagination / Navigator / DashIndicator | [导航](navigation.md) | 已实现 |
 | Breadcrumb | [导航](navigation.md) | 已实现 |
 
 ### 第四期：数据与游戏风格
@@ -141,14 +142,16 @@ Select 的面板和 Toast 的容器都是浮层，需要定位与焦点管理。
 | Stat | [数据展示](data-display.md) | 已实现 |
 | ResourceChip / Countdown | [数据展示](data-display.md) | 已实现 |
 | List / ListRow | [卡片](card.md) | 已实现 |
-| Timeline | [数据展示](data-display.md) | |
+| Timeline | [数据展示](data-display.md) | 已实现 |
 | ItemSlot | [卡片](card.md) | |
 | EmptyState / Skeleton | [反馈](feedback.md) | 已实现 |
-| Loader（加载页） | [反馈](feedback.md) | |
+| Loader（加载页） | [反馈](feedback.md) | 已实现 |
 
 ### 第五期：母题组件
 
 把 [母题](../elements/corner-and-wedge.md) 做成可复用的装饰组件：GhostText、Hatch、RegistrationStrip、TickRing、CornerBrackets、Viewfinder、Marquee、ScrollHint。
+
+Marquee 与 ScrollHint 已实现：它们只用到现成的动画，不依赖切角。其余几个要先把切角、角括号落进 [utilities.css](../../../packages/ui/src/styles/utilities.css)。
 
 这些放在最后，是因为它们最容易被滥用。先有扎实的基础组件，再提供装饰。
 

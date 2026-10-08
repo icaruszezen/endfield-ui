@@ -7,9 +7,10 @@
 | 类别 | 控件 |
 | --- | --- |
 | 基础 | Button、IconButton、Tag / TagPair、Badge、SectionTitle、Tabs、Panel |
-| 表单 | Field、Input、Textarea、Checkbox、Radio / RadioGroup、Switch、FilterChip |
-| 反馈 | Alert、Progress、Skeleton、EmptyState |
-| 展示与导航 | Stat、List / ListRow、ResourceChip、Countdown、Breadcrumb |
+| 表单 | Field、Input、Textarea、Checkbox、Radio / RadioGroup、Switch、Stepper、FilterChip |
+| 反馈 | Alert、Progress / ProgressRing、Skeleton、EmptyState、Loader |
+| 展示 | Stat、List / ListRow、MediaCard、Timeline、ResourceChip、Countdown、Marquee、ScrollHint |
+| 导航 | Breadcrumb、Pagination、Navigator、DashIndicator |
 
 包还没有发布到 npm，目前只在本仓库的工作区里使用。
 
@@ -90,6 +91,39 @@ import { Checkbox, Field, Input, Radio, RadioGroup, Switch } from "@endfield-ui/
 ```
 
 表单控件都是原生 `<input>` / `<textarea>` 套样式：`name`、`value`、`required`、`ref` 这些属性直接落在原生元素上，可以照常放进 `<form>` 提交。`className` 给的是外层（输入框的外框、复选框的整行）。
+
+### 带状态的控件
+
+步进器、分页条、胶囊导航器都有受控与非受控两种用法：传 `value` / `page` / `index` 就由外面决定，只传 `default…` 就由控件自己记。
+
+```tsx
+import { Navigator, Pagination, Stepper } from "@endfield-ui/react";
+
+<Stepper value={count} onValueChange={setCount} min={1} max={99} />
+
+<Pagination page={page} pageCount={12} onPageChange={setPage} jump />
+
+<Navigator
+  aria-label="勘探区"
+  items={["谷地", "第七勘探区", "荒原"]}
+  index={zone}
+  onIndexChange={setZone}
+/>
+```
+
+页码从 1 起，`index` 从 0 起。
+
+### 加载页
+
+`Loader` 默认铺满视口，并在加载期间锁住页面滚动和焦点。内容就绪后把 `open` 置为 `false`，遮罩滑出、随后自己卸载：
+
+```tsx
+import { Loader } from "@endfield-ui/react";
+
+<Loader value={progress} open={!ready} tagline="正在同步档案" />
+```
+
+不知道真实进度就不传 `value`。只想盖住页面的一块区域时加 `fullscreen={false}`，并让那块区域带 `relative` 与 `overflow-hidden`。
 
 ### 主题
 

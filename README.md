@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | 设计风格文档 | 可读 | [docs/](docs/README.md) |
 | 设计令牌 | 草案，随组件一起使用 | [packages/ui/src/styles/theme.css](packages/ui/src/styles/theme.css) |
-| 组件库 | 基础、表单与反馈类控件已实现，适配亮 / 暗主题；尚未发布 | [packages/ui/](packages/ui/README.md) |
+| 组件库 | 基础、表单、反馈、展示与导航类控件已实现，适配亮 / 暗主题；尚未发布 | [packages/ui/](packages/ui/README.md) |
 | 预览站 | Storybook，可并排对比亮暗两套；[在线预览](https://icaruszezen.github.io/endfield-ui/) | [apps/docs/](apps/docs/README.md) |
 
 已有的控件：
@@ -18,11 +18,12 @@
 | 类别 | 控件 |
 | --- | --- |
 | 基础 | Button、IconButton、Tag / TagPair、Badge、SectionTitle、Tabs、Panel |
-| 表单 | Field、Input、Textarea、Checkbox、Radio / RadioGroup、Switch、FilterChip |
-| 反馈 | Alert、Progress、Skeleton、EmptyState |
-| 展示与导航 | Stat、List / ListRow、ResourceChip、Countdown、Breadcrumb |
+| 表单 | Field、Input、Textarea、Checkbox、Radio / RadioGroup、Switch、Stepper、FilterChip |
+| 反馈 | Alert、Progress / ProgressRing、Skeleton、EmptyState、Loader |
+| 展示 | Stat、List / ListRow、MediaCard、Timeline、ResourceChip、Countdown、Marquee、ScrollHint |
+| 导航 | Breadcrumb、Pagination、Navigator、DashIndicator |
 
-还没做的（下拉、轻提示、弹窗等浮层，表格，侧轨等外壳）见 [组件规范](docs/design/components/README.md) 的各期清单。
+还没做的（下拉、轻提示、弹窗等浮层，切角一类的母题控件，表格，侧轨等外壳）见 [组件规范](docs/design/components/README.md) 的各期清单。
 
 ```bash
 pnpm install
@@ -144,8 +145,9 @@ import { Button, Field, Input, Tag } from "@endfield-ui/react";
 2. ~~初始化工程（`package.json`、构建、测试）~~
 3. ~~第一期组件：按钮、图标按钮、标签与角标、分节标题、页签、面板~~
 4. ~~第二期组件：表单字段、输入框、复选 / 单选 / 开关、进度、提示条，以及一批纯展示控件~~（下拉与轻提示挪到下一步）
-5. 文档站——组件预览（Storybook）已有；把设计文档渲染成站点还没做
-6. 浮层与导航（先选定无障碍基元）→ 数据与游戏风格 → 母题组件
+5. ~~不依赖浮层的一批：分页、胶囊导航器、时间线、媒体卡、步进器、进度环、跑马灯、滚动提示、加载页~~
+6. 文档站——组件预览（Storybook）已有；把设计文档渲染成站点还没做
+7. 母题工具类与依赖它的控件（切角页签、物品格、角括号）→ 浮层（先选定无障碍基元）→ 表格与外壳
 
 各期的组件清单见 [组件规范](docs/design/components/README.md)。
 

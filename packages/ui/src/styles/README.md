@@ -17,7 +17,7 @@
 ## theme.css 的结构
 
 1. **语义变量**：亮色定义在 `:root` 与 `[data-theme="light"]`（对齐官网的纸白基底），`[data-theme="dark"]` 覆盖为暗色（对齐游戏 HUD 与官网深色版块）。两种取值都可以加在局部容器上。
-2. **`@theme`**：不随主题变化的原始令牌——色板、字体、字阶、圆角、阴影、缓动、动画。
+2. **`@theme`**：不随主题变化的原始令牌——色板、字体、字阶、圆角、阴影、缓动、动画，以及层叠值（目前只有加载页的 `--z-loader`，用法是 `z-(--z-loader)`）。
 3. **`@theme inline`**：把第 1 步的语义变量映射成 Tailwind 颜色，生成 `bg-surface`、`text-ink`、`border-line` 这类工具类。
 
 ## 只用令牌
@@ -41,7 +41,7 @@
 
 ## 母题工具类
 
-`utilities.css` 只收录已有组件用到的母题。切角、角括号、镂空字等的参考写法仍在 [docs/design/elements](../../../../docs/design/elements/corner-and-wedge.md) 里以代码片段形式给出，用到时再落进来。
+`utilities.css` 只收录已有组件用到的母题。斜纹 `hatch` 的默认颜色跟着主题走（墨色的 5%），压在不随主题变的深色控件上时再加 `hatch-mid`。切角、角括号、镂空字等的参考写法仍在 [docs/design/elements](../../../../docs/design/elements/corner-and-wedge.md) 里以代码片段形式给出，用到时再落进来。
 
 ## 注意
 

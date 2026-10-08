@@ -12,25 +12,34 @@
 | `section-title/` | `SectionTitle` | [分节标题](../../../../docs/design/elements/section-title.md) |
 | `tabs/` | `Tabs`、`TabList`、`Tab`、`TabPanel` | [导航](../../../../docs/design/components/navigation.md) |
 | `breadcrumb/` | `Breadcrumb`、`BreadcrumbItem` | [导航](../../../../docs/design/components/navigation.md) |
+| `pagination/` | `Pagination` | [导航](../../../../docs/design/components/navigation.md) |
+| `navigator/` | `Navigator` | [导航](../../../../docs/design/components/navigation.md) |
+| `dash-indicator/` | `DashIndicator` | [导航](../../../../docs/design/components/navigation.md) |
 | `panel/` | `Panel`、`PanelHeader`、`PanelBody`、`PanelRows`、`PanelRow` | [卡片](../../../../docs/design/components/card.md) |
 | `list/` | `List`、`ListRow` | [卡片](../../../../docs/design/components/card.md) |
+| `media-card/` | `MediaCard` | [卡片](../../../../docs/design/components/card.md) |
+| `timeline/` | `Timeline`、`TimelineItem` | [数据展示](../../../../docs/design/components/data-display.md) |
 | `field/` | `Field`、`useFieldControl`、`useFieldContext` | [表单](../../../../docs/design/components/form.md) |
 | `input/` | `Input` | [表单](../../../../docs/design/components/form.md) |
 | `textarea/` | `Textarea` | [表单](../../../../docs/design/components/form.md) |
 | `checkbox/` | `Checkbox` | [表单](../../../../docs/design/components/form.md) |
 | `radio/` | `RadioGroup`、`Radio` | [表单](../../../../docs/design/components/form.md) |
-| `switch/` | `Switch` | [表单](../../../../docs/design/components/form.md) |
+| `switch/` | `Switch`（含双标签开关） | [表单](../../../../docs/design/components/form.md) |
+| `stepper/` | `Stepper` | [表单](../../../../docs/design/components/form.md) |
 | `alert/` | `Alert` | [反馈](../../../../docs/design/components/feedback.md) |
-| `progress/` | `Progress` | [反馈](../../../../docs/design/components/feedback.md) |
+| `progress/` | `Progress`、`ProgressRing` | [反馈](../../../../docs/design/components/feedback.md) |
 | `skeleton/` | `Skeleton` | [反馈](../../../../docs/design/components/feedback.md) |
 | `empty-state/` | `EmptyState` | [反馈](../../../../docs/design/components/feedback.md) |
+| `loader/` | `Loader` | [反馈](../../../../docs/design/components/feedback.md) |
+| `marquee/` | `Marquee` | [动效](../../../../docs/design/foundations/motion.md) |
+| `scroll-hint/` | `ScrollHint` | [测绘叠层](../../../../docs/design/elements/hud-overlays.md) |
 
 几个目录里有不对外导出的样式文件，供外观相同的控件共用，免得两边走样：
 
 | 文件 | 谁在用 |
 | --- | --- |
 | `chip/capsule-style.ts` | `FilterChip`、`Tabs` 的 `capsule` 变体 |
-| `input/control-box.ts` | `Input`、`Textarea` 的外框 |
+| `input/control-box.ts` | `Input`、`Textarea` 的外框（凹陷与描边两种） |
 | `checkbox/choice-style.ts` | `Checkbox`、`Radio`、`Switch` 的行与方格 |
 
 ## 约定
@@ -59,7 +68,17 @@ components/
 - 组件内部的响应式看**自身宽度**，用容器查询（`@container` + `@md:` 这类变体），不用视口断点（`md:`）：组件不知道自己会被放进多窄的栏里。视口断点只留给"必须和页面布局同步切换"的地方，目前只有 `SectionTitle` 的 `side` 形态。
 - 会出现英文长单词的大号文字加 `wrap-anywhere` 兜底，并确保它所在的弹性子项能收缩（`min-w-0` 或 `max-w-full`）。有意不换行的控件（按钮、标签、页签）除外。
 - 装饰元素（竖条、箭头、分隔线）加 `aria-hidden`。
-- 动效遵守 `prefers-reduced-motion`：降级后内容必须停在终态。
+- 动效遵守 `prefers-reduced-motion`：降级后内容必须停在终态。循环动画停下来的样子不能被看成一个具体的值：不确定进度的色块停在正中，进度环换成一圈虚线。
+- 用 `group` / `peer` 时给 `group` 起名字（`group/card` + `group-hover/card:`）：不起名的 `group-hover:` 会被外层任何一个 `group` 的悬停带着走，控件一旦被放进别的可悬停容器就会出错。
+- `z-index` 不在组件里写数值，用 [theme.css](../styles/theme.css) 里的层叠变量（目前只有加载页的 `--z-loader`）。
+
+### 带状态的控件
+
+- 受控与非受控两种用法都要支持，用 [`useControllableState`](../hooks/useControllableState.ts)：`value` / `defaultValue` / `onValueChange`（分页是 `page`，导航器是 `index`）。
+- 页码从 1 起，其余的位置（`index`）从 0 起。
+- 越界的值夹回范围内，不抛错。
+- 会变的位置信息用 `aria-live="polite"` 播报一句完整的话（"第 2 页，共 12 页"），看得见的 `02 / 12` 对读屏隐藏。
+- 输入到一半的内容单独存一份草稿，失焦或回车时才落定——边输入边校正会让人打不出想要的数（步进器、分页的跳页）。
 
 ### 表单控件
 
