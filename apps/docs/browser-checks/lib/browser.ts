@@ -32,6 +32,7 @@ type Message = any;
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const KEY_CODES: Record<string, number> = {
+  Backspace: 8,
   Tab: 9,
   Enter: 13,
   Escape: 27,
@@ -42,6 +43,7 @@ const KEY_CODES: Record<string, number> = {
   ArrowUp: 38,
   ArrowRight: 39,
   ArrowDown: 40,
+  Delete: 46,
   F6: 117,
 };
 
@@ -403,7 +405,7 @@ export async function launch({
       );
     },
 
-    async key(name: string, { shift = false } = {}) {
+    async key(name: string, { shift = false, ctrl = false } = {}) {
       const code = KEY_CODES[name];
       const base = code
         ? {
@@ -425,7 +427,7 @@ export async function launch({
             : code
               ? undefined
               : name;
-      const modifiers = shift ? 8 : 0;
+      const modifiers = (shift ? 8 : 0) | (ctrl ? 2 : 0);
       await send("Input.dispatchKeyEvent", {
         type: text ? "keyDown" : "rawKeyDown",
         ...base,
@@ -443,8 +445,18 @@ export async function launch({
       );
     },
 
+    /** 逐字输入。字母和数字走按键；中文这类不在键盘上的字直接送进输入框，像输入法上屏那样 */
     async type(text: string) {
-      for (const character of text) await page.key(character);
+      for (const character of text) {
+        if (/^[a-z0-9]$/i.test(character)) {
+          await page.key(character);
+        } else {
+          await send("Input.insertText", { text: character });
+          await evaluate(
+            () => new Promise((resolve) => requestAnimationFrame(resolve)),
+          );
+        }
+      }
     },
 
     point,

@@ -4,6 +4,7 @@ import { Lock } from "../../icons/Lock";
 import { cn } from "../../lib/cn";
 import { decor } from "../../lib/decor";
 import { focusRing } from "../../lib/focus-ring";
+import { LinkElement, type LinkRender } from "../link-element/LinkElement";
 
 export type ItemSlotRarity = 1 | 2 | 3 | 4;
 export type ItemSlotRatio = "1/1" | "4/5";
@@ -37,7 +38,9 @@ type OwnProps = {
   href?: string;
   target?: string;
   rel?: string;
-  /** 传了（且没有 `href`）就整格渲染成按钮 */
+  /** 用这个元素代替 `<a>`（路由库的链接组件）。传了就按链接处理 */
+  render?: LinkRender;
+  /** 传了（且没有 `href` 和 `render`）就整格渲染成按钮 */
   onClick?: (event: MouseEvent<HTMLElement>) => void;
   disabled?: boolean;
   /** 图标或缩略图 */
@@ -46,6 +49,9 @@ type OwnProps = {
 
 export type ItemSlotProps = Omit<ComponentProps<"div">, keyof OwnProps> &
   OwnProps;
+
+/** 格子里那个可点击的元素带着它：`ItemGrid` 靠它找到能用方向键走到的格子 */
+const slotControl = { "data-slot-control": "" };
 
 const ratioClass: Record<ItemSlotRatio, string> = {
   "1/1": "aspect-square",
@@ -65,7 +71,7 @@ const rarityClass: Record<ItemSlotRarity, string> = {
  * 整格只有一个可点击元素；宽度跟着所在的网格走，格子之间留 6 – 8px。
  *
  * `className` 与其余属性给最外层的盒子。角括号画在盒子之外 4px，
- * 所以网格容器不能贴着格子裁切。
+ * 所以网格容器不能贴着格子裁切。一组格子放进 `ItemGrid`，就能用方向键在里面走。
  */
 export function ItemSlot({
   name,
@@ -83,13 +89,14 @@ export function ItemSlot({
   href,
   target,
   rel,
+  render,
   onClick,
   disabled = false,
   className,
   children,
   ...props
 }: ItemSlotProps) {
-  const isLink = href !== undefined;
+  const isLink = href !== undefined || render !== undefined;
   const isButton = !isLink && onClick !== undefined;
   const interactive = (isLink || isButton) && !disabled;
   const hasCount = count !== undefined && count !== null && count !== false;
@@ -225,7 +232,8 @@ export function ItemSlot({
   let node: ReactNode;
   if (isLink) {
     node = (
-      <a
+      <LinkElement
+        render={render}
         // 禁用的链接去掉 href，保留 link 角色，让读屏仍能读出"不可用"
         href={disabled ? undefined : href}
         role={disabled ? "link" : undefined}
@@ -235,9 +243,10 @@ export function ItemSlot({
         aria-current={selected ? "true" : undefined}
         onClick={disabled ? (event) => event.preventDefault() : onClick}
         className={faceClass}
+        {...slotControl}
       >
         {face}
-      </a>
+      </LinkElement>
     );
   } else if (isButton) {
     node = (
@@ -247,6 +256,7 @@ export function ItemSlot({
         aria-pressed={selected}
         onClick={onClick}
         className={faceClass}
+        {...slotControl}
       >
         {face}
       </button>

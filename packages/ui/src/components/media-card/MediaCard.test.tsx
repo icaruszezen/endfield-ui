@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { MediaCard } from "./MediaCard";
+import { RouterLink } from "../../test/RouterLink";
 
 const media = <img src="cover.png" alt="" />;
 
@@ -67,5 +68,19 @@ describe("MediaCard", () => {
     expect(container.querySelector("img")?.parentElement).toHaveClass(
       "aspect-square",
     );
+  });
+
+  it("render：标题里的链接换成路由库的链接组件，整卡仍然可点", () => {
+    render(
+      <MediaCard
+        media={media}
+        title="首批测绘数据归档"
+        render={<RouterLink to="/news/1" />}
+      />,
+    );
+    const link = screen.getByRole("link", { name: "首批测绘数据归档" });
+    expect(link).toHaveAttribute("href", "/app/news/1");
+    expect(link).toHaveClass("after:absolute", "after:inset-0");
+    expect(link.closest("article")).toHaveClass("has-focus-visible:outline-2");
   });
 });

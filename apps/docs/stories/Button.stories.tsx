@@ -1,6 +1,7 @@
 import { ArrowRight, Button, ButtonGroup, Plus } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
+import { RouterLink } from "./_shared/RouterLink";
 
 const meta = {
   title: "控件/Button 按钮",
@@ -135,6 +136,22 @@ export const AsLink: Story = {
         查看全部
       </Button>
       <Button href="#news" disabled>
+        暂未开放
+      </Button>
+    </div>
+  ),
+};
+
+/* 用路由库时把它的链接组件传给 render：长相、状态属性和事件都合并过去 */
+export const WithRouter: Story = {
+  name: "套路由库的链接",
+  render: () => (
+    <div className="flex flex-wrap items-center gap-4">
+      <Button render={<RouterLink to="/archive" />}>查看档案</Button>
+      <Button variant="text" render={<RouterLink to="/archive" />}>
+        查看全部
+      </Button>
+      <Button disabled render={<RouterLink to="/archive" />}>
         暂未开放
       </Button>
     </div>

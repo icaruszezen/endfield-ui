@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuSub,
 } from "./DropdownMenu";
+import { RouterLink } from "../../test/RouterLink";
 
 function Basic({
   onRename = () => {},
@@ -336,5 +337,20 @@ describe("DropdownMenu", () => {
     for (const menu of screen.getAllByRole("menu")) {
       expect(menu).toHaveAttribute("data-theme", "dark");
     }
+  });
+
+  it("render：菜单项交给路由库的链接组件，仍然是一个菜单项", async () => {
+    const user = userEvent.setup();
+    render(
+      <DropdownMenu trigger={<button type="button">操作</button>}>
+        <DropdownMenuItem render={<RouterLink to="/detail" />}>
+          查看详情
+        </DropdownMenuItem>
+      </DropdownMenu>,
+    );
+    await user.click(screen.getByRole("button", { name: "操作" }));
+    const item = await screen.findByRole("menuitem", { name: "查看详情" });
+    expect(item.tagName).toBe("A");
+    expect(item).toHaveAttribute("href", "/app/detail");
   });
 });

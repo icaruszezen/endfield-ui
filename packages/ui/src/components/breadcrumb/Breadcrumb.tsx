@@ -8,6 +8,7 @@ import {
 } from "react";
 import { cn } from "../../lib/cn";
 import { focusRing } from "../../lib/focus-ring";
+import { LinkElement, type LinkRender } from "../link-element/LinkElement";
 
 export type BreadcrumbProps = ComponentProps<"nav"> & {
   /**
@@ -106,8 +107,10 @@ export function Breadcrumb({
 }
 
 export type BreadcrumbItemProps = Omit<ComponentProps<"li">, "children"> & {
-  /** 传了就渲染成链接。用路由库的链接组件时不传，把它放进 children */
+  /** 传了就渲染成链接 */
   href?: string;
+  /** 用这个元素代替 `<a>`（路由库的链接组件）。传了就按链接处理 */
+  render?: LinkRender;
   /** 当前页：加粗、不可点击，输出 `aria-current="page"`。给最后一项 */
   current?: boolean;
   children: ReactNode;
@@ -115,6 +118,7 @@ export type BreadcrumbItemProps = Omit<ComponentProps<"li">, "children"> & {
 
 export function BreadcrumbItem({
   href,
+  render,
   current = false,
   className,
   children,
@@ -127,9 +131,10 @@ export function BreadcrumbItem({
         {children}
       </span>
     );
-  } else if (href !== undefined) {
+  } else if (href !== undefined || render !== undefined) {
     content = (
-      <a
+      <LinkElement
+        render={render}
         href={href}
         className={cn(
           "text-ink-secondary underline-offset-4 hover:text-ink hover:underline",
@@ -138,7 +143,7 @@ export function BreadcrumbItem({
         )}
       >
         {children}
-      </a>
+      </LinkElement>
     );
   } else {
     content = <span className="text-ink-secondary">{children}</span>;

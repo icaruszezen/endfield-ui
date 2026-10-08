@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { ItemSlot } from "./ItemSlot";
+import { RouterLink } from "../../test/RouterLink";
 
 describe("ItemSlot", () => {
   it("不传 href 和 onClick 时是静态格，名称读得到", () => {
@@ -137,5 +138,19 @@ describe("ItemSlot", () => {
 
     rerender(<ItemSlot name="合金锭" ratio="4/5" data-testid="slot" />);
     expect(screen.getByTestId("slot")).toHaveClass("aspect-4/5");
+  });
+
+  it("render：整格交给路由库的链接组件", () => {
+    render(
+      <ItemSlot
+        name="合金锭"
+        selected
+        render={<RouterLink to="/items/alloy" />}
+      />,
+    );
+    const link = screen.getByRole("link", { name: "合金锭" });
+    expect(link).toHaveAttribute("href", "/app/items/alloy");
+    expect(link).toHaveAttribute("aria-current", "true");
+    expect(link).toHaveAttribute("data-slot-control");
   });
 });

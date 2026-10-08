@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { FlyoutBar, FlyoutBarItem } from "./FlyoutBar";
+import { RouterLink } from "../../test/RouterLink";
 
 function Share({
   onCopy = () => {},
@@ -115,5 +116,22 @@ describe("FlyoutBar", () => {
     await screen.findByRole("menu");
     await user.keyboard("{Escape}");
     expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it("render：一项交给路由库的链接组件", async () => {
+    const user = userEvent.setup();
+    render(
+      <FlyoutBar trigger={<button type="button">分享</button>}>
+        <FlyoutBarItem
+          aria-label="打开详情"
+          render={<RouterLink to="/detail" />}
+        >
+          <svg />
+        </FlyoutBarItem>
+      </FlyoutBar>,
+    );
+    await user.click(screen.getByRole("button", { name: "分享" }));
+    const item = await screen.findByRole("menuitem", { name: "打开详情" });
+    expect(item).toHaveAttribute("href", "/app/detail");
   });
 });

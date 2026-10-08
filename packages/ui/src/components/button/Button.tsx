@@ -3,6 +3,7 @@ import { ArrowCorner } from "../../icons/ArrowCorner";
 import { ChevronLeft } from "../../icons/ChevronLeft";
 import { cn } from "../../lib/cn";
 import { focusRing } from "../../lib/focus-ring";
+import { LinkElement, type LinkRender } from "../link-element/LinkElement";
 import { Spinner } from "../spinner/Spinner";
 
 export type ButtonVariant =
@@ -34,11 +35,27 @@ type OwnProps = {
 };
 
 type ButtonAsButton = OwnProps &
-  Omit<ComponentProps<"button">, keyof OwnProps> & { href?: undefined };
+  Omit<ComponentProps<"button">, keyof OwnProps> & {
+    href?: undefined;
+    render?: undefined;
+  };
 type ButtonAsLink = OwnProps &
-  Omit<ComponentProps<"a">, keyof OwnProps> & { href: string };
+  Omit<ComponentProps<"a">, keyof OwnProps> & {
+    /** 传了就渲染成链接 */
+    href: string;
+    render?: LinkRender;
+  };
+type ButtonAsRendered = OwnProps &
+  Omit<ComponentProps<"a">, keyof OwnProps> & {
+    href?: undefined;
+    /**
+     * 用这个元素代替 `<a>`，给路由库的链接组件用：
+     * `<Button render={<Link to="/archive" />}>`。传了就按链接处理
+     */
+    render: LinkRender;
+  };
 
-export type ButtonProps = ButtonAsButton | ButtonAsLink;
+export type ButtonProps = ButtonAsButton | ButtonAsLink | ButtonAsRendered;
 
 /** 左侧带竖条的变体：竖条绝对定位，不参与文字居中 */
 const markerColor: Partial<Record<ButtonVariant, string>> = {
@@ -285,8 +302,8 @@ export function Button(props: ButtonProps) {
     "aria-busy": loading || undefined,
   };
 
-  if (rest.href !== undefined) {
-    const { href, onClick, ...anchorProps } = rest;
+  if (rest.href !== undefined || rest.render !== undefined) {
+    const { href, render, onClick, ...anchorProps } = rest;
     const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
       if (inert) {
         event.preventDefault();
@@ -295,9 +312,10 @@ export function Button(props: ButtonProps) {
       onClick?.(event);
     };
     return (
-      <a
+      <LinkElement
         {...anchorProps}
         {...shared}
+        render={render}
         // 禁用的链接去掉 href，保留 link 角色，让读屏仍能读出"不可用"
         href={inert ? undefined : href}
         role={inert ? "link" : anchorProps.role}
@@ -305,11 +323,17 @@ export function Button(props: ButtonProps) {
         onClick={handleClick}
       >
         {content}
-      </a>
+      </LinkElement>
     );
   }
 
-  const { href: _href, onClick, type = "button", ...buttonProps } = rest;
+  const {
+    href: _href,
+    render: _render,
+    onClick,
+    type = "button",
+    ...buttonProps
+  } = rest;
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
     if (inert) {
       event.preventDefault();

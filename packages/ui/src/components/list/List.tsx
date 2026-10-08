@@ -8,6 +8,7 @@ import {
 import { cn } from "../../lib/cn";
 import { focusRingInset } from "../../lib/focus-ring";
 import { GhostText } from "../ghost-text/GhostText";
+import { LinkElement, type LinkRender } from "../link-element/LinkElement";
 import { bandCanvas, bandGap, bandRow } from "./band-style";
 
 export type ListVariant = "plain" | "band";
@@ -62,7 +63,9 @@ export type ListRowProps = Omit<ComponentProps<"li">, "onClick"> & {
   href?: string;
   target?: string;
   rel?: string;
-  /** 传了（且没有 `href`）就整行渲染成按钮 */
+  /** 用这个元素代替 `<a>`（路由库的链接组件）。传了就按链接处理 */
+  render?: LinkRender;
+  /** 传了（且没有 `href` 和 `render`）就整行渲染成按钮 */
   onClick?: (event: MouseEvent<HTMLElement>) => void;
   disabled?: boolean;
 };
@@ -93,6 +96,7 @@ export function ListRow({
   href,
   target,
   rel,
+  render,
   onClick,
   disabled = false,
   className,
@@ -100,7 +104,7 @@ export function ListRow({
   ...props
 }: ListRowProps) {
   const band = useContext(ListVariantContext) === "band";
-  const isLink = href !== undefined;
+  const isLink = href !== undefined || render !== undefined;
   const isButton = !isLink && onClick !== undefined;
   const interactive = (isLink || isButton) && !disabled;
 
@@ -177,7 +181,8 @@ export function ListRow({
   let row: ReactNode;
   if (isLink) {
     row = (
-      <a
+      <LinkElement
+        render={render}
         // 禁用的链接去掉 href，保留 link 角色，让读屏仍能读出"不可用"
         href={disabled ? undefined : href}
         role={disabled ? "link" : undefined}
@@ -189,7 +194,7 @@ export function ListRow({
         className={rowClass}
       >
         {content}
-      </a>
+      </LinkElement>
     );
   } else if (isButton) {
     row = (

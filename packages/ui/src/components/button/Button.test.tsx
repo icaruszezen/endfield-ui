@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { Button } from "./Button";
+import { RouterLink } from "../../test/RouterLink";
 
 describe("Button", () => {
   it("默认渲染为 type=button 的 control 按钮", () => {
@@ -88,5 +89,52 @@ describe("Button", () => {
     const button = screen.getByRole("button");
     expect(button).toHaveClass("min-w-40");
     expect(button).not.toHaveClass("min-w-24");
+  });
+
+  it("render：交给路由库的链接组件来渲染，长相和状态属性都还在", async () => {
+    const onClick = vi.fn();
+    render(
+      <Button
+        variant="action"
+        render={<RouterLink to="/archive" className="from-router" />}
+        onClick={onClick}
+      >
+        查看档案
+      </Button>,
+    );
+    const link = screen.getByRole("link", { name: "查看档案" });
+    expect(link).toHaveAttribute("data-router-link");
+    expect(link).toHaveAttribute("href", "/app/archive");
+    expect(link).toHaveAttribute("data-variant", "action");
+    expect(link).toHaveClass("bg-action", "from-router");
+    expect(link).not.toHaveAttribute("type");
+
+    await userEvent.click(link);
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it("render：禁用时标 aria-disabled 并拦下点击", async () => {
+    const onClick = vi.fn();
+    const onNavigate = vi.fn(
+      (event: { defaultPrevented: boolean }) => event.defaultPrevented,
+    );
+    render(
+      // 路由库的链接组件在自己的 onClick 之后看 defaultPrevented 决定跳不跳
+      <div onClick={onNavigate}>
+        <Button
+          disabled
+          render={<RouterLink to="/archive" />}
+          onClick={onClick}
+        >
+          查看档案
+        </Button>
+      </div>,
+    );
+    const link = screen.getByRole("link", { name: "查看档案" });
+    expect(link).toHaveAttribute("aria-disabled", "true");
+
+    await userEvent.click(link);
+    expect(onClick).not.toHaveBeenCalled();
+    expect(onNavigate).toHaveReturnedWith(true);
   });
 });

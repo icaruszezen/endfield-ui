@@ -7,7 +7,9 @@ import type {
 } from "react";
 import { usePortalScope } from "../../hooks/usePortalScope";
 import { cn } from "../../lib/cn";
+import { defined } from "../../lib/defined";
 import { focusRingInset } from "../../lib/focus-ring";
+import type { LinkRender } from "../link-element/LinkElement";
 
 export type FlyoutBarSide = "right" | "left";
 
@@ -91,6 +93,8 @@ type ItemOwnProps = {
   href?: string;
   target?: string;
   rel?: string;
+  /** 用这个元素代替 `<a>`（路由库的链接组件）。传了就按链接处理 */
+  render?: LinkRender;
   onClick?: (event: MouseEvent<HTMLElement>) => void;
 };
 
@@ -113,6 +117,7 @@ export function FlyoutBarItem({
   href,
   target,
   rel,
+  render,
   onClick,
   className,
   children,
@@ -120,12 +125,11 @@ export function FlyoutBarItem({
 }: FlyoutBarItemProps) {
   const classes = cn(itemClass, className);
 
-  if (href !== undefined) {
+  if (href !== undefined || render !== undefined) {
     return (
       <BaseMenu.LinkItem
-        href={href}
-        target={target}
-        rel={rel}
+        render={render}
+        {...defined({ href, target, rel })}
         aria-label={ariaLabel}
         // 只有图标时没有文字可供"按字母跳转"，用名称代替
         label={ariaLabel}

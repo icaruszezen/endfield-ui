@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { Breadcrumb, BreadcrumbItem } from "./Breadcrumb";
+import { RouterLink } from "../../test/RouterLink";
 
 function Example({ maxItems }: { maxItems?: number }) {
   return (
@@ -64,5 +65,19 @@ describe("Breadcrumb", () => {
   it("项数没超过 maxItems 时不折叠", () => {
     render(<Example maxItems={5} />);
     expect(screen.queryByRole("button")).toBeNull();
+  });
+
+  it("render：链接换成路由库的链接组件，样式还在", () => {
+    render(
+      <Breadcrumb>
+        <BreadcrumbItem render={<RouterLink to="/archive" />}>
+          档案
+        </BreadcrumbItem>
+        <BreadcrumbItem current>详情</BreadcrumbItem>
+      </Breadcrumb>,
+    );
+    const link = screen.getByRole("link", { name: "档案" });
+    expect(link).toHaveAttribute("href", "/app/archive");
+    expect(link).toHaveClass("text-ink-secondary");
   });
 });

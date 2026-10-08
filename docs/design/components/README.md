@@ -70,6 +70,24 @@
 - **压在页面表面上的强调记号用 `accent-ink`。** 行动色在亮色表面上同样看不见（必填标记）。
 - **悬停底用 `bg-ink/5`，不用 `surface-sunken`。** 后者在暗色主题下是纯黑，悬停会变暗而选中变亮，方向相反（页签、列表行）。
 
+### 链接与路由
+
+能当链接用的控件（按钮、列表行、媒体卡、物品格、面包屑项、菜单项、展开条的项，以及侧轨项、全屏菜单项、主行动块）有两种写法：
+
+| 写法 | 渲染成什么 |
+| --- | --- |
+| `href="/archive"` | 原生的 `<a>` |
+| `render={<Link to="/archive" />}` | 你给的那个元素——路由库的链接组件 |
+
+```tsx
+<Button render={<Link to="/archive" />}>查看档案</Button>
+```
+
+- 控件算好的类名、状态属性（`aria-current`、`data-variant`…）和事件会合并到那个元素上：类名拼在一起，事件两边都触发，其余属性以那个元素自己写的为准。
+- 传了 `render` 就按链接处理，哪怕没有 `href`——地址在那个元素自己手里。
+- 这个写法和浮层的触发元素是同一个（都是 Base UI 的 `render`），所以库里没有 `asChild`。
+- **禁用时有一处差别。** `href` 形态下，禁用的链接被去掉地址，焦点也到不了它。`render` 形态下地址去不掉，所以它仍然能被聚焦；控件给它标上 `aria-disabled` 并拦下点击（路由库的链接组件看到点击被拦下就不会跳转）。
+
 ### 无障碍
 
 - 用原生元素（`button`、`a`、`input`）；浮层这类原生元素做不好的，用无障碍基元 [Base UI](https://base-ui.com)。
@@ -147,7 +165,7 @@ Select 的面板和 Toast 的容器都是浮层，需要定位与焦点管理，
 | ResourceChip / Countdown | [数据展示](data-display.md) | 已实现 |
 | List / ListRow | [卡片](card.md) | 已实现（含深色行带 `band`） |
 | Timeline | [数据展示](data-display.md) | 已实现 |
-| ItemSlot | [卡片](card.md) | 已实现 |
+| ItemSlot | [卡片](card.md) | 已实现（含方向键导航的矩阵 `ItemGrid`） |
 | EmptyState / Skeleton | [反馈](feedback.md) | 已实现 |
 | Loader（加载页） | [反馈](feedback.md) | 已实现 |
 | CompletionBanner、列表行的完成态 | [反馈](feedback.md) | 已实现 |

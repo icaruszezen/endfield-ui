@@ -144,7 +144,7 @@
 
 ## 无障碍
 
-- 用 `<button>`；跳转用 `<a>`。
+- 用 `<button>`；跳转用 `<a>`：传 `href` 就渲染成链接。用路由库时把它的链接组件传给 `render`，写法和禁用时的差别见 [通用约定](README.md#链接与路由)。
 - 禁用用 `disabled` 属性；需要在禁用时仍可聚焦以读出原因时，用 `aria-disabled="true"`。
 - 竖条、箭头、纹理都是装饰。
 - 焦点环：`focus-visible:outline-2 outline-offset-2 outline-focus`。

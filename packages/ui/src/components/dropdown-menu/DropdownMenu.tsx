@@ -9,6 +9,8 @@ import {
 import { usePortalScope } from "../../hooks/usePortalScope";
 import { TriangleRight } from "../../icons/TriangleRight";
 import { cn } from "../../lib/cn";
+import { defined } from "../../lib/defined";
+import type { LinkRender } from "../link-element/LinkElement";
 import { MenuCheck } from "./MenuCheck";
 import {
   MenuVariantContext,
@@ -113,6 +115,8 @@ type ItemOwnProps = {
   href?: string;
   target?: string;
   rel?: string;
+  /** 用这个元素代替 `<a>`（路由库的链接组件）。传了就按链接处理 */
+  render?: LinkRender;
   onClick?: (event: MouseEvent<HTMLElement>) => void;
 };
 
@@ -154,6 +158,7 @@ export function DropdownMenuItem({
   href,
   target,
   rel,
+  render,
   onClick,
   className,
   children,
@@ -167,12 +172,11 @@ export function DropdownMenuItem({
   );
   const content = itemContent(iconStart, children, end);
 
-  if (href !== undefined) {
+  if (href !== undefined || render !== undefined) {
     return (
       <BaseMenu.LinkItem
-        href={href}
-        target={target}
-        rel={rel}
+        render={render}
+        {...defined({ href, target, rel })}
         closeOnClick={closeOnClick}
         onClick={onClick}
         data-tone={tone}

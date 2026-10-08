@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { List, ListRow } from "./List";
+import { RouterLink } from "../../test/RouterLink";
 
 describe("List", () => {
   it("是一个列表，每行一个列表项", () => {
@@ -213,5 +214,20 @@ describe("ListRow", () => {
     );
     expect(screen.queryByText("CLEAR")).not.toBeInTheDocument();
     expect(screen.getByText("（已完成）")).toBeInTheDocument();
+  });
+
+  it("render：整行交给路由库的链接组件，选中仍然用 aria-current 表达", () => {
+    render(
+      <List>
+        <ListRow render={<RouterLink to="/records/7" />} selected>
+          排水泵检修记录
+        </ListRow>
+      </List>,
+    );
+    const link = screen.getByRole("link", { name: "排水泵检修记录" });
+    expect(link).toHaveAttribute("href", "/app/records/7");
+    expect(link).toHaveAttribute("aria-current", "true");
+    expect(link).toHaveClass("bg-surface-muted");
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 });

@@ -1,6 +1,7 @@
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "../../lib/cn";
 import { focusRingWithin } from "../../lib/focus-ring";
+import { LinkElement, type LinkRender } from "../link-element/LinkElement";
 
 export type MediaCardRatio = "16/9" | "4/3" | "1/1" | "3/4";
 
@@ -20,6 +21,8 @@ export type MediaCardProps = Omit<ComponentProps<"article">, "title"> & {
   href?: string;
   target?: string;
   rel?: string;
+  /** 用这个元素代替标题里的 `<a>`（路由库的链接组件）。传了整卡同样可点 */
+  render?: LinkRender;
   /** 标题的层级，默认 `h3` */
   level?: 2 | 3 | 4 | 5 | 6;
 };
@@ -45,12 +48,13 @@ export function MediaCard({
   href,
   target,
   rel,
+  render,
   level = 3,
   className,
   ...props
 }: MediaCardProps) {
   const Heading = `h${level}` as const;
-  const isLink = href !== undefined;
+  const isLink = href !== undefined || render !== undefined;
   const hasCategory = category !== undefined && category !== null;
   const hasDate = date !== undefined && date !== null;
   const hasMeta = hasCategory || hasDate;
@@ -96,7 +100,8 @@ export function MediaCard({
       )}
       <Heading className="mt-1.5 text-base font-medium wrap-anywhere">
         {isLink ? (
-          <a
+          <LinkElement
+            render={render}
             href={href}
             target={target}
             rel={rel}
@@ -104,7 +109,7 @@ export function MediaCard({
             className="outline-none after:absolute after:inset-0 after:content-['']"
           >
             {title}
-          </a>
+          </LinkElement>
         ) : (
           title
         )}

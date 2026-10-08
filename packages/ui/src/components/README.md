@@ -23,7 +23,7 @@
 | `panel/` | `Panel`、`PanelHeader`、`PanelBody`、`PanelRows`、`PanelRow` | [卡片](../../../../docs/design/components/card.md) |
 | `list/` | `List`、`ListRow` | [卡片](../../../../docs/design/components/card.md) |
 | `media-card/` | `MediaCard` | [卡片](../../../../docs/design/components/card.md) |
-| `item-slot/` | `ItemSlot` | [卡片](../../../../docs/design/components/card.md) |
+| `item-slot/` | `ItemSlot`、`ItemGrid`（方向键导航的矩阵） | [卡片](../../../../docs/design/components/card.md) |
 | `timeline/` | `Timeline`、`TimelineItem` | [数据展示](../../../../docs/design/components/data-display.md) |
 | `field/` | `Field`、`useFieldControl`、`useFieldContext` | [表单](../../../../docs/design/components/form.md) |
 | `input/` | `Input` | [表单](../../../../docs/design/components/form.md) |
@@ -71,6 +71,7 @@
 | `dropdown-menu/menu-style.ts` | `DropdownMenu`、`Select`、`Popover` 的面板，前两者的选项（跟随主题与固定深色两种） |
 | `dropdown-menu/MenuCheck.tsx` | 菜单复选项和多选选项行首的小方格（复选框的画法缩到 16px） |
 | `list/band-style.ts` | 深色行带的画布、行与缝：`List` 的 `band` 变体和 `DataRow` |
+| `link-element/LinkElement.tsx` | 各控件"链接形态"里的那个 `<a>`：传了 `render` 就把属性合并到使用方给的元素上（路由库的链接组件） |
 | [`lib/decor.ts`](../lib/decor.ts) | 所有装饰层：不挡点击、不可选中，高对比模式与打印时去掉 |
 
 ## 约定
