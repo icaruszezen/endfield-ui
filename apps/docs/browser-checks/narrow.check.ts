@@ -50,6 +50,8 @@ const stories = [
   "控件-select-下拉选择--in-field",
   "控件-toast-轻提示--playground",
   "控件-dropdownmenu-下拉菜单--playground",
+  "控件-popover-气泡卡片--playground",
+  "控件-select-下拉选择--multiple",
   "控件-brackettitle-方括号标题--sizes",
   "母题-texture-底纹--variants",
 ];
@@ -92,4 +94,13 @@ test("设置页：下拉的面板在视口里", async () => {
   await page.click("[role=combobox]");
   await page.waitVisible("[role=listbox]");
   assert.ok(await inside(page, "[role=listbox]"), "面板超出了视口");
+});
+
+test("气泡卡片：面板在视口里", async () => {
+  const { page } = storybook;
+  await page.setSize(320, 800);
+  await page.story("控件-popover-气泡卡片--playground");
+  await page.click("text=显示设置");
+  await page.waitVisible("[role=dialog]");
+  assert.ok(await inside(page, "[role=dialog]"), "面板超出了视口");
 });

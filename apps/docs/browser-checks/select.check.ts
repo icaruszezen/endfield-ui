@@ -164,3 +164,43 @@ test("弹窗里的下拉盖在弹窗上面；Esc 先关下拉，再关弹窗", a
   await page.key("Escape");
   await page.waitGone("[role=dialog]");
 });
+
+test("多选：选了不关面板，触发器写出已选项和计数；Esc 关闭后焦点回到触发器", async () => {
+  const { page } = storybook;
+  await page.story("控件-select-下拉选择--multiple");
+  assert.equal(await triggerText(page), "站内信、邮件2 项");
+
+  await page.click(TRIGGER);
+  await page.waitVisible(PANEL);
+  assert.equal(
+    await page.evaluate(() =>
+      document
+        .querySelector("[role=listbox]")!
+        .getAttribute("aria-multiselectable"),
+    ),
+    "true",
+  );
+
+  await page.click("[role=option]:nth-of-type(3)");
+  await page.waitFor(
+    async () => (await triggerText(page)) === "站内信、邮件、短信3 项",
+    "选了第三项后触发器应该跟着变",
+  );
+  assert.ok(await page.visible(PANEL), "多选时选了不应该关面板");
+  assert.deepEqual(await page.text("[role=option][aria-selected=true]"), [
+    "站内信",
+    "邮件",
+    "短信",
+  ]);
+
+  // 再点一次是取消
+  await page.click("[role=option]:nth-of-type(1)");
+  await page.waitFor(
+    async () => (await triggerText(page)) === "邮件、短信2 项",
+    "再点一次应该取消选中",
+  );
+
+  await page.key("Escape");
+  await page.waitGone(PANEL);
+  await page.waitFocused(/^combobox:/);
+});

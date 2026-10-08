@@ -7,7 +7,9 @@ import {
   type ReactNode,
 } from "react";
 import { usePortalScope } from "../../hooks/usePortalScope";
+import { TriangleRight } from "../../icons/TriangleRight";
 import { cn } from "../../lib/cn";
+import { MenuCheck } from "./MenuCheck";
 import {
   MenuVariantContext,
   menuGroupLabel,
@@ -40,7 +42,10 @@ export type DropdownMenuProps = {
   onOpenChange?: (open: boolean) => void;
   /** 给面板 */
   className?: string;
-  /** `DropdownMenuItem`、`DropdownMenuGroup`、`DropdownMenuSeparator`、`DropdownMenuRadioGroup` */
+  /**
+   * `DropdownMenuItem`、`DropdownMenuCheckboxItem`、`DropdownMenuGroup`、
+   * `DropdownMenuSeparator`、`DropdownMenuRadioGroup`、`DropdownMenuSub`
+   */
   children: ReactNode;
 };
 
@@ -305,5 +310,114 @@ export function DropdownMenuRadioItem({
     >
       {itemContent(null, children, end)}
     </BaseMenu.RadioItem>
+  );
+}
+
+export type DropdownMenuCheckboxItemProps = Omit<
+  ComponentProps<"div">,
+  "id" | "style" | "onClick"
+> & {
+  checked?: boolean;
+  defaultChecked?: boolean;
+  onCheckedChange?: (checked: boolean) => void;
+  disabled?: boolean;
+  /** 行尾的补充 */
+  end?: ReactNode;
+  /** 勾了之后是否关掉菜单。默认不关：可以连着改几项 */
+  closeOnClick?: boolean;
+};
+
+/** 能开能关的一项设置，比如"显示缩略图"。行首是一个小方格，没勾的时候也看得见。 */
+export function DropdownMenuCheckboxItem({
+  checked,
+  defaultChecked,
+  onCheckedChange,
+  disabled,
+  end,
+  closeOnClick = false,
+  className,
+  children,
+  ...props
+}: DropdownMenuCheckboxItemProps) {
+  return (
+    <BaseMenu.CheckboxItem
+      {...props}
+      checked={checked}
+      defaultChecked={defaultChecked}
+      onCheckedChange={onCheckedChange && ((next) => onCheckedChange(next))}
+      disabled={disabled}
+      closeOnClick={closeOnClick}
+      className={cn(menuItem, menuItemHover, className)}
+      render={(itemProps, state) => (
+        <div {...itemProps}>
+          <MenuCheck checked={state.checked} disabled={state.disabled} />
+          {itemContent(null, children, end)}
+        </div>
+      )}
+    />
+  );
+}
+
+export type DropdownMenuSubProps = {
+  /** 这一行的文字 */
+  label: ReactNode;
+  /** 文字左侧的图标 */
+  iconStart?: ReactNode;
+  disabled?: boolean;
+  /** 给子面板 */
+  className?: string;
+  /** 子面板里的选项 */
+  children: ReactNode;
+};
+
+/**
+ * 子菜单：菜单里的一行，停留或按 `→` 时在侧边展开另一块面板。
+ * 只做一层，不要在子菜单里再套子菜单。
+ */
+export function DropdownMenuSub({
+  label,
+  iconStart,
+  disabled,
+  className,
+  children,
+}: DropdownMenuSubProps) {
+  const variant = useContext(MenuVariantContext);
+  // 子面板也挂在 <body> 下：从这一行往上找，能找到主面板带着的主题
+  const { anchorRef, portalRef } = usePortalScope();
+
+  return (
+    <BaseMenu.SubmenuRoot disabled={disabled}>
+      <BaseMenu.SubmenuTrigger
+        ref={anchorRef}
+        className={cn(
+          menuItem,
+          menuItemHover,
+          // 子面板开着的时候这一行保持高亮：看得出面板是从哪一行出来的
+          "data-popup-open:bg-ink/5",
+        )}
+      >
+        {itemContent(iconStart, label, <TriangleRight size={10} />)}
+      </BaseMenu.SubmenuTrigger>
+      <BaseMenu.Portal ref={portalRef}>
+        <BaseMenu.Positioner
+          sideOffset={2}
+          // 面板有 1px 的边线和 4px 的上内边距：往上提这么多，第一项正好和这一行对齐
+          alignOffset={-5}
+          className="z-(--z-overlay) outline-none"
+        >
+          <BaseMenu.Popup
+            data-theme={variant === "strong" ? "dark" : undefined}
+            data-variant={variant}
+            className={cn(
+              menuPanel,
+              "max-h-(--available-height) overflow-y-auto overscroll-contain",
+              className,
+            )}
+          >
+            {children}
+          </BaseMenu.Popup>
+        </BaseMenu.Positioner>
+      </BaseMenu.Portal>
+    </BaseMenu.SubmenuRoot>
   );
 }

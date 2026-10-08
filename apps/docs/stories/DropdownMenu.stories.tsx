@@ -2,11 +2,13 @@ import {
   Button,
   ChevronDown,
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
   IconButton,
   Kbd,
   Lock,
@@ -125,6 +127,48 @@ export const Language: Story = {
   },
 };
 
+const viewOptions = (
+  <>
+    <DropdownMenuGroup label="显示">
+      <DropdownMenuCheckboxItem defaultChecked>缩略图</DropdownMenuCheckboxItem>
+      <DropdownMenuCheckboxItem>紧凑行距</DropdownMenuCheckboxItem>
+      <DropdownMenuCheckboxItem disabled>按类别分组</DropdownMenuCheckboxItem>
+    </DropdownMenuGroup>
+    <DropdownMenuSeparator />
+    <DropdownMenuSub label="导出为">
+      <DropdownMenuItem>表格（CSV）</DropdownMenuItem>
+      <DropdownMenuItem>纯文本</DropdownMenuItem>
+      <DropdownMenuItem disabled>打印版</DropdownMenuItem>
+    </DropdownMenuSub>
+    <DropdownMenuItem>复制链接</DropdownMenuItem>
+  </>
+);
+
+export const ViewOptions: Story = {
+  name: "复选项与子菜单",
+  args: {
+    trigger: (
+      <Button variant="light" iconEnd={<ChevronDown size={16} />}>
+        视图
+      </Button>
+    ),
+    children: viewOptions,
+  },
+};
+
+export const ViewOptionsStrong: Story = {
+  name: "复选项与子菜单（深色面板）",
+  args: {
+    variant: "strong",
+    trigger: (
+      <Button variant="light" iconEnd={<ChevronDown size={16} />}>
+        视图
+      </Button>
+    ),
+    children: viewOptions,
+  },
+};
+
 /* 默认打开，供截图核对。不进文档页；菜单打开时页面其余部分不可交互，所以也不并排 */
 export const Open: Story = {
   name: "打开的样子",
@@ -152,5 +196,20 @@ export const OpenStrong: Story = {
         <DropdownMenuRadioItem value="ja">日本語</DropdownMenuRadioItem>
       </DropdownMenuRadioGroup>
     ),
+  },
+};
+
+export const OpenViewOptions: Story = {
+  name: "打开的样子（复选项与子菜单）",
+  tags: ["!autodocs"],
+  parameters: { sideBySide: false },
+  args: {
+    defaultOpen: true,
+    trigger: (
+      <Button variant="light" iconEnd={<ChevronDown size={16} />}>
+        视图
+      </Button>
+    ),
+    children: viewOptions,
   },
 };

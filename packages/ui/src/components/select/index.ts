@@ -5,9 +5,11 @@ export {
   SelectSeparator,
   type SelectGroupProps,
   type SelectItemProps,
+  type SelectMultipleProps,
   type SelectOption,
   type SelectProps,
   type SelectSeparatorProps,
+  type SelectSingleProps,
   type SelectSize,
   type SelectVariant,
 } from "./Select";

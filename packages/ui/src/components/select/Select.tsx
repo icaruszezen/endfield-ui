@@ -1,5 +1,7 @@
 import { Select as BaseSelect } from "@base-ui/react/select";
 import {
+  createContext,
+  Fragment,
   useContext,
   useRef,
   type ComponentProps,
@@ -20,6 +22,7 @@ import {
   menuSeparator,
   type MenuVariant,
 } from "../dropdown-menu/menu-style";
+import { MenuCheck } from "../dropdown-menu/MenuCheck";
 import { useFieldControl } from "../field/Field";
 import {
   controlBox,
@@ -38,15 +41,12 @@ export type SelectOption = {
   disabled?: boolean;
 };
 
-export type SelectProps = {
+type SelectCommonProps = {
   /**
    * 选项。只传它就够了；需要分组时改用子元素（`SelectGroup`、`SelectItem`），
    * 并仍然把全部选项传进来——触发器靠它在面板没打开时显示当前项的文字。
    */
   items: readonly SelectOption[];
-  value?: string | null;
-  defaultValue?: string | null;
-  onValueChange?: (value: string) => void;
   /** 没选时显示的文字 */
   placeholder?: ReactNode;
   /** 表单字段名：选中的值会随表单提交 */
@@ -83,34 +83,80 @@ export type SelectProps = {
   children?: ReactNode;
 };
 
+export type SelectSingleProps = SelectCommonProps & {
+  multiple?: false;
+  value?: string | null;
+  defaultValue?: string | null;
+  onValueChange?: (value: string) => void;
+  renderValue?: never;
+};
+
+export type SelectMultipleProps = SelectCommonProps & {
+  /** 可以选多项：值是数组，选项行首多一个小方格，选了不关面板 */
+  multiple: true;
+  value?: string[];
+  defaultValue?: string[];
+  onValueChange?: (value: string[]) => void;
+  /**
+   * 自己画触发器里的内容，拿到的是已选的选项（按 `items` 的顺序）。
+   * 默认把标签用顿号连起来，两项以上时后面跟一个计数。一项都没选时显示 `placeholder`
+   */
+  renderValue?: (selected: SelectOption[]) => ReactNode;
+};
+
+export type SelectProps = SelectSingleProps | SelectMultipleProps;
+
+/** 面板里的选项要知道自己在不在多选的下拉里 */
+const SelectMultipleContext = createContext(false);
+
+function joinedLabels(selected: SelectOption[]) {
+  return (
+    <>
+      <span className="min-w-0 truncate">
+        {selected.map((option, index) => (
+          <Fragment key={option.value}>
+            {index > 0 && "、"}
+            {option.label}
+          </Fragment>
+        ))}
+      </span>
+      {/* 名字放不下会被截断，计数不会：至少知道一共选了几项 */}
+      {selected.length > 1 && (
+        <span className="shrink-0 font-tech text-xs text-ink-secondary tabular-nums">
+          {selected.length} 项
+        </span>
+      )}
+    </>
+  );
+}
+
 /**
  * 下拉选择：外观同输入框的触发器 + 一个落在它下方的面板。
  * 每个下拉都要有标签：放进 `Field`，或者自己传 `aria-label`。
+ * 加 `multiple` 可以选多项，这时值是数组。
  * 选项只有两三个、又都该一眼看到时，用单选或页签，不用它。
  */
-export function Select({
-  items,
-  value,
-  defaultValue,
-  onValueChange,
-  placeholder,
-  name,
-  variant = "sunken",
-  size = "md",
-  panelVariant = "plain",
-  invalid: invalidProp,
-  disabled: disabledProp,
-  required: requiredProp,
-  open,
-  defaultOpen,
-  onOpenChange,
-  id: idProp,
-  "aria-label": ariaLabel,
-  "aria-describedby": describedByProp,
-  className,
-  ref,
-  children,
-}: SelectProps) {
+export function Select(props: SelectProps) {
+  const {
+    items,
+    placeholder,
+    name,
+    variant = "sunken",
+    size = "md",
+    panelVariant = "plain",
+    invalid: invalidProp,
+    disabled: disabledProp,
+    required: requiredProp,
+    open,
+    defaultOpen,
+    onOpenChange,
+    id: idProp,
+    "aria-label": ariaLabel,
+    "aria-describedby": describedByProp,
+    className,
+    ref,
+    children,
+  } = props;
   const { id, disabled, required, invalid, ...field } = useFieldControl({
     id: idProp,
     disabled: disabledProp,
@@ -121,22 +167,20 @@ export function Select({
   const boxRef = useRef<HTMLDivElement>(null);
   const { anchorRef, portalRef } = usePortalScope();
   const iconSize = controlIconSize[size];
+  const multiple = props.multiple === true;
 
-  return (
-    <BaseSelect.Root
-      items={items}
-      value={value}
-      defaultValue={defaultValue}
-      onValueChange={(next) => {
-        if (next !== null) onValueChange?.(next);
-      }}
-      name={name}
-      disabled={disabled}
-      required={required}
-      open={open}
-      defaultOpen={defaultOpen}
-      onOpenChange={onOpenChange && ((next) => onOpenChange(next))}
-    >
+  const common = {
+    items,
+    name,
+    disabled,
+    required,
+    open,
+    defaultOpen,
+    onOpenChange: onOpenChange && ((next: boolean) => onOpenChange(next)),
+  };
+
+  const content = (
+    <>
       <div
         ref={(node) => {
           boxRef.current = node;
@@ -161,10 +205,26 @@ export function Select({
           aria-describedby={field["aria-describedby"]}
           className="flex h-full min-w-0 flex-1 cursor-default items-center gap-2 pr-3 pl-3 text-left outline-none disabled:cursor-not-allowed"
         >
-          <BaseSelect.Value
-            placeholder={placeholder}
-            className="min-w-0 flex-1 truncate data-placeholder:text-ink-tertiary"
-          />
+          {props.multiple ? (
+            <BaseSelect.Value className="flex min-w-0 flex-1 items-center gap-2 data-placeholder:text-ink-tertiary">
+              {(values: string[]) => {
+                const selected = items.filter((item) =>
+                  values.includes(item.value),
+                );
+                if (selected.length === 0) {
+                  return (
+                    <span className="min-w-0 truncate">{placeholder}</span>
+                  );
+                }
+                return (props.renderValue ?? joinedLabels)(selected);
+              }}
+            </BaseSelect.Value>
+          ) : (
+            <BaseSelect.Value
+              placeholder={placeholder}
+              className="min-w-0 flex-1 truncate data-placeholder:text-ink-tertiary"
+            />
+          )}
           {invalid && (
             <StatusDanger size={iconSize} className="shrink-0 text-danger" />
           )}
@@ -196,21 +256,52 @@ export function Select({
           >
             <BaseSelect.List className="max-h-[min(var(--available-height),20rem)] overflow-y-auto overscroll-contain">
               <MenuVariantContext value={panelVariant}>
-                {children ??
-                  items.map((item) => (
-                    <SelectItem
-                      key={item.value}
-                      value={item.value}
-                      disabled={item.disabled}
-                    >
-                      {item.label}
-                    </SelectItem>
-                  ))}
+                <SelectMultipleContext value={multiple}>
+                  {children ??
+                    items.map((item) => (
+                      <SelectItem
+                        key={item.value}
+                        value={item.value}
+                        disabled={item.disabled}
+                      >
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                </SelectMultipleContext>
               </MenuVariantContext>
             </BaseSelect.List>
           </BaseSelect.Popup>
         </BaseSelect.Positioner>
       </BaseSelect.Portal>
+    </>
+  );
+
+  if (props.multiple) {
+    const { value, defaultValue, onValueChange } = props;
+    return (
+      <BaseSelect.Root<string, true>
+        {...common}
+        multiple
+        value={value}
+        defaultValue={defaultValue}
+        onValueChange={onValueChange && ((next) => onValueChange(next))}
+      >
+        {content}
+      </BaseSelect.Root>
+    );
+  }
+
+  const { value, defaultValue, onValueChange } = props;
+  return (
+    <BaseSelect.Root<string>
+      {...common}
+      value={value}
+      defaultValue={defaultValue}
+      onValueChange={(next) => {
+        if (next !== null) onValueChange?.(next);
+      }}
+    >
+      {content}
     </BaseSelect.Root>
   );
 }
@@ -232,6 +323,7 @@ export function SelectItem({
   ...props
 }: SelectItemProps) {
   const variant = useContext(MenuVariantContext);
+  const multiple = useContext(SelectMultipleContext);
 
   return (
     <BaseSelect.Item
@@ -241,9 +333,24 @@ export function SelectItem({
       className={(state) =>
         cn(
           menuItem,
-          state.selected ? menuItemCurrent[variant] : menuItemHover,
+          multiple
+            ? // 多选时会有好几项被选中：用行首的小方格表达，不铺整行的底色
+              [menuItemHover, state.selected && "font-medium"]
+            : state.selected
+              ? menuItemCurrent[variant]
+              : menuItemHover,
           className,
         )
+      }
+      render={
+        multiple
+          ? ({ children: content, ...itemProps }, state) => (
+              <div {...itemProps}>
+                <MenuCheck checked={state.selected} disabled={state.disabled} />
+                {content}
+              </div>
+            )
+          : undefined
       }
     >
       <BaseSelect.ItemText className="min-w-0 flex-1 truncate">

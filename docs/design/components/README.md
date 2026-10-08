@@ -126,8 +126,9 @@ Select 的面板和 Toast 的容器都是浮层，需要定位与焦点管理，
 | Dialog | [浮层](overlay.md) | 已实现 |
 | Drawer | [浮层](overlay.md) | 已实现 |
 | Tooltip | [浮层](overlay.md) | 已实现 |
-| DropdownMenu | [浮层](overlay.md) | 已实现 |
-| Select / Toast | [表单](form.md)、[反馈](feedback.md) | 已实现 |
+| DropdownMenu | [浮层](overlay.md) | 已实现（含复选项与一层子菜单） |
+| Popover（气泡卡片） | [浮层](overlay.md) | 已实现 |
+| Select / Toast | [表单](form.md)、[反馈](feedback.md) | 已实现（Select 含多选） |
 | SideRail / TopBar | [导航](navigation.md) | |
 | Pagination / Navigator / DashIndicator | [导航](navigation.md) | 已实现 |
 | Breadcrumb | [导航](navigation.md) | 已实现 |

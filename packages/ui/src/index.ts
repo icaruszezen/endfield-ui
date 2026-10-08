@@ -28,6 +28,7 @@ export * from "./components/media-card";
 export * from "./components/navigator";
 export * from "./components/pagination";
 export * from "./components/panel";
+export * from "./components/popover";
 export * from "./components/progress";
 export * from "./components/radio";
 export * from "./components/rec-indicator";

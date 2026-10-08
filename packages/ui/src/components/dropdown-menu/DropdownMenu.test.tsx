@@ -4,11 +4,13 @@ import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
 } from "./DropdownMenu";
 
 function Basic({
@@ -212,5 +214,127 @@ describe("DropdownMenu", () => {
     await screen.findByRole("menu");
     await user.keyboard("{Escape}");
     expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+  it("复选项：报出勾没勾，点了切换但不关菜单", async () => {
+    const user = userEvent.setup();
+    const onCheckedChange = vi.fn();
+    render(
+      <DropdownMenu trigger={<button type="button">显示</button>}>
+        <DropdownMenuCheckboxItem
+          defaultChecked
+          onCheckedChange={onCheckedChange}
+        >
+          缩略图
+        </DropdownMenuCheckboxItem>
+        <DropdownMenuCheckboxItem>紧凑行距</DropdownMenuCheckboxItem>
+        <DropdownMenuCheckboxItem disabled>分组</DropdownMenuCheckboxItem>
+      </DropdownMenu>,
+    );
+    await user.click(screen.getByRole("button", { name: "显示" }));
+    const thumbnails = await screen.findByRole("menuitemcheckbox", {
+      name: "缩略图",
+    });
+    const compact = screen.getByRole("menuitemcheckbox", { name: "紧凑行距" });
+    expect(thumbnails).toHaveAttribute("aria-checked", "true");
+    expect(compact).toHaveAttribute("aria-checked", "false");
+    // 没勾的时候小方格也在，只是空的
+    expect(compact.querySelector("[aria-hidden=true]")).toBeInTheDocument();
+    expect(compact.querySelector("[data-checked]")).not.toBeInTheDocument();
+    expect(thumbnails.querySelector("[data-checked]")).toBeInTheDocument();
+
+    await user.click(thumbnails);
+    expect(onCheckedChange).toHaveBeenCalledWith(false);
+    expect(thumbnails).toHaveAttribute("aria-checked", "false");
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("menuitemcheckbox", { name: "分组" }));
+    expect(
+      screen.getByRole("menuitemcheckbox", { name: "分组" }),
+    ).toHaveAttribute("aria-checked", "false");
+  });
+
+  it("受控的复选项", async () => {
+    const user = userEvent.setup();
+    function Controlled() {
+      const [checked, setChecked] = useState(false);
+      return (
+        <DropdownMenu trigger={<button type="button">显示</button>}>
+          <DropdownMenuCheckboxItem
+            checked={checked}
+            onCheckedChange={setChecked}
+          >
+            缩略图
+          </DropdownMenuCheckboxItem>
+        </DropdownMenu>
+      );
+    }
+    render(<Controlled />);
+    await user.click(screen.getByRole("button", { name: "显示" }));
+    const item = await screen.findByRole("menuitemcheckbox");
+    await user.click(item);
+    expect(item).toHaveAttribute("aria-checked", "true");
+  });
+
+  it("子菜单：这一行报告自己能展开，方向键右打开、左收起", async () => {
+    const user = userEvent.setup();
+    const onExport = vi.fn();
+    render(
+      <DropdownMenu trigger={<button type="button">更多</button>}>
+        <DropdownMenuItem>复制链接</DropdownMenuItem>
+        <DropdownMenuSub label="导出为">
+          <DropdownMenuItem onClick={onExport}>表格</DropdownMenuItem>
+          <DropdownMenuItem>文本</DropdownMenuItem>
+        </DropdownMenuSub>
+      </DropdownMenu>,
+    );
+    await user.tab();
+    await user.keyboard("{Enter}");
+    await screen.findByRole("menu");
+    const row = screen.getByRole("menuitem", { name: "导出为" });
+    expect(row).toHaveAttribute("aria-haspopup", "menu");
+    expect(row).toHaveAttribute("aria-expanded", "false");
+
+    await user.keyboard("{ArrowDown}{ArrowRight}");
+    await waitFor(() => expect(screen.getAllByRole("menu")).toHaveLength(2));
+    expect(row).toHaveAttribute("aria-expanded", "true");
+    await waitFor(() =>
+      expect(screen.getByRole("menuitem", { name: "表格" })).toHaveFocus(),
+    );
+
+    await user.keyboard("{ArrowLeft}");
+    await waitFor(() => expect(screen.getAllByRole("menu")).toHaveLength(1));
+    await waitFor(() => expect(row).toHaveFocus());
+
+    await user.keyboard("{ArrowRight}");
+    await waitFor(() =>
+      expect(screen.getByRole("menuitem", { name: "表格" })).toHaveFocus(),
+    );
+    await user.keyboard("{Enter}");
+    expect(onExport).toHaveBeenCalledTimes(1);
+    await waitFor(() =>
+      expect(screen.queryByRole("menu")).not.toBeInTheDocument(),
+    );
+  });
+
+  it("strong 面板的子面板同样是深色", async () => {
+    const user = userEvent.setup();
+    render(
+      <DropdownMenu
+        variant="strong"
+        trigger={<button type="button">更多</button>}
+      >
+        <DropdownMenuSub label="导出为">
+          <DropdownMenuItem>表格</DropdownMenuItem>
+        </DropdownMenuSub>
+      </DropdownMenu>,
+    );
+    await user.tab();
+    await user.keyboard("{Enter}");
+    await screen.findByRole("menu");
+    await user.keyboard("{ArrowRight}");
+    await waitFor(() => expect(screen.getAllByRole("menu")).toHaveLength(2));
+    for (const menu of screen.getAllByRole("menu")) {
+      expect(menu).toHaveAttribute("data-theme", "dark");
+    }
   });
 });

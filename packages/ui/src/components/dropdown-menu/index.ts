@@ -1,11 +1,14 @@
 export {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
   type DropdownMenuAlign,
+  type DropdownMenuCheckboxItemProps,
   type DropdownMenuGroupProps,
   type DropdownMenuItemProps,
   type DropdownMenuItemTone,
@@ -14,5 +17,6 @@ export {
   type DropdownMenuRadioItemProps,
   type DropdownMenuSeparatorProps,
   type DropdownMenuSide,
+  type DropdownMenuSubProps,
   type DropdownMenuVariant,
 } from "./DropdownMenu";

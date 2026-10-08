@@ -12,6 +12,7 @@ const pages = [
   "控件-select-下拉选择--docs",
   "控件-dropdownmenu-下拉菜单--docs",
   "控件-tooltip-文字提示--docs",
+  "控件-popover-气泡卡片--docs",
   "母题-texture-底纹--docs",
 ];
 

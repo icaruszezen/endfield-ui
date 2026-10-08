@@ -9,7 +9,7 @@
 | 基础 | Button / ButtonGroup、IconButton、Tag / TagPair、Badge、Kbd、SectionTitle、BracketTitle、Tabs、Panel |
 | 表单 | Field、Input、Textarea、Select、Checkbox、Radio / RadioGroup、Switch、Stepper、FilterChip |
 | 反馈 | Alert、Toast、Progress / ProgressRing、Spinner、Skeleton、EmptyState、Loader、CompletionBanner、RecIndicator |
-| 浮层 | Tooltip、Dialog、Drawer、DropdownMenu |
+| 浮层 | Tooltip、Popover、Dialog、Drawer、DropdownMenu |
 | 展示 | Stat、List / ListRow、MediaCard、ItemSlot、Timeline、Term、ResourceChip、Countdown、Marquee、ScrollHint |
 | 导航 | Breadcrumb、Pagination、Navigator、DashIndicator |
 | 母题 | CornerBrackets、Viewfinder、GhostText、Hatch、Texture、RegistrationStrip、TickRing、HazardStripe |
@@ -23,7 +23,7 @@
 | 框架 | React 19 + TypeScript |
 | 样式 | Tailwind CSS v4（CSS-first，`@theme` 令牌，不使用 `tailwind.config.js`） |
 | 变体 | 手写的 `Record<Variant, string>` + `cn()`（`clsx` + `tailwind-merge`） |
-| 无障碍基元 | [Base UI](https://base-ui.com)（`@base-ui/react`），只用在浮层上：文字提示、弹窗、抽屉、轻提示、下拉选择、下拉菜单。其余控件建立在原生元素上 |
+| 无障碍基元 | [Base UI](https://base-ui.com)（`@base-ui/react`），只用在浮层上：文字提示、气泡卡片、弹窗、抽屉、轻提示、下拉选择、下拉菜单。其余控件建立在原生元素上 |
 | 构建 | tsdown（ESM + 类型声明）+ `@tailwindcss/cli`（预编译 CSS） |
 | 测试 | Vitest + Testing Library（jsdom） |
 
@@ -129,7 +129,7 @@ import { Loader } from "@endfield-ui/react";
 
 ### 浮层
 
-文字提示、弹窗、抽屉、下拉菜单、下拉选择、轻提示。焦点的进出与锁定、键盘、定位与翻转都交给 Base UI，这里只管长相；用的时候不用自己拼部件。触发元素作为一个 React 元素传进去：
+文字提示、气泡卡片、弹窗、抽屉、下拉菜单、下拉选择、轻提示。焦点的进出与锁定、键盘、定位与翻转都交给 Base UI，这里只管长相；用的时候不用自己拼部件。触发元素作为一个 React 元素传进去：
 
 ```tsx
 import {
@@ -181,6 +181,8 @@ import {
 
 - `Dialog` 与 `Drawer` 也可以不传 `trigger`，自己用 `open` / `onOpenChange` 控制。`alert` 是破坏性操作的确认：点遮罩不关。
 - `Drawer` 的 `side` 是 `right`（默认）、`left`、`bottom`，都可以朝来的方向划走。
+- 菜单里除了操作项，还有单选组（`DropdownMenuRadioGroup`，当前项）、复选项（`DropdownMenuCheckboxItem`，能开能关的设置，勾了不关菜单）和一层子菜单（`DropdownMenuSub`）。
+- `Popover` 是点击触发、里面可以操作的一小块面板（`trigger`、`title`、`description` + 子元素），不打断页面。一句说明用 `Tooltip`，必须做完才能继续的用 `Dialog`。
 - 触发元素要是一个按钮，并且把收到的属性和 `ref` 交给原生元素。本库的 `Button`、`IconButton` 都可以直接用。
 
 下拉选择的触发器和输入框长得一样，放进 `Field` 自动关联标签与错误说明：
@@ -201,6 +203,8 @@ import { Field, Select } from "@endfield-ui/react";
   />
 </Field>
 ```
+
+加 `multiple` 可以选多项：`value` 与 `onValueChange` 换成字符串数组，选项行首多一个小方格，选了不关面板；触发器里把已选项用顿号连起来并带一个计数，换写法用 `renderValue`。
 
 轻提示要先在应用最外层包一个 `ToastProvider`，里面的任何地方用 `useToast()` 弹出。同时只显示一条，新的替换旧的：
 

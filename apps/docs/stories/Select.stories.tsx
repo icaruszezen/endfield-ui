@@ -4,9 +4,10 @@ import {
   SelectGroup,
   SelectItem,
   SelectSeparator,
+  type SelectSingleProps,
 } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { useState } from "react";
+import { useState, type ComponentType } from "react";
 
 const regions = [
   { value: "valley", label: "四号谷地" },
@@ -17,7 +18,8 @@ const regions = [
 
 const meta = {
   title: "控件/Select 下拉选择",
-  component: Select,
+  // Select 的属性是单选、多选两支的联合；控件面板按单选那一支来
+  component: Select as ComponentType<SelectSingleProps>,
   args: {
     items: regions,
     placeholder: "请选择",
@@ -39,7 +41,7 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof Select>;
+} satisfies Meta<SelectSingleProps>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -156,6 +158,51 @@ export const Narrow: Story = {
 };
 
 /* 默认打开，供截图核对。不进文档页；面板打开时页面其余部分不可交互，所以也不并排 */
+const channels = [
+  { value: "site", label: "站内信" },
+  { value: "mail", label: "邮件" },
+  { value: "sms", label: "短信" },
+  { value: "pager", label: "值班呼叫" },
+  { value: "radio", label: "无线电（未接入）", disabled: true },
+];
+
+export const Multiple: Story = {
+  name: "多选",
+  render: function Render() {
+    const [value, setValue] = useState(["site", "mail"]);
+    return (
+      <div className="flex flex-col gap-6">
+        <Field label="通知渠道" help="可以多选；选了不关面板。">
+          <Select
+            multiple
+            items={channels}
+            value={value}
+            onValueChange={setValue}
+            placeholder="不通知"
+          />
+        </Field>
+        {/* 触发器里的写法可以换 */}
+        <Select
+          multiple
+          items={channels}
+          aria-label="通知渠道（只写个数）"
+          defaultValue={["site", "mail", "sms"]}
+          placeholder="不通知"
+          renderValue={(selected) => `已选 ${selected.length} 个渠道`}
+        />
+        <Select
+          multiple
+          items={channels}
+          aria-label="通知渠道（深色面板）"
+          panelVariant="strong"
+          defaultValue={["pager"]}
+          placeholder="不通知"
+        />
+      </div>
+    );
+  },
+};
+
 export const Open: Story = {
   name: "打开的样子",
   tags: ["!autodocs"],
@@ -168,4 +215,19 @@ export const OpenStrong: Story = {
   tags: ["!autodocs"],
   parameters: { sideBySide: false },
   args: { defaultOpen: true, defaultValue: "ridge", panelVariant: "strong" },
+};
+
+export const OpenMultiple: Story = {
+  name: "打开的样子（多选）",
+  tags: ["!autodocs"],
+  parameters: { sideBySide: false },
+  render: () => (
+    <Select
+      multiple
+      defaultOpen
+      items={channels}
+      aria-label="通知渠道"
+      defaultValue={["site", "mail"]}
+    />
+  ),
 };

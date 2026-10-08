@@ -210,4 +210,124 @@ describe("Select", () => {
       screen.getByRole("combobox", { hidden: true }),
     );
   });
+  it("多选：值是数组，选了不关面板，选项报出选没选", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <Select
+        multiple
+        items={regions}
+        aria-label="地区"
+        placeholder="请选择"
+        onValueChange={onValueChange}
+      />,
+    );
+    const trigger = screen.getByRole("combobox");
+    expect(trigger).toHaveTextContent("请选择");
+
+    await user.click(trigger);
+    const listbox = await screen.findByRole("listbox");
+    expect(listbox).toHaveAttribute("aria-multiselectable", "true");
+
+    await user.click(within(listbox).getByRole("option", { name: "北岭" }));
+    expect(onValueChange).toHaveBeenLastCalledWith(["ridge"]);
+    expect(screen.getByRole("listbox")).toBeInTheDocument();
+
+    await user.click(within(listbox).getByRole("option", { name: "四号谷地" }));
+    expect(onValueChange.mock.lastCall?.[0]).toHaveLength(2);
+    expect(
+      within(listbox).getByRole("option", { name: "北岭" }),
+    ).toHaveAttribute("aria-selected", "true");
+    expect(
+      within(listbox).getByRole("option", { name: "三角洲" }),
+    ).toHaveAttribute("aria-selected", "false");
+
+    // 再点一次是取消
+    await user.click(within(listbox).getByRole("option", { name: "北岭" }));
+    expect(onValueChange).toHaveBeenLastCalledWith(["valley"]);
+  });
+
+  it("多选：触发器把已选项按 items 的顺序连起来，两项以上带计数", () => {
+    const { rerender } = render(
+      <Select
+        multiple
+        items={regions}
+        aria-label="地区"
+        value={["ridge"]}
+        placeholder="请选择"
+      />,
+    );
+    const trigger = screen.getByRole("combobox");
+    expect(trigger).toHaveTextContent("北岭");
+    expect(trigger).not.toHaveTextContent("项");
+
+    rerender(
+      <Select
+        multiple
+        items={regions}
+        aria-label="地区"
+        value={["ridge", "valley"]}
+      />,
+    );
+    expect(trigger).toHaveTextContent("四号谷地、北岭2 项");
+
+    rerender(
+      <Select
+        multiple
+        items={regions}
+        aria-label="地区"
+        value={[]}
+        placeholder="请选择"
+      />,
+    );
+    expect(trigger).toHaveTextContent("请选择");
+  });
+
+  it("多选：renderValue 自己画触发器里的内容", () => {
+    render(
+      <Select
+        multiple
+        items={regions}
+        aria-label="地区"
+        defaultValue={["valley", "ridge"]}
+        renderValue={(selected) => `已选 ${selected.length} 个地区`}
+      />,
+    );
+    expect(screen.getByRole("combobox")).toHaveTextContent("已选 2 个地区");
+  });
+
+  it("多选：选项行首是小方格，不用当前项的整行底色", async () => {
+    const user = userEvent.setup();
+    render(
+      <Select
+        multiple
+        items={regions}
+        aria-label="地区"
+        defaultValue={["valley"]}
+      />,
+    );
+    await user.click(screen.getByRole("combobox"));
+    const selected = await screen.findByRole("option", { name: "四号谷地" });
+    const other = screen.getByRole("option", { name: "北岭" });
+    expect(selected.querySelector("[data-checked]")).toBeInTheDocument();
+    expect(selected).not.toHaveClass("bg-surface-muted");
+    expect(other.querySelector("[aria-hidden=true]")).toBeInTheDocument();
+    expect(other.querySelector("[data-checked]")).not.toBeInTheDocument();
+  });
+
+  it("多选：带 name 时每个选中的值各提交一份", () => {
+    render(
+      <form data-testid="form">
+        <Select
+          multiple
+          items={regions}
+          aria-label="地区"
+          name="region"
+          defaultValue={["valley", "ridge"]}
+        />
+      </form>,
+    );
+    const data = new FormData(screen.getByTestId<HTMLFormElement>("form"));
+    expect(data.getAll("region")).toEqual(["valley", "ridge"]);
+  });
 });

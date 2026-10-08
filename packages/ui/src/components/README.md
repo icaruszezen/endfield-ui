@@ -40,7 +40,8 @@
 | `tooltip/` | `Tooltip`、`TooltipProvider` | [浮层](../../../../docs/design/components/overlay.md) |
 | `dialog/` | `Dialog`、`DialogClose` | [浮层](../../../../docs/design/components/overlay.md) |
 | `drawer/` | `Drawer` | [浮层](../../../../docs/design/components/overlay.md) |
-| `dropdown-menu/` | `DropdownMenu`、`DropdownMenuItem`、`DropdownMenuGroup`、`DropdownMenuSeparator`、`DropdownMenuRadioGroup`、`DropdownMenuRadioItem` | [浮层](../../../../docs/design/components/overlay.md) |
+| `dropdown-menu/` | `DropdownMenu`、`DropdownMenuItem`、`DropdownMenuCheckboxItem`、`DropdownMenuGroup`、`DropdownMenuSeparator`、`DropdownMenuRadioGroup`、`DropdownMenuRadioItem`、`DropdownMenuSub` | [浮层](../../../../docs/design/components/overlay.md) |
+| `popover/` | `Popover`、`PopoverClose` | [浮层](../../../../docs/design/components/overlay.md) |
 | `select/` | `Select`、`SelectItem`、`SelectGroup`、`SelectSeparator` | [表单](../../../../docs/design/components/form.md) |
 | `toast/` | `ToastProvider`、`useToast` | [反馈](../../../../docs/design/components/feedback.md) |
 | `rec-indicator/` | `RecIndicator` | [测绘叠层](../../../../docs/design/elements/hud-overlays.md) |
@@ -64,7 +65,8 @@
 | `checkbox/choice-style.ts` | `Checkbox`、`Radio`、`Switch` 的行与方格（含菱形方案的写法） |
 | `dialog/overlay-style.ts` | `Dialog`、`Drawer` 的遮罩、深色标题带、关闭按钮 |
 | `dialog/initial-focus.ts` | `Dialog`、`Drawer` 打开时焦点落在哪 |
-| `dropdown-menu/menu-style.ts` | `DropdownMenu`、`Select` 的面板与选项（跟随主题与固定深色两种） |
+| `dropdown-menu/menu-style.ts` | `DropdownMenu`、`Select`、`Popover` 的面板，前两者的选项（跟随主题与固定深色两种） |
+| `dropdown-menu/MenuCheck.tsx` | 菜单复选项和多选选项行首的小方格（复选框的画法缩到 16px） |
 | [`lib/decor.ts`](../lib/decor.ts) | 所有装饰层：不挡点击、不可选中，高对比模式与打印时去掉 |
 
 ## 约定

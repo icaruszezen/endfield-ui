@@ -121,3 +121,88 @@ test("触发按钮贴近右边缘时，面板不出视口", async () => {
     "面板超出了视口",
   );
 });
+
+const menus = (page: Page) =>
+  page.evaluate(
+    () =>
+      [...document.querySelectorAll("[role=menu]")].filter(
+        (menu) => menu.getBoundingClientRect().height > 0,
+      ).length,
+  );
+
+test("复选项：空格切换，菜单不关", async () => {
+  const { page } = storybook;
+  await page.story("控件-dropdownmenu-下拉菜单--view-options");
+  await openWithKeyboard(page);
+  await page.waitFocused("menuitemcheckbox:缩略图");
+
+  const checked = () =>
+    page.evaluate(() => document.activeElement?.getAttribute("aria-checked"));
+  assert.equal(await checked(), "true");
+  await page.key("Space");
+  await page.waitFor(
+    async () => (await checked()) === "false",
+    "空格应该把勾去掉",
+  );
+  assert.ok(await page.visible(MENU), "勾选之后菜单不应该关");
+});
+
+test("子菜单：方向键右打开并进到第一项，左收起并回到这一行", async () => {
+  const { page } = storybook;
+  await page.story("控件-dropdownmenu-下拉菜单--view-options");
+  await openWithKeyboard(page);
+  // 缩略图 → 紧凑行距 → 按类别分组（禁用）→ 导出为
+  for (let i = 0; i < 3; i++) await page.key("ArrowDown");
+  await page.waitFocused("menuitem:导出为");
+  assert.equal(await menus(page), 1);
+
+  await page.key("ArrowRight");
+  await page.waitFor(async () => (await menus(page)) === 2, "子菜单没有打开");
+  await page.waitFocused("menuitem:表格（CSV）", "焦点应该进到子菜单的第一项");
+
+  const layout = await page.evaluate(() => {
+    const [main, sub] = [...document.querySelectorAll("[role=menu]")].map(
+      (menu) => menu.getBoundingClientRect(),
+    );
+    const row = [...document.querySelectorAll("[role=menuitem]")]
+      .find((item) => item.textContent === "导出为")!
+      .getBoundingClientRect();
+    const first = document.activeElement!.getBoundingClientRect();
+    return {
+      beside: sub!.left >= main!.right - 1,
+      rowsAligned: Math.abs(first.top - row.top) < 1.5,
+    };
+  });
+  assert.deepEqual(layout, { beside: true, rowsAligned: true });
+
+  await page.key("ArrowLeft");
+  await page.waitFor(async () => (await menus(page)) === 1, "子菜单没有收起");
+  await page.waitFocused("menuitem:导出为");
+
+  await page.key("Escape");
+  await page.waitGone(MENU);
+});
+
+test("子菜单：指针停在这一行上就打开；右边放不下时翻到左边", async () => {
+  const { page } = storybook;
+  await page.story("控件-dropdownmenu-下拉菜单--view-options");
+  await page.evaluate(() => {
+    document.querySelector<HTMLElement>(
+      "button[aria-haspopup]",
+    )!.style.marginLeft = `${innerWidth - 260}px`;
+  });
+  await page.click(TRIGGER);
+  await page.waitVisible(MENU);
+  await page.moveTo("[role=menuitem][aria-haspopup]");
+  await page.waitFor(async () => (await menus(page)) === 2, "子菜单没有打开");
+
+  assert.ok(
+    await page.evaluate(() =>
+      [...document.querySelectorAll("[role=menu]")].every((menu) => {
+        const rect = menu.getBoundingClientRect();
+        return rect.left >= 0 && rect.right <= innerWidth;
+      }),
+    ),
+    "子菜单超出了视口",
+  );
+});
