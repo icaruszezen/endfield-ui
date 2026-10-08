@@ -209,4 +209,29 @@ describe("Dialog", () => {
     const dialog = await screen.findByRole("dialog");
     expect(dialog.parentElement?.closest("[data-theme]")).toBeNull();
   });
+  it("两处装饰默认没有；开了也对读屏隐藏，不影响可访问名称", async () => {
+    const { unmount } = render(<Basic defaultOpen />);
+    const plain = await screen.findByRole("dialog");
+    expect(plain.querySelector("[data-ornament]")).not.toBeInTheDocument();
+    expect(plain.querySelector("[data-corner-art]")).not.toBeInTheDocument();
+    unmount();
+
+    render(
+      <Basic
+        defaultOpen
+        ornament
+        cornerArt={<svg data-testid="art" viewBox="0 0 10 10" />}
+      />,
+    );
+    const dialog = await screen.findByRole("dialog", { name: "归档这份报告" });
+    const dots = dialog.querySelector("[data-ornament]");
+    expect(dots).toHaveAttribute("aria-hidden", "true");
+    expect(dots?.children).toHaveLength(6);
+    // 小方点在标题带里，跟着它按深色底取值
+    expect(dots?.closest("[data-theme]")).toHaveAttribute("data-theme", "dark");
+
+    const art = screen.getByTestId("art").closest("[data-corner-art]");
+    expect(art).toHaveAttribute("aria-hidden", "true");
+    expect(art).toHaveClass("pointer-events-none");
+  });
 });

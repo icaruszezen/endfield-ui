@@ -11,6 +11,7 @@ import {
 } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
+import { IsoOutline } from "./_shared/IsoCube";
 
 const meta = {
   title: "控件/Dialog 弹窗",
@@ -162,6 +163,22 @@ export const LongContent: Story = {
 };
 
 /* 默认打开，供截图核对。不进文档页：文档页会把所有 story 同时渲染出来 */
+export const Decorated: Story = {
+  name: "两处可选装饰",
+  args: {
+    ornament: true,
+    cornerArt: <IsoOutline />,
+    trigger: <Button variant="light">查看批次</Button>,
+    title: "第 12 批次",
+    description: "标题下的小方点和左下角的线稿都是装饰，默认关着。",
+    footer: (
+      <DialogClose>
+        <Button>知道了</Button>
+      </DialogClose>
+    ),
+  },
+};
+
 export const Open: Story = {
   name: "打开的样子",
   tags: ["!autodocs"],
@@ -188,5 +205,17 @@ export const OpenAlert: Story = {
         </DialogClose>
       </>
     ),
+  },
+};
+
+export const OpenDecorated: Story = {
+  name: "打开的样子（带装饰）",
+  tags: ["!autodocs"],
+  args: {
+    defaultOpen: true,
+    ornament: true,
+    cornerArt: <IsoOutline />,
+    title: "第 12 批次",
+    description: "标题下的小方点和左下角的线稿都是装饰，默认关着。",
   },
 };

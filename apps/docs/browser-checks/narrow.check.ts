@@ -51,6 +51,7 @@ const stories = [
   "控件-toast-轻提示--playground",
   "控件-dropdownmenu-下拉菜单--playground",
   "控件-popover-气泡卡片--playground",
+  "控件-flyoutbar-展开条--playground",
   "控件-select-下拉选择--multiple",
   "控件-brackettitle-方括号标题--sizes",
   "母题-texture-底纹--variants",

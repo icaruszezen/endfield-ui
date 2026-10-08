@@ -12,7 +12,7 @@ export type IconButtonProps = Omit<ComponentProps<"button">, "aria-label"> & {
    * - `plain` 方形浅灰底，工具栏与顶栏，默认；
    * - `floating` 圆形白底 + 环境阴影，翻页与浮在图像上的操作；
    * - `accent` 方形，悬停或激活时变信号黄；
-   * - `inverse` 方形，悬停或激活时变墨底。
+   * - `inverse` 方形，悬停或激活时变墨底；它打开的菜单、展开条开着的时候也是。
    */
   variant?: IconButtonVariant;
   size?: IconButtonSize;
@@ -38,7 +38,8 @@ const enabledClass: Record<IconButtonVariant, string> = {
   accent:
     "bg-surface-sunken text-ink-secondary hover:bg-action hover:text-on-action active:bg-action-pressed",
   inverse:
-    "bg-surface-sunken text-ink-secondary hover:bg-surface-inverse hover:text-accent-ink-inverse active:bg-surface-inverse",
+    // data-popup-open 是浮层基元写在触发元素上的：它打开的东西还开着
+    "bg-surface-sunken text-ink-secondary hover:bg-surface-inverse hover:text-accent-ink-inverse active:bg-surface-inverse data-popup-open:bg-surface-inverse data-popup-open:text-accent-ink-inverse",
 };
 
 const pressedClass: Record<IconButtonVariant, string> = {

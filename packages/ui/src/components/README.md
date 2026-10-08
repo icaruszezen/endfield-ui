@@ -41,6 +41,7 @@
 | `dialog/` | `Dialog`、`DialogClose` | [浮层](../../../../docs/design/components/overlay.md) |
 | `drawer/` | `Drawer` | [浮层](../../../../docs/design/components/overlay.md) |
 | `dropdown-menu/` | `DropdownMenu`、`DropdownMenuItem`、`DropdownMenuCheckboxItem`、`DropdownMenuGroup`、`DropdownMenuSeparator`、`DropdownMenuRadioGroup`、`DropdownMenuRadioItem`、`DropdownMenuSub` | [浮层](../../../../docs/design/components/overlay.md) |
+| `flyout-bar/` | `FlyoutBar`、`FlyoutBarItem` | [浮层](../../../../docs/design/components/overlay.md) |
 | `popover/` | `Popover`、`PopoverClose` | [浮层](../../../../docs/design/components/overlay.md) |
 | `select/` | `Select`、`SelectItem`、`SelectGroup`、`SelectSeparator` | [表单](../../../../docs/design/components/form.md) |
 | `toast/` | `ToastProvider`、`useToast` | [反馈](../../../../docs/design/components/feedback.md) |

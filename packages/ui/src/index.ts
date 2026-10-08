@@ -14,6 +14,7 @@ export * from "./components/drawer";
 export * from "./components/dropdown-menu";
 export * from "./components/empty-state";
 export * from "./components/field";
+export * from "./components/flyout-bar";
 export * from "./components/ghost-text";
 export * from "./components/hatch";
 export * from "./components/hazard-stripe";

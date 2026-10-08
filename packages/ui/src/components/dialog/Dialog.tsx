@@ -44,6 +44,13 @@ export type DialogProps = Omit<
    * `Esc` 和关闭图标仍然可用。
    */
   alert?: boolean;
+  /** 标题下方加一排小方点。纯装饰 */
+  ornament?: boolean;
+  /**
+   * 左下角的线稿，纯装饰。本库不带线稿：传自己的原创图形，
+   * 用 `currentColor` 画会跟着取低对比的墨色。高 48px
+   */
+  cornerArt?: ReactNode;
   /** 关闭图标的可访问名称 */
   closeLabel?: string;
   /** 打开时焦点落在哪。默认是内容区里第一个可聚焦的元素：第一个字段，或者行动区的第一个按钮 */
@@ -54,6 +61,8 @@ export type DialogProps = Omit<
   className?: string;
   children?: ReactNode;
 };
+
+const ORNAMENT_DOTS = [0, 1, 2, 3, 4, 5];
 
 const sizeClass: Record<DialogSize, string> = {
   sm: "max-w-[30rem]",
@@ -75,6 +84,8 @@ export function Dialog({
   footer,
   size = "md",
   alert = false,
+  ornament = false,
+  cornerArt,
   closeLabel = "关闭",
   initialFocus,
   finalFocus,
@@ -115,10 +126,23 @@ export function Dialog({
               data-theme="dark"
               className={cn(overlayHeader, "min-h-16 justify-center px-12")}
             >
-              {/* 全站的标题大多是粗体，弹窗标题是例外：深底白字本身已经够醒目 */}
-              <Base.Title className="py-3 text-center text-xl font-normal wrap-anywhere">
-                {title}
-              </Base.Title>
+              <div className="flex flex-col items-center gap-1.5 py-3">
+                {/* 全站的标题大多是粗体，弹窗标题是例外：深底白字本身已经够醒目 */}
+                <Base.Title className="text-center text-xl font-normal wrap-anywhere">
+                  {title}
+                </Base.Title>
+                {ornament && (
+                  <span
+                    aria-hidden="true"
+                    data-ornament=""
+                    className="flex gap-1"
+                  >
+                    {ORNAMENT_DOTS.map((dot) => (
+                      <span key={dot} className="size-1 bg-ink/50" />
+                    ))}
+                  </span>
+                )}
+              </div>
               <Base.Close aria-label={closeLabel} className={overlayClose}>
                 <Close size={24} />
               </Base.Close>
@@ -144,6 +168,16 @@ export function Dialog({
                   )}
                   {children}
                 </div>
+                {cornerArt && (
+                  // 排在正文那块实色底的下面、压在点阵上：不压正文，跟着内容一起滚
+                  <div
+                    aria-hidden="true"
+                    data-corner-art=""
+                    className="pointer-events-none mt-3 flex h-12 items-end text-ink-tertiary [&_svg]:h-full [&_svg]:w-auto"
+                  >
+                    {cornerArt}
+                  </div>
+                )}
               </div>
               {footer && (
                 <div className="relative flex shrink-0 flex-wrap justify-end gap-3 border-t border-line bg-surface-raised px-5 py-4">

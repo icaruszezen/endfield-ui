@@ -50,4 +50,15 @@ describe("IconButton", () => {
     await userEvent.click(screen.getByRole("button"));
     expect(onClick).not.toHaveBeenCalled();
   });
+  it("inverse：它打开的浮层开着的时候保持墨底", () => {
+    render(
+      <IconButton aria-label="分享" variant="inverse">
+        <svg />
+      </IconButton>,
+    );
+    expect(screen.getByRole("button")).toHaveClass(
+      "data-popup-open:bg-surface-inverse",
+      "data-popup-open:text-accent-ink-inverse",
+    );
+  });
 });

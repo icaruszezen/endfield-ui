@@ -9,7 +9,7 @@
 | 基础 | Button / ButtonGroup、IconButton、Tag / TagPair、Badge、Kbd、SectionTitle、BracketTitle、Tabs、Panel |
 | 表单 | Field、Input、Textarea、Select、Checkbox、Radio / RadioGroup、Switch、Stepper、FilterChip |
 | 反馈 | Alert、Toast、Progress / ProgressRing、Spinner、Skeleton、EmptyState、Loader、CompletionBanner、RecIndicator |
-| 浮层 | Tooltip、Popover、Dialog、Drawer、DropdownMenu |
+| 浮层 | Tooltip、Popover、Dialog、Drawer、DropdownMenu、FlyoutBar |
 | 展示 | Stat、List / ListRow、MediaCard、ItemSlot、Timeline、Term、ResourceChip、Countdown、Marquee、ScrollHint |
 | 导航 | Breadcrumb、Pagination、Navigator、DashIndicator |
 | 母题 | CornerBrackets、Viewfinder、GhostText、Hatch、Texture、RegistrationStrip、TickRing、HazardStripe |
@@ -23,7 +23,7 @@
 | 框架 | React 19 + TypeScript |
 | 样式 | Tailwind CSS v4（CSS-first，`@theme` 令牌，不使用 `tailwind.config.js`） |
 | 变体 | 手写的 `Record<Variant, string>` + `cn()`（`clsx` + `tailwind-merge`） |
-| 无障碍基元 | [Base UI](https://base-ui.com)（`@base-ui/react`），只用在浮层上：文字提示、气泡卡片、弹窗、抽屉、轻提示、下拉选择、下拉菜单。其余控件建立在原生元素上 |
+| 无障碍基元 | [Base UI](https://base-ui.com)（`@base-ui/react`），只用在浮层上：文字提示、气泡卡片、弹窗、抽屉、轻提示、下拉选择、下拉菜单、展开条。其余控件建立在原生元素上 |
 | 构建 | tsdown（ESM + 类型声明）+ `@tailwindcss/cli`（预编译 CSS） |
 | 测试 | Vitest + Testing Library（jsdom） |
 
@@ -129,7 +129,7 @@ import { Loader } from "@endfield-ui/react";
 
 ### 浮层
 
-文字提示、气泡卡片、弹窗、抽屉、下拉菜单、下拉选择、轻提示。焦点的进出与锁定、键盘、定位与翻转都交给 Base UI，这里只管长相；用的时候不用自己拼部件。触发元素作为一个 React 元素传进去：
+文字提示、气泡卡片、弹窗、抽屉、下拉菜单、展开条、下拉选择、轻提示。焦点的进出与锁定、键盘、定位与翻转都交给 Base UI，这里只管长相；用的时候不用自己拼部件。触发元素作为一个 React 元素传进去：
 
 ```tsx
 import {
@@ -180,8 +180,10 @@ import {
 ```
 
 - `Dialog` 与 `Drawer` 也可以不传 `trigger`，自己用 `open` / `onOpenChange` 控制。`alert` 是破坏性操作的确认：点遮罩不关。
+- `Dialog` 有两处默认关着的装饰：`ornament`（标题下一排小方点）和 `cornerArt`（左下角的线稿，传你自己的原创图形）。
 - `Drawer` 的 `side` 是 `right`（默认）、`left`、`bottom`，都可以朝来的方向划走。
 - 菜单里除了操作项，还有单选组（`DropdownMenuRadioGroup`，当前项）、复选项（`DropdownMenuCheckboxItem`，能开能关的设置，勾了不关菜单）和一层子菜单（`DropdownMenuSub`）。
+- `FlyoutBar` 是从一个图标按钮旁边拉开的一条横排操作（分享的几个去处），键盘上是一个横向的菜单。里面放 `FlyoutBarItem`：子元素是图标，只有图标时必须给 `aria-label`。触发按钮用 `<IconButton variant="inverse">`，它的 `aria-label` 同时是这一条的名称。
 - `Popover` 是点击触发、里面可以操作的一小块面板（`trigger`、`title`、`description` + 子元素），不打断页面。一句说明用 `Tooltip`，必须做完才能继续的用 `Dialog`。
 - 触发元素要是一个按钮，并且把收到的属性和 `ref` 交给原生元素。本库的 `Button`、`IconButton` 都可以直接用。
 
