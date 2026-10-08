@@ -26,8 +26,8 @@ export type TimelineItemProps = Omit<ComponentProps<"li">, "title"> & {
 
 const nodeClass: Record<TimelineStatus, string> = {
   past: "bg-ink",
-  // 黄色在白底上看不见，所以描一圈墨色；暗色下这圈描边融进页面，剩一个黄色菱形
-  current: "border-2 border-on-action bg-action",
+  // 纯色，不描边：亮色下它对白底的明度差很小，"当前"同时靠标题加粗表达
+  current: "bg-action",
   upcoming: "border-2 border-ink-tertiary",
 };
 
