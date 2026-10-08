@@ -17,6 +17,7 @@
 | 骨架 | `<Skeleton variant lines pulse>` | 已实现 |
 | 空状态 | `<EmptyState title description action>` | 已实现 |
 | 按钮提交中 | `<Button loading>`，见 [按钮](button.md) | 已实现 |
+| 行内加载 | `<Spinner size label>` | 已实现 |
 | 进度环 | `<ProgressRing value size showValue>` | 已实现 |
 | 轻提示 | — | 未做，等浮层基元选定后与浮层一起做 |
 | 加载页 | `<Loader value tagline open>` | 已实现 |
@@ -172,6 +173,13 @@
 - 内容就绪后把 `open` 置为 `false`：遮罩**立刻**开始向上滑出（600ms），不等进度条走完；滑出结束后卸载，并触发 `onExited`。"充满后停留片刻"这一步没有做成内置的延时，理由同上面的第三条规则。
 - 默认铺满视口（`fullscreen`），加载期间锁住页面滚动、把焦点收进来并拦住 `Tab`；开始退出的那一刻就全部放开，滑出中的遮罩不挡点击。关掉 `fullscreen` 则铺满所在的定位容器，不碰页面。
 - 层叠值是 `--z-loader`，全库最高，见 [布局](../foundations/layout.md) 的"层叠顺序"。
+
+行内加载已实现为 `<Spinner size label>`：
+
+- 一个匀速旋转的小方块（`animate-spin`），12px 或 16px，颜色继承所在位置的文字；按钮提交中用的就是它；
+- 默认是一个状态区（`role="status"`），读屏听到"加载中"，这句话可以换；旁边已经写了"正在同步"之类的字时传 `label={null}`，方块变成纯装饰；
+- 系统开启"减少动态效果"时方块停成一个 45° 的菱形，和列表里的菱形记号是同一个样子；
+- 圆环形的不另做：用 16px 的进度环 `<ProgressRing size={16} />`。
 
 骨架的实现：
 

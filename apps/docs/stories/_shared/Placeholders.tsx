@@ -23,19 +23,48 @@ const sceneLayers = [
   ],
 ] as const;
 
-/** 场景位：三层灰色的地形轮廓。`seed` 换一组轮廓，让一排卡片不至于一模一样。 */
-export function ScenePlaceholder({ seed = 0 }: { seed?: number }) {
+const sceneTone = {
+  light: [
+    "fill-neutral-200",
+    "fill-neutral-300",
+    "fill-neutral-400",
+    "fill-neutral-500",
+  ],
+  // 深色画面：演示压在图像上的叠层（取景角、录制指示）
+  dark: [
+    "fill-neutral-950",
+    "fill-neutral-850",
+    "fill-neutral-800",
+    "fill-neutral-700",
+  ],
+} as const;
+
+/**
+ * 场景位：三层灰色的地形轮廓。`seed` 换一组轮廓，让一排卡片不至于一模一样；
+ * `tone="dark"` 是一张深色的画面。
+ */
+export function ScenePlaceholder({
+  seed = 0,
+  tone = "light",
+  className,
+}: {
+  seed?: number;
+  tone?: keyof typeof sceneTone;
+  className?: string;
+}) {
   const [far, mid, near] = sceneLayers[seed % sceneLayers.length]!;
+  const [sky, farFill, midFill, nearFill] = sceneTone[tone];
   return (
     <svg
       viewBox="0 0 320 180"
       preserveAspectRatio="xMidYMid slice"
       aria-hidden="true"
+      className={className}
     >
-      <rect width="320" height="180" className="fill-neutral-200" />
-      <path d={far} className="fill-neutral-300" />
-      <path d={mid} className="fill-neutral-400" />
-      <path d={near} className="fill-neutral-500" />
+      <rect width="320" height="180" className={sky} />
+      <path d={far} className={farFill} />
+      <path d={mid} className={midFill} />
+      <path d={near} className={nearFill} />
     </svg>
   );
 }

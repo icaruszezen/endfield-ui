@@ -3,6 +3,7 @@ import { ArrowCorner } from "../../icons/ArrowCorner";
 import { ChevronLeft } from "../../icons/ChevronLeft";
 import { cn } from "../../lib/cn";
 import { focusRing } from "../../lib/focus-ring";
+import { Spinner } from "../spinner/Spinner";
 
 export type ButtonVariant =
   | "control"
@@ -126,15 +127,6 @@ const enabledClass: Record<ButtonVariant, string> = {
   text: "text-ink active:text-ink-secondary",
 };
 
-function Spinner({ className }: { className?: string }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={cn("block animate-spin bg-current", className)}
-    />
-  );
-}
-
 export function Button(props: ButtonProps) {
   const {
     variant = "control",
@@ -183,7 +175,7 @@ export function Button(props: ButtonProps) {
         className="inline-flex items-center justify-center"
         style={{ width: iconSize, height: iconSize }}
       >
-        <Spinner className="size-2" />
+        <Spinner label={null} className="size-2" />
       </span>
     ) : (
       <ChevronLeft size={iconSize} />
@@ -195,7 +187,7 @@ export function Button(props: ButtonProps) {
         className="inline-flex items-center justify-center"
         style={{ width: iconSize, height: iconSize }}
       >
-        <Spinner className="size-2" />
+        <Spinner label={null} className="size-2" />
       </span>
     ) : (
       <ArrowCorner
@@ -240,7 +232,7 @@ export function Button(props: ButtonProps) {
               markerSpinner[size],
             )}
           >
-            <Spinner className={cn("size-full", marker)} />
+            <Spinner label={null} className={cn("block size-full", marker)} />
           </span>
         ) : (
           <span
@@ -282,7 +274,7 @@ export function Button(props: ButtonProps) {
                 actionSpinner[size],
               )}
             >
-              <Spinner className="size-full" />
+              <Spinner label={null} className="block size-full" />
             </span>
           )}
         </>

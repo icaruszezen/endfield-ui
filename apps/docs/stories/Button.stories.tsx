@@ -1,4 +1,4 @@
-import { ArrowRight, Button, Plus } from "@endfield-ui/react";
+import { ArrowRight, Button, ButtonGroup, Plus } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 
@@ -144,11 +144,27 @@ export const AsLink: Story = {
 export const Group: Story = {
   name: "按钮组",
   render: () => (
-    <div className="flex max-w-md flex-col gap-6">
-      <div className="flex justify-end gap-3">
+    <div className="flex max-w-md flex-col gap-8">
+      <ButtonGroup aria-label="表单操作">
         <Button variant="light">取消</Button>
         <Button>确认</Button>
-      </div>
+      </ButtonGroup>
+      <ButtonGroup align="between" aria-label="向导步骤">
+        <Button variant="back">上一步</Button>
+        <Button>下一步</Button>
+      </ButtonGroup>
+      <ButtonGroup align="start" gap="sm" aria-label="领取数量">
+        <Button variant="light">领取 ×1</Button>
+        <Button variant="action">领取 ×10</Button>
+      </ButtonGroup>
+      <ButtonGroup
+        orientation="vertical"
+        aria-label="窄栏里的操作"
+        className="max-w-56"
+      >
+        <Button variant="light">稍后再说</Button>
+        <Button>立即前往</Button>
+      </ButtonGroup>
       <Button block size="lg">
         通宽按钮
       </Button>
