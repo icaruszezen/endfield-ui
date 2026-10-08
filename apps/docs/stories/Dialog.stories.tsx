@@ -6,6 +6,7 @@ import {
   Input,
   PanelRow,
   PanelRows,
+  Select,
   Textarea,
 } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
@@ -113,6 +114,17 @@ export const WithForm: Story = {
               <Input
                 value={name}
                 onChange={(event) => setName(event.target.value)}
+              />
+            </Field>
+            {/* 弹窗里的下拉：面板要盖在弹窗上面 */}
+            <Field label="所属地区">
+              <Select
+                defaultValue="ridge"
+                items={[
+                  { value: "valley", label: "四号谷地" },
+                  { value: "ridge", label: "北岭" },
+                  { value: "basin", label: "盐湖盆地" },
+                ]}
               />
             </Field>
             <Field label="备注" help="只有本站的管理员能看到">

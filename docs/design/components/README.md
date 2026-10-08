@@ -110,8 +110,8 @@
 | FilterChip | [数据展示](data-display.md) | 已实现 |
 | Progress / ProgressRing / Spinner | [反馈](feedback.md) | 已实现 |
 | Alert | [反馈](feedback.md) | 已实现 |
-| Select | [表单](form.md) | 未做，挪到第三期 |
-| Toast | [反馈](feedback.md) | 未做，挪到第三期 |
+| Select | [表单](form.md) | 已实现（和第三期的浮层一起做的） |
+| Toast | [反馈](feedback.md) | 已实现（同上） |
 | Stepper、双标签开关 | [表单](form.md) | 已实现 |
 | 菱形表单符号（方案 B） | [表单](form.md) | 已实现（全局开关 `data-choice="diamond"`） |
 
@@ -126,8 +126,8 @@ Select 的面板和 Toast 的容器都是浮层，需要定位与焦点管理，
 | Dialog | [浮层](overlay.md) | 已实现 |
 | Drawer | [浮层](overlay.md) | 已实现 |
 | Tooltip | [浮层](overlay.md) | 已实现 |
-| DropdownMenu | [浮层](overlay.md) | |
-| Select / Toast | [表单](form.md)、[反馈](feedback.md) | 从第二期挪来 |
+| DropdownMenu | [浮层](overlay.md) | 已实现 |
+| Select / Toast | [表单](form.md)、[反馈](feedback.md) | 已实现 |
 | SideRail / TopBar | [导航](navigation.md) | |
 | Pagination / Navigator / DashIndicator | [导航](navigation.md) | 已实现 |
 | Breadcrumb | [导航](navigation.md) | 已实现 |

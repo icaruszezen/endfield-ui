@@ -13,7 +13,9 @@
 | 文字提示 | `<Tooltip content side align delay arrow>` 包住触发元素；一组相邻的提示外面包 `<TooltipProvider>` | 已实现 |
 | 弹窗 | `<Dialog trigger title description footer size alert>`；"点了就关"的按钮包进 `<DialogClose>` | 已实现 |
 | 抽屉 | `<Drawer trigger title description footer side size accent>` | 已实现 |
-| 下拉菜单 | — | 未做 |
+| 下拉菜单 | `<DropdownMenu trigger variant side align>` + `DropdownMenuItem` / `Group` / `Separator` / `RadioGroup` / `RadioItem` | 已实现 |
+
+下拉选择见 [表单](form.md)，轻提示见 [反馈](feedback.md)。
 
 行为与无障碍（焦点、键盘、定位、关闭时机）交给 [Base UI](https://base-ui.com)，本库只管长相。实现时对下文规格做的调整都写在各节里，并标了"实现"。
 
@@ -127,7 +129,7 @@
 | 顶部强调条 | 高 3 – 4px 的 `action` 色条，宽为面板的一半，从左起 | 实测 |
 | 选项高 | 32 – 36px | 推断 |
 | 当前项 | 深色面板：整行 `action` 底、墨字；浅色面板：`surface-muted` 底 + 左缘墨色条 | 实测 / 推断 |
-| 悬停 | 提亮一档 | 实测（官网用透明度变化） |
+| 悬停 | 提亮一档（`ink/5`） | 实测（官网用透明度变化） |
 | 圆角、分隔线 | 没有 | 实测 |
 | 分组 | 用 8px 的间距或一条 1px 线，配一个 `text-xs` 的分组小标题 | 推断 |
 | 阴影 | `shadow-sm` | 推断 |
@@ -136,7 +138,21 @@
 
 危险项（删除）用 `danger` 色文字，放在最后并与其他项隔开。
 
-官网的分享展开条是另一种形态（实测）：一条墨黑的横条，左缘 0.375rem 的黄色竖条，里面排着浅灰的图标，悬停变白。
+官网的分享展开条是另一种形态（实测）：一条墨黑的横条，左缘 0.375rem 的黄色竖条，里面排着浅灰的图标，悬停变白。这一种没有做。
+
+### 实现
+
+- 面板和 [下拉选择](form.md) 的面板是同一套：`surface-raised` + 1px `line` + `shadow-sm`，选项高 36px、`text-sm`。顶部的半宽强调条高 3px，压在上边线上；面板展开时从 0 伸到一半宽（`--duration-base`，`ease-exit`）。
+- 两种面板写成 `variant`：
+  - `plain`（默认）跟随主题。当前项是 `surface-muted` 底 + 左缘 3px 的墨色条 + 加粗。
+  - `strong` 是官网语言菜单的样子：**固定的深色面板**，当前项整行 `action` 底、墨字。规格表里写的"深色（`surface-inverse`）"没有照做——它在暗色主题下是近白，黄底的当前项压在上面看不清。改成面板自己是一个 `data-theme="dark"` 的局部主题。
+- 悬停和键盘移动用同一种底（`ink/5`）；键盘聚焦另有一圈画在选项里面的焦点环，只靠那一点底色差太弱。当前项的底不被悬停盖掉。
+- "当前项"用单选组表达：`DropdownMenuRadioGroup` + `DropdownMenuRadioItem`，选了之后菜单关掉。
+- 选项左侧可以放图标（`iconStart`），行尾可以放快捷键或计数（`end`）；传 `href` 就是链接。危险项写 `tone="danger"`。
+- 面板默认出现在触发按钮下方、和它的左边对齐，离它 4px；放不下时翻到上面，或者改成右边对齐。
+- 键盘：回车、空格、方向键打开；方向键在选项间循环（禁用项也走得到，读屏要能读到它）；`Home` / `End`；按字母跳到以它开头的项；`Esc` 关闭，焦点回到触发按钮。
+- 菜单开着的时候页面其余部分不可交互、不可滚动。
+- 子菜单和复选项没有做。
 
 ## 文字提示
 

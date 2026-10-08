@@ -40,6 +40,9 @@
 | `tooltip/` | `Tooltip`、`TooltipProvider` | [浮层](../../../../docs/design/components/overlay.md) |
 | `dialog/` | `Dialog`、`DialogClose` | [浮层](../../../../docs/design/components/overlay.md) |
 | `drawer/` | `Drawer` | [浮层](../../../../docs/design/components/overlay.md) |
+| `dropdown-menu/` | `DropdownMenu`、`DropdownMenuItem`、`DropdownMenuGroup`、`DropdownMenuSeparator`、`DropdownMenuRadioGroup`、`DropdownMenuRadioItem` | [浮层](../../../../docs/design/components/overlay.md) |
+| `select/` | `Select`、`SelectItem`、`SelectGroup`、`SelectSeparator` | [表单](../../../../docs/design/components/form.md) |
+| `toast/` | `ToastProvider`、`useToast` | [反馈](../../../../docs/design/components/feedback.md) |
 | `rec-indicator/` | `RecIndicator` | [测绘叠层](../../../../docs/design/elements/hud-overlays.md) |
 | `marquee/` | `Marquee` | [动效](../../../../docs/design/foundations/motion.md) |
 | `scroll-hint/` | `ScrollHint` | [测绘叠层](../../../../docs/design/elements/hud-overlays.md) |
@@ -57,10 +60,11 @@
 | 文件 | 谁在用 |
 | --- | --- |
 | `chip/capsule-style.ts` | `FilterChip`、`Tabs` 的 `capsule` 变体 |
-| `input/control-box.ts` | `Input`、`Textarea` 的外框（凹陷与描边两种） |
+| `input/control-box.ts` | `Input`、`Textarea` 的外框（凹陷与描边两种），`Select` 的触发器也用它 |
 | `checkbox/choice-style.ts` | `Checkbox`、`Radio`、`Switch` 的行与方格（含菱形方案的写法） |
 | `dialog/overlay-style.ts` | `Dialog`、`Drawer` 的遮罩、深色标题带、关闭按钮 |
 | `dialog/initial-focus.ts` | `Dialog`、`Drawer` 打开时焦点落在哪 |
+| `dropdown-menu/menu-style.ts` | `DropdownMenu`、`Select` 的面板与选项（跟随主题与固定深色两种） |
 | [`lib/decor.ts`](../lib/decor.ts) | 所有装饰层：不挡点击、不可选中，高对比模式与打印时去掉 |
 
 ## 约定
@@ -111,6 +115,8 @@ components/
 - **一块固定深色（或和页面相反）的区域里还要放别的控件时，把它做成局部主题**（`data-theme="dark"`），里面照常用语义令牌；不要逐个写 `neutral-*`。弹窗的标题带、文字提示都是这样。
 - 进出场用基元给的 `data-starting-style` / `data-ending-style` 写 CSS 过渡（`data-starting-style:opacity-0`），不写关键帧。基元等过渡结束才卸载浮层。
 - 没有边线、全靠底色和页面分开的浮层（文字提示）加一圈透明的边线：高对比模式下底色被系统覆盖，边线会自己显形。
+- **要画焦点环的元素不要写 `outline-none`。** Tailwind v4 里它把轮廓的线型定成 `none`，后面的 `focus-visible:outline-2` 也跟着画不出来（菜单的选项踩过）。`outline-none` 只留给"焦点环画在别处"的元素：输入框里的 `<input>`、下拉的触发按钮（环在外框上）、弹窗的面。
+- 局部主题里的焦点环如果会画到局部主题之外（外扩 2px），颜色就压在了页面的底色上。轻提示是深色的一块，环是黄的，画到亮色页面上看不见——所以它用画在里面的 `focusRingInset`。
 - 测试里查浮层用角色（`findByRole("dialog")`）。文字提示的内容同时存在于隐藏的描述里，按文字查时要排除 `[hidden]`。
 
 ### 带状态的控件

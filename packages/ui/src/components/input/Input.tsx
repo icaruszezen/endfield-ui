@@ -5,10 +5,13 @@ import { useFieldControl } from "../field/Field";
 import {
   controlBox,
   controlElement,
+  controlIconSize,
+  controlSize,
+  type ControlSize,
   type ControlVariant,
 } from "./control-box";
 
-export type InputSize = "sm" | "md" | "lg";
+export type InputSize = ControlSize;
 export type InputVariant = ControlVariant;
 
 export type InputProps = Omit<ComponentProps<"input">, "size"> & {
@@ -26,14 +29,6 @@ export type InputProps = Omit<ComponentProps<"input">, "size"> & {
   /** 错误态：底边线变红，右侧出现菱形图标。放在 `Field` 里时跟随它的 `error` */
   invalid?: boolean;
 };
-
-const boxSize: Record<InputSize, string> = {
-  sm: "h-8 text-sm",
-  md: "h-10 text-base",
-  lg: "h-14 text-lg",
-};
-
-const iconSize: Record<InputSize, number> = { sm: 14, md: 16, lg: 20 };
 
 /**
  * 单行输入框。`className` 给外框，其余属性与 `ref` 给里面的 `<input>`。
@@ -69,7 +64,7 @@ export function Input({
       className={cn(
         controlBox({ variant, invalid, disabled, readOnly }),
         "items-center",
-        boxSize[size],
+        controlSize[size],
         className,
       )}
     >
@@ -95,7 +90,7 @@ export function Input({
       />
       {invalid && (
         <StatusDanger
-          size={iconSize[size]}
+          size={controlIconSize[size]}
           className={cn("shrink-0 text-danger", !end && "mr-3")}
         />
       )}

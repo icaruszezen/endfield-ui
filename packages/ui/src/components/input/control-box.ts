@@ -9,6 +9,20 @@ import { focusRingWithin } from "../../lib/focus-ring";
  */
 
 export type ControlVariant = "sunken" | "outline";
+export type ControlSize = "sm" | "md" | "lg";
+
+/** 32 / 40 / 56px 高，字号跟随通用的三档。输入框和下拉选择的触发器共用 */
+export const controlSize: Record<ControlSize, string> = {
+  sm: "h-8 text-sm",
+  md: "h-10 text-base",
+  lg: "h-14 text-lg",
+};
+
+export const controlIconSize: Record<ControlSize, number> = {
+  sm: 14,
+  md: 16,
+  lg: 20,
+};
 
 type BoxState = {
   variant?: ControlVariant;

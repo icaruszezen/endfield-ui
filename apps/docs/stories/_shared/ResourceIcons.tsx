@@ -16,3 +16,13 @@ export const CrateIcon = createIcon(
   "CrateIcon",
   <path d="M4 4h16v16H4zM4 12h16" strokeWidth={3} />,
 );
+
+/* "更多"：三个小方块，菜单触发按钮上用 */
+export const MoreIcon = createIcon(
+  "MoreIcon",
+  <path
+    d="M4 10.5h3v3H4zM10.5 10.5h3v3h-3zM17 10.5h3v3h-3z"
+    fill="currentColor"
+    stroke="none"
+  />,
+);

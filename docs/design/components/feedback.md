@@ -19,7 +19,7 @@
 | 按钮提交中 | `<Button loading>`，见 [按钮](button.md) | 已实现 |
 | 行内加载 | `<Spinner size label>` | 已实现 |
 | 进度环 | `<ProgressRing value size showValue>` | 已实现 |
-| 轻提示 | — | 未做，等浮层基元选定后与浮层一起做 |
+| 轻提示 | `<ToastProvider placement duration>` 包住应用，里面用 `useToast()`：`toast("已保存")` | 已实现 |
 | 加载页 | `<Loader value tagline open>` | 已实现 |
 | 完成横幅 | `<CompletionBanner title word description action>` | 已实现 |
 | 列表行的完成态 | `<ListRow completed>`，见 [卡片](card.md) | 已实现 |
@@ -140,6 +140,19 @@
 - 停留 2 – 4 秒；有操作按钮时延长，并允许手动关闭。
 - 同时只显示一条，新的替换旧的。
 - 重要的、需要用户处理的信息不要用轻提示，用提示条或弹窗。
+
+实现：
+
+- 写法是命令式的：`const toast = useToast()`，然后 `toast("已保存")`，或者 `toast({ message, tone, action, duration })`。返回这一条的 id，`toast.dismiss(id)` 关掉它。
+- 默认出现在视口底部居中，离底边 24px；`placement="center"` 是官网的视口正中。
+- 默认停留 3 秒。指针停在上面、或者焦点在里面的时候不计时。
+- **新的替换旧的**：弹出一条时把还在的那条关掉，两条在同一个位置交替淡入淡出。
+- `tone` 只在文字前加一个 16px 的语义色图标，和提示条一样用四种不同的外形；底色不变。
+- 带 `action` 时多停一会儿（默认 8 秒），并出现关闭图标；点了操作之后这一条随即关掉。`duration: 0` 是一直留着，同样带关闭图标。
+- **黑底白字不随主题变。** 整条是一个 `data-theme="dark"` 的局部主题，图标、操作、焦点环都按深色底取值。暗色页面上 80% 的黑和页面几乎一样深，所以加了一条 1px 的线把它勾出来；这条线在亮色页面上和提示的底几乎同色，看不出来。
+- 读屏：提示区域是一个有名称的区域（默认"通知"），按 `F6` 可以把焦点移进去。普通的提示排队播报；`warning` 与 `danger` 会打断当前在读的内容。
+- 可以往下或往右划走。
+- 层叠值是 `--z-toast`，在所有浮层之上、加载页之下。
 
 ## 加载
 
