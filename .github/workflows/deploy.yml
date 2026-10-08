@@ -1,7 +1,7 @@
 name: 构建与部署
 
-# 推送到 main 后：类型检查、测试、构建组件库与 Storybook，
-# 再把 Storybook 发布到 GitHub Pages。
+# 推送到 main 后：格式检查、类型检查、测试、构建组件库与 Storybook，
+# 再把 Storybook 发布到 GitHub Pages；同时拿这份 Storybook 去跑浏览器实测。
 on:
   push:
     branches: [main]
@@ -14,7 +14,7 @@ concurrency:
 
 # 运行环境固定到具体版本，不用 ubuntu-latest：这个标签会跟着 GitHub 换到新系统
 # （2026-10-19 起指向 Ubuntu 26），固定之后升级由我们自己决定。
-# 要升的时候两个 job 一起改，并确认一次完整的构建与部署。
+# 要升的时候三个 job 一起改，并确认一次完整的构建与部署。
 jobs:
   build:
     name: 检查与构建
@@ -56,6 +56,13 @@ jobs:
         with:
           path: apps/docs/storybook-static
 
+      # 给 browser job 用。Pages 的那一份是打过包的，不方便直接拿来起服务
+      - uses: actions/upload-artifact@v7
+        with:
+          name: storybook-static
+          path: apps/docs/storybook-static
+          retention-days: 1
+
   deploy:
     name: 发布到 GitHub Pages
     needs: build
@@ -69,3 +76,39 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v5
+
+  # 在真的浏览器里按键、点击、读焦点（apps/docs/browser-checks）。
+  # 和 deploy 并行，不挡发布：没过会在提交上标红，在线预览照常更新。
+  # 脚本没有依赖，所以这里不装包；浏览器用 runner 自带的 Chrome。
+  browser:
+    name: 浏览器实测
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: storybook-static
+          path: apps/docs/storybook-static
+
+      - name: 键盘、焦点与布局的实测
+        working-directory: apps/docs
+        run: node --test --test-concurrency=1 "browser-checks/*.check.ts"
+        env:
+          BROWSER_FLAGS: --no-sandbox
+
+      - name: 上传没过时的截图
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-check-screenshots
+          path: apps/docs/browser-checks/.artifacts
+          if-no-files-found: ignore
+          include-hidden-files: true

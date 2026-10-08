@@ -1,0 +1,36 @@
+// 文档页会把一个组件的全部 story 同时渲染出来：里面不能有开着的浮层，也不能报错
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { useStorybook } from "./lib/harness.ts";
+
+const storybook = useStorybook({ width: 1280, height: 900 });
+
+const pages = [
+  "控件-dialog-弹窗--docs",
+  "控件-drawer-抽屉--docs",
+  "控件-toast-轻提示--docs",
+  "控件-select-下拉选择--docs",
+  "控件-dropdownmenu-下拉菜单--docs",
+  "控件-tooltip-文字提示--docs",
+  "母题-texture-底纹--docs",
+];
+
+for (const id of pages) {
+  test(`文档页：${id}`, async () => {
+    const { page } = storybook;
+    await page.docs(id);
+
+    const found = await page.evaluate(() => ({
+      stories: document.querySelectorAll(".docs-story").length,
+      dialogs: document.querySelectorAll("[role=dialog], [role=alertdialog]")
+        .length,
+      panels: [
+        ...document.querySelectorAll("[role=listbox], [role=menu]"),
+      ].filter((element) => !element.closest("[hidden]")).length,
+    }));
+    assert.ok(found.stories > 0, "文档页里没有 story");
+    assert.equal(found.dialogs, 0, "文档页里有开着的弹窗、抽屉或轻提示");
+    assert.equal(found.panels, 0, "文档页里有开着的下拉面板");
+    assert.deepEqual(page.errors, [], "页面报了错");
+  });
+}

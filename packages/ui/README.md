@@ -349,6 +349,7 @@ packages/ui/
 | --- | --- |
 | `pnpm dev` | 启动 Storybook（`http://localhost:6106`），直接读本包源码，改了即热更新 |
 | `pnpm test` | 跑单元测试 |
+| `pnpm test:browser` | 在真的浏览器里测键盘、焦点与布局（先 `pnpm build:docs`），见 [apps/docs](../../apps/docs/README.md#浏览器实测) |
 | `pnpm typecheck` | 类型检查全部工作区包 |
 | `pnpm build` | 生成 `dist/index.js`、`dist/index.d.ts`、`dist/styles.css` |
 | `pnpm format` | 用 Prettier 格式化全仓库；`pnpm format:check` 只检查不改，CI 跑的是它 |

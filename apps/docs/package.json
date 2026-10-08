@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "storybook dev -p 6106 --no-open",
     "build": "storybook build",
+    "test:browser": "node --test --test-concurrency=1 \"browser-checks/*.check.ts\"",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

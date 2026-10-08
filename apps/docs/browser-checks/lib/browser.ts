@@ -1,0 +1,518 @@
+/*
+ * 通过 DevTools 协议驱动一个无头的 Chromium 系浏览器（Edge、Chrome、Chromium）。
+ *
+ * 为什么不用 jsdom：弹窗"打开后焦点移入"、焦点被锁在浮层里、浮层贴边翻转
+ * 这些行为靠的是动画帧、真实的 Tab 顺序和布局，jsdom 里都没有。
+ * 为什么不用现成的测试框架：这里只需要按键、点击、读 DOM，Node 自带的
+ * WebSocket 就够了，不用再装一个浏览器。
+ */
+import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { delimiter, dirname, join } from "node:path";
+
+export type Theme = "light" | "dark" | "both";
+export type Point = { x: number; y: number };
+/** CSS 选择器；`text=归档` 找文字（或 `aria-label`）正好相等的可点击元素；或者直接给坐标 */
+export type Target = string | Point;
+
+// DevTools 协议的消息体没有随 Node 带类型，这里按用到的字段取
+type Message = any;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const KEY_CODES: Record<string, number> = {
+  Tab: 9,
+  Enter: 13,
+  Escape: 27,
+  Space: 32,
+  End: 35,
+  Home: 36,
+  ArrowLeft: 37,
+  ArrowUp: 38,
+  ArrowRight: 39,
+  ArrowDown: 40,
+  F6: 117,
+};
+
+function findBrowser(): string {
+  const fromEnv = process.env.BROWSER_PATH;
+  if (fromEnv) {
+    assert.ok(existsSync(fromEnv), `BROWSER_PATH 指向的文件不存在：${fromEnv}`);
+    return fromEnv;
+  }
+
+  const candidates: string[] = [];
+  if (process.platform === "win32") {
+    const roots = [
+      process.env["PROGRAMFILES(X86)"],
+      process.env.PROGRAMFILES,
+      process.env.LOCALAPPDATA,
+    ];
+    for (const root of roots) {
+      if (!root) continue;
+      candidates.push(
+        join(root, "Microsoft/Edge/Application/msedge.exe"),
+        join(root, "Google/Chrome/Application/chrome.exe"),
+      );
+    }
+  } else if (process.platform === "darwin") {
+    candidates.push(
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+      "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    );
+  } else {
+    const names = [
+      "google-chrome",
+      "google-chrome-stable",
+      "chromium",
+      "chromium-browser",
+      "microsoft-edge",
+    ];
+    for (const dir of (process.env.PATH ?? "").split(delimiter)) {
+      for (const name of names) candidates.push(join(dir, name));
+    }
+  }
+
+  const found = candidates.find((path) => existsSync(path));
+  assert.ok(
+    found,
+    "没有找到 Edge / Chrome / Chromium。用环境变量 BROWSER_PATH 指给它。",
+  );
+  return found;
+}
+
+export type LaunchOptions = {
+  /** Storybook 的地址，不带末尾的斜杠 */
+  baseUrl: string;
+  width?: number;
+  height?: number;
+};
+
+export type Page = Awaited<ReturnType<typeof launch>>;
+
+export async function launch({
+  baseUrl,
+  width = 1200,
+  height = 800,
+}: LaunchOptions) {
+  // 每次用一个新的 profile：复用同一个目录时，后起的进程会把活儿交给还没退出的那个
+  const profile = mkdtempSync(join(tmpdir(), "ef-browser-check-"));
+  const child = spawn(
+    findBrowser(),
+    [
+      "--headless=new",
+      "--disable-gpu",
+      "--hide-scrollbars",
+      "--no-first-run",
+      "--no-default-browser-check",
+      // 0 = 让浏览器自己挑一个空闲端口，写在 profile 里的 DevToolsActivePort
+      "--remote-debugging-port=0",
+      `--user-data-dir=${profile}`,
+      `--window-size=${width},${height}`,
+      ...(process.env.BROWSER_FLAGS?.split(" ").filter(Boolean) ?? []),
+      "about:blank",
+    ],
+    { stdio: "ignore" },
+  );
+
+  let socketUrl: string | undefined;
+  for (let i = 0; i < 80 && !socketUrl; i++) {
+    await sleep(125);
+    try {
+      const port = readFileSync(
+        join(profile, "DevToolsActivePort"),
+        "utf8",
+      ).split("\n")[0];
+      const targets: Message[] = await (
+        await fetch(`http://127.0.0.1:${port}/json/list`)
+      ).json();
+      socketUrl = targets.find(
+        (target) => target.type === "page",
+      )?.webSocketDebuggerUrl;
+    } catch {
+      // 还没起来，接着等
+    }
+  }
+  assert.ok(socketUrl, "浏览器没有起来");
+
+  const socket = new WebSocket(socketUrl);
+  await new Promise((resolve, reject) => {
+    socket.addEventListener("open", resolve);
+    socket.addEventListener("error", reject);
+  });
+
+  let nextId = 1;
+  const pending = new Map<
+    number,
+    { resolve: (value: Message) => void; reject: (error: Error) => void }
+  >();
+  const listeners = new Set<(message: Message) => void>();
+  socket.addEventListener("message", (event) => {
+    const message: Message = JSON.parse(String(event.data));
+    const waiting = pending.get(message.id);
+    if (waiting) {
+      pending.delete(message.id);
+      if (message.error) {
+        waiting.reject(new Error(JSON.stringify(message.error)));
+      } else {
+        waiting.resolve(message.result);
+      }
+    } else {
+      for (const listener of listeners) listener(message);
+    }
+  });
+
+  const send = (method: string, params: object = {}): Promise<Message> =>
+    new Promise((resolve, reject) => {
+      const id = nextId++;
+      pending.set(id, { resolve, reject });
+      socket.send(JSON.stringify({ id, method, params }));
+    });
+
+  /** 页面里报的错：`console.error` 和没接住的异常。每次换页清空 */
+  const errors: string[] = [];
+  listeners.add((message) => {
+    if (
+      message.method === "Runtime.consoleAPICalled" &&
+      message.params.type === "error"
+    ) {
+      errors.push(
+        message.params.args
+          .map((arg: Message) => arg.value ?? arg.description)
+          .join(" "),
+      );
+    }
+    if (message.method === "Runtime.exceptionThrown") {
+      const details = message.params.exceptionDetails;
+      errors.push(details.exception?.description ?? details.text);
+    }
+  });
+
+  await send("Page.enable");
+  await send("Runtime.enable");
+  // 截图之后页面会被当成失去焦点，键盘事件随之慢一拍：让它始终算作有焦点
+  await send("Emulation.setFocusEmulationEnabled", { enabled: true });
+
+  async function evaluate<Args extends unknown[], Result>(
+    fn: (...args: Args) => Result,
+    ...args: Args
+  ): Promise<Awaited<Result>> {
+    // 函数被转成源码送进页面执行，所以它不能引用外面的变量，要用的值走参数
+    const { result, exceptionDetails } = await send("Runtime.evaluate", {
+      expression: `(${fn.toString()})(...${JSON.stringify(args)})`,
+      awaitPromise: true,
+      returnByValue: true,
+    });
+    if (exceptionDetails) {
+      throw new Error(
+        exceptionDetails.exception?.description ?? exceptionDetails.text,
+      );
+    }
+    return result.value;
+  }
+
+  /** 反复问，直到拿到一个真值；超时就以 `message` 失败 */
+  async function waitFor<T>(
+    probe: () => T | Promise<T>,
+    message: string,
+    timeout = 5000,
+  ): Promise<NonNullable<T>> {
+    const deadline = Date.now() + timeout;
+    for (;;) {
+      const value = await probe();
+      if (value) return value;
+      if (Date.now() > deadline) {
+        assert.fail(`${message}（等了 ${timeout}ms）`);
+      }
+      await sleep(40);
+    }
+  }
+
+  function locate(target: string): Promise<Point | null> {
+    return evaluate((selector) => {
+      const shown = (node: Element) => {
+        const rect = node.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0 && !node.closest("[hidden]");
+      };
+      const element = selector.startsWith("text=")
+        ? [
+            ...document.querySelectorAll("button, a, [role], label, input"),
+          ].find(
+            (node) =>
+              shown(node) &&
+              (
+                node.getAttribute("aria-label") ??
+                node.textContent ??
+                ""
+              ).trim() === selector.slice(5),
+          )
+        : [...document.querySelectorAll(selector)].find(shown);
+      if (!element) return null;
+      element.scrollIntoView({ block: "nearest" });
+      const rect = element.getBoundingClientRect();
+      return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    }, target);
+  }
+
+  /** 元素的中心点。等它出现，并且连续两次量到同一个位置——布局还在动的时候点不中 */
+  async function point(target: Target): Promise<Point> {
+    if (typeof target !== "string") return target;
+    let previous: Point | null = null;
+    return waitFor(async () => {
+      const current = await locate(target);
+      const settled =
+        current &&
+        previous &&
+        Math.abs(current.x - previous.x) < 0.5 &&
+        Math.abs(current.y - previous.y) < 0.5;
+      previous = current;
+      return settled ? current : null;
+    }, `找不到 ${target}`);
+  }
+
+  async function goto(url: string, ready: () => boolean | Promise<boolean>) {
+    errors.length = 0;
+    const loaded = new Promise<void>((resolve) => {
+      const listener = (message: Message) => {
+        if (message.method !== "Page.loadEventFired") return;
+        listeners.delete(listener);
+        resolve();
+      };
+      listeners.add(listener);
+    });
+    await send("Page.navigate", { url });
+    await loaded;
+    await waitFor(() => evaluate(ready), `页面没有渲染出来：${url}`, 20000);
+  }
+
+  const page = {
+    send,
+    errors,
+    evaluate,
+    waitFor,
+    /** 干等。只用在"过了这么久它仍然没变"这类反面的断言上 */
+    pause: sleep,
+
+    /** 打开一个 story 的画布，等它渲染完 */
+    story(id: string, theme: Theme = "light") {
+      return goto(
+        `${baseUrl}/iframe.html?id=${encodeURIComponent(id)}&viewMode=story&globals=theme:${theme}`,
+        async () => {
+          await document.fonts.ready;
+          return (
+            document.body.classList.contains("sb-show-main") &&
+            (document.querySelector("#storybook-root")?.childElementCount ??
+              0) > 0 &&
+            // 预览外壳在挂载后才把主题写到 <html> 上
+            document.documentElement.dataset.theme !== undefined
+          );
+        },
+      );
+    },
+
+    /** 打开一个文档页（里面内嵌着这个组件的全部 story） */
+    docs(id: string, theme: Theme = "both") {
+      return goto(
+        `${baseUrl}/iframe.html?id=${encodeURIComponent(id)}&viewMode=docs&globals=theme:${theme}`,
+        async () => {
+          await document.fonts.ready;
+          const stories = document.querySelectorAll(".docs-story");
+          // 每个 story 都套着预览外壳（.storybook/preview.tsx），外壳上有 text-ink
+          return (
+            stories.length > 0 &&
+            [...stories].every((story) => story.querySelector(".text-ink"))
+          );
+        },
+      );
+    },
+
+    async key(name: string, { shift = false } = {}) {
+      const code = KEY_CODES[name];
+      const base = code
+        ? {
+            key: name === "Space" ? " " : name,
+            code: name,
+            windowsVirtualKeyCode: code,
+          }
+        : {
+            key: name,
+            code: `Key${name.toUpperCase()}`,
+            windowsVirtualKeyCode: name.toUpperCase().charCodeAt(0),
+          };
+      // 功能键不产生文字；回车、空格和字母要带上，否则按钮不会被"按下"
+      const text =
+        name === "Enter"
+          ? "\r"
+          : name === "Space"
+            ? " "
+            : code
+              ? undefined
+              : name;
+      const modifiers = shift ? 8 : 0;
+      await send("Input.dispatchKeyEvent", {
+        type: text ? "keyDown" : "rawKeyDown",
+        ...base,
+        text,
+        modifiers,
+      });
+      await send("Input.dispatchKeyEvent", {
+        type: "keyUp",
+        ...base,
+        modifiers,
+      });
+      // 让这次按键引起的渲染走完一帧
+      await evaluate(
+        () => new Promise((resolve) => requestAnimationFrame(resolve)),
+      );
+    },
+
+    async type(text: string) {
+      for (const character of text) await page.key(character);
+    },
+
+    point,
+
+    /** 把指针移过去。分几步走：真的鼠标不会只发一个事件，有的控件要看到指针在动才认 */
+    async moveTo(target: Target) {
+      const { x, y } = await point(target);
+      for (const offset of [6, 3, 0]) {
+        await send("Input.dispatchMouseEvent", {
+          type: "mouseMoved",
+          x: x - offset,
+          y: y - offset,
+        });
+      }
+    },
+
+    async click(target: Target) {
+      const { x, y } = await point(target);
+      const at = { x, y, button: "left", clickCount: 1 };
+      await send("Input.dispatchMouseEvent", { type: "mouseMoved", x, y });
+      await send("Input.dispatchMouseEvent", { type: "mousePressed", ...at });
+      await send("Input.dispatchMouseEvent", { type: "mouseReleased", ...at });
+    },
+
+    /** 当前焦点，写成 `角色:名称`；没有角色时用标签名，名称优先取 `aria-label` */
+    focused() {
+      return evaluate(() => {
+        const element = document.activeElement;
+        if (!element || element === document.body) return "(body)";
+        const name =
+          element.getAttribute("aria-label") ??
+          element.textContent?.trim().slice(0, 30) ??
+          "";
+        const role =
+          element.getAttribute("role") ?? element.tagName.toLowerCase();
+        return `${role}:${name}`;
+      });
+    },
+
+    /**
+     * 看得见吗。有些浮层关掉后还留在 DOM 里（带 `hidden`），
+     * 所以问的是"看得见"而不是"存在"。
+     */
+    visible(selector: string) {
+      return evaluate(
+        (css) =>
+          [...document.querySelectorAll(css)].some((element) => {
+            const rect = element.getBoundingClientRect();
+            return (
+              rect.width > 0 && rect.height > 0 && !element.closest("[hidden]")
+            );
+          }),
+        selector,
+      );
+    },
+
+    async waitVisible(selector: string, message = `${selector} 没有出现`) {
+      await waitFor(() => page.visible(selector), message);
+    },
+
+    async waitGone(selector: string, message = `${selector} 没有消失`) {
+      await waitFor(async () => !(await page.visible(selector)), message);
+    },
+
+    async waitFocused(expected: string | RegExp, message?: string) {
+      let last = "";
+      const matches = (value: string) =>
+        typeof expected === "string"
+          ? value === expected
+          : expected.test(value);
+      try {
+        await waitFor(async () => matches((last = await page.focused())), "");
+      } catch {
+        assert.fail(
+          `${message ?? "焦点不对"}：想要 ${String(expected)}，实际是 ${last}`,
+        );
+      }
+    },
+
+    /** 这些元素（不算藏起来的）各自的文字 */
+    text(selector: string) {
+      return evaluate(
+        (css) =>
+          [...document.querySelectorAll(css)]
+            .filter((element) => !element.closest("[hidden]"))
+            .map((element) => (element.textContent ?? "").trim()),
+        selector,
+      );
+    },
+
+    async setSize(nextWidth: number, nextHeight: number) {
+      await send("Emulation.setDeviceMetricsOverride", {
+        width: nextWidth,
+        height: nextHeight,
+        deviceScaleFactor: 1,
+        mobile: false,
+      });
+    },
+
+    /** 默认是"减少动态效果"：过渡几乎为零，检查不用等。动效那一组关掉它 */
+    async setReducedMotion(reduce: boolean) {
+      await send("Emulation.setEmulatedMedia", {
+        features: [
+          {
+            name: "prefers-reduced-motion",
+            value: reduce ? "reduce" : "no-preference",
+          },
+        ],
+      });
+    },
+
+    async screenshot(file: string) {
+      const { data } = await send("Page.captureScreenshot", { format: "png" });
+      mkdirSync(dirname(file), { recursive: true });
+      writeFileSync(file, Buffer.from(data, "base64"));
+      await send("Page.bringToFront");
+    },
+
+    async close() {
+      try {
+        await send("Browser.close");
+      } catch {
+        // 已经关了
+      }
+      socket.close();
+      child.kill();
+      await sleep(300);
+      try {
+        rmSync(profile, { recursive: true, force: true });
+      } catch {
+        // 浏览器刚退出时 profile 可能还被占着，留给系统清理
+      }
+    },
+  };
+
+  await page.setReducedMotion(true);
+  return page;
+}

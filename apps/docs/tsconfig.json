@@ -2,9 +2,11 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "types": ["node"],
+    // browser-checks 由 Node 直接运行，导入要写出 .ts 后缀
+    "allowImportingTsExtensions": true,
     "paths": {
       "@endfield-ui/react": ["../../packages/ui/src/index.ts"]
     }
   },
-  "include": [".storybook", "stories"]
+  "include": [".storybook", "stories", "browser-checks"]
 }

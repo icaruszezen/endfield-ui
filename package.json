@@ -11,6 +11,7 @@
     "build": "pnpm --filter @endfield-ui/react build",
     "build:docs": "pnpm --filter @endfield-ui/docs build",
     "test": "pnpm --filter @endfield-ui/react test",
+    "test:browser": "pnpm --filter @endfield-ui/docs test:browser",
     "typecheck": "pnpm -r typecheck",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

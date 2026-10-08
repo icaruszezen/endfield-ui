@@ -10,7 +10,9 @@ pnpm dev
 
 打开 `http://localhost:6106`。`pnpm build:docs` 生成静态站点到 `storybook-static/`。
 
-在线版本：<https://icaruszezen.github.io/endfield-ui/>。每次推送到 `main`，[.github/workflows/deploy.yml](../../.github/workflows/deploy.yml) 会先跑类型检查、测试和组件库构建，全部通过后再构建 Storybook 并发布到 GitHub Pages；任何一步失败都不会发布。也可以在仓库的 Actions 页面手动触发。
+在线版本：<https://icaruszezen.github.io/endfield-ui/>。每次推送到 `main`，[.github/workflows/deploy.yml](../../.github/workflows/deploy.yml) 会先跑格式检查、类型检查、测试和组件库构建，全部通过后再构建 Storybook 并发布到 GitHub Pages；任何一步失败都不会发布。也可以在仓库的 Actions 页面手动触发。
+
+同一次构建出来的 Storybook 还会交给另一个 job 跑[浏览器实测](#浏览器实测)。它和发布并行、**不挡发布**：没过会在提交上标红，在线版本照常更新。
 
 ## 现在有什么
 
@@ -42,6 +44,36 @@ pnpm dev
 - 叠在占位图上的控件（取景角、录制指示）要按**占位图**的深浅写 `data-theme`，不是按页面的主题——`ScenePlaceholder` 有浅、深两档（`tone`）。
 - 占整个视口的浮层（弹窗、抽屉、轻提示）的 story 在 meta 上写 `parameters: { sideBySide: false }`。
 - 默认打开的浮层另起一个 story，并加 `tags: ["!autodocs"]`：文档页会把所有 story 同时渲染出来，几个弹窗会叠在一起。这类 story 是给截图核对用的。
+
+## 浏览器实测
+
+`browser-checks/` 里是在真的浏览器里做的检查：按键、点击、读焦点和布局。单元测试用的 jsdom 没有动画帧、没有真实的 Tab 顺序、也不排版，"弹窗打开后焦点移入并被锁住""面板贴边时翻到另一侧""320px 宽不溢出"这类事只有在这里测得出来。
+
+```bash
+pnpm build:docs
+pnpm test:browser
+```
+
+- 测的是 `storybook-static/`，所以先构建。改了组件要重新构建才测得到。
+- 不依赖任何测试框架，也不用另装浏览器：`lib/browser.ts` 用 Node 自带的 `WebSocket` 走 DevTools 协议，驱动本机的 Edge、Chrome 或 Chromium（无头）。文件是 `.ts`，Node 24 直接跑。
+- 没过的检查会把当时的画面存到 `browser-checks/.artifacts/`（CI 上作为 artifact 上传）。
+
+| 环境变量 | 作用 |
+| --- | --- |
+| `BROWSER_PATH` | 浏览器的可执行文件。不设就按平台去常见的位置找 |
+| `BROWSER_FLAGS` | 额外的启动参数，空格分隔。CI 上是 `--no-sandbox` |
+| `STORYBOOK_URL` | 改测这个地址，不起本地的静态服务器：正在跑的 `pnpm dev`（`http://localhost:6106`），或者在线版本 |
+
+只跑一个文件：在 `apps/docs` 下 `node --test browser-checks/dialog.check.ts`。
+
+加一条检查时：
+
+- 一个文件一个主题，开头 `const storybook = useStorybook()`，每条检查一个 `test()`，名字写成一句能看懂的话——它就是失败时的标题。
+- **等结果，不等时间**：用 `page.waitVisible()`、`page.waitFocused()`、`page.waitFor(条件, 说明)`。`page.pause()` 只用在"过了这么久它仍然没变"这种反面的断言上。
+- 读样式也要等：检查默认开着"减少动态效果"，过渡被压到 0.01ms，但仍然是一次过渡，聚焦后的头一帧量到的是起点值。
+- `page.evaluate(函数, 参数…)` 里的函数是转成源码送进页面执行的，**不能引用外面的变量**，要用的值走参数。
+- 只断言行为（焦点在哪、开没开、在不在视口里），不断言具体的像素值：CI 上没有中文字体，文字的宽度和本机不一样。
+- 关掉后还留在 DOM 里的浮层（下拉选择）要问"看得见吗"，不要问"在不在"——`page.visible()` 已经处理了。
 
 ## 还没做的
 
