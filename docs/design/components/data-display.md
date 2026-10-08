@@ -41,10 +41,13 @@
 | 名值对（强调） | `<TagPair emphasis … />` |
 | 类型标签 | `<Tag variant="solid">` |
 | 类型标签（浅） | `<Tag variant="outline">` |
-| 日期块 | `<Tag variant="inverse" numeric>`（小红角未做） |
+| 日期块 | `<Tag variant="inverse" numeric>`；加 `marked` 出现左上角的小红角 |
 | 状态签 | `<Tag variant="accent">` |
+| 增益签 | `<Tag variant="gain" numeric>`，见下一节 |
 
 名值对在暗色主题下整体反转："名"是近白底墨字，"值"是纯黑底白字。
+
+小红角是一个 6px 的 `alert` 色三角，用来在一组日期块里标出需要留意的那一个；它在两个主题下取值相同。
 
 ### 胶囊与角标
 
@@ -63,7 +66,24 @@
 - 通知角标压在元素的右上角，向外偏移半个自身大小。
 - 数字超过 99 显示 `99+`。
 
-胶囊与角标这一族目前只实现了通知角标：`<Badge count={12}>` 是数字块，`<Badge dot>` 是菱形，包住一个元素时自动压到它的右上角。其余的（筛选、资源、倒计时、增益签）留到后面。
+已实现的写法：
+
+| 类型 | 写法 | 取色 |
+| --- | --- | --- |
+| 筛选胶囊 | `<FilterChip selected onSelectedChange>` | 未选是细边（`line-strong`）；选中反转为 `surface-inverse` 底、`ink-inverse` 字 |
+| 资源胶囊 | `<ResourceChip icon label>` | `control` 底、`on-control` 字，两个主题下相同 |
+| 倒计时 | `<Countdown to urgentWithin onExpire>` | 充裕 `success` 底、紧迫 `danger` 底，字都是 `ink-inverse`；到期后 `surface-muted` 底 |
+| 通知角标 | `<Badge count={12}>`、`<Badge dot>` | `notice` 底、墨字 |
+| 增益签 | `<Tag variant="gain" numeric>` | `gain` 底、`neutral-900` 字（11.9:1），两个主题下相同 |
+
+几处实现时定下的细节：
+
+- **筛选胶囊**是一个切换按钮（`aria-pressed`），几个并排就是多选筛选；几项里只能选一项时用页签的 `capsule` 变体。两者共用一份样式。
+- **资源胶囊**不带图标：本库不收录资源图标，由使用方传入，放进左端的圆形底托。
+- **倒计时的两种状态色**没有直接用角色色。`alert` 红作底时墨字白字都不到 4.5:1（见 [色彩](../foundations/color.md)），所以改用按主题切好的文字档语义色作底、`ink-inverse` 作字：亮色下充裕 5.1:1、紧迫 5.1:1，暗色下 9.3:1、4.8:1。
+- **紧迫态不只靠红色**：数字前多一个 `!`。默认在剩余不到 24 小时时进入紧迫态，门槛可调。
+- 倒计时超过一天写成 `3天 04:12:09`，不到一天写成 `04:12:09`；到期后显示"已结束"并停表。
+- **增益签**形状是直角，所以做成了 `Tag` 的一个变体，而不是胶囊。下降不用它：用 `danger` 色的文字加 `−`。
 
 ## 数据行带
 
@@ -114,6 +134,13 @@
 多个统计块并排时，用留白和竖线分隔，不要各自装进卡片。让其中最重要的一个明显更大。
 
 加载页的百分比是它的原型：数字 4.375rem、符号 3.25rem，数字与单位两种字号（实测）。
+
+已实现为 `<Stat label value unit delta trend size>`：
+
+- `size="md"` 是 `text-4xl`，`size="lg"` 是 `text-5xl`——并排几个时给最重要的那个用 `lg`；
+- 微标前的 `//` 由组件加，并对读屏隐藏；
+- `delta` 连同正负号一起传；`trend="up"`（默认）渲染为增益签，`trend="down"` 渲染为 `danger` 色文字；
+- 容器很窄时数字允许在任意位置折行，不会撑破版面。
 
 ## 表格
 

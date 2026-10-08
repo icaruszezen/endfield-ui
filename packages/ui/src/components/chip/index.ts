@@ -1,3 +1,4 @@
+export { FilterChip, type FilterChipProps } from "./FilterChip";
 export {
   ResourceChip,
   type ResourceChipProps,

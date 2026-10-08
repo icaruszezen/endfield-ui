@@ -11,6 +11,11 @@ import { useControllableState } from "../../hooks/useControllableState";
 import { TriangleRight } from "../../icons/TriangleRight";
 import { cn } from "../../lib/cn";
 import { focusRing, focusRingInset } from "../../lib/focus-ring";
+import {
+  capsuleBase,
+  capsuleSize,
+  capsuleState,
+} from "../chip/capsule-style";
 
 export type TabsVariant = "block" | "capsule";
 export type TabsSize = "sm" | "md";
@@ -158,11 +163,6 @@ const blockArrow: Record<TabsSize, string> = {
   md: "right-2 size-6 [&_svg]:size-3",
 };
 
-const capsuleSize: Record<TabsSize, string> = {
-  sm: "h-7 px-3 text-xs",
-  md: "h-8 px-4 text-sm",
-};
-
 export function Tab({
   value,
   disabled = false,
@@ -196,15 +196,14 @@ export function Tab({
       <button
         {...shared}
         className={cn(
-          "inline-flex shrink-0 items-center rounded-full border leading-none font-medium whitespace-nowrap",
-          "transition-colors duration-(--duration-fast) ease-standard",
+          capsuleBase,
           focusRing,
           capsuleSize[size],
           selected
-            ? "border-transparent bg-surface-inverse text-ink-inverse"
+            ? capsuleState.selected
             : disabled
-              ? "cursor-not-allowed border-line text-ink-disabled"
-              : "border-line-strong text-ink hover:bg-ink/5",
+              ? capsuleState.disabled
+              : capsuleState.rest,
           className,
         )}
       >
