@@ -12,7 +12,7 @@ pnpm dev
 
 在线版本：<https://icaruszezen.github.io/endfield-ui/>。每次推送到 `main`，[.github/workflows/deploy.yml](../../.github/workflows/deploy.yml) 会先跑格式检查、类型检查、测试和组件库构建，全部通过后再构建 Storybook 并发布到 GitHub Pages；任何一步失败都不会发布。也可以在仓库的 Actions 页面手动触发。
 
-同一次构建出来的 Storybook 还会交给另一个 job 跑[浏览器实测](#浏览器实测)。它和发布并行、**不挡发布**：没过会在提交上标红，在线版本照常更新。
+同一次构建出来的 Storybook 还会交给另一个 job 跑[浏览器实测](#浏览器实测)。它和发布并行、**不挡这一次的发布**：没过会在提交上标红，在线版本照常更新。
 
 ## 现在有什么
 
@@ -65,6 +65,8 @@ pnpm test:browser
 | `STORYBOOK_URL` | 改测这个地址，不起本地的静态服务器：正在跑的 `pnpm dev`（`http://localhost:6106`），或者在线版本 |
 
 只跑一个文件：在 `apps/docs` 下 `node --test browser-checks/dialog.check.ts`。
+
+每条检查最多跑两分钟，浏览器 30 秒起不来会再试一次；CI 上整个 job 的上限是 10 分钟。这几道上限是有来历的：工作流共用一个并发组，实测要是挂住不退出，后面的推送会一直排着队发布不了。
 
 加一条检查时：
 

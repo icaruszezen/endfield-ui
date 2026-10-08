@@ -7,17 +7,19 @@
  * WebSocket 就够了，不用再装一个浏览器。
  */
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import {
+  closeSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
+  openSync,
   readFileSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { delimiter, dirname, join } from "node:path";
+import { basename, delimiter, dirname, join } from "node:path";
 
 export type Theme = "light" | "dark" | "both";
 export type Point = { x: number; y: number };
@@ -100,13 +102,20 @@ export type LaunchOptions = {
 
 export type Page = Awaited<ReturnType<typeof launch>>;
 
-export async function launch({
-  baseUrl,
-  width = 1200,
-  height = 800,
-}: LaunchOptions) {
+/** 等浏览器把调试端口准备好的时间。CI 的机器冷启动时要好几秒 */
+const STARTUP_TIMEOUT = 30_000;
+
+/**
+ * 起一个无头浏览器，返回它的页面的调试地址。
+ * 没起来就把进程和 profile 清掉再报错——留着一个子进程，测试进程永远不会退出。
+ */
+async function start(width: number, height: number) {
   // 每次用一个新的 profile：复用同一个目录时，后起的进程会把活儿交给还没退出的那个
   const profile = mkdtempSync(join(tmpdir(), "ef-browser-check-"));
+  // 浏览器自己说了什么，写进一个文件：起不来的时候，原因多半在这里。
+  // 不能接成管道——Windows 上的 Edge 接了管道就起不来
+  const logFile = join(profile, "stderr.log");
+  const log = openSync(logFile, "w");
   const child = spawn(
     findBrowser(),
     [
@@ -122,11 +131,42 @@ export async function launch({
       ...(process.env.BROWSER_FLAGS?.split(" ").filter(Boolean) ?? []),
       "about:blank",
     ],
-    { stdio: "ignore" },
+    { stdio: ["ignore", "ignore", log] },
   );
+  closeSync(log);
+  // 退出码是 0 不算失败：Windows 上最先起来的那个进程把活儿交给另一个进程就退出了
+  let crashed = false;
+  child.once("exit", (code) => {
+    crashed = code !== 0;
+  });
+
+  const dispose = async ({ orphans = false } = {}) => {
+    child.kill();
+    if (orphans && process.platform === "win32") {
+      // Windows 上真正的浏览器不是我们起的那个进程（它交了班就退出了），kill 够不着。
+      // 正常收尾时是通过调试协议让浏览器自己关；这里是没连上的情形，
+      // 只能按 profile 目录的名字把它们找出来关掉
+      spawnSync(
+        "powershell",
+        [
+          "-NoProfile",
+          "-Command",
+          `Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*${basename(profile)}*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }`,
+        ],
+        { stdio: "ignore" },
+      );
+    }
+    await sleep(300);
+    try {
+      rmSync(profile, { recursive: true, force: true });
+    } catch {
+      // 浏览器刚退出时 profile 可能还被占着，留给系统清理
+    }
+  };
 
   let socketUrl: string | undefined;
-  for (let i = 0; i < 80 && !socketUrl; i++) {
+  const deadline = Date.now() + STARTUP_TIMEOUT;
+  while (!socketUrl && !crashed && Date.now() < deadline) {
     await sleep(125);
     try {
       const port = readFileSync(
@@ -134,7 +174,10 @@ export async function launch({
         "utf8",
       ).split("\n")[0];
       const targets: Message[] = await (
-        await fetch(`http://127.0.0.1:${port}/json/list`)
+        await fetch(`http://127.0.0.1:${port}/json/list`, {
+          // 端口开了但不答话的时候不要一直等下去
+          signal: AbortSignal.timeout(2000),
+        })
       ).json();
       socketUrl = targets.find(
         (target) => target.type === "page",
@@ -143,7 +186,31 @@ export async function launch({
       // 还没起来，接着等
     }
   }
-  assert.ok(socketUrl, "浏览器没有起来");
+
+  if (!socketUrl) {
+    let stderr = "";
+    try {
+      stderr = readFileSync(logFile, "utf8").trim().slice(-2000);
+    } catch {
+      // 没写出日志
+    }
+    await dispose({ orphans: true });
+    throw new Error(
+      `浏览器没有起来（${crashed ? "进程退出了" : `等了 ${STARTUP_TIMEOUT / 1000} 秒`}）${stderr ? `：\n${stderr}` : ""}`,
+    );
+  }
+  return { socketUrl, dispose };
+}
+
+export async function launch({
+  baseUrl,
+  width = 1200,
+  height = 800,
+}: LaunchOptions) {
+  // 偶尔会有一次起不来（CI 上见过），再试一次
+  const { socketUrl, dispose } = await start(width, height).catch(() =>
+    start(width, height),
+  );
 
   const socket = new WebSocket(socketUrl);
   await new Promise((resolve, reject) => {
@@ -503,13 +570,7 @@ export async function launch({
         // 已经关了
       }
       socket.close();
-      child.kill();
-      await sleep(300);
-      try {
-        rmSync(profile, { recursive: true, force: true });
-      } catch {
-        // 浏览器刚退出时 profile 可能还被占着，留给系统清理
-      }
+      await dispose();
     },
   };
 

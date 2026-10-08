@@ -84,6 +84,9 @@ jobs:
     name: 浏览器实测
     needs: build
     runs-on: ubuntu-24.04
+    # 正常一两分钟跑完。工作流共用一个并发组，这个 job 要是挂住了，
+    # 后面的推送会一直排队等它——所以给它一个硬上限
+    timeout-minutes: 10
     permissions:
       contents: read
     steps:
@@ -100,7 +103,8 @@ jobs:
 
       - name: 键盘、焦点与布局的实测
         working-directory: apps/docs
-        run: node --test --test-concurrency=1 "browser-checks/*.check.ts"
+        # 和 apps/docs/package.json 里的 test:browser 是同一条命令（这里没装 pnpm）
+        run: node --test --test-concurrency=1 --test-timeout=120000 --test-force-exit "browser-checks/*.check.ts"
         env:
           BROWSER_FLAGS: --no-sandbox
 
