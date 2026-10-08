@@ -6,8 +6,11 @@ import {
   DialogClose,
   Drawer,
   DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
   EmptyState,
   Field,
   FilterChip,
@@ -101,6 +104,7 @@ function Archive() {
   const [pageSize, setPageSize] = useState(6);
   const [page, setPage] = useState(1);
   const [order, setOrder] = useState("newest");
+  const [hideArchived, setHideArchived] = useState(false);
 
   const zone = zoneIndex === 0 ? null : zones[zoneIndex - 1];
   const keyword = query.trim();
@@ -108,6 +112,7 @@ function Archive() {
     (record) =>
       (zone === null || record.zone === zone) &&
       (picked.length === 0 || picked.includes(record.category)) &&
+      !(hideArchived && record.archived) &&
       (keyword === "" || record.title.includes(keyword)),
   );
   // 数据本来就是从新到旧排的
@@ -128,6 +133,7 @@ function Archive() {
     refilter(() => {
       setQuery("");
       setPicked([]);
+      setHideArchived(false);
       setZoneIndex(0);
     });
 
@@ -241,17 +247,39 @@ function Archive() {
                 </IconButton>
               }
             >
-              <DropdownMenuItem
-                disabled={matched.length === 0}
-                onClick={() =>
-                  toast({
-                    message: `已导出 ${matched.length} 条记录`,
-                    tone: "success",
-                  })
-                }
-              >
-                导出当前结果
-              </DropdownMenuItem>
+              {/* 能开能关的设置是复选项：勾了不关菜单，可以连着改 */}
+              <DropdownMenuGroup label="显示">
+                <DropdownMenuCheckboxItem
+                  checked={asList}
+                  onCheckedChange={setAsList}
+                >
+                  列表视图
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={hideArchived}
+                  onCheckedChange={(next) =>
+                    refilter(() => setHideArchived(next))
+                  }
+                >
+                  隐藏已归档
+                </DropdownMenuCheckboxItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuSub label="导出为" disabled={matched.length === 0}>
+                {["表格（CSV）", "纯文本"].map((format) => (
+                  <DropdownMenuItem
+                    key={format}
+                    onClick={() =>
+                      toast({
+                        message: `已把 ${matched.length} 条记录导出为${format}`,
+                        tone: "success",
+                      })
+                    }
+                  >
+                    {format}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuSub>
               <DropdownMenuItem onClick={() => toast("检索条件的链接已复制")}>
                 复制链接
               </DropdownMenuItem>

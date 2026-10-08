@@ -78,6 +78,23 @@ test("仓库页：锁定按钮带文字提示，并关联成补充说明", async
   );
 });
 
+test("仓库页：收支表里行首的圆可以关注一项", async () => {
+  const { page } = storybook;
+  await page.story("示例-仓库页--page");
+  const pressed = () =>
+    page.evaluate(() =>
+      [...document.querySelectorAll("[role=table] button")].map((button) =>
+        button.getAttribute("aria-pressed"),
+      ),
+    );
+  assert.deepEqual(await pressed(), ["true", "false", "false"]);
+  await page.click("text=关注高能燃料");
+  await page.waitFor(
+    async () => (await pressed()).join() === "true,false,true",
+    "点了之后这一项应该是已关注",
+  );
+});
+
 test("仓库页（并排）：暗色那一半里打开的弹窗也是暗色", async () => {
   const { page } = storybook;
   await page.story("示例-仓库页--page", "both");
@@ -124,6 +141,21 @@ test("设置页：没填必填项时就地报错、不出轻提示；填好后�
   });
   assert.ok(submitted.every(Boolean), "两个下拉的值都应该随表单提交");
 
+  // 多选的那个字段：再选一项，每个值各提交一份
+  await page.click("text=通知渠道");
+  await page.waitVisible("[role=listbox][aria-multiselectable=true]");
+  await page.click("[role=option][aria-selected=false]");
+  await page.key("Escape");
+  await page.waitGone("[role=listbox]");
+  assert.equal(
+    await page.evaluate(
+      () =>
+        new FormData(document.querySelector("form")!).getAll("channels").length,
+    ),
+    3,
+    "多选的三个值应该各提交一份",
+  );
+
   await page.click("button[type=submit]");
   await waitToast(page, "保存成功后应该出一条轻提示");
 });
@@ -148,10 +180,47 @@ test("列表页：排序用下拉，更多操作是菜单", async () => {
 
   await page.click("text=更多操作");
   await page.waitVisible("[role=menu]");
-  await page.key("ArrowDown");
-  await page.key("Enter");
+  await page.click("text=复制链接");
   await page.waitGone("[role=menu]");
   await waitToast(page, "菜单里的操作应该出一条轻提示");
+});
+
+test("列表页：菜单里的复选项切换视图而不关菜单；导出在子菜单里", async () => {
+  const { page } = storybook;
+  await page.story("示例-列表页--page");
+  const listShown = () => page.visible("main ul[aria-label=档案]");
+  assert.equal(await listShown(), false, "默认是网格视图");
+
+  await page.click("text=更多操作");
+  await page.waitVisible("[role=menu]");
+  await page.click("[role=menuitemcheckbox]");
+  await page.waitFor(listShown, "勾上列表视图之后应该换成列表");
+  assert.ok(await page.visible("[role=menu]"), "勾选之后菜单不应该关");
+  // 页面上原来的那个开关是同一个状态
+  assert.equal(
+    await page.evaluate(
+      () =>
+        document.querySelector<HTMLInputElement>(
+          "#storybook-root input[role=switch]",
+        )?.checked,
+    ),
+    true,
+  );
+
+  await page.moveTo("[role=menuitem][aria-haspopup]");
+  await page.waitFor(
+    () =>
+      page.evaluate(
+        () => document.querySelectorAll("[role=menu]").length === 2,
+      ),
+    "指针停在导出为这一行上应该打开子菜单",
+  );
+  await page.click("text=纯文本");
+  await page.waitGone("[role=menu]");
+  assert.match(
+    await waitToast(page, "导出后应该出一条轻提示"),
+    /导出为纯文本$/,
+  );
 });
 
 test("列表页：页面窄的时候类别筛选收进抽屉", async () => {

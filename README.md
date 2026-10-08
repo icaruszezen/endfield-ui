@@ -29,7 +29,7 @@
 
 浮层的行为与无障碍（焦点、键盘、定位）建立在 [Base UI](https://base-ui.com) 上，其余控件用的是原生元素。
 
-还没做的（表格与数据行带，侧轨、顶栏等外壳）见 [组件规范](docs/design/components/README.md) 的各期清单。
+还没做的（表格，侧轨、顶栏等外壳）见 [组件规范](docs/design/components/README.md) 的各期清单。
 
 ```bash
 pnpm install
@@ -41,7 +41,7 @@ pnpm dev
 
 第二条命令启动 Storybook（`http://localhost:6106`）。其余命令见 [packages/ui/README.md](packages/ui/README.md)。
 
-每次推送到 `main`，[GitHub Actions](.github/workflows/deploy.yml) 会跑类型检查、测试和构建，并把 Storybook 发布到 <https://icaruszezen.github.io/endfield-ui/>。
+每次推送到 `main`，[GitHub Actions](.github/workflows/deploy.yml) 会跑格式检查、类型检查、测试和构建，并把 Storybook 发布到 <https://icaruszezen.github.io/endfield-ui/>；同一份 Storybook 还会在真的浏览器里跑一遍键盘、焦点与布局的[实测](apps/docs/README.md#浏览器实测)。
 
 ## 这套风格是什么
 
@@ -96,6 +96,8 @@ endfield-ui/
 │           └── icons/       原创图标
 ├── apps/
 │   └── docs/                Storybook 预览站
+│       ├── stories/         每个组件一个文件，外加几个示例页
+│       └── browser-checks/  在真的浏览器里做的检查（键盘、焦点、布局）
 ├── package.json
 ├── pnpm-workspace.yaml
 ├── NOTICE.md
@@ -155,7 +157,8 @@ import { Button, Field, Input, Tag } from "@endfield-ui/react";
 6. 文档站——组件预览（Storybook）已有；把设计文档渲染成站点还没做
 7. ~~母题工具类（切角、斜楔、角括号、镂空字、警示条纹）与依赖它的控件：楔形页签、物品格、菱形表单符号、完成态，以及七个装饰组件~~
 8. ~~浮层：无障碍基元选定 Base UI，文字提示、弹窗、抽屉、轻提示、下拉选择、下拉菜单；另有三种底纹、方括号标题、语义着色词~~
-9. 表格与数据行带 → 侧轨、顶栏等外壳
+9. ~~浮层收尾（气泡卡片、展开条、菜单的复选项与子菜单、下拉多选、弹窗的两处装饰）与数据行带（列表的深色行带、小型面积图）；工程上加了 Prettier 和浏览器实测~~
+10. 表格 → 侧轨、顶栏等外壳
 
 各期的组件清单见 [组件规范](docs/design/components/README.md)。
 

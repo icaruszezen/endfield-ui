@@ -61,6 +61,13 @@ const regions = [
   { value: "delta", label: "三角洲（未开放）", disabled: true },
 ];
 
+const channels = [
+  { value: "site", label: "站内信" },
+  { value: "mail", label: "邮件" },
+  { value: "pager", label: "值班呼叫" },
+  { value: "radio", label: "无线电（未接入）", disabled: true },
+];
+
 const cadences = [
   { value: "shift", label: "每班一次" },
   { value: "daily", label: "每天一次" },
@@ -179,6 +186,16 @@ function Settings() {
               />
             </Field>
           </div>
+          <Field label="通知渠道" help="可以多选。一个都不选就是不通知。">
+            <Select
+              multiple
+              items={channels}
+              defaultValue={["site", "mail"]}
+              name="channels"
+              placeholder="不通知"
+            />
+          </Field>
+
           <Field label="交接备注" help="写给下一班的人看。">
             <Textarea
               showCount

@@ -5,6 +5,8 @@ import {
   Button,
   ButtonGroup,
   CompletionBanner,
+  DataRow,
+  DataRowList,
   Dialog,
   DialogClose,
   EmptyState,
@@ -145,6 +147,37 @@ const stock: Item[] = [
   },
 ];
 
+/* 本周收支：虚构的数字。类目两种——结构件（紫）、耗材（青） */
+const ledger = [
+  {
+    id: "alloy",
+    name: "合金锭",
+    category: "var(--color-special)",
+    series: [42, 58, 51, 77, 69, 88, 80, 96],
+    value: "+128",
+    tone: "info",
+    reference: "+140",
+  },
+  {
+    id: "plate",
+    name: "加固板材",
+    category: "var(--color-special)",
+    series: [64, 60, 71, 55, 62, 48, 57, 44],
+    value: "−64",
+    tone: "accent",
+    reference: "−60",
+  },
+  {
+    id: "fuel",
+    name: "高能燃料",
+    category: "var(--color-region)",
+    series: [30, 52, 41, 66, 58, 83, 79, 97],
+    value: "−212",
+    tone: "danger",
+    reference: "−180",
+  },
+] as const;
+
 /** 图鉴里还没见过的条目：只有名称 */
 const unseen = ["未登记的样本", "未登记的部件", "未登记的容器"];
 
@@ -161,6 +194,7 @@ const slotGrid =
 
 function Depot() {
   const toast = useToast();
+  const [watched, setWatched] = useState(() => new Set(["alloy"]));
   const [items, setItems] = useState(stock);
   const [selectedId, setSelectedId] = useState<string | null>("alloy");
   const [locked, setLocked] = useState<ReadonlySet<string>>(
@@ -291,6 +325,44 @@ function Depot() {
                   </ItemSlot>
                 ))}
               </div>
+
+              <section className="flex flex-col gap-3">
+                <h2 className="font-medium">本周收支</h2>
+                <DataRowList
+                  label="本周收支"
+                  columns={{
+                    name: "物资",
+                    trend: "走势",
+                    value: "当前",
+                    reference: "理论",
+                  }}
+                >
+                  {ledger.map((row) => (
+                    <DataRow
+                      key={row.id}
+                      name={row.name}
+                      categoryColor={row.category}
+                      series={row.series}
+                      value={row.value}
+                      tone={row.tone}
+                      reference={row.reference}
+                      favorite={watched.has(row.id)}
+                      favoriteLabel={`关注${row.name}`}
+                      onFavoriteChange={(next) =>
+                        setWatched((current) => {
+                          const updated = new Set(current);
+                          if (next) updated.add(row.id);
+                          else updated.delete(row.id);
+                          return updated;
+                        })
+                      }
+                    />
+                  ))}
+                </DataRowList>
+                <p className="text-sm text-ink-secondary">
+                  蓝是产出，黄是消耗，红是超出了理论值；点行首的圆可以关注一项。
+                </p>
+              </section>
             </div>
 
             <aside className="flex min-w-0 flex-col gap-6">

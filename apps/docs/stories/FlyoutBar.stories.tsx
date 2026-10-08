@@ -30,8 +30,6 @@ const targets = (
 const meta = {
   title: "控件/FlyoutBar 展开条",
   component: FlyoutBar,
-  // 和菜单一样，开着的时候页面其余部分不可交互，同一个 story 不能并排开两份
-  parameters: { sideBySide: false },
   args: {
     side: "right",
     trigger: (
@@ -127,9 +125,10 @@ export const Feedback: Story = {
   },
 };
 
-/* 默认打开，供截图核对。不进文档页 */
+/* 默认打开，供截图核对。不进文档页；开着的时候页面其余部分不可交互，所以也不并排 */
 export const Open: Story = {
   name: "打开的样子",
   tags: ["!autodocs"],
+  parameters: { sideBySide: false },
   args: { defaultOpen: true },
 };
