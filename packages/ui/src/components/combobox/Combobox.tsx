@@ -96,7 +96,10 @@ export type ComboboxSingleProps = ComboboxCommonProps & {
 };
 
 export type ComboboxMultipleProps = ComboboxCommonProps & {
-  /** 可以选多项：值是数组，已选项在框里排成一个个小块 */
+  /**
+   * 可以选多项：值是数组，已选项在框里排成一个个小块。
+   * 没打字直接选时面板不关；打了字搜出来再选，文字清空、面板关上
+   */
   multiple: true;
   value?: string[];
   defaultValue?: string[];

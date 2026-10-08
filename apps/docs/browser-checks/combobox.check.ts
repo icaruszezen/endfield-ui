@@ -183,10 +183,39 @@ test("面板落在外框下方、左对齐、不比它窄", async () => {
   assert.deepEqual(layout, { below: true, aligned: true, wide: true });
 });
 
-test("多选：选了不关面板，框里多一个小块；退格删掉最后一个", async () => {
+test("多选：没打字直接选，面板不关，可以连着选", async () => {
   const { page } = storybook;
   await page.story("控件-combobox-组合框--multiple");
   assert.deepEqual(await chips(page), ["北区七号站", "南岸二号站"]);
+
+  await page.key("Tab");
+  await page.key("ArrowDown");
+  await page.waitVisible(PANEL);
+  await page.key("ArrowDown");
+  const first = await page.waitFor(() => highlighted(page), "没有高亮的选项");
+  await page.key("Enter");
+  await page.waitFor(
+    async () => (await chips(page)).length === 3,
+    "选中之后应该多一个小块",
+  );
+  await page.key("ArrowDown");
+  await page.waitFor(
+    async () => (await highlighted(page)) !== first,
+    "高亮应该移到下一项",
+  );
+  await page.key("Enter");
+  await page.waitFor(
+    async () => (await chips(page)).length === 4,
+    "接着再选一个，应该又多一个小块",
+  );
+  // 过一会儿再看：面板不是"正在关"，是真的还开着
+  await page.pause(400);
+  assert.ok(await page.visible(PANEL), "没打字直接选的时候不应该关面板");
+});
+
+test("多选：打了字再选，这一次搜索结束——文字清空、面板关上；退格删掉最后一个", async () => {
+  const { page } = storybook;
+  await page.story("控件-combobox-组合框--multiple");
 
   await page.key("Tab");
   await page.type("东线一");
@@ -201,11 +230,20 @@ test("多选：选了不关面板，框里多一个小块；退格删掉最后�
     async () => (await chips(page)).length === 3,
     "选中之后应该多一个小块",
   );
-  assert.ok(await page.visible(PANEL), "多选时选了不应该关面板");
+  await page.waitGone(PANEL, "搜出来再选，面板应该关上");
   assert.equal(await inputValue(page), "", "选了之后输入的文字应该清空");
+  await page.waitFocused(/^combobox:/, "焦点应该还在输入框里");
 
+  // 接着打字，面板再打开
+  await page.type("西坡");
+  await page.waitVisible(PANEL, "继续打字应该再打开面板");
+  // 多选时 Esc 关面板的同时把没选完的字清掉
   await page.key("Escape");
   await page.waitGone(PANEL);
+  await page.waitFor(
+    async () => (await inputValue(page)) === "",
+    "Esc 之后没选完的字应该清掉",
+  );
   await page.key("Backspace");
   await page.waitFor(
     async () => (await chips(page)).join() === "北区七号站,南岸二号站",

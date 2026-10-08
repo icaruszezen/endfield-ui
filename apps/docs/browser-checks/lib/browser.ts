@@ -130,6 +130,10 @@ async function start(width: number, height: number) {
       "--remote-debugging-port=0",
       `--user-data-dir=${profile}`,
       `--window-size=${width},${height}`,
+      // 没接鼠标的机器（CI 的 runner）上，无头浏览器报的是"不能悬停"：
+      // `@media (hover: hover)` 不成立，所有 `hover:` 的样式都不生效。
+      // 检查的是桌面上的样子，所以固定成"有一个能悬停的精确指针"
+      "--blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4",
       ...(process.env.BROWSER_FLAGS?.split(" ").filter(Boolean) ?? []),
       "about:blank",
     ],
