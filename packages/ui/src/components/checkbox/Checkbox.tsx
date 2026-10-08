@@ -13,6 +13,7 @@ import { mergeRefs } from "../../lib/merge-refs";
 import {
   choiceBox,
   choiceControl,
+  choiceFrame,
   choiceLabel,
   choiceMark,
 } from "./choice-style";
@@ -56,7 +57,7 @@ export function Checkbox({
   return (
     <label className={cn(choiceLabel, className)}>
       <span className={choiceControl}>
-        <span className="relative inline-flex size-5">
+        <span className={choiceFrame}>
           <input
             {...props}
             ref={mergeRefs(inputRef, ref)}
@@ -76,7 +77,8 @@ export function Checkbox({
             strokeWidth={3}
             className={cn(
               choiceMark,
-              "peer-checked:opacity-100 peer-indeterminate:opacity-0",
+              // 菱形方案下"已选"就是实心菱形，不画对勾
+              "peer-checked:opacity-100 peer-indeterminate:opacity-0 choice-diamond:hidden",
             )}
           />
           <Minus

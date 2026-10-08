@@ -146,4 +146,38 @@ describe("Tabs", () => {
     expect(() => render(<Tab value="a">甲</Tab>)).toThrow(/<Tabs>/);
     spy.mockRestore();
   });
+
+  it("wedge 变体：语义与键盘不变，选中项是楔形", async () => {
+    render(
+      <Tabs defaultValue="depot" variant="wedge">
+        <TabList aria-label="仓库分类">
+          <Tab value="depot">物资</Tab>
+          <Tab value="gear">装备</Tab>
+          <Tab value="sealed" disabled>
+            封存
+          </Tab>
+        </TabList>
+        <TabPanel value="depot">物资内容</TabPanel>
+        <TabPanel value="gear">装备内容</TabPanel>
+        <TabPanel value="sealed">封存内容</TabPanel>
+      </Tabs>,
+    );
+
+    const depot = screen.getByRole("tab", { name: "物资" });
+    const gear = screen.getByRole("tab", { name: "装备" });
+    expect(depot).toHaveAttribute("aria-selected", "true");
+    expect(depot).toHaveClass("before:wedge-r", "before:bg-action");
+    expect(gear).not.toHaveClass("before:bg-action");
+    expect(screen.getByRole("tab", { name: "封存" })).toBeDisabled();
+
+    depot.focus();
+    await userEvent.keyboard("{ArrowRight}");
+    expect(gear).toHaveFocus();
+    expect(gear).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tabpanel")).toHaveTextContent("装备内容");
+
+    // 禁用的页签被方向键跳过
+    await userEvent.keyboard("{ArrowRight}");
+    expect(depot).toHaveFocus();
+  });
 });

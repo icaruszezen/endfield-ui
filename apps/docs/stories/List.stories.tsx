@@ -110,3 +110,24 @@ export const Narrow: Story = {
     </div>
   ),
 };
+
+export const Completed: Story = {
+  name: "完成态",
+  render: () => (
+    <List>
+      <ListRow completed end="2026.10.05">
+        校准传感器
+      </ListRow>
+      <ListRow completed end="2026.10.06" description="// 第二班">
+        更换滤芯
+      </ListRow>
+      <ListRow end="进行中" selected>
+        复核采样记录
+      </ListRow>
+      <ListRow end="未开始">归档</ListRow>
+      <ListRow completed completedWord={null} size="sm" end="2026.10.02">
+        不带描边词的小号行
+      </ListRow>
+    </List>
+  ),
+};

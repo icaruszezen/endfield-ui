@@ -13,6 +13,7 @@ import { focusRing } from "../../lib/focus-ring";
 import {
   choiceBox,
   choiceControl,
+  choiceFrame,
   choiceLabel,
   choiceMark,
 } from "../checkbox/choice-style";
@@ -152,7 +153,7 @@ export function Radio({
   return (
     <label className={cn(choiceLabel, className)}>
       <span className={choiceControl}>
-        <span className="relative inline-flex size-5">
+        <span className={choiceFrame}>
           <input
             {...props}
             {...groupProps}
@@ -160,13 +161,17 @@ export function Radio({
             value={value}
             disabled={disabled ?? group?.disabled}
             onChange={handleChange}
-            className={cn(choiceBox, "rounded-full", focusRing)}
+            className={cn(
+              choiceBox,
+              "rounded-full choice-diamond:rounded-none",
+              focusRing,
+            )}
           />
           <span
             aria-hidden="true"
             className={cn(
               choiceMark,
-              "size-2 rounded-full bg-accent-ink-inverse peer-checked:opacity-100 peer-disabled:bg-ink-disabled",
+              "size-2 rounded-full bg-accent-ink-inverse peer-checked:opacity-100 peer-disabled:bg-ink-disabled choice-diamond:hidden",
             )}
           />
         </span>

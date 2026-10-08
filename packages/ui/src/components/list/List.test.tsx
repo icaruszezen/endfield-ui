@@ -118,4 +118,42 @@ describe("ListRow", () => {
     await userEvent.click(link);
     expect(onClick).not.toHaveBeenCalled();
   });
+
+  it("完成态：读屏多读一句，描边词是装饰", () => {
+    render(
+      <List>
+        <ListRow completed data-testid="row">
+          校准传感器
+        </ListRow>
+      </List>,
+    );
+    const row = screen.getByTestId("row");
+    expect(row).toHaveAttribute("data-completed");
+    expect(row).toHaveTextContent("校准传感器（已完成）");
+
+    const word = screen.getByText("DONE");
+    expect(word).toHaveAttribute("aria-hidden", "true");
+    expect(word).toHaveClass("ghost-outline");
+  });
+
+  it("完成态的描边词可以换、可以去掉", () => {
+    const { rerender } = render(
+      <List>
+        <ListRow completed completedWord="CLEAR">
+          校准传感器
+        </ListRow>
+      </List>,
+    );
+    expect(screen.getByText("CLEAR")).toBeInTheDocument();
+
+    rerender(
+      <List>
+        <ListRow completed completedWord={null}>
+          校准传感器
+        </ListRow>
+      </List>,
+    );
+    expect(screen.queryByText("CLEAR")).not.toBeInTheDocument();
+    expect(screen.getByText("（已完成）")).toBeInTheDocument();
+  });
 });

@@ -1,4 +1,10 @@
-import { Checkbox, Radio, RadioGroup, Switch } from "@endfield-ui/react";
+import {
+  Checkbox,
+  Field,
+  Radio,
+  RadioGroup,
+  Switch,
+} from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 
@@ -144,6 +150,39 @@ export const LongLabel: Story = {
     <div className="flex w-56 flex-col border border-dashed border-line-strong p-3">
       <Checkbox>测绘数据归档后同时抄送给下一班的值守人员</Checkbox>
       <Switch>夜间只接收紧急告警，其余消息留到早班再推送</Switch>
+    </div>
+  ),
+};
+
+export const Diamond: Story = {
+  name: "菱形符号（方案 B）",
+  render: () => (
+    // 开关写在容器上；真实项目里写在 <html> 上，全库一起换
+    <div data-choice="diamond" className="flex max-w-md flex-col gap-6">
+      <div className="grid grid-cols-2 gap-x-8">
+        <Checkbox>未选</Checkbox>
+        <Checkbox disabled>未选且禁用</Checkbox>
+        <Checkbox defaultChecked>已选</Checkbox>
+        <Checkbox defaultChecked disabled>
+          已选且禁用
+        </Checkbox>
+        <Checkbox indeterminate>半选</Checkbox>
+        <Checkbox invalid>错误</Checkbox>
+      </div>
+      {/* 复选和单选长得一样：能选几个，要靠分组标题讲清楚 */}
+      <Field group label="随行补给（可多选）">
+        <Checkbox defaultChecked>备用电池</Checkbox>
+        <Checkbox>滤芯</Checkbox>
+        <Checkbox defaultChecked>应急口粮</Checkbox>
+      </Field>
+      <Field group label="测绘精度（单选）">
+        <RadioGroup defaultValue="standard">
+          <Radio value="draft">草图</Radio>
+          <Radio value="standard">标准</Radio>
+          <Radio value="fine">精细</Radio>
+        </RadioGroup>
+      </Field>
+      <Switch defaultChecked>开关不受影响</Switch>
     </div>
   ),
 };

@@ -1,6 +1,7 @@
 import type { ComponentProps, MouseEvent, ReactNode } from "react";
 import { cn } from "../../lib/cn";
 import { focusRingInset } from "../../lib/focus-ring";
+import { GhostText } from "../ghost-text/GhostText";
 
 export type ListProps = ComponentProps<"ul">;
 
@@ -25,6 +26,10 @@ export type ListRowProps = Omit<ComponentProps<"li">, "onClick"> & {
   description?: ReactNode;
   /** 选中：浅灰底 + 左缘黄条 + 标题加粗 */
   selected?: boolean;
+  /** 已完成：整行降一档对比，行尾数值前多一个低对比的描边词，读屏多读一句"已完成" */
+  completed?: boolean;
+  /** 完成态的描边词，默认 `DONE`。纯装饰；传 `null` 去掉 */
+  completedWord?: ReactNode;
   /** 40px 或 48px 行高 */
   size?: ListRowSize;
   /** 传了就整行渲染成链接 */
@@ -41,6 +46,12 @@ const sizeClass: Record<ListRowSize, string> = {
   md: "min-h-12 py-2.5",
 };
 
+/* 描边词不能比一行文字高，否则会把行撑开 */
+const completedWordSize: Record<ListRowSize, string> = {
+  sm: "text-lg",
+  md: "text-xl",
+};
+
 /**
  * 一行一个条目。整行可点时只有一个可点击元素，不要在里面再嵌按钮。
  * 左缘的黄条只表示"选中"，不要拿它表示类目。
@@ -50,6 +61,8 @@ export function ListRow({
   end,
   description,
   selected,
+  completed = false,
+  completedWord = "DONE",
   size = "md",
   href,
   target,
@@ -67,6 +80,8 @@ export function ListRow({
   const rowClass = cn(
     "relative flex w-full items-center gap-3 px-4 text-left",
     sizeClass[size],
+    // 完成：降低对比但保持可读
+    completed && "text-ink-secondary",
     selected &&
       "bg-surface-muted before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-action before:content-['']",
     interactive && [
@@ -83,6 +98,7 @@ export function ListRow({
       <span className="min-w-0 flex-1">
         <span className={cn("block truncate", selected && "font-bold")}>
           {children}
+          {completed && <span className="sr-only">（已完成）</span>}
         </span>
         {description && (
           <span
@@ -95,6 +111,18 @@ export function ListRow({
           </span>
         )}
       </span>
+      {completed && completedWord !== null && (
+        // 排在标题和行尾数值之间，不压在任何文字上；行很窄时让给标题
+        <GhostText
+          variant="outline"
+          className={cn(
+            "hidden shrink-0 leading-none @sm:block",
+            completedWordSize[size],
+          )}
+        >
+          {completedWord}
+        </GhostText>
+      )}
       {end && (
         <span
           className={cn(
@@ -150,7 +178,8 @@ export function ListRow({
     <li
       {...props}
       data-selected={selected ? "" : undefined}
-      className={className}
+      data-completed={completed ? "" : undefined}
+      className={cn("@container", className)}
     >
       {row}
     </li>

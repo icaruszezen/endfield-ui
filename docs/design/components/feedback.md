@@ -21,6 +21,8 @@
 | 进度环 | `<ProgressRing value size showValue>` | 已实现 |
 | 轻提示 | — | 未做，等浮层基元选定后与浮层一起做 |
 | 加载页 | `<Loader value tagline open>` | 已实现 |
+| 完成横幅 | `<CompletionBanner title word description action>` | 已实现 |
+| 列表行的完成态 | `<ListRow completed>`，见 [卡片](card.md) | 已实现 |
 
 ## 进度
 
@@ -218,6 +220,21 @@
 - 一个阶段全部完成时，可以让头部区域反转为深底黄字。
 
 只在真正的里程碑上用，日常的"保存成功"用轻提示就够了。
+
+两处都已实现。
+
+**完成横幅** `<CompletionBanner title word description action>`：
+
+- 底是反转块（`surface-inverse`），标题与左缘的短条用 `accent-ink-inverse`：亮色主题下是上面说的"深底黄字"；暗色主题下反转块是近白，换成浅底深字——仍然是一次明暗反转，只是方向跟着主题走。
+- 背后的巨型描边词默认是 `COMPLETED`，贴右下角、向左淡出，不从标题和说明后面穿过；容器窄于 448px 时去掉。它是装饰，对读屏隐藏。
+- `action` 是右侧的一个行动（领取、查看报告），放不下时折到下一行。
+- 语义是状态区（`role="status"`）：横幅出现时读屏会读出标题。
+
+**列表行的完成态** `<ListRow completed>`：
+
+- 整行的文字降到 `ink-secondary`——降低对比但仍然是正文级的对比度；
+- 标题和行尾数值之间多一个描边词，默认 `DONE`（`completedWord` 可以换，传 `null` 去掉）。它排在两段文字之间，不压在任何文字上；行窄于 384px 时让给标题；
+- 读屏在标题后多读一句"已完成"，不依赖那个描边词。
 
 ## 行为与无障碍
 

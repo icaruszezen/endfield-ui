@@ -15,13 +15,13 @@
 | 字段 | `<Field label help error required>`；一组控件用 `<Field group>` | 已实现 |
 | 输入框 | `<Input variant size start end invalid>` | 已实现 |
 | 多行文本 | `<Textarea variant showCount maxLength>` | 已实现 |
-| 复选框 | `<Checkbox indeterminate>` | 已实现（方案 A） |
-| 单选 | `<RadioGroup>` + `<Radio value>` | 已实现（方案 A） |
+| 复选框 | `<Checkbox indeterminate>` | 已实现（方案 A，可整体切到方案 B） |
+| 单选 | `<RadioGroup>` + `<Radio value>` | 已实现（方案 A，可整体切到方案 B） |
 | 开关 | `<Switch>`；两个值都要显示时加 `offLabel` `onLabel` | 已实现 |
 | 筛选胶囊 | `<FilterChip>`，见 [数据展示](data-display.md) | 已实现 |
 | 下拉选择 | — | 未做，等浮层基元选定后与浮层一起做 |
 | 步进器 | `<Stepper value min max step size>` | 已实现 |
-| 菱形符号（方案 B） | — | 未做，和母题控件一起做 |
+| 菱形符号（方案 B） | `<html data-choice="diamond">` | 已实现 |
 
 实现时对下文规格做的调整都写在各节里，并标了"实现"。
 
@@ -129,6 +129,26 @@
 | 复选 / 单选 | ◇ 空心菱形 | ◆ 实心菱形 |
 
 出自社区组件库 ReEnd，风格更强。问题是复选和单选长得一样，用户分不出"能选几个"——用它时必须靠分组标题或说明文字讲清楚。适合游戏风格的界面。
+
+实现：它**不是组件上的属性**，而是和主题一样的全局开关——"全库选一套"由写法来保证：
+
+```html
+<html data-theme="dark" data-choice="diamond">
+```
+
+也可以写在局部容器上，容器里的复选与单选一起换。组件的用法、语义、键盘都不变。
+
+| 状态 | 外观 |
+| --- | --- |
+| 未选 | 空心菱形：`surface-sunken` 底、2px `line-strong` 描边 |
+| 已选 | 实心菱形，`surface-inverse`：亮色下是墨色，暗色下是近白。不再画对勾和圆点 |
+| 半选（仅复选） | 实心菱形上一条 `accent-ink-inverse` 的短横 |
+| 禁用 | 描边降到 `ink-disabled`；已选的保持实心（`ink-disabled`），否则和未选分不出来 |
+| 错误 | 描边换成 `danger` |
+
+- 菱形是把 14px 的方格转 45°，对角线正好还是 20px，行高与对齐都和方案 A 一样。
+- 焦点环跟着菱形走，也是菱形的。
+- 开关不受影响：它本来就不是方或圆的"选中符号"。
 
 ### 共同规则
 

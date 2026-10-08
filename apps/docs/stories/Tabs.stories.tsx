@@ -6,7 +6,7 @@ const meta = {
   title: "控件/Tabs 页签",
   component: Tabs,
   argTypes: {
-    variant: { control: "inline-radio", options: ["block", "capsule"] },
+    variant: { control: "inline-radio", options: ["block", "capsule", "wedge"] },
     size: { control: "inline-radio", options: ["sm", "md"] },
   },
 } satisfies Meta<typeof Tabs>;
@@ -143,4 +143,48 @@ export const Controlled: Story = {
       </div>
     );
   },
+};
+
+const depots = [
+  { value: "supply", label: "物资", body: "消耗品与材料。" },
+  { value: "gear", label: "装备", body: "可以装配的部件。" },
+  { value: "archive", label: "图鉴", body: "见过的全部条目。" },
+];
+
+export const Wedge: Story = {
+  name: "楔形",
+  args: { defaultValue: "supply" },
+  render: () => (
+    <div className="flex flex-col gap-8">
+      <Tabs defaultValue="supply" variant="wedge">
+        <TabList aria-label="仓库分类">
+          {depots.map((depot) => (
+            <Tab key={depot.value} value={depot.value}>
+              {depot.label}
+            </Tab>
+          ))}
+          <Tab value="sealed" disabled>
+            封存
+          </Tab>
+        </TabList>
+        {depots.map((depot) => (
+          <TabPanel key={depot.value} value={depot.value} className="pt-4">
+            {depot.body}
+          </TabPanel>
+        ))}
+      </Tabs>
+      <Tabs defaultValue="gear" variant="wedge" size="sm">
+        <TabList aria-label="仓库分类（小号）">
+          {depots.map((depot) => (
+            <Tab key={depot.value} value={depot.value}>
+              {depot.label}
+            </Tab>
+          ))}
+        </TabList>
+      </Tabs>
+      <p className="max-w-prose text-sm text-ink-secondary">
+        游戏风格界面的一级页签。一个界面里只放一组；二级的分类用格子式或胶囊。
+      </p>
+    </div>
+  ),
 };

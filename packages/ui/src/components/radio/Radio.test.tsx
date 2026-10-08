@@ -169,4 +169,18 @@ describe("Radio", () => {
     expect(screen.getByRole("radio", { name: "乙" })).toBeChecked();
     expect(screen.getByRole("radio", { name: "甲" })).not.toBeChecked();
   });
+
+  it("放进菱形方案的容器里，语义与方向键不变", async () => {
+    render(
+      <div data-choice="diamond">
+        <Example />
+      </div>,
+    );
+    const standard = screen.getByRole("radio", { name: "标准" });
+    expect(standard).toBeChecked();
+
+    standard.focus();
+    await userEvent.keyboard("{ArrowDown}");
+    expect(screen.getByRole("radio", { name: "精细" })).toBeChecked();
+  });
 });

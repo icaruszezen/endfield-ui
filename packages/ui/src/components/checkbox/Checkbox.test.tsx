@@ -78,4 +78,17 @@ describe("Checkbox", () => {
     render(<Checkbox invalid>同意条款</Checkbox>);
     expect(screen.getByRole("checkbox")).toHaveAttribute("aria-invalid", "true");
   });
+
+  it("放进菱形方案的容器里，语义与行为不变", async () => {
+    render(
+      <div data-choice="diamond">
+        <Checkbox>接收站内信</Checkbox>
+      </div>,
+    );
+    const checkbox = screen.getByRole("checkbox", { name: "接收站内信" });
+    expect(checkbox).not.toBeChecked();
+
+    await userEvent.click(screen.getByText("接收站内信"));
+    expect(checkbox).toBeChecked();
+  });
 });

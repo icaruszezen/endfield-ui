@@ -17,7 +17,7 @@ import {
   capsuleState,
 } from "../chip/capsule-style";
 
-export type TabsVariant = "block" | "capsule";
+export type TabsVariant = "block" | "capsule" | "wedge";
 export type TabsSize = "sm" | "md";
 
 type TabsContextValue = {
@@ -46,7 +46,8 @@ function toId(baseId: string, kind: "tab" | "panel", value: string) {
 type TabsOwnProps = {
   /**
    * - `block` 直角的格子，之间是不通顶的竖线；激活时文字让位给箭头。默认；
-   * - `capsule` 横向胶囊，选中反转为墨底。筛选、类目切换。
+   * - `capsule` 横向胶囊，选中反转为墨底。筛选、类目切换；
+   * - `wedge` 选中项是黄底墨字、右侧斜切的楔形。游戏风格界面的一级页签。
    */
   variant?: TabsVariant;
   size?: TabsSize;
@@ -138,6 +139,8 @@ export function TabList({ className, onKeyDown, ...props }: TabListProps) {
         // 页签很多时横向滚动，不换行
         "flex overflow-x-auto [scrollbar-width:thin]",
         variant === "capsule" && "gap-2 p-1",
+        // 楔形坐在一条墨线上：亮色页面上黄色对白底的明度差很小，靠这条线托住
+        variant === "wedge" && "border-b-2 border-ink",
         className,
       )}
     />
@@ -161,6 +164,12 @@ const blockLabelShift: Record<TabsSize, string> = {
 const blockArrow: Record<TabsSize, string> = {
   sm: "right-1.5 size-5 [&_svg]:size-2.5",
   md: "right-2 size-6 [&_svg]:size-3",
+};
+
+/* 右侧多留一段：斜边占掉了 10px */
+const wedgeSize: Record<TabsSize, string> = {
+  sm: "h-9 pr-8 pl-5 text-base",
+  md: "h-10 pr-9 pl-6 text-lg",
 };
 
 export function Tab({
@@ -204,6 +213,30 @@ export function Tab({
             : disabled
               ? capsuleState.disabled
               : capsuleState.rest,
+          className,
+        )}
+      >
+        {children}
+      </button>
+    );
+  }
+
+  if (variant === "wedge") {
+    return (
+      <button
+        {...shared}
+        className={cn(
+          "relative isolate inline-flex shrink-0 items-center justify-center leading-none font-medium whitespace-nowrap",
+          "transition-colors duration-(--duration-fast) ease-standard",
+          // 楔形画在伪元素的底上：按钮本身不裁切，焦点环才是完整的
+          "before:absolute before:inset-0 before:-z-10 before:wedge-r before:transition-colors before:duration-(--duration-fast) before:ease-standard before:content-['']",
+          focusRingInset,
+          wedgeSize[size],
+          selected
+            ? "text-on-action before:bg-action"
+            : disabled
+              ? "cursor-not-allowed text-ink-disabled"
+              : "text-ink hover:before:bg-ink/5",
           className,
         )}
       >

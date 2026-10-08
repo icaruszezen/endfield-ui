@@ -7,6 +7,8 @@ export { ChevronDown } from "./ChevronDown";
 export { ChevronLeft } from "./ChevronLeft";
 export { ChevronRight } from "./ChevronRight";
 export { Close } from "./Close";
+export { Crosshair } from "./Crosshair";
+export { Lock } from "./Lock";
 export { Minus } from "./Minus";
 export { Plus } from "./Plus";
 export { StatusDanger } from "./StatusDanger";
