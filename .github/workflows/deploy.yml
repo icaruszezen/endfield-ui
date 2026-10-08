@@ -12,10 +12,13 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+# 运行环境固定到具体版本，不用 ubuntu-latest：这个标签会跟着 GitHub 换到新系统
+# （2026-10-19 起指向 Ubuntu 26），固定之后升级由我们自己决定。
+# 要升的时候两个 job 一起改，并确认一次完整的构建与部署。
 jobs:
   build:
     name: 检查与构建
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     env:
@@ -53,7 +56,7 @@ jobs:
   deploy:
     name: 发布到 GitHub Pages
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       pages: write
       id-token: write
