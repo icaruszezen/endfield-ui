@@ -35,9 +35,11 @@
 
 | 档 | `--hatch-width` | `--hatch-color` |
 | --- | --- | --- |
-| 细 | 0.75px | `rgb(0 0 0 / 0.6)` |
+| 细 | 0.75px | 墨色 60%：`color-mix(in srgb, var(--ef-ink) 60%, transparent)` |
 | 中 | 1.5px | `var(--color-neutral-700)` 或比底色亮一档的值 |
 | 粗 | 1.9px | `color-mix(in srgb, var(--ef-ink) 5%, transparent)` |
+
+"中""细"两档各有一个修饰类，和 `hatch` 一起写：`hatch hatch-mid`、`hatch hatch-fine`。"细"档实测是黑 60%，实现里同样换成了墨色，暗色下是近白的细线。
 
 ```html
 <!-- 分页条 -->
@@ -57,6 +59,8 @@
 
 不要铺满整个页面背景，也不要压在正文下面。
 
+不用 Tailwind 的项目用 `<Hatch density>`：一块纯装饰的斜纹，`density` 取 `bold`（默认）、`mid`、`fine`，尺寸、位置、底色由 `className` 给。
+
 ## 警示条纹
 
 黄黑相间的 45° 宽条，每条约 12px。
@@ -67,11 +71,17 @@
 @utility hazard {
   background-image: repeating-linear-gradient(
     -45deg,
-    var(--color-signal) 0 12px,
-    var(--color-neutral-900) 12px 24px
+    var(--color-signal) 0 var(--hazard-size, 12px),
+    var(--color-neutral-900) var(--hazard-size, 12px)
+      calc(var(--hazard-size, 12px) * 2)
   );
 }
 ```
+
+已经在 [utilities.css](../../../packages/ui/src/styles/utilities.css) 里，另有组件 `<HazardStripe size>`：通宽的窄条，`sm` 高 6px、`md` 高 12px。
+
+- 黄与黑两个主题下相同。暗色页面上黑色那一半会融进背景，看到的是一排黄色的斜块——仍然读得出是警示条纹。
+- 它只是装饰，对读屏隐藏，高对比模式下不显示：危险的含义必须另外用文字写出来。
 
 规则：
 
@@ -102,6 +112,12 @@
   <span class="flex-1 bg-line"></span>
 </div>
 ```
+
+已实现为 `<RegistrationStrip orientation rule>`：
+
+- 横条高 3px、每段 64px；竖条是三段 6 × 14px 叠放；
+- `rule` 在横条后面接一段 `line` 色的灰线并撑满容器，就是上面"名称下方的分隔线"；
+- 三个颜色两个主题下相同。
 
 规则：
 

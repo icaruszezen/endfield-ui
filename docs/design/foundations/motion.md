@@ -116,7 +116,8 @@
 | `animate-scroll-hint` | 下坠 1.5rem 并淡出，循环 | 滚动提示 | 实测 |
 | `animate-breathe` | 缩放 1 → 1.2 → 1，循环 | 提示点、等待态 | 实测 |
 | `animate-marquee` | 平移 −50% 后停顿，循环 | 巨字跑马灯、过长的单行文字 | 实测 |
-| `animate-spin` | 匀速旋转 | 加载指示、刻度圆环 | 实测 |
+| `animate-spin` | 匀速旋转，1 秒一圈 | 加载指示 | 实测 |
+| `animate-spin-slow` | 同一个关键帧，60 秒一圈 | 刻度圆环 | 推断（官网只量到"匀速旋转一周"，没有量到时长） |
 | `animate-blink` | 硬切的明灭 | 输入光标、录制指示 | 观察 |
 | `animate-slide-in` | `translateX(-100%)` → `0`，300ms | 分节标题的滑块（外层要 `overflow: hidden`） | 实测；时长为推断 |
 | `animate-turn-in` | `rotate(-45deg)` → `0`，300ms | 滑块里的斜箭头 | 实测；时长为推断 |

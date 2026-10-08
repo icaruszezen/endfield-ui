@@ -257,6 +257,7 @@
   --animate-breathe: ef-breathe 2s ease-in-out infinite;
   --animate-marquee: ef-marquee 20s linear infinite;
   --animate-spin: ef-spin 1s linear infinite;
+  --animate-spin-slow: ef-spin 60s linear infinite;
   --animate-blink: ef-blink 1s step-end infinite;
   --animate-slide-in: ef-slide-in 300ms ease-out both;
   --animate-turn-in: ef-turn-in 300ms ease-out both;

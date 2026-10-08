@@ -71,7 +71,7 @@ const preview: Preview = {
     layout: "fullscreen",
     controls: { expanded: true },
     options: {
-      storySort: { order: ["示例", "控件"] },
+      storySort: { order: ["示例", "控件", "母题"] },
     },
   },
   tags: ["autodocs"],

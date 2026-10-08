@@ -86,6 +86,8 @@
 - 纹理上方有正文时，给正文垫一层实色底，或在文字区域把纹理淡出。
 - `forced-colors`（高对比模式）与打印样式下隐藏所有纹理。
 
+组件库里的装饰组件（镂空巨字、斜纹块、注册色条、刻度圆环、取景角、警示条纹）已经按这几条做了：`aria-hidden`、不挡点击、不可选中，高对比模式与打印时不显示（`forced-colors:hidden print:hidden`）。
+
 ```css
 @media (forced-colors: active), print {
   .decor {

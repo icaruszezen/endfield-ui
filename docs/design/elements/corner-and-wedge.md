@@ -38,7 +38,7 @@
 
 ### 切角
 
-用 `clip-path`。切口大小由 `--cut` 控制：
+用 `clip-path`。切口大小由 `--cut` 控制。下面这几个工具类已经在 [utilities.css](../../../packages/ui/src/styles/utilities.css) 里，用 Tailwind 的项目可以直接写：
 
 ```css
 @utility cut-* {
@@ -115,36 +115,59 @@
 
 后一种更通用：文字溢出、角标、焦点环都不会被裁。
 
+**本库的控件统一用后一种**，写成工具类是：
+
+```html
+<button
+  class="relative isolate px-8 text-on-action
+         before:absolute before:inset-0 before:-z-10 before:content-['']
+         before:cut-tr before:bg-action
+         focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+>
+  确认出发
+</button>
+```
+
+不可聚焦的小东西（角标、类目签）没有焦点环要保，直接把 `cut-*` 写在元素上。
+
 ### 带描边的切角
 
 `clip-path` 裁掉角的同时也裁掉了那一段边框，斜边上没有线。需要完整描边时，叠两层：外层是描边色，内层缩进 1px 是填充色，两层用同一个切角。
 
 ### 斜楔
 
-让底板倾斜、文字保持正立：
+让底板倾斜、文字保持正立。和切角是同一套 `clip-path` 多边形：
 
 ```css
+/* 两侧都斜切 */
 @utility wedge {
-  position: relative;
-  isolation: isolate;
+  clip-path: polygon(
+    var(--wedge, var(--cut-md)) 0,
+    100% 0,
+    calc(100% - var(--wedge, var(--cut-md))) 100%,
+    0 100%
+  );
+}
 
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: var(--wedge-bg, var(--color-surface-inverse));
-    transform: skewX(var(--wedge-skew, -12deg));
-  }
+/* 只斜切左边，右边贴边 */
+@utility wedge-l {
+  clip-path: polygon(var(--wedge, var(--cut-md)) 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* 只斜切右边，左边贴边 */
+@utility wedge-r {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    calc(100% - var(--wedge, var(--cut-md))) 100%,
+    0 100%
+  );
 }
 ```
 
-只斜切一侧（另一侧贴边）时用 `clip-path`：
+`--wedge` 是斜边的**水平宽度**，默认取 `--cut-md`（10px），所以倾角跟着元素的高度变：40px 高时约 14°，落在上表的范围里。
 
-```css
-/* 左侧斜切 16px */
-clip-path: polygon(16px 0, 100% 0, 100% 100%, 0 100%);
-```
+最初的草稿是在伪元素上用 `skewX`。实现时改成了多边形：斜边的起止点是确定的像素位置，相邻的楔形（页签）能严丝合缝地对上；单侧斜切和双侧斜切也是同一种写法。和切角一样，可聚焦的元素把它画在 `before:` 的底上（`before:wedge-r before:bg-action`）。
 
 ### 点击区域
 

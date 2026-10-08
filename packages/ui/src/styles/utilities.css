@@ -1,8 +1,8 @@
 /*
  * endfield-ui 母题工具类
  *
- * 只收录已有组件用到的母题，其余的等用到时再加。
  * 画法与取值的依据写在 docs/design/elements/ 下的对应文档里。
+ * 这些类只画形状，不带语义：谁能切角、哪里能放斜纹，见各篇文档的"什么时候用"。
  */
 
 /* ------------------------------------------------------------------ */
@@ -23,6 +23,151 @@
 @utility hatch-mid {
   --hatch-color: var(--color-neutral-700);
   --hatch-width: 1.5px;
+}
+
+/* "细"档：很细的墨色斜带，填未探索的区域、最高一档的稀有度 */
+@utility hatch-fine {
+  --hatch-color: color-mix(in srgb, var(--ef-ink) 60%, transparent);
+  --hatch-width: 0.75px;
+}
+
+/* ------------------------------------------------------------------ */
+/* 警示条纹：黄黑相间的 45° 宽条。两个主题下相同，只做 6 – 12px 高的窄条 */
+/* ------------------------------------------------------------------ */
+
+@utility hazard {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--color-signal) 0 var(--hazard-size, 12px),
+    var(--color-neutral-900) var(--hazard-size, 12px)
+      calc(var(--hazard-size, 12px) * 2)
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* 切角：把矩形的一个角沿 45° 切掉。cut-sm / cut-md / cut-lg 定切口大小  */
+/*                                                                    */
+/* clip-path 会把焦点环和阴影一起裁掉。可聚焦的元素不要直接切，          */
+/* 把切角画在伪元素的底上：                                             */
+/*   relative isolate before:absolute before:inset-0 before:-z-10      */
+/*   before:cut-tr before:bg-action                                    */
+/* ------------------------------------------------------------------ */
+
+@utility cut-* {
+  --cut: --value(--cut-*, [length]);
+}
+
+@utility cut-tr {
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--cut, var(--cut-md))) 0,
+    100% var(--cut, var(--cut-md)),
+    100% 100%,
+    0 100%
+  );
+}
+
+@utility cut-br {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--cut, var(--cut-md))),
+    calc(100% - var(--cut, var(--cut-md))) 100%,
+    0 100%
+  );
+}
+
+@utility cut-diagonal {
+  clip-path: polygon(
+    var(--cut, var(--cut-md)) 0,
+    100% 0,
+    100% calc(100% - var(--cut, var(--cut-md))),
+    calc(100% - var(--cut, var(--cut-md))) 100%,
+    0 100%,
+    0 var(--cut, var(--cut-md))
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* 斜楔：把左右两条边斜切，文字保持正立。--wedge 是斜边的水平宽度，      */
+/* 所以倾角跟着元素的高度变（40px 高、10px 宽约 14°）。                  */
+/* 和切角一样，可聚焦的元素把它画在伪元素的底上                          */
+/* ------------------------------------------------------------------ */
+
+@utility wedge {
+  clip-path: polygon(
+    var(--wedge, var(--cut-md)) 0,
+    100% 0,
+    calc(100% - var(--wedge, var(--cut-md))) 100%,
+    0 100%
+  );
+}
+
+/* 只斜切左边，右边贴边 */
+@utility wedge-l {
+  clip-path: polygon(var(--wedge, var(--cut-md)) 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* 只斜切右边，左边贴边 */
+@utility wedge-r {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    calc(100% - var(--wedge, var(--cut-md))) 100%,
+    0 100%
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* 角括号：四角各一个 L 形短线，用 ::after 的背景画，不占用 outline。    */
+/* 宿主要自己定位（relative 或 absolute）；括号画在宿主之外，            */
+/* 所以宿主和它的裁切祖先之间要留出 --bracket-offset 的空隙             */
+/* ------------------------------------------------------------------ */
+
+@utility corner-brackets {
+  &::after {
+    --_c: var(--bracket-color, var(--ef-ink));
+    --_w: var(--bracket-width, 2px);
+    --_l: var(--bracket-arm, 12px);
+    content: "";
+    position: absolute;
+    inset: calc(var(--bracket-offset, 4px) * -1);
+    pointer-events: none;
+    background:
+      linear-gradient(var(--_c) 0 0) 0 0 / var(--_l) var(--_w),
+      linear-gradient(var(--_c) 0 0) 0 0 / var(--_w) var(--_l),
+      linear-gradient(var(--_c) 0 0) 100% 0 / var(--_l) var(--_w),
+      linear-gradient(var(--_c) 0 0) 100% 0 / var(--_w) var(--_l),
+      linear-gradient(var(--_c) 0 0) 0 100% / var(--_l) var(--_w),
+      linear-gradient(var(--_c) 0 0) 0 100% / var(--_w) var(--_l),
+      linear-gradient(var(--_c) 0 0) 100% 100% / var(--_l) var(--_w),
+      linear-gradient(var(--_c) 0 0) 100% 100% / var(--_w) var(--_l);
+    background-repeat: no-repeat;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* 镂空字：字形透明，只留斜纹或描边。                                    */
+/* 文字颜色已经是透明的，斜纹与描边不能写 currentColor，                 */
+/* 要换颜色就在容器上给 --ghost-ink                                     */
+/* ------------------------------------------------------------------ */
+
+@utility ghost-hatch {
+  color: transparent;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--ghost-ink, var(--ef-ink)) 0 0.75px,
+    transparent 0 calc(var(--hatch-size) * 0.7071)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  opacity: 0.6;
+}
+
+@utility ghost-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px
+    var(--ghost-ink, color-mix(in srgb, var(--ef-ink) 22%, transparent));
 }
 
 /* ------------------------------------------------------------------ */

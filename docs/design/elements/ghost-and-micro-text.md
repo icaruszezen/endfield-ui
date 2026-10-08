@@ -29,11 +29,11 @@
 **斜纹镂空**——把斜纹作为背景，用文字形状裁切：
 
 ```css
-@utility text-hatch {
+@utility ghost-hatch {
   color: transparent;
   background-image: repeating-linear-gradient(
     -45deg,
-    var(--ghost-ink, var(--color-ink)) 0 0.75px,
+    var(--ghost-ink, var(--ef-ink)) 0 0.75px,
     transparent 0 calc(var(--hatch-size) * 0.7071)
   );
   -webkit-background-clip: text;
@@ -42,17 +42,19 @@
 }
 ```
 
-斜纹颜色不能写 `currentColor`：文字颜色已经设成透明，`currentColor` 也会跟着透明。用 `--ghost-ink` 在容器上指定颜色。
+斜纹颜色不能写 `currentColor`：文字颜色已经设成透明，`currentColor` 也会跟着透明。默认是墨色（`ink`），跟着主题走：暗色下是近白的斜纹。要换颜色就在容器上给 `--ghost-ink`。
 
 **描边镂空**：
 
 ```css
-@utility text-outline {
+@utility ghost-outline {
   color: transparent;
   -webkit-text-stroke: 1.5px
-    var(--ghost-ink, color-mix(in srgb, var(--color-ink) 22%, transparent));
+    var(--ghost-ink, color-mix(in srgb, var(--ef-ink) 22%, transparent));
 }
 ```
+
+两个工具类已经在 [utilities.css](../../../packages/ui/src/styles/utilities.css) 里。名字用 `ghost-` 前缀而不是最初设想的 `text-hatch` / `text-outline`：`text-*` 在 Tailwind 里是字号和文字颜色的名字空间，合并类名时它们会被当成颜色，和 `text-ink` 互相覆盖。
 
 **容器**：
 
@@ -60,7 +62,7 @@
 <div class="relative overflow-clip">
   <span
     aria-hidden="true"
-    class="text-hatch pointer-events-none absolute -top-4 left-0 select-none
+    class="ghost-hatch pointer-events-none absolute -top-4 left-0 select-none
            font-display text-ghost font-extrabold uppercase whitespace-nowrap"
   >
     //Section
@@ -78,6 +80,13 @@
 - **一个版块一个。** 内容要短，写与版块相关的真实词语或编号。
 - **窄屏缩小或移除。** `text-ghost` 自带 `clamp()`，但小屏上往往直接去掉更好。
 - 可以用 `animate-marquee` 做成横向跑马灯，见 [动效](../foundations/motion.md)。
+
+已实现为 `<GhostText variant>`，`variant` 取 `hatch`（默认）、`outline`、`solid`：
+
+- 它只管长相和"不是内容"这件事：全大写、宽体、不换行，对读屏隐藏、不可选中、不可点击，高对比模式和打印时去掉；
+- **放在哪、被谁裁切由使用方定**——通常是绝对定位在一个 `relative overflow-clip` 的版块里；
+- 字号默认是 `text-ghost`，用 `className` 换成字阶里的任何一档；
+- 尽量放在版块的空白处。从标题和正文后面穿过时，斜纹会切碎文字的轮廓。
 
 ## 微文字
 

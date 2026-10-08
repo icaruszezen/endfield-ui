@@ -41,37 +41,24 @@
 | 位置 | 比格子外扩约 4px | 推断 |
 | 颜色 | `ink`；游戏内的名册与贵重品格用橙色 | 社区 |
 
-用背景渐变画，不占用 `outline`（焦点环要另外画）：
+用背景渐变画，不占用 `outline`（焦点环要另外画）。工具类 `corner-brackets` 已经在 [utilities.css](../../../packages/ui/src/styles/utilities.css) 里，四个变量可以在宿主上改：
 
-```css
-@utility corner-brackets {
-  position: relative;
-
-  &::after {
-    --b: 2px; /* 线宽 */
-    --l: 12px; /* 臂长 */
-    --c: var(--bracket-color, var(--color-ink));
-    content: "";
-    position: absolute;
-    inset: -4px;
-    pointer-events: none;
-    background:
-      linear-gradient(var(--c) 0 0) 0 0 / var(--l) var(--b),
-      linear-gradient(var(--c) 0 0) 0 0 / var(--b) var(--l),
-      linear-gradient(var(--c) 0 0) 100% 0 / var(--l) var(--b),
-      linear-gradient(var(--c) 0 0) 100% 0 / var(--b) var(--l),
-      linear-gradient(var(--c) 0 0) 0 100% / var(--l) var(--b),
-      linear-gradient(var(--c) 0 0) 0 100% / var(--b) var(--l),
-      linear-gradient(var(--c) 0 0) 100% 100% / var(--l) var(--b),
-      linear-gradient(var(--c) 0 0) 100% 100% / var(--b) var(--l);
-    background-repeat: no-repeat;
-  }
-}
-```
+| 变量 | 默认 | 含义 |
+| --- | --- | --- |
+| `--bracket-color` | `ink` | 颜色，跟着主题走 |
+| `--bracket-width` | 2px | 线宽 |
+| `--bracket-arm` | 12px | 臂长 |
+| `--bracket-offset` | 4px | 画在宿主之外多远；取景角设成 0 |
 
 ```html
-<li class="aria-selected:corner-brackets" aria-selected="true">…</li>
+<li class="relative aria-selected:corner-brackets" aria-selected="true">…</li>
 ```
+
+- 括号画在 `::after` 上，**宿主要自己定位**（`relative` 或 `absolute`）。工具类不替它设 `position`：宿主本来是绝对定位的时候会被改掉。
+- 括号在宿主之外 4px：宿主和它的裁切祖先（`overflow: clip` 的卡面、滚动容器）之间要留出这段空隙，否则被切掉。
+- 选中的格子同时被键盘聚焦时，焦点环外移到括号之外（偏移 6px），两圈不重叠。
+
+不用 Tailwind 的项目用 `<CornerBrackets visible size>`：它包住内容并画括号，`size` 两档臂长（12 / 16px），`visible` 传选中状态。括号只是给眼睛看的，选中态另外要有 `aria-selected` 或 `aria-pressed`。
 
 **用于**：矩阵里的单选——物品格、名册卡、图鉴。**不用于**：列表行（用左缘色条）、页签（用底色）、按钮。
 
@@ -84,6 +71,8 @@
 - 是装饰层，不响应交互。
 
 每张图都加取景角会显得刻意。一屏一处，或者只在"正在查看 / 正在瞄准"的语境里用。
+
+已实现为 `<Viewfinder size crosshair readouts>`，见 [测绘叠层](hud-overlays.md)。
 
 ## 标记词汇
 

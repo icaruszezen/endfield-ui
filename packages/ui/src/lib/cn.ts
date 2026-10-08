@@ -18,6 +18,7 @@ const twMerge = extendTailwindMerge({
         "scroll-hint",
         "breathe",
         "marquee",
+        "spin-slow",
         "blink",
         "slide-in",
         "turn-in",
