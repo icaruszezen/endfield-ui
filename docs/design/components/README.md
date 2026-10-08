@@ -1,6 +1,6 @@
 # 组件规范
 
-把基础规范落到具体控件上：每个组件长什么样、有哪些状态、多大。这里是 [`packages/ui`](../../../packages/ui/README.md) 的设计输入。**第一期、第二期、第五期，以及第三、第四期里不依赖浮层的控件已经实现**，各期清单里逐项标了状态；没标"已实现"的还只有规范。
+把基础规范落到具体控件上：每个组件长什么样、有哪些状态、多大。这里是 [`packages/ui`](../../../packages/ui/README.md) 的设计输入。**大部分已经实现**，各期清单里逐项标了状态；没标"已实现"的还只有规范。
 
 ## 怎么读
 
@@ -72,7 +72,7 @@
 
 ### 无障碍
 
-- 用原生元素（`button`、`a`、`input`、`dialog`）或成熟的无障碍基元。
+- 用原生元素（`button`、`a`、`input`）；浮层这类原生元素做不好的，用无障碍基元 [Base UI](https://base-ui.com)。
 - 纯图标控件必须有可访问名称。
 - 状态不只靠颜色表达。
 - 装饰元素（竖条、括号、纹理、巨字）对辅助技术隐藏。
@@ -115,7 +115,7 @@
 | Stepper、双标签开关 | [表单](form.md) | 已实现 |
 | 菱形表单符号（方案 B） | [表单](form.md) | 已实现（全局开关 `data-choice="diamond"`） |
 
-Select 的面板和 Toast 的容器都是浮层，需要定位与焦点管理。它们和第三期的浮层共用同一套无障碍基元，所以等基元选定后一起做。
+Select 的面板和 Toast 的容器都是浮层，需要定位与焦点管理，和第三期的浮层共用同一套无障碍基元（Base UI）。
 
 ### 第三期：浮层与导航
 
@@ -123,9 +123,10 @@ Select 的面板和 Toast 的容器都是浮层，需要定位与焦点管理。
 
 | 组件 | 规范 | 状态 |
 | --- | --- | --- |
-| Dialog | [浮层](overlay.md) | |
-| Drawer | [浮层](overlay.md) | |
-| DropdownMenu / Tooltip | [浮层](overlay.md) | |
+| Dialog | [浮层](overlay.md) | 已实现 |
+| Drawer | [浮层](overlay.md) | 已实现 |
+| Tooltip | [浮层](overlay.md) | 已实现 |
+| DropdownMenu | [浮层](overlay.md) | |
 | Select / Toast | [表单](form.md)、[反馈](feedback.md) | 从第二期挪来 |
 | SideRail / TopBar | [导航](navigation.md) | |
 | Pagination / Navigator / DashIndicator | [导航](navigation.md) | 已实现 |

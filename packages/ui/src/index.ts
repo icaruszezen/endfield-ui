@@ -9,6 +9,8 @@ export * from "./components/completion-banner";
 export * from "./components/corner-brackets";
 export * from "./components/countdown";
 export * from "./components/dash-indicator";
+export * from "./components/dialog";
+export * from "./components/drawer";
 export * from "./components/empty-state";
 export * from "./components/field";
 export * from "./components/ghost-text";
@@ -43,6 +45,7 @@ export * from "./components/textarea";
 export * from "./components/texture";
 export * from "./components/tick-ring";
 export * from "./components/timeline";
+export * from "./components/tooltip";
 export * from "./components/viewfinder";
 
 export * from "./hooks";

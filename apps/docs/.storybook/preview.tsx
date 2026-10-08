@@ -42,14 +42,25 @@ function ThemeFrame({
   );
 }
 
-const withTheme: Decorator = (Story, context) => (
-  <ThemeFrame
-    mode={context.globals.theme as ThemeMode}
-    fill={context.viewMode === "story"}
-  >
-    <Story />
-  </ThemeFrame>
-);
+const withTheme: Decorator = (Story, context) => {
+  const requested = context.globals.theme as ThemeMode;
+  // 弹窗、抽屉、轻提示占的是整个视口，同一个 story 不能并排开两份。
+  // 这些 story 写 parameters: { sideBySide: false }，并排模式下只渲染亮色，暗色用工具栏切
+  const single = requested === "both" && context.parameters.sideBySide === false;
+  return (
+    <ThemeFrame
+      mode={single ? "light" : requested}
+      fill={context.viewMode === "story"}
+    >
+      {single && (
+        <p className="mb-4 font-tech text-xs text-ink-tertiary uppercase">
+          // 这一页不并排：用工具栏的"主题"切换亮暗
+        </p>
+      )}
+      <Story />
+    </ThemeFrame>
+  );
+};
 
 const preview: Preview = {
   decorators: [withTheme],

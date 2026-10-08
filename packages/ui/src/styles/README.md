@@ -17,7 +17,7 @@
 ## theme.css 的结构
 
 1. **语义变量**：亮色定义在 `:root` 与 `[data-theme="light"]`（对齐官网的纸白基底），`[data-theme="dark"]` 覆盖为暗色（对齐游戏 HUD 与官网深色版块）。两种取值都可以加在局部容器上。
-2. **`@theme`**：不随主题变化的原始令牌——色板、字体、字阶、圆角、阴影、缓动、动画、切角尺寸（`--cut-sm` / `md` / `lg`），以及层叠值（目前只有加载页的 `--z-loader`，用法是 `z-(--z-loader)`）。
+2. **`@theme`**：不随主题变化的原始令牌——色板、字体、字阶、圆角、阴影、缓动、动画、切角尺寸（`--cut-sm` / `md` / `lg`），以及层叠值（`--z-float` 100、`--z-nav` 200、`--z-overlay` 300、`--z-toast` 400、`--z-loader` 1000，用法是 `z-(--z-overlay)`）。
 3. **`@theme inline`**：把第 1 步的语义变量映射成 Tailwind 颜色，生成 `bg-surface`、`text-ink`、`border-line` 这类工具类。
 
 ## 只用令牌

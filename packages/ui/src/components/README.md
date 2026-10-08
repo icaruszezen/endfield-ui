@@ -37,6 +37,9 @@
 | `loader/` | `Loader` | [反馈](../../../../docs/design/components/feedback.md) |
 | `spinner/` | `Spinner` | [反馈](../../../../docs/design/components/feedback.md) |
 | `completion-banner/` | `CompletionBanner` | [反馈](../../../../docs/design/components/feedback.md) |
+| `tooltip/` | `Tooltip`、`TooltipProvider` | [浮层](../../../../docs/design/components/overlay.md) |
+| `dialog/` | `Dialog`、`DialogClose` | [浮层](../../../../docs/design/components/overlay.md) |
+| `drawer/` | `Drawer` | [浮层](../../../../docs/design/components/overlay.md) |
 | `rec-indicator/` | `RecIndicator` | [测绘叠层](../../../../docs/design/elements/hud-overlays.md) |
 | `marquee/` | `Marquee` | [动效](../../../../docs/design/foundations/motion.md) |
 | `scroll-hint/` | `ScrollHint` | [测绘叠层](../../../../docs/design/elements/hud-overlays.md) |
@@ -56,6 +59,8 @@
 | `chip/capsule-style.ts` | `FilterChip`、`Tabs` 的 `capsule` 变体 |
 | `input/control-box.ts` | `Input`、`Textarea` 的外框（凹陷与描边两种） |
 | `checkbox/choice-style.ts` | `Checkbox`、`Radio`、`Switch` 的行与方格（含菱形方案的写法） |
+| `dialog/overlay-style.ts` | `Dialog`、`Drawer` 的遮罩、深色标题带、关闭按钮 |
+| `dialog/initial-focus.ts` | `Dialog`、`Drawer` 打开时焦点落在哪 |
 | [`lib/decor.ts`](../lib/decor.ts) | 所有装饰层：不挡点击、不可选中，高对比模式与打印时去掉 |
 
 ## 约定
@@ -86,7 +91,7 @@ components/
 - 装饰元素（竖条、箭头、分隔线）加 `aria-hidden`。
 - 动效遵守 `prefers-reduced-motion`：降级后内容必须停在终态。循环动画停下来的样子不能被看成一个具体的值：不确定进度的色块停在正中，进度环换成一圈虚线。
 - 用 `group` / `peer` 时给 `group` 起名字（`group/card` + `group-hover/card:`）：不起名的 `group-hover:` 会被外层任何一个 `group` 的悬停带着走，控件一旦被放进别的可悬停容器就会出错。
-- `z-index` 不在组件里写数值，用 [theme.css](../styles/theme.css) 里的层叠变量（目前只有加载页的 `--z-loader`）。
+- `z-index` 不在组件里写数值，用 [theme.css](../styles/theme.css) 里的层叠变量（`z-(--z-overlay)`、`z-(--z-toast)`、`z-(--z-loader)`）。
 
 ### 母题与装饰
 
@@ -96,6 +101,17 @@ components/
 - **装饰不压字。** 描边词、巨字放在空白处，或者排在两段文字之间，或者朝文字的方向淡出；不要从标题、说明、数值后面穿过去——再淡的线也会切碎字的轮廓。
 - **叠在画面上的控件颜色跟画面走。** 取景角、刻度圆环、录制指示用的都是 `ink`，压在深色图像上时由使用方给它加 `data-theme="dark"`，组件自己不猜。
 - **全库只能选一套的外观做成全局开关，不做成属性。** 菱形表单符号是 `<html data-choice="diamond">`，写法是自定义变体 `choice-diamond:`——做成属性的话，两套符号迟早会被混着用。
+
+### 浮层
+
+- 行为交给 [Base UI](https://base-ui.com)（`@base-ui/react`，按子路径引入）：焦点的进出与锁定、键盘、定位与翻转、关闭的时机。本库只写长相，并把它的部件装成一个组件——使用方不用自己拼 `Root` / `Portal` / `Positioner`。
+- 触发元素作为一个 React 元素传入（`trigger={<Button>…</Button>}`，文字提示是 `children`），内部交给基元的 `render`。它得把收到的属性和 `ref` 交给原生元素。
+- **所有浮层用同一个 `z-(--z-overlay)`**，靠打开的先后叠：弹窗里的下拉才能盖住弹窗。不要给某个浮层单独加高。
+- **浮层挂在 `<body>` 下，拿不到局部主题。** 用 [`usePortalScope`](../hooks/usePortalScope.ts)：`anchorRef` 给触发元素，`portalRef` 给基元的 `Portal`，它把最近的 `data-theme` / `data-choice` 抄过去。
+- **一块固定深色（或和页面相反）的区域里还要放别的控件时，把它做成局部主题**（`data-theme="dark"`），里面照常用语义令牌；不要逐个写 `neutral-*`。弹窗的标题带、文字提示都是这样。
+- 进出场用基元给的 `data-starting-style` / `data-ending-style` 写 CSS 过渡（`data-starting-style:opacity-0`），不写关键帧。基元等过渡结束才卸载浮层。
+- 没有边线、全靠底色和页面分开的浮层（文字提示）加一圈透明的边线：高对比模式下底色被系统覆盖，边线会自己显形。
+- 测试里查浮层用角色（`findByRole("dialog")`）。文字提示的内容同时存在于隐藏的描述里，按文字查时要排除 `[hidden]`。
 
 ### 带状态的控件
 
