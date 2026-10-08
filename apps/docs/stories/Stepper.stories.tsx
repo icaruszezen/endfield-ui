@@ -57,9 +57,7 @@ function Order() {
         label="领取数量"
         required
         help={`库存 ${stock} 件。可以直接输入，也可以按住两端的按钮。`}
-        error={
-          count > stock ? `数量不能超过库存 ${stock} 件。` : undefined
-        }
+        error={count > stock ? `数量不能超过库存 ${stock} 件。` : undefined}
       >
         <Stepper value={count} onValueChange={setCount} min={1} max={999} />
       </Field>

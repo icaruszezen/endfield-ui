@@ -57,7 +57,9 @@ describe("DropdownMenu", () => {
     await user.click(trigger);
     await user.click(await screen.findByRole("menuitem", { name: "重命名" }));
     expect(onRename).toHaveBeenCalledTimes(1);
-    await waitFor(() => expect(screen.queryByRole("menu")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole("menu")).not.toBeInTheDocument(),
+    );
     await waitFor(() => expect(trigger).toHaveFocus());
   });
 
@@ -68,7 +70,9 @@ describe("DropdownMenu", () => {
     await user.tab();
     await user.keyboard("{Enter}");
     await screen.findByRole("menu");
-    await waitFor(() => expect(screen.getByRole("menuitem", { name: "重命名" })).toHaveFocus());
+    await waitFor(() =>
+      expect(screen.getByRole("menuitem", { name: "重命名" })).toHaveFocus(),
+    );
 
     await user.keyboard("{ArrowDown}");
     // 禁用项仍然能被方向键走到（读屏要能读到它），但回车不起作用
@@ -76,7 +80,9 @@ describe("DropdownMenu", () => {
     expect(screen.getByRole("menuitem", { name: "删除" })).toHaveFocus();
     await user.keyboard("{Enter}");
     expect(onDelete).toHaveBeenCalledTimes(1);
-    await waitFor(() => expect(screen.queryByRole("menu")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole("menu")).not.toBeInTheDocument(),
+    );
   });
 
   it("按首字母跳到对应的项", async () => {
@@ -92,7 +98,9 @@ describe("DropdownMenu", () => {
     await user.keyboard("{Enter}");
     await screen.findByRole("menu");
     await user.keyboard("r");
-    await waitFor(() => expect(screen.getByRole("menuitem", { name: "Rename" })).toHaveFocus());
+    await waitFor(() =>
+      expect(screen.getByRole("menuitem", { name: "Rename" })).toHaveFocus(),
+    );
   });
 
   it("Esc 关闭", async () => {
@@ -100,7 +108,9 @@ describe("DropdownMenu", () => {
     render(<Basic defaultOpen />);
     await screen.findByRole("menu");
     await user.keyboard("{Escape}");
-    await waitFor(() => expect(screen.queryByRole("menu")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole("menu")).not.toBeInTheDocument(),
+    );
   });
 
   it("禁用项点了没有反应", async () => {
@@ -146,18 +156,26 @@ describe("DropdownMenu", () => {
     }
     render(<Language />);
     await user.click(screen.getByRole("button", { name: "语言" }));
-    const current = await screen.findByRole("menuitemradio", { name: "简体中文" });
+    const current = await screen.findByRole("menuitemradio", {
+      name: "简体中文",
+    });
     expect(current).toHaveAttribute("aria-checked", "true");
     expect(current).toHaveClass("bg-surface-muted", "font-medium");
 
     await user.click(screen.getByRole("menuitemradio", { name: "English" }));
     expect(onValueChange).toHaveBeenCalledWith("en");
-    await waitFor(() => expect(screen.queryByRole("menu")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole("menu")).not.toBeInTheDocument(),
+    );
   });
 
   it("strong 面板是一块固定的深色，当前项整行黄底", async () => {
     render(
-      <DropdownMenu defaultOpen variant="strong" trigger={<button type="button">语言</button>}>
+      <DropdownMenu
+        defaultOpen
+        variant="strong"
+        trigger={<button type="button">语言</button>}
+      >
         <DropdownMenuRadioGroup defaultValue="zh">
           <DropdownMenuRadioItem value="zh">简体中文</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="en">English</DropdownMenuRadioItem>
@@ -181,7 +199,10 @@ describe("DropdownMenu", () => {
     );
     await user.click(screen.getByRole("button", { name: "更多" }));
     const menu = await screen.findByRole("menu");
-    expect(menu.parentElement?.closest("[data-theme]")).toHaveAttribute("data-theme", "dark");
+    expect(menu.parentElement?.closest("[data-theme]")).toHaveAttribute(
+      "data-theme",
+      "dark",
+    );
   });
 
   it("受控", async () => {

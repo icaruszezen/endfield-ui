@@ -4,7 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import { Tooltip, TooltipProvider } from "./Tooltip";
 
 /* 提示的文字同时存在于隐藏的描述里，查浮层时把隐藏的那份排除掉 */
-const popup = (text: string) => screen.queryByText(text, { ignore: "[hidden]" });
+const popup = (text: string) =>
+  screen.queryByText(text, { ignore: "[hidden]" });
 
 describe("Tooltip", () => {
   it("悬停后出现，移开后消失", async () => {

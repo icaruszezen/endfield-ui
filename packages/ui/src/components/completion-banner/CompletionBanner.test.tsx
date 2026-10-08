@@ -28,7 +28,9 @@ describe("CompletionBanner", () => {
 
     rerender(<CompletionBanner title="全部完成" word={null} />);
     expect(screen.queryByText("CLEAR")).not.toBeInTheDocument();
-    expect(screen.getByRole("status").querySelector("[aria-hidden]")).toBeNull();
+    expect(
+      screen.getByRole("status").querySelector("[aria-hidden]"),
+    ).toBeNull();
   });
 
   it("说明与行动按需出现", () => {

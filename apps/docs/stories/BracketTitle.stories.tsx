@@ -47,9 +47,7 @@ export const Narrow: Story = {
   name: "窄容器里不溢出",
   render: () => (
     <div className="w-56 border border-dashed border-line-strong p-3">
-      <BracketTitle className="text-3xl">
-        第七勘探区临时补给站
-      </BracketTitle>
+      <BracketTitle className="text-3xl">第七勘探区临时补给站</BracketTitle>
       <BracketTitle className="mt-4 text-2xl">Northgate Depot</BracketTitle>
     </div>
   ),

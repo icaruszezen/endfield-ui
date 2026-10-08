@@ -6,7 +6,10 @@ const meta = {
   title: "控件/Tabs 页签",
   component: Tabs,
   argTypes: {
-    variant: { control: "inline-radio", options: ["block", "capsule", "wedge"] },
+    variant: {
+      control: "inline-radio",
+      options: ["block", "capsule", "wedge"],
+    },
     size: { control: "inline-radio", options: ["sm", "md"] },
   },
 } satisfies Meta<typeof Tabs>;

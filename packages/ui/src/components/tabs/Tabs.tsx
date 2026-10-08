@@ -11,11 +11,7 @@ import { useControllableState } from "../../hooks/useControllableState";
 import { TriangleRight } from "../../icons/TriangleRight";
 import { cn } from "../../lib/cn";
 import { focusRing, focusRingInset } from "../../lib/focus-ring";
-import {
-  capsuleBase,
-  capsuleSize,
-  capsuleState,
-} from "../chip/capsule-style";
+import { capsuleBase, capsuleSize, capsuleState } from "../chip/capsule-style";
 
 export type TabsVariant = "block" | "capsule" | "wedge";
 export type TabsSize = "sm" | "md";

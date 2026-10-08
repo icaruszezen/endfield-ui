@@ -76,7 +76,10 @@ describe("Checkbox", () => {
 
   it("invalid 输出 aria-invalid", () => {
     render(<Checkbox invalid>同意条款</Checkbox>);
-    expect(screen.getByRole("checkbox")).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByRole("checkbox")).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
   });
 
   it("放进菱形方案的容器里，语义与行为不变", async () => {

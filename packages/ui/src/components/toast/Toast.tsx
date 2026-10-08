@@ -63,13 +63,15 @@ export function useToast(): ToastApi {
 }
 
 /* 和提示条一样，四种色调用四种不同外形的图标 */
-const toneIcon: Record<Exclude<ToastTone, "neutral">, ComponentType<IconProps>> =
-  {
-    info: StatusInfo,
-    success: StatusSuccess,
-    warning: StatusWarning,
-    danger: StatusDanger,
-  };
+const toneIcon: Record<
+  Exclude<ToastTone, "neutral">,
+  ComponentType<IconProps>
+> = {
+  info: StatusInfo,
+  success: StatusSuccess,
+  warning: StatusWarning,
+  danger: StatusDanger,
+};
 
 const toneText: Record<Exclude<ToastTone, "neutral">, string> = {
   info: "text-info",
@@ -82,17 +84,19 @@ const toneText: Record<Exclude<ToastTone, "neutral">, string> = {
  * 水平居中 + 跟着手指走的位移（可以往下或往右划走）。
  * 新旧两条在同一个位置交替淡入淡出，所以用绝对定位叠在一起
  */
-const placementClass: Record<ToastPlacement, { viewport: string; root: string }> =
-  {
-    bottom: {
-      viewport: "bottom-6",
-      root: "bottom-0 translate-y-[var(--toast-swipe-movement-y,0px)]",
-    },
-    center: {
-      viewport: "top-1/2",
-      root: "top-0 translate-y-[calc(-50%+var(--toast-swipe-movement-y,0px))]",
-    },
-  };
+const placementClass: Record<
+  ToastPlacement,
+  { viewport: string; root: string }
+> = {
+  bottom: {
+    viewport: "bottom-6",
+    root: "bottom-0 translate-y-[var(--toast-swipe-movement-y,0px)]",
+  },
+  center: {
+    viewport: "top-1/2",
+    root: "top-0 translate-y-[calc(-50%+var(--toast-swipe-movement-y,0px))]",
+  },
+};
 
 function isOptions(input: ReactNode | ToastOptions): input is ToastOptions {
   return (
@@ -182,7 +186,10 @@ function ToastHost({ placement, label, closeLabel, children }: ToastHostProps) {
                   )}
                 >
                   {Icon && tone !== "neutral" && (
-                    <Icon size={16} className={cn("shrink-0", toneText[tone])} />
+                    <Icon
+                      size={16}
+                      className={cn("shrink-0", toneText[tone])}
+                    />
                   )}
                   <BaseToast.Title
                     render={<p />}

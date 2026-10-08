@@ -107,7 +107,9 @@ describe("Toast", () => {
   it("带操作：点了执行并关掉这一条", async () => {
     const user = userEvent.setup();
     const onUndo = vi.fn();
-    setup([{ message: "已销毁 3 件", action: { label: "撤销", onClick: onUndo } }]);
+    setup([
+      { message: "已销毁 3 件", action: { label: "撤销", onClick: onUndo } },
+    ]);
     await user.click(screen.getByRole("button", { name: "弹出 1" }));
     await user.click(await screen.findByRole("button", { name: "撤销" }));
     expect(onUndo).toHaveBeenCalledTimes(1);

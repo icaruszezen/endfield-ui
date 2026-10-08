@@ -34,7 +34,9 @@ describe("Drawer", () => {
     await user.click(trigger);
     await screen.findByRole("dialog");
     await user.keyboard("{Escape}");
-    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
     await waitFor(() => expect(trigger).toHaveFocus());
   });
 
@@ -54,7 +56,9 @@ describe("Drawer", () => {
     );
     await user.click(await screen.findByRole("button", { name: "完成" }));
     expect(onOpenChange).toHaveBeenCalledWith(false);
-    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
   });
 
   it("三个方向：右、左、底", async () => {
@@ -76,7 +80,10 @@ describe("Drawer", () => {
 
   it("accent：靠页面内容的一侧有一条行动色的细条", async () => {
     render(<Basic defaultOpen accent />);
-    expect(await screen.findByRole("dialog")).toHaveClass("border-l-4", "border-l-action");
+    expect(await screen.findByRole("dialog")).toHaveClass(
+      "border-l-4",
+      "border-l-action",
+    );
   });
 
   it("触发按钮在局部主题里时，浮层带上同一个主题", async () => {

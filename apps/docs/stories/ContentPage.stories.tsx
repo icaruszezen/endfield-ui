@@ -40,7 +40,11 @@ const entries = {
   ],
 } as const;
 
-function EntryList({ items }: { items: (typeof entries)[keyof typeof entries] }) {
+function EntryList({
+  items,
+}: {
+  items: (typeof entries)[keyof typeof entries];
+}) {
   return (
     <ul>
       {items.map(([date, category, title]) => (
@@ -98,7 +102,12 @@ export const Page: Story = {
         </Tabs>
         <div className="flex items-center justify-between">
           <div className="inline-flex items-center gap-2 rounded-full bg-surface-muted p-1.5">
-            <IconButton aria-label="上一页" variant="floating" size="sm" disabled>
+            <IconButton
+              aria-label="上一页"
+              variant="floating"
+              size="sm"
+              disabled
+            >
               <ChevronLeft />
             </IconButton>
             <span className="px-2 font-tech text-sm tabular-nums">01 / 04</span>

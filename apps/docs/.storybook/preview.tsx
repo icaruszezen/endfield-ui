@@ -29,7 +29,11 @@ function ThemeFrame({
   }
 
   return (
-    <div className={fill ? "grid min-h-screen lg:grid-cols-2" : "grid lg:grid-cols-2"}>
+    <div
+      className={
+        fill ? "grid min-h-screen lg:grid-cols-2" : "grid lg:grid-cols-2"
+      }
+    >
       {(["light", "dark"] as const).map((theme) => (
         <div key={theme} data-theme={theme} className="bg-surface p-6 text-ink">
           <p className="mb-4 font-tech text-xs text-ink-tertiary uppercase">
@@ -46,7 +50,8 @@ const withTheme: Decorator = (Story, context) => {
   const requested = context.globals.theme as ThemeMode;
   // 弹窗、抽屉、轻提示占的是整个视口，同一个 story 不能并排开两份。
   // 这些 story 写 parameters: { sideBySide: false }，并排模式下只渲染亮色，暗色用工具栏切
-  const single = requested === "both" && context.parameters.sideBySide === false;
+  const single =
+    requested === "both" && context.parameters.sideBySide === false;
   return (
     <ThemeFrame
       mode={single ? "light" : requested}

@@ -17,5 +17,6 @@ export const capsuleState = {
   selected: "border-transparent bg-surface-inverse text-ink-inverse",
   rest: "border-line-strong text-ink hover:bg-ink/5",
   disabled: "cursor-not-allowed border-line text-ink-disabled",
-  selectedDisabled: "cursor-not-allowed border-transparent bg-disabled text-on-disabled",
+  selectedDisabled:
+    "cursor-not-allowed border-transparent bg-disabled text-on-disabled",
 } as const;

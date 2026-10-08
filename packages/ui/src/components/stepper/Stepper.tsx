@@ -118,10 +118,7 @@ export function Stepper({
     decimalsOf(max ?? 0),
   );
   const normalize = (next: number) => {
-    const clamped = Math.min(
-      Math.max(next, min ?? -Infinity),
-      max ?? Infinity,
-    );
+    const clamped = Math.min(Math.max(next, min ?? -Infinity), max ?? Infinity);
     return Number(clamped.toFixed(precision));
   };
 

@@ -258,7 +258,9 @@ export function DropdownMenuRadioGroup({
   if (!label) return group;
   return (
     <BaseMenu.Group>
-      <BaseMenu.GroupLabel className={menuGroupLabel}>{label}</BaseMenu.GroupLabel>
+      <BaseMenu.GroupLabel className={menuGroupLabel}>
+        {label}
+      </BaseMenu.GroupLabel>
       {group}
     </BaseMenu.Group>
   );

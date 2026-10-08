@@ -4,7 +4,9 @@ import { Stat } from "./Stat";
 
 describe("Stat", () => {
   it("按 微标 → 数字 → 单位 的顺序渲染，// 对读屏隐藏", () => {
-    const { container } = render(<Stat label="TOTAL" value="1,280" unit="件" />);
+    const { container } = render(
+      <Stat label="TOTAL" value="1,280" unit="件" />,
+    );
     expect(container).toHaveTextContent("// TOTAL1,280件");
     expect(screen.getByText("//")).toHaveAttribute("aria-hidden", "true");
   });

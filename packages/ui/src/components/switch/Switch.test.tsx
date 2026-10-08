@@ -57,7 +57,9 @@ describe("Switch", () => {
 
   it("没有文字标签时用 aria-label", () => {
     render(<Switch aria-label="自动同步" />);
-    expect(screen.getByRole("switch", { name: "自动同步" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("switch", { name: "自动同步" }),
+    ).toBeInTheDocument();
   });
 
   describe("双标签", () => {

@@ -6,12 +6,7 @@ import { focusRing } from "../../lib/focus-ring";
 import { Spinner } from "../spinner/Spinner";
 
 export type ButtonVariant =
-  | "control"
-  | "action"
-  | "light"
-  | "back"
-  | "text"
-  | "danger";
+  "control" | "action" | "light" | "back" | "text" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";
 
 type OwnProps = {

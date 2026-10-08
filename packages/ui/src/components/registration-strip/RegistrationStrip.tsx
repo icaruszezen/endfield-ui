@@ -4,10 +4,7 @@ import { decor } from "../../lib/decor";
 
 export type RegistrationStripOrientation = "horizontal" | "vertical";
 
-export type RegistrationStripProps = Omit<
-  ComponentProps<"div">,
-  "children"
-> & {
+export type RegistrationStripProps = Omit<ComponentProps<"div">, "children"> & {
   /** 横条高 3px、每段 64px；竖条是三段 6 × 14px 叠放 */
   orientation?: RegistrationStripOrientation;
   /** 横条后面接一段灰线、撑满容器：用作名称下方的分隔线 */

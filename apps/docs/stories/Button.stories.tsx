@@ -70,19 +70,19 @@ export const States: Story = {
   name: "禁用与加载",
   render: () => (
     <div className="grid grid-cols-[auto_auto_auto] items-center justify-start justify-items-start gap-x-4 gap-y-3">
-      {(
-        ["control", "action", "light", "back", "danger", "text"] as const
-      ).map((variant) => (
-        <div key={variant} className="contents">
-          <Button variant={variant}>提交申请</Button>
-          <Button variant={variant} disabled>
-            提交申请
-          </Button>
-          <Button variant={variant} loading loadingText="处理中">
-            提交申请
-          </Button>
-        </div>
-      ))}
+      {(["control", "action", "light", "back", "danger", "text"] as const).map(
+        (variant) => (
+          <div key={variant} className="contents">
+            <Button variant={variant}>提交申请</Button>
+            <Button variant={variant} disabled>
+              提交申请
+            </Button>
+            <Button variant={variant} loading loadingText="处理中">
+              提交申请
+            </Button>
+          </div>
+        ),
+      )}
     </div>
   ),
 };

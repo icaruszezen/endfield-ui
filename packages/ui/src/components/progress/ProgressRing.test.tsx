@@ -63,7 +63,9 @@ describe("ProgressRing", () => {
   });
 
   it("不传 value 是不确定进度：没有 aria-valuenow，弧在旋转，也不显示数值", () => {
-    const { container } = render(<ProgressRing showValue aria-label="加载中" />);
+    const { container } = render(
+      <ProgressRing showValue aria-label="加载中" />,
+    );
     const ring = screen.getByRole("progressbar");
     expect(ring).not.toHaveAttribute("aria-valuenow");
     expect(container.querySelector(".animate-spin")).not.toBeNull();

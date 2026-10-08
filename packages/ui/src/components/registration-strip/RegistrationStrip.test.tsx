@@ -22,7 +22,9 @@ describe("RegistrationStrip", () => {
   });
 
   it("竖条是三段叠放，没有灰线", () => {
-    render(<RegistrationStrip data-testid="strip" orientation="vertical" rule />);
+    render(
+      <RegistrationStrip data-testid="strip" orientation="vertical" rule />,
+    );
     const strip = screen.getByTestId("strip");
     expect(strip).toHaveAttribute("data-orientation", "vertical");
     expect(strip).toHaveClass("flex-col");

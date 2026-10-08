@@ -17,7 +17,9 @@ describe("EmptyState", () => {
     expect(
       screen.getByText("完成一次任务后，这里会出现记录。"),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "新建任务" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "新建任务" }),
+    ).toBeInTheDocument();
   });
 
   it("标题层级可调", () => {

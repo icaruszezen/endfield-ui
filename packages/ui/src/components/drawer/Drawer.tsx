@@ -59,7 +59,11 @@ export type DrawerProps = Omit<
   children?: ReactNode;
 };
 
-const swipeDirection = { right: "right", left: "left", bottom: "down" } as const;
+const swipeDirection = {
+  right: "right",
+  left: "left",
+  bottom: "down",
+} as const;
 
 const viewportClass: Record<DrawerSide, string> = {
   right: "justify-end",
@@ -172,7 +176,10 @@ export function Drawer({
               <BaseDrawer.Title className="py-2.5 text-lg font-normal wrap-anywhere">
                 {title}
               </BaseDrawer.Title>
-              <BaseDrawer.Close aria-label={closeLabel} className={overlayClose}>
+              <BaseDrawer.Close
+                aria-label={closeLabel}
+                className={overlayClose}
+              >
                 <Close size={24} />
               </BaseDrawer.Close>
             </div>

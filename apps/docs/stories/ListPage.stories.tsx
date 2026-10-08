@@ -252,9 +252,7 @@ function Archive() {
               >
                 导出当前结果
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => toast("检索条件的链接已复制")}
-              >
+              <DropdownMenuItem onClick={() => toast("检索条件的链接已复制")}>
                 复制链接
               </DropdownMenuItem>
               <DropdownMenuSeparator />

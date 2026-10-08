@@ -25,7 +25,8 @@ describe("TickRing", () => {
 
   it("刻度根数决定 pathLength", () => {
     const { rerender } = render(<TickRing data-testid="ring" />);
-    const ticks = () => screen.getByTestId("ring").querySelector("[data-ticks]");
+    const ticks = () =>
+      screen.getByTestId("ring").querySelector("[data-ticks]");
     expect(ticks()).toHaveAttribute("data-ticks", "40");
     expect(ticks()).toHaveAttribute("pathLength", "400");
 

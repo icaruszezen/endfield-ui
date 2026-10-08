@@ -38,7 +38,8 @@ describe("Marquee", () => {
         ENDFIELD
       </Marquee>,
     );
-    const track = screen.getByTestId("marquee").firstElementChild as HTMLElement;
+    const track = screen.getByTestId("marquee")
+      .firstElementChild as HTMLElement;
     expect(track).toHaveClass("animate-marquee");
     expect(track).toHaveStyle({ animationDuration: "32s" });
     expect((track.children[0] as HTMLElement).style.marginRight).toBe("4rem");

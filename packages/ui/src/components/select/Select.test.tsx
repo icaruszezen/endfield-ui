@@ -36,7 +36,9 @@ describe("Select", () => {
 
     await user.click(within(listbox).getByRole("option", { name: "北岭" }));
     expect(onValueChange).toHaveBeenCalledWith("ridge");
-    await waitFor(() => expect(screen.queryByRole("listbox")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole("listbox")).not.toBeInTheDocument(),
+    );
     expect(trigger).toHaveTextContent("北岭");
   });
 
@@ -58,7 +60,9 @@ describe("Select", () => {
     await screen.findByRole("listbox");
     await user.keyboard("{ArrowDown}{Enter}");
     expect(onValueChange).toHaveBeenCalledWith("ridge");
-    await waitFor(() => expect(screen.queryByRole("listbox")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole("listbox")).not.toBeInTheDocument(),
+    );
     await waitFor(() => expect(trigger).toHaveFocus());
   });
 
@@ -96,7 +100,12 @@ describe("Select", () => {
   it("带 name 时值随表单提交", () => {
     render(
       <form data-testid="form">
-        <Select items={regions} aria-label="地区" name="region" defaultValue="ridge" />
+        <Select
+          items={regions}
+          aria-label="地区"
+          name="region"
+          defaultValue="ridge"
+        />
       </form>,
     );
     const data = new FormData(screen.getByTestId<HTMLFormElement>("form"));
@@ -111,7 +120,9 @@ describe("Select", () => {
     );
     const trigger = screen.getByRole("combobox", { name: "地区" });
     expect(trigger).toHaveAttribute("aria-invalid", "true");
-    expect(trigger).toHaveAccessibleDescription("请选一个地区 决定默认的补给线");
+    expect(trigger).toHaveAccessibleDescription(
+      "请选一个地区 决定默认的补给线",
+    );
     // 外框和输入框一样：错误态是红色的边线
     expect(trigger.parentElement).toHaveClass("border-danger");
     expect(trigger.parentElement).toHaveAttribute("data-invalid");
@@ -124,7 +135,10 @@ describe("Select", () => {
     expect(trigger).toBeDisabled();
     await user.click(trigger);
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
-    expect(trigger.parentElement).toHaveClass("cursor-not-allowed", "text-ink-disabled");
+    expect(trigger.parentElement).toHaveClass(
+      "cursor-not-allowed",
+      "text-ink-disabled",
+    );
   });
 
   it("尺寸与两种外框和输入框相同", () => {
@@ -132,7 +146,9 @@ describe("Select", () => {
     const box = () => screen.getByRole("combobox").parentElement!;
     expect(box()).toHaveClass("h-10", "border-b-2", "bg-surface-sunken");
 
-    rerender(<Select items={regions} aria-label="地区" size="sm" variant="outline" />);
+    rerender(
+      <Select items={regions} aria-label="地区" size="sm" variant="outline" />,
+    );
     expect(box()).toHaveClass("h-8", "border", "bg-surface");
   });
 
@@ -153,7 +169,9 @@ describe("Select", () => {
       </Select>,
     );
     await user.click(screen.getByRole("combobox"));
-    expect(await screen.findByRole("group", { name: "已勘探" })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("group", { name: "已勘探" }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("group", { name: "未开放" })).toBeInTheDocument();
     expect(screen.getAllByRole("option")).toHaveLength(3);
   });
@@ -161,12 +179,20 @@ describe("Select", () => {
   it("strong 面板是一块固定的深色，当前项整行黄底", async () => {
     const user = userEvent.setup();
     render(
-      <Select items={regions} aria-label="地区" defaultValue="valley" panelVariant="strong" />,
+      <Select
+        items={regions}
+        aria-label="地区"
+        defaultValue="valley"
+        panelVariant="strong"
+      />,
     );
     await user.click(screen.getByRole("combobox"));
     const current = await screen.findByRole("option", { name: "四号谷地" });
     expect(current).toHaveClass("bg-action", "text-on-action");
-    expect(current.closest("[data-theme]")).toHaveAttribute("data-theme", "dark");
+    expect(current.closest("[data-theme]")).toHaveAttribute(
+      "data-theme",
+      "dark",
+    );
   });
 
   it("触发器在局部主题里时，面板带上同一个主题", async () => {
@@ -180,6 +206,8 @@ describe("Select", () => {
     const listbox = await screen.findByRole("listbox");
     const scope = listbox.closest("[data-theme]");
     expect(scope).toHaveAttribute("data-theme", "dark");
-    expect(scope).not.toContainElement(screen.getByRole("combobox", { hidden: true }));
+    expect(scope).not.toContainElement(
+      screen.getByRole("combobox", { hidden: true }),
+    );
   });
 });

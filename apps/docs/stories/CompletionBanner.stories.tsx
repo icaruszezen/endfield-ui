@@ -1,9 +1,4 @@
-import {
-  Button,
-  CompletionBanner,
-  List,
-  ListRow,
-} from "@endfield-ui/react";
+import { Button, CompletionBanner, List, ListRow } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 const meta = {

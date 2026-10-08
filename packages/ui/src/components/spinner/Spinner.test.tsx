@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { Spinner } from "./Spinner";
 
 describe("Spinner", () => {
-  it("默认是一个状态区，读作\"加载中\"", () => {
+  it('默认是一个状态区，读作"加载中"', () => {
     render(<Spinner />);
     expect(screen.getByRole("status")).toHaveTextContent("加载中");
   });

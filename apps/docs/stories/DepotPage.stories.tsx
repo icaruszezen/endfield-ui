@@ -61,14 +61,70 @@ type Item = {
 };
 
 const stock: Item[] = [
-  { id: "gravel", name: "碎石", count: 999, rarity: 1, icon: OreIcon, order: 1 },
-  { id: "filter", name: "滤芯", count: 14, rarity: 1, icon: CrateIcon, order: 2 },
-  { id: "alloy", name: "合金锭", count: 128, rarity: 2, icon: OreIcon, order: 3 },
-  { id: "cell", name: "备用电池", count: 8, rarity: 2, icon: FuelIcon, order: 4 },
-  { id: "coolant", name: "冷却液", count: 40, rarity: 2, icon: FuelIcon, order: 5 },
-  { id: "fuel", name: "高能燃料", count: 36, rarity: 3, icon: FuelIcon, order: 6 },
-  { id: "beacon", name: "定位信标", count: 1, rarity: 3, icon: FuelIcon, order: 7 },
-  { id: "plate", name: "加固板材", count: 22, rarity: 3, icon: CrateIcon, order: 8 },
+  {
+    id: "gravel",
+    name: "碎石",
+    count: 999,
+    rarity: 1,
+    icon: OreIcon,
+    order: 1,
+  },
+  {
+    id: "filter",
+    name: "滤芯",
+    count: 14,
+    rarity: 1,
+    icon: CrateIcon,
+    order: 2,
+  },
+  {
+    id: "alloy",
+    name: "合金锭",
+    count: 128,
+    rarity: 2,
+    icon: OreIcon,
+    order: 3,
+  },
+  {
+    id: "cell",
+    name: "备用电池",
+    count: 8,
+    rarity: 2,
+    icon: FuelIcon,
+    order: 4,
+  },
+  {
+    id: "coolant",
+    name: "冷却液",
+    count: 40,
+    rarity: 2,
+    icon: FuelIcon,
+    order: 5,
+  },
+  {
+    id: "fuel",
+    name: "高能燃料",
+    count: 36,
+    rarity: 3,
+    icon: FuelIcon,
+    order: 6,
+  },
+  {
+    id: "beacon",
+    name: "定位信标",
+    count: 1,
+    rarity: 3,
+    icon: FuelIcon,
+    order: 7,
+  },
+  {
+    id: "plate",
+    name: "加固板材",
+    count: 22,
+    rarity: 3,
+    icon: CrateIcon,
+    order: 8,
+  },
   {
     id: "crate",
     name: "密封货箱",
@@ -339,11 +395,13 @@ function Depot() {
 
         <TabPanel value="index" className="pt-6">
           <div className={slotGrid}>
-            {stock.map(({ icon: Icon, order: _order, isNew: _isNew, ...item }) => (
-              <ItemSlot key={item.id} {...item} count={undefined}>
-                <Icon size={32} />
-              </ItemSlot>
-            ))}
+            {stock.map(
+              ({ icon: Icon, order: _order, isNew: _isNew, ...item }) => (
+                <ItemSlot key={item.id} {...item} count={undefined}>
+                  <Icon size={32} />
+                </ItemSlot>
+              ),
+            )}
             {unseen.map((name) => (
               <ItemSlot key={name} name={name} unowned />
             ))}

@@ -1,0 +1,2 @@
+# 所有平台都按 LF 检出：Prettier 的默认换行是 LF，Windows 上按 CRLF 检出会让格式检查整片报错
+* text=auto eol=lf

@@ -16,7 +16,9 @@ type PortalScopeOptions = {
  * 最近的就是 `<html>` 时不抄——浮层本来就继承它，抄了反而会在切换主题后留下旧值。
  * 没有触发元素（纯受控的弹窗）时什么都不做，浮层跟随 `<html>`。
  */
-export function usePortalScope({ invertTheme = false }: PortalScopeOptions = {}) {
+export function usePortalScope({
+  invertTheme = false,
+}: PortalScopeOptions = {}) {
   const anchor = useRef<Element | null>(null);
 
   // 两个都是回调 ref：不管对方要的是哪种元素的 ref 都能接上

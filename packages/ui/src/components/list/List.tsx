@@ -8,10 +8,7 @@ export type ListProps = ComponentProps<"ul">;
 /** 列表行的容器：行间一条 1px 的线，外圈不描边。里面只放 `ListRow`。 */
 export function List({ className, ...props }: ListProps) {
   return (
-    <ul
-      {...props}
-      className={cn("divide-y divide-line text-ink", className)}
-    />
+    <ul {...props} className={cn("divide-y divide-line text-ink", className)} />
   );
 }
 

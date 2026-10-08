@@ -1,0 +1,5 @@
+# 锁文件由 pnpm 生成
+pnpm-lock.yaml
+
+# 文档不纳入：Prettier 会把表格逐列补空格对齐，七十来份文档要整体改一遍
+*.md

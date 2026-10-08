@@ -92,7 +92,11 @@ export function Countdown({
 
   const remaining = Number.isNaN(target) ? 0 : Math.max(0, target - now);
   const state: CountdownState =
-    remaining === 0 ? "expired" : remaining <= urgentWithin ? "urgent" : "ample";
+    remaining === 0
+      ? "expired"
+      : remaining <= urgentWithin
+        ? "urgent"
+        : "ample";
 
   const onExpireRef = useRef(onExpire);
   const previous = useRef(state);

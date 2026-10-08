@@ -16,7 +16,8 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const frame = "relative h-56 max-w-xl overflow-clip border border-line bg-surface-raised";
+const frame =
+  "relative h-56 max-w-xl overflow-clip border border-line bg-surface-raised";
 
 export const Playground: Story = {
   render: (args) => (

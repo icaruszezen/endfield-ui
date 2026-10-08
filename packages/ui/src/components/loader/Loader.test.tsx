@@ -77,7 +77,12 @@ describe("Loader", () => {
     );
 
     rerender(
-      <Loader value={100} open={false} data-testid="loader" onExited={onExited} />,
+      <Loader
+        value={100}
+        open={false}
+        data-testid="loader"
+        onExited={onExited}
+      />,
     );
     const loader = screen.getByTestId("loader");
     expect(loader).toHaveAttribute("data-state", "closing");

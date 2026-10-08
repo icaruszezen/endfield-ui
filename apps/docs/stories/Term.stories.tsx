@@ -55,13 +55,19 @@ export const InParagraph: Story = {
       <PanelHeader>过载脉冲</PanelHeader>
       <PanelBody className="text-sm leading-relaxed">
         <p>
-          消耗 <Term tone="warning" icon={<FuelIcon />}>燃料 30</Term>
+          消耗{" "}
+          <Term tone="warning" icon={<FuelIcon />}>
+            燃料 30
+          </Term>
           ，对前方目标造成 <Term>180%</Term> 的伤害，并施加{" "}
           <Term tone="danger">灼烧</Term>。
         </p>
         <p className="mt-2">
           目标已处于 <Term tone="info">冻结</Term> 时，改为回收{" "}
-          <Term tone="success" icon={<OreIcon />}>矿石 12</Term>。
+          <Term tone="success" icon={<OreIcon />}>
+            矿石 12
+          </Term>
+          。
         </p>
         <p className="mt-4 text-xs text-ink-secondary">
           这里的对应是：黄 = 数值，橙 = 消耗，红 = 减益，蓝 = 机制，绿 =

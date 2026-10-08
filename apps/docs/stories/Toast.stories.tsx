@@ -104,7 +104,9 @@ function Pinned({ options }: { options: ToastOptions }) {
     const id = toast({ ...options, duration: 0 });
     return () => toast.dismiss(id);
   }, [toast, options]);
-  return <p className="text-sm text-ink-secondary">页面上的其他内容照常可用。</p>;
+  return (
+    <p className="text-sm text-ink-secondary">页面上的其他内容照常可用。</p>
+  );
 }
 
 const pinnedPlain: ToastOptions = { message: "已保存" };

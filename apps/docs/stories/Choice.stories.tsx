@@ -1,10 +1,4 @@
-import {
-  Checkbox,
-  Field,
-  Radio,
-  RadioGroup,
-  Switch,
-} from "@endfield-ui/react";
+import { Checkbox, Field, Radio, RadioGroup, Switch } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 
@@ -123,7 +117,12 @@ export const DualLabelSwitch: Story = {
     <div className="flex flex-col items-start gap-2">
       <div className="grid grid-cols-2 gap-x-8">
         <Switch aria-label="三维视图" offLabel="2D" onLabel="3D" />
-        <Switch aria-label="三维视图" offLabel="2D" onLabel="3D" defaultChecked />
+        <Switch
+          aria-label="三维视图"
+          offLabel="2D"
+          onLabel="3D"
+          defaultChecked
+        />
         <Switch aria-label="三维视图" offLabel="2D" onLabel="3D" disabled />
         <Switch
           aria-label="三维视图"

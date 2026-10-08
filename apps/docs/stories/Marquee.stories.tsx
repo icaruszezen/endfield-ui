@@ -33,7 +33,8 @@ function Notice() {
         </span>
         <Marquee paused={paused} className="min-w-0 flex-1 text-sm">
           <span className="whitespace-nowrap">
-            终端将于 10 月 21 日凌晨 2 点至 6 点停机维护，期间无法提交采样记录，请提前保存草稿。
+            终端将于 10 月 21 日凌晨 2 点至 6
+            点停机维护，期间无法提交采样记录，请提前保存草稿。
           </span>
         </Marquee>
       </div>

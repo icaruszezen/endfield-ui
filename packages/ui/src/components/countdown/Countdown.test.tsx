@@ -24,7 +24,11 @@ describe("Countdown", () => {
   });
 
   it("超过一天时带天数，充裕态", () => {
-    render(<Countdown to={NOW + 3 * DAY + 4 * HOUR + 12 * 60 * SECOND + 9 * SECOND} />);
+    render(
+      <Countdown
+        to={NOW + 3 * DAY + 4 * HOUR + 12 * 60 * SECOND + 9 * SECOND}
+      />,
+    );
     const timer = screen.getByRole("timer");
     expect(timer).toHaveTextContent("3天 04:12:09");
     expect(timer.parentElement).toHaveAttribute("data-state", "ample");
@@ -63,7 +67,11 @@ describe("Countdown", () => {
   it("到期时显示到期文字、调用一次 onExpire 并停表", () => {
     const onExpire = vi.fn();
     render(
-      <Countdown to={NOW + 3 * SECOND} onExpire={onExpire} expiredLabel="已截止" />,
+      <Countdown
+        to={NOW + 3 * SECOND}
+        onExpire={onExpire}
+        expiredLabel="已截止"
+      />,
     );
     tick(2 * SECOND);
     expect(screen.getByRole("timer")).toHaveTextContent("00:00:01");

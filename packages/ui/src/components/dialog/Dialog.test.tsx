@@ -35,8 +35,12 @@ describe("Dialog", () => {
 
     await user.click(screen.getByRole("button", { name: "打开" }));
     const dialog = await screen.findByRole("dialog", { name: "归档这份报告" });
-    expect(dialog).toHaveAccessibleDescription("归档后仍然可以在档案室里找到。");
-    expect(screen.getByRole("heading", { name: "归档这份报告" })).toBeInTheDocument();
+    expect(dialog).toHaveAccessibleDescription(
+      "归档后仍然可以在档案室里找到。",
+    );
+    expect(
+      screen.getByRole("heading", { name: "归档这份报告" }),
+    ).toBeInTheDocument();
     expect(dialog).toHaveTextContent("正文");
   });
 
@@ -47,10 +51,14 @@ describe("Dialog", () => {
     await user.click(trigger);
     await screen.findByRole("dialog");
     // 落在行动区的第一个按钮上，不是标题带里的关闭图标
-    await waitFor(() => expect(screen.getByRole("button", { name: "取消" })).toHaveFocus());
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "取消" })).toHaveFocus(),
+    );
 
     await user.keyboard("{Escape}");
-    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
     await waitFor(() => expect(trigger).toHaveFocus());
   });
 
@@ -63,12 +71,16 @@ describe("Dialog", () => {
         </label>
       </Dialog>,
     );
-    await waitFor(() => expect(screen.getByRole("textbox", { name: "名称" })).toHaveFocus());
+    await waitFor(() =>
+      expect(screen.getByRole("textbox", { name: "名称" })).toHaveFocus(),
+    );
   });
 
   it("内容区里没有可聚焦的元素时，焦点落在关闭图标上", async () => {
     render(<Dialog defaultOpen title="说明" description="只有一段话。" />);
-    await waitFor(() => expect(screen.getByRole("button", { name: "关闭" })).toHaveFocus());
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "关闭" })).toHaveFocus(),
+    );
   });
 
   it("关闭图标有可访问名称，点了就关", async () => {
@@ -76,7 +88,9 @@ describe("Dialog", () => {
     render(<Basic closeLabel="关闭弹窗" />);
     await user.click(screen.getByRole("button", { name: "打开" }));
     await user.click(await screen.findByRole("button", { name: "关闭弹窗" }));
-    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
   });
 
   it("DialogClose 包住的按钮点了就关，并保留自己的点击事件", async () => {
@@ -97,7 +111,9 @@ describe("Dialog", () => {
     );
     await user.click(await screen.findByRole("button", { name: "取消" }));
     expect(onCancel).toHaveBeenCalledTimes(1);
-    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
   });
 
   it("点遮罩关闭", async () => {
@@ -105,18 +121,24 @@ describe("Dialog", () => {
     render(<Basic defaultOpen />);
     await screen.findByRole("dialog");
     await user.click(backdrop()!);
-    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
   });
 
   it("alert：角色是 alertdialog，点遮罩不关，Esc 仍然能关", async () => {
     const user = userEvent.setup();
     render(<Basic defaultOpen alert />);
-    const dialog = await screen.findByRole("alertdialog", { name: "归档这份报告" });
+    const dialog = await screen.findByRole("alertdialog", {
+      name: "归档这份报告",
+    });
     await user.click(backdrop()!);
     expect(dialog).toBeInTheDocument();
 
     await user.keyboard("{Escape}");
-    await waitFor(() => expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument(),
+    );
   });
 
   it("受控：关闭的请求交给 onOpenChange", async () => {
@@ -139,11 +161,15 @@ describe("Dialog", () => {
     await screen.findByRole("dialog");
     await user.keyboard("{Escape}");
     expect(onOpenChange).toHaveBeenCalledWith(false);
-    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
   });
 
   it("三档宽度，其余属性给弹窗本身", async () => {
-    render(<Basic defaultOpen size="lg" data-testid="popup" className="custom" />);
+    render(
+      <Basic defaultOpen size="lg" data-testid="popup" className="custom" />,
+    );
     const dialog = await screen.findByRole("dialog");
     expect(dialog).toHaveAttribute("data-size", "lg");
     expect(dialog).toHaveAttribute("data-testid", "popup");
@@ -152,8 +178,13 @@ describe("Dialog", () => {
 
   it("标题带是一块固定的深色", async () => {
     render(<Basic defaultOpen />);
-    const heading = await screen.findByRole("heading", { name: "归档这份报告" });
-    expect(heading.closest("[data-theme]")).toHaveAttribute("data-theme", "dark");
+    const heading = await screen.findByRole("heading", {
+      name: "归档这份报告",
+    });
+    expect(heading.closest("[data-theme]")).toHaveAttribute(
+      "data-theme",
+      "dark",
+    );
   });
 
   it("触发按钮在局部主题里时，浮层带上同一个主题和表单符号方案", async () => {
@@ -168,7 +199,9 @@ describe("Dialog", () => {
     const scope = dialog.parentElement?.closest("[data-theme]");
     expect(scope).toHaveAttribute("data-theme", "dark");
     expect(scope).toHaveAttribute("data-choice", "diamond");
-    expect(scope).not.toContainElement(screen.getByRole("button", { name: "打开", hidden: true }));
+    expect(scope).not.toContainElement(
+      screen.getByRole("button", { name: "打开", hidden: true }),
+    );
   });
 
   it("没有局部主题时不往浮层上写主题", async () => {

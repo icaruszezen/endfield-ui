@@ -34,7 +34,12 @@ export function Texture({
       {...props}
       aria-hidden="true"
       data-variant={variant}
-      className={cn(decor, "absolute inset-0", variantClass[variant], className)}
+      className={cn(
+        decor,
+        "absolute inset-0",
+        variantClass[variant],
+        className,
+      )}
     />
   );
 }

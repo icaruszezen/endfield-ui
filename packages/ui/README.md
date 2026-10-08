@@ -351,6 +351,9 @@ packages/ui/
 | `pnpm test` | 跑单元测试 |
 | `pnpm typecheck` | 类型检查全部工作区包 |
 | `pnpm build` | 生成 `dist/index.js`、`dist/index.d.ts`、`dist/styles.css` |
+| `pnpm format` | 用 Prettier 格式化全仓库；`pnpm format:check` 只检查不改，CI 跑的是它 |
+
+格式用 Prettier 的默认配置，提交前跑一次 `pnpm format`。Markdown 不在它的范围里（它会把表格逐列补空格对齐）；Tailwind 的类名顺序也不归它管。
 
 TypeScript 用的是 7.0。tsdown 在这个版本下生成类型声明时会提示"API 尚不稳定"，目前产物正常；如果以后出问题，退路是 `tsc --emitDeclarationOnly`。
 

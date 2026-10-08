@@ -119,9 +119,7 @@ const batches = Array.from({ length: 30 }, (_, index) => ({
 
 export const LongList: Story = {
   name: "选项很多时面板里滚动",
-  render: () => (
-    <Select items={batches} aria-label="批次" defaultValue="12" />
-  ),
+  render: () => <Select items={batches} aria-label="批次" defaultValue="12" />,
 };
 
 export const StrongPanel: Story = {

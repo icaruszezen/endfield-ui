@@ -129,7 +129,10 @@ function Settings() {
       <form noValidate onSubmit={handleSubmit} className="flex flex-col gap-10">
         {codenameError && (
           <Alert tone="danger" title="有 1 项没有填对">
-            <a href="#settings-codename" className="underline underline-offset-4">
+            <a
+              href="#settings-codename"
+              className="underline underline-offset-4"
+            >
               代号
             </a>
             不能为空。
@@ -237,7 +240,11 @@ function Settings() {
             <Panel>
               <PanelHeader
                 extra={
-                  <Tag variant="accent" size="sm" className="font-tech font-bold">
+                  <Tag
+                    variant="accent"
+                    size="sm"
+                    className="font-tech font-bold"
+                  >
                     NOW
                   </Tag>
                 }

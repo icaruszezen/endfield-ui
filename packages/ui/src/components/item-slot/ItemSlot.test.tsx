@@ -94,7 +94,7 @@ describe("ItemSlot", () => {
     ).toBeInTheDocument();
   });
 
-  it("不可用：遮罩上的字进入读屏文字；只传 true 时读作\"不可用\"", () => {
+  it('不可用：遮罩上的字进入读屏文字；只传 true 时读作"不可用"', () => {
     const { rerender } = render(
       <ItemSlot name="合金锭" unavailable="售罄" onClick={() => {}} />,
     );
@@ -110,7 +110,12 @@ describe("ItemSlot", () => {
 
   it("label 可以整句换掉", () => {
     render(
-      <ItemSlot name="合金锭" count={3} label="Alloy ingot ×3" onClick={() => {}} />,
+      <ItemSlot
+        name="合金锭"
+        count={3}
+        label="Alloy ingot ×3"
+        onClick={() => {}}
+      />,
     );
     expect(
       screen.getByRole("button", { name: "Alloy ingot ×3" }),

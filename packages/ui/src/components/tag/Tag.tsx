@@ -2,12 +2,7 @@ import type { ComponentProps } from "react";
 import { cn } from "../../lib/cn";
 
 export type TagVariant =
-  | "solid"
-  | "outline"
-  | "inverse"
-  | "muted"
-  | "accent"
-  | "gain";
+  "solid" | "outline" | "inverse" | "muted" | "accent" | "gain";
 export type TagSize = "sm" | "md";
 
 export type TagProps = ComponentProps<"span"> & {

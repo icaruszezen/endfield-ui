@@ -66,7 +66,8 @@ export const Focusable: Story = {
         </button>
       </div>
       <p className="max-w-prose text-sm text-ink-secondary">
-        用 Tab 聚焦这两个按钮：焦点环是完整的矩形。按钮本身没有被裁切，切角和斜楔画在
+        用 Tab
+        聚焦这两个按钮：焦点环是完整的矩形。按钮本身没有被裁切，切角和斜楔画在
         <code className="mx-1 font-mono text-xs">::before</code>
         的底上。
       </p>
