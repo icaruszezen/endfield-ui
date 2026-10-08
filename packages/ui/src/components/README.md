@@ -16,6 +16,10 @@
 | `term/` | `Term` | [数据展示](../../../../docs/design/components/data-display.md) |
 | `kbd/` | `Kbd` | [测绘叠层](../../../../docs/design/elements/hud-overlays.md) |
 | `tabs/` | `Tabs`、`TabList`、`Tab`、`TabPanel`（格子、胶囊、楔形三种） | [导航](../../../../docs/design/components/navigation.md) |
+| `side-rail/` | `SideRail`、`SideRailItem`、`SideRailGroup` | [导航](../../../../docs/design/components/navigation.md) |
+| `top-bar/` | `TopBar` | [导航](../../../../docs/design/components/navigation.md) |
+| `nav-menu/` | `NavMenu`、`NavMenuItem`（全屏菜单） | [导航](../../../../docs/design/components/navigation.md) |
+| `nav-action/` | `NavAction`（主行动块） | [导航](../../../../docs/design/components/navigation.md) |
 | `breadcrumb/` | `Breadcrumb`、`BreadcrumbItem` | [导航](../../../../docs/design/components/navigation.md) |
 | `pagination/` | `Pagination` | [导航](../../../../docs/design/components/navigation.md) |
 | `navigator/` | `Navigator` | [导航](../../../../docs/design/components/navigation.md) |

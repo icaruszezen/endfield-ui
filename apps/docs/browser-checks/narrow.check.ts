@@ -60,6 +60,9 @@ const stories = [
   "控件-itemslot-物品格--grid",
   "控件-table-表格--playground",
   "控件-table-表格--rich-cells",
+  "控件-siderail-侧轨--playground",
+  "控件-topbar-顶栏与全屏菜单--playground",
+  "控件-navaction-主行动块--layouts",
   "控件-brackettitle-方括号标题--sizes",
   "母题-texture-底纹--variants",
 ];

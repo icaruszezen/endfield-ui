@@ -52,3 +52,37 @@ export const CodeGridIcon = createIcon(
   "CodeGridIcon",
   <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" />,
 );
+
+/* 外壳里用的几个：栏目、主题切换、收起侧轨 */
+export const GridIcon = createIcon(
+  "GridIcon",
+  <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />,
+);
+
+export const ArchiveIcon = createIcon(
+  "ArchiveIcon",
+  <path d="M3 5h18v4H3zM5 9v10h14V9M10 13h4" />,
+);
+
+export const RouteIcon = createIcon(
+  "RouteIcon",
+  <path d="M6 4v8h12v8M3 4h6M15 20h6" />,
+);
+
+export const SlidersIcon = createIcon(
+  "SlidersIcon",
+  <path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M6 14v6" />,
+);
+
+export const ContrastIcon = createIcon(
+  "ContrastIcon",
+  <>
+    <path d="M4 4h16v16H4z" />
+    <path d="M12 4h8v16h-8z" fill="currentColor" stroke="none" />
+  </>,
+);
+
+export const CollapseIcon = createIcon(
+  "CollapseIcon",
+  <path d="M4 4v16M20 12H9M13 7l-5 5 5 5" />,
+);

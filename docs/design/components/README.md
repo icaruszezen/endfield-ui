@@ -7,7 +7,7 @@
 | 文档 | 覆盖的组件 |
 | --- | --- |
 | [按钮](button.md) | 按钮、图标按钮、按钮组 |
-| [导航](navigation.md) | 侧轨、顶栏、页签、分页、胶囊导航器、面包屑 |
+| [导航](navigation.md) | 侧轨、主行动块、顶栏与全屏菜单、页签、分页、胶囊导航器、面包屑 |
 | [卡片](card.md) | 面板、媒体卡、物品格、列表行 |
 | [表单](form.md) | 输入框、下拉、组合框、复选、单选、开关、步进器 |
 | [反馈](feedback.md) | 进度、提示条、轻提示、加载、空状态 |
@@ -149,7 +149,9 @@ Select 的面板和 Toast 的容器都是浮层，需要定位与焦点管理，
 | Popover（气泡卡片） | [浮层](overlay.md) | 已实现 |
 | FlyoutBar（展开条） | [浮层](overlay.md) | 已实现 |
 | Select / Toast | [表单](form.md)、[反馈](feedback.md) | 已实现（Select 含多选） |
-| SideRail / TopBar | [导航](navigation.md) | |
+| SideRail（侧轨） | [导航](navigation.md) | 已实现（展开与收起两种形态，含分组） |
+| TopBar / NavMenu（顶栏与全屏菜单） | [导航](navigation.md) | 已实现 |
+| NavAction（主行动块） | [导航](navigation.md) | 已实现 |
 | Pagination / Navigator / DashIndicator | [导航](navigation.md) | 已实现 |
 | Breadcrumb | [导航](navigation.md) | 已实现 |
 
