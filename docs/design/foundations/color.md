@@ -224,8 +224,7 @@
 | `accent-ink-inverse` / `surface-inverse`（暗） | 6.3:1 | 通过 |
 | `on-disabled` / `disabled`（亮） | 2.9:1 | 仅限禁用态 |
 | `on-disabled` / `disabled`（暗） | 2.4:1 | 仅限禁用态 |
-| `action` / `line`（亮，进度条的填充对轨道） | 1.3:1 | 不够，所以填充加 `on-action` 描边 |
-| `on-action` / `line`（亮，描边对轨道） | 12.5:1 | 通过 |
+| `action` / `line`（亮，进度条的填充对轨道） | 1.3:1 | 偏低；靠色相差区分，确切数值另用文字给出，见 [反馈](../components/feedback.md) |
 | `action` / `line`（暗） | 10.6:1 | 通过 |
 | `line-strong` / `surface`（亮，未选的复选框描边） | 2.1:1 | 偏低；靠凹陷底与 2px 线宽补足 |
 | `line` / `surface`（亮） | 1.4:1 | 仅作分隔，不能单独表示控件边界 |

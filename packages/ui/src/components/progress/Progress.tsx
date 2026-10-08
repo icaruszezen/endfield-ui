@@ -26,11 +26,10 @@ const trackSize: Record<ProgressSize, string> = {
 };
 
 /*
- * 黄色填充压在亮色的浅灰轨道上只有 1.3:1，所以四周加 1px 的 on-action 描边。
- * 描边画在轨道之外（outline），不吃掉填充的高度；它在暗色轨道上几乎看不见，
- * 因此不需要按主题分支。
+ * 填充是纯色，不描边：亮色界面上一圈墨色的框显得重。
+ * 亮色下它对浅灰轨道只有 1.3:1，确切数值靠 showValue 或旁边的文字给出。
  */
-const fillClass = "bg-action outline-1 outline-on-action";
+const fillClass = "bg-action";
 
 /**
  * 进度：灰轨 + 黄填充。表示"完成了多少"；表示"数量有多少"用图表，那是蓝色的事。

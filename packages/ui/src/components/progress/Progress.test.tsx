@@ -30,7 +30,7 @@ describe("Progress", () => {
       "aria-valuenow",
       "0",
     );
-    // 0 时不画填充，否则描边会留下一条竖线
+    // 0 时不渲染填充
     expect(screen.getByRole("progressbar")).toBeEmptyDOMElement();
   });
 
