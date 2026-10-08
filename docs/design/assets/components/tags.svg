@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="960" height="400" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">标签与徽章</title>
+  <desc id="d">名值标签对、类型标签、日期块、新内容标签、筛选胶囊、资源胶囊、倒计时胶囊、通知角标和增益标签。</desc>
+  <rect width="960" height="400" fill="#fafafa"/>
+
+  <!-- 行 1 -->
+  <text x="40" y="34" font-size="13" font-weight="700" fill="#191919">直角标签</text>
+  <text x="104" y="34" font-size="12" fill="#626262">信息的分类与归档</text>
+
+  <!-- 名值对 -->
+  <rect x="40" y="56" width="52" height="28" fill="#191919"/>
+  <text x="66" y="75" font-size="13" font-weight="500" fill="#ffffff" text-anchor="middle">阵营</text>
+  <rect x="92" y="56" width="96" height="28" fill="#f2f2f2"/>
+  <text x="140" y="75" font-size="13" font-weight="500" fill="#191919" text-anchor="middle">所属机构</text>
+  <rect x="40" y="92" width="52" height="28" fill="#fffa00"/>
+  <text x="66" y="111" font-size="13" font-weight="500" fill="#191919" text-anchor="middle">配音</text>
+  <rect x="92" y="92" width="96" height="28" fill="#f2f2f2"/>
+  <text x="140" y="111" font-size="13" font-weight="500" fill="#191919" text-anchor="middle">演员姓名</text>
+
+  <!-- 类型标签 -->
+  <rect x="240" y="56" width="52" height="24" rx="2" fill="#383838"/>
+  <text x="266" y="73" font-size="12" fill="#ffffff" text-anchor="middle">PV</text>
+  <rect x="300" y="56" width="64" height="24" fill="#ffffff" stroke="#b3b3b3"/>
+  <text x="332" y="73" font-size="12" fill="#191919" text-anchor="middle">限时活动</text>
+
+  <!-- 日期块 -->
+  <rect x="420" y="56" width="70" height="26" fill="#191919"/>
+  <polygon points="420,56 430,56 420,66" fill="#f62a2a"/>
+  <text x="455" y="74" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" font-family="'Space Grotesk',Consolas,monospace">10.08</text>
+  <text x="500" y="74" font-size="12" fill="#626262" font-family="'Space Grotesk',Consolas,monospace">// 新闻  2026.10.08</text>
+
+  <!-- NEW -->
+  <rect x="700" y="56" width="44" height="22" fill="#fffa00"/>
+  <text x="722" y="72" font-size="12" font-weight="700" fill="#191919" text-anchor="middle" font-family="'Space Grotesk',Consolas,monospace">NEW</text>
+  <polygon points="760,56 816,56 816,72 810,78 760,78" fill="#191919"/>
+  <text x="787" y="72" font-size="12" font-weight="500" fill="#ffffff" text-anchor="middle">推荐</text>
+
+  <g font-size="13" font-weight="700" fill="#191919">
+    <text x="40" y="146">名值对</text>
+    <text x="240" y="146">类型标签</text>
+    <text x="420" y="146">日期</text>
+    <text x="700" y="146">状态签</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="40" y="164">名墨底、值浅灰底，紧贴无缝；</text>
+    <text x="40" y="182">需要突出的一项，名用黄底</text>
+    <text x="240" y="164">深灰底微圆角，或</text>
+    <text x="240" y="182">白底细边直角</text>
+    <text x="420" y="164">黑块白字，等宽数字，可带小红角；</text>
+    <text x="420" y="182">或写成 // 类目 + 日期的微标行</text>
+    <text x="700" y="164">黄底墨字的小块；</text>
+    <text x="700" y="182">角标可以切一个角</text>
+  </g>
+
+  <path d="M40 206h880" stroke="#d9d9d9"/>
+
+  <!-- 行 2 -->
+  <text x="40" y="236" font-size="13" font-weight="700" fill="#191919">胶囊与角标</text>
+  <text x="118" y="236" font-size="12" fill="#626262">短暂的、可变的状态</text>
+
+  <!-- 筛选 -->
+  <rect x="40" y="258" width="64" height="30" rx="15" fill="#191919"/>
+  <text x="72" y="278" font-size="13" fill="#ffffff" text-anchor="middle">全部</text>
+  <rect x="112" y="258" width="64" height="30" rx="15" fill="#ffffff" stroke="#b3b3b3"/>
+  <text x="144" y="278" font-size="13" fill="#191919" text-anchor="middle">武器</text>
+  <rect x="184" y="258" width="64" height="30" rx="15" fill="#ffffff" stroke="#b3b3b3"/>
+  <text x="216" y="278" font-size="13" fill="#191919" text-anchor="middle">材料</text>
+
+  <!-- 资源 -->
+  <rect x="300" y="258" width="110" height="30" rx="15" fill="#191919"/>
+  <circle cx="316" cy="273" r="9" fill="#fcba00"/>
+  <text x="332" y="278" font-size="13" fill="#ffffff" font-family="'Space Grotesk',Consolas,monospace">12,800</text>
+
+  <!-- 倒计时 -->
+  <rect x="460" y="258" width="92" height="26" rx="13" fill="#00d872"/>
+  <text x="506" y="276" font-size="12" font-weight="700" fill="#191919" text-anchor="middle" font-family="'Space Grotesk',Consolas,monospace">6天 12时</text>
+  <rect x="560" y="258" width="78" height="26" rx="13" fill="#de0909"/>
+  <text x="599" y="276" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle" font-family="'Space Grotesk',Consolas,monospace">2时 05分</text>
+
+  <!-- 通知角标 -->
+  <rect x="700" y="258" width="34" height="34" fill="#f2f2f2"/>
+  <polygon points="734,250 742,258 734,266 726,258" fill="#fc6c00"/>
+  <rect x="760" y="258" width="34" height="34" fill="#f2f2f2"/>
+  <rect x="784" y="252" width="20" height="16" fill="#fc6c00"/>
+  <text x="794" y="264" font-size="11" font-weight="700" fill="#191919" text-anchor="middle" font-family="'Space Grotesk',Consolas,monospace">12</text>
+  <!-- 增益 -->
+  <rect x="826" y="262" width="52" height="22" fill="#bce41d"/>
+  <text x="852" y="278" font-size="12" font-weight="700" fill="#191919" text-anchor="middle" font-family="'Space Grotesk',Consolas,monospace">+6%</text>
+
+  <g font-size="13" font-weight="700" fill="#191919">
+    <text x="40" y="316">筛选</text>
+    <text x="300" y="316">资源</text>
+    <text x="460" y="316">倒计时</text>
+    <text x="700" y="316">通知与增益</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="40" y="334">选中反转为墨底白字</text>
+    <text x="300" y="334">圆形图标 + 等宽数字</text>
+    <text x="460" y="334">绿 = 充裕，红 = 紧迫</text>
+    <text x="700" y="334">橙色菱形或数字块；</text>
+    <text x="700" y="352">增益用荧光黄绿</text>
+  </g>
+  <text x="40" y="382" font-size="11" fill="#8a8a8a">上排取自官网实测与观察；下排的胶囊与角标出自社区对游戏界面的归纳。</text>
+</svg>

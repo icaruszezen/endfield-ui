@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520" width="960" height="520" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">导航类组件</title>
+  <desc id="d">侧轨导航的收起与悬停展开状态；页签的默认、悬停与激活状态；带方钮的分页条；胶囊导航器；斜杠面包屑；短横进度指示。</desc>
+  <defs>
+    <pattern id="nh" width="6" height="6" patternUnits="userSpaceOnUse">
+      <path d="M-1 1L1 -1M0 6L6 0M5 7L7 5" stroke="#000000" stroke-width="1.9"/>
+    </pattern>
+    <filter id="namb" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#000000" flood-opacity="0.25"/></filter>
+    <filter id="rail" x="-50%" y="-5%" width="200%" height="110%"><feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#000000" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="960" height="520" fill="#fafafa"/>
+
+  <!-- 侧轨 -->
+  <text x="40" y="34" font-size="13" font-weight="700" fill="#191919">侧轨</text>
+  <rect x="40" y="52" width="290" height="400" fill="#f2f2f2"/>
+  <!-- 展开底块（悬停项） -->
+  <rect x="40" y="168" width="220" height="44" fill="#e5e5e5"/>
+  <text x="112" y="195" font-size="14" font-weight="500" fill="#191919">世界观资料</text>
+  <rect x="40" y="52" width="60" height="400" fill="#ffffff" filter="url(#rail)"/>
+  <rect x="50" y="62" width="40" height="40" fill="#191919"/>
+  <!-- 当前项 -->
+  <rect x="40" y="124" width="4" height="44" fill="#191919"/>
+  <rect x="60" y="136" width="20" height="20" fill="#191919"/>
+  <!-- 悬停项 -->
+  <rect x="60" y="180" width="20" height="20" fill="#858585"/>
+  <!-- 其他 -->
+  <g fill="#d9d9d9">
+    <rect x="60" y="224" width="20" height="20"/><rect x="60" y="268" width="20" height="20"/><rect x="60" y="312" width="20" height="20"/>
+  </g>
+  <!-- 主行动块 -->
+  <rect x="48" y="368" width="44" height="74" fill="#191919"/>
+  <polygon points="62,380 78,380 70,392" fill="#ffffff"/>
+  <path d="M60 400h20" stroke="#ffffff" stroke-opacity=".3" stroke-width="2"/>
+  <rect x="66" y="408" width="8" height="26" fill="#ffffff"/>
+
+  <g font-size="11" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">
+    <text x="276" y="150">当前</text>
+    <text x="276" y="194">悬停</text>
+    <text x="276" y="238">默认</text>
+  </g>
+  <g stroke="#8a8a8a" stroke-dasharray="2 3"><path d="M106 146h164"/><path d="M106 234h164"/></g>
+  <g font-size="12" fill="#626262">
+    <text x="40" y="474">只放图标；悬停时灰底向右展开并显示文字；</text>
+    <text x="40" y="492">当前项墨色 + 左缘竖条；主行动块黑底白字，悬停变黄。</text>
+  </g>
+
+  <!-- 页签 -->
+  <text x="370" y="34" font-size="13" font-weight="700" fill="#191919">页签</text>
+  <rect x="370" y="52" width="550" height="44" fill="#ffffff" stroke="#d9d9d9"/>
+  <rect x="370" y="52" width="150" height="44" fill="#e5e5e5"/>
+  <text x="388" y="80" font-size="16" font-weight="500" fill="#191919">全部</text>
+  <rect x="480" y="60" width="28" height="28" fill="#fafafa"/>
+  <path d="M490 68l8 6-8 6" fill="none" stroke="#999999" stroke-width="2"/>
+  <path d="M520 60v28" stroke="#d9d9d9" stroke-width="2"/>
+  <rect x="521" y="52" width="130" height="44" fill="#f3f3f3"/>
+  <text x="586" y="80" font-size="16" font-weight="500" fill="#191919" text-anchor="middle">新闻</text>
+  <path d="M652 60v28" stroke="#d9d9d9" stroke-width="2"/>
+  <text x="718" y="80" font-size="16" font-weight="500" fill="#191919" text-anchor="middle">公告</text>
+  <path d="M784 60v28" stroke="#d9d9d9" stroke-width="2"/>
+  <text x="850" y="80" font-size="16" font-weight="500" fill="#191919" text-anchor="middle">活动</text>
+  <g font-size="11" fill="#626262">
+    <text x="370" y="114">激活：浅灰底，文字左移，右侧出现箭头块</text>
+    <text x="640" y="114">悬停：更浅的灰底</text>
+    <text x="784" y="114">分隔线不通顶</text>
+  </g>
+
+  <!-- 分页条 -->
+  <text x="370" y="158" font-size="13" font-weight="700" fill="#191919">分页条</text>
+  <rect x="370" y="174" width="300" height="56" fill="#e6e6e6"/>
+  <rect x="370" y="174" width="300" height="56" fill="url(#nh)" opacity="0.05"/>
+  <rect x="376" y="180" width="44" height="44" fill="#fffa00" filter="url(#namb)"/>
+  <path d="M402 192l-9 10 9 10" fill="none" stroke="#3c3c3c" stroke-width="2.5"/>
+  <rect x="620" y="180" width="44" height="44" fill="#fafafa" filter="url(#namb)"/>
+  <path d="M638 192l9 10-9 10" fill="none" stroke="#3c3c3c" stroke-width="2.5"/>
+  <text x="520" y="208" font-size="16" font-weight="700" fill="#191919" text-anchor="middle" font-family="'Archivo','Arial Black',Arial,sans-serif">01 / 12</text>
+  <g font-size="11" fill="#626262">
+    <text x="690" y="194">浅灰条叠 5% 斜纹；方钮白底带环境阴影，</text>
+    <text x="690" y="212">悬停变黄（左钮示意）；页码用宽体</text>
+  </g>
+
+  <!-- 胶囊导航器 -->
+  <text x="370" y="272" font-size="13" font-weight="700" fill="#191919">胶囊导航器</text>
+  <rect x="370" y="288" width="300" height="56" rx="28" fill="#131315"/>
+  <circle cx="398" cy="316" r="20" fill="#fafafa"/>
+  <path d="M403 308l-8 8 8 8" fill="none" stroke="#3c3c3c" stroke-width="2.5"/>
+  <circle cx="642" cy="316" r="20" fill="#fafafa"/>
+  <path d="M637 308l8 8-8 8" fill="none" stroke="#3c3c3c" stroke-width="2.5"/>
+  <text x="474" y="312" font-size="10" font-weight="700" fill="#fff000" font-family="'Space Grotesk',Consolas,monospace">1/4</text>
+  <text x="500" y="322" font-size="17" fill="#ffffff">条目名称</text>
+  <g font-size="11" fill="#626262">
+    <text x="690" y="308">深色底上用；两端白色圆钮，中间是</text>
+    <text x="690" y="326">名称与黄色的小号计数</text>
+  </g>
+
+  <!-- 面包屑 + 进度 -->
+  <text x="370" y="386" font-size="13" font-weight="700" fill="#191919">面包屑</text>
+  <text x="370" y="414" font-size="14" fill="#191919"><tspan fill="#8a8a8a" font-family="'Space Grotesk',Consolas,monospace">// </tspan>档案<tspan fill="#8a8a8a" font-family="'Space Grotesk',Consolas,monospace"> / </tspan>干员<tspan fill="#8a8a8a" font-family="'Space Grotesk',Consolas,monospace"> / </tspan><tspan font-weight="700">详情</tspan></text>
+  <text x="370" y="438" font-size="11" fill="#626262">双斜杠起头，单斜杠分隔；末项加粗</text>
+
+  <text x="640" y="386" font-size="13" font-weight="700" fill="#191919">进度指示</text>
+  <g>
+    <rect x="640" y="404" width="28" height="4" fill="#fffa00" stroke="#191919" stroke-width=".5"/>
+    <rect x="676" y="404" width="28" height="4" fill="#b3b3b3"/>
+    <rect x="712" y="404" width="28" height="4" fill="#b3b3b3"/>
+    <rect x="748" y="404" width="28" height="4" fill="#b3b3b3"/>
+  </g>
+  <text x="640" y="438" font-size="11" fill="#626262">一排短横，当前一根为黄；深色底上最清楚</text>
+
+  <text x="370" y="492" font-size="11" fill="#8a8a8a">页签、分页条、胶囊导航器的颜色与尺寸关系取自官网实测；面包屑的写法出自社区对游戏界面的归纳。</text>
+</svg>

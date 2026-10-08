@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640" width="960" height="640" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">字阶</title>
+  <desc id="d">十一级字号，从 96 像素的主视觉大字到 10 像素的技术微标签，每级标注令牌名、像素值、相对正文的比例和用途。</desc>
+  <rect width="960" height="640" fill="#fafafa"/>
+
+  <g font-size="11" fill="#8a8a8a">
+    <text x="40" y="30">令牌</text>
+    <text x="110" y="30">像素</text>
+    <text x="160" y="30">比例</text>
+    <text x="210" y="30">用途</text>
+    <text x="330" y="30">示例（图中字体为系统回退，仅示意大小关系）</text>
+  </g>
+  <path d="M40 40h880" stroke="#d9d9d9"/>
+
+  <!-- 行分隔 -->
+  <g stroke="#e6e6e6">
+    <path d="M40 150h880"/><path d="M40 236h880"/><path d="M40 304h880"/><path d="M40 360h880"/>
+    <path d="M40 408h880"/><path d="M40 448h880"/><path d="M40 484h880"/><path d="M40 516h880"/>
+    <path d="M40 546h880"/><path d="M40 574h880"/>
+  </g>
+
+  <!-- 令牌名 -->
+  <g font-size="13" font-weight="700" fill="#191919" font-family="'Space Grotesk','JetBrains Mono',Consolas,monospace">
+    <text x="40" y="104">6xl</text>
+    <text x="40" y="200">5xl</text>
+    <text x="40" y="276">4xl</text>
+    <text x="40" y="338">3xl</text>
+    <text x="40" y="390">2xl</text>
+    <text x="40" y="433">xl</text>
+    <text x="40" y="471">lg</text>
+    <text x="40" y="505">base</text>
+    <text x="40" y="536">sm</text>
+    <text x="40" y="565">xs</text>
+    <text x="40" y="593">micro</text>
+  </g>
+  <g font-size="12" fill="#626262" font-family="'Space Grotesk','JetBrains Mono',Consolas,monospace">
+    <text x="110" y="104">96</text><text x="160" y="104">6.0</text>
+    <text x="110" y="200">72</text><text x="160" y="200">4.5</text>
+    <text x="110" y="276">52</text><text x="160" y="276">3.25</text>
+    <text x="110" y="338">40</text><text x="160" y="338">2.5</text>
+    <text x="110" y="390">32</text><text x="160" y="390">2.0</text>
+    <text x="110" y="433">24</text><text x="160" y="433">1.5</text>
+    <text x="110" y="471">20</text><text x="160" y="471">1.25</text>
+    <text x="110" y="505">16</text><text x="160" y="505">1.0</text>
+    <text x="110" y="536">14</text><text x="160" y="536">0.875</text>
+    <text x="110" y="565">12</text><text x="160" y="565">0.75</text>
+    <text x="110" y="593">10</text><text x="160" y="593">0.625</text>
+  </g>
+  <g font-size="12" fill="#191919">
+    <text x="210" y="104">主视觉大字</text>
+    <text x="210" y="200">代号</text>
+    <text x="210" y="276">页面标题、名称</text>
+    <text x="210" y="338">色带标题</text>
+    <text x="210" y="390">中文分节标题</text>
+    <text x="210" y="433">英文分节标题</text>
+    <text x="210" y="471">按钮、页签</text>
+    <text x="210" y="505">正文</text>
+    <text x="210" y="536">标签、导航</text>
+    <text x="210" y="565">英文小标、页码</text>
+    <text x="210" y="593">技术微标签</text>
+  </g>
+
+  <!-- 示例 -->
+  <text x="330" y="132" font-size="96" font-weight="800" fill="#191919" font-family="'Archivo','Arial Black','Segoe UI',Arial,sans-serif" textLength="560" lengthAdjust="spacingAndGlyphs">DISPLAY</text>
+  <text x="330" y="222" font-size="72" font-weight="300" fill="#191919" font-family="'Outfit','Century Gothic','Segoe UI',Arial,sans-serif">CODENAME</text>
+  <text x="330" y="290" font-size="52" font-weight="700" fill="#191919">页面标题</text>
+  <text x="330" y="348" font-size="40" font-weight="500" fill="#191919" font-family="'Outfit','Century Gothic','Segoe UI',Arial,sans-serif">SECTION</text>
+  <text x="330" y="396" font-size="32" font-weight="700" fill="#191919">分节标题</text>
+  <text x="330" y="438" font-size="24" font-weight="500" fill="#191919" font-family="'Outfit','Century Gothic','Segoe UI',Arial,sans-serif">SECTION LABEL</text>
+  <text x="330" y="474" font-size="20" font-weight="500" fill="#191919">按钮文字</text>
+  <text x="330" y="507" font-size="16" fill="#191919">正文用常规字重，行高 1.6，保证长段落可读。</text>
+  <text x="330" y="537" font-size="14" font-weight="500" fill="#191919">标签 · 导航 · 辅助说明</text>
+  <text x="330" y="565" font-size="12" fill="#191919" font-family="'Space Grotesk','JetBrains Mono',Consolas,monospace">NOTICE · 01 / 04 · 2026.10.08</text>
+  <text x="330" y="592" font-size="10" fill="#626262" letter-spacing="0.5" font-family="'Space Grotesk','JetBrains Mono',Consolas,monospace">// SECTION LABEL · MICRO TEXT</text>
+
+  <text x="40" y="622" font-size="11" fill="#8a8a8a">比例取自官网各角色字号与正文字号之比；像素值是把正文定为 16px 后的换算。另有 text-ghost：clamp(80px, 10.4vw, 200px)，见"镂空字"。</text>
+</svg>

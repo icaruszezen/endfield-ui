@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 430" width="960" height="430" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">时长令牌与按钮悬停分镜</title>
+  <desc id="d">上半部分是五档时长的比例条，标注官网样式表中各时长出现的次数。下半部分是按钮悬停的三帧分镜：黄色竖条变成三角箭头并向右移动，底色变亮。</desc>
+  <rect width="960" height="430" fill="#fafafa"/>
+
+  <text x="40" y="34" font-size="13" font-weight="700" fill="#191919">时长</text>
+  <text x="76" y="34" font-size="12" fill="#626262">条长与毫秒数成正比；右侧是官网样式表中该时长的规则数</text>
+
+  <g font-size="12" font-weight="700" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">
+    <text x="40" y="68">duration-instant</text>
+    <text x="40" y="100">duration-fast</text>
+    <text x="40" y="132">duration-base</text>
+    <text x="40" y="164">duration-slow</text>
+    <text x="40" y="196">duration-slower</text>
+  </g>
+  <g>
+    <rect x="200" y="56" width="50" height="16" fill="#b3b3b3"/>
+    <rect x="200" y="88" width="200" height="16" fill="#191919"/>
+    <rect x="200" y="120" width="300" height="16" fill="#fffa00" stroke="#191919"/>
+    <rect x="200" y="152" width="400" height="16" fill="#8a8a8a"/>
+    <rect x="200" y="184" width="600" height="16" fill="#b3b3b3"/>
+  </g>
+  <g font-size="12" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">
+    <text x="260" y="69">50ms</text>
+    <text x="410" y="101">200ms</text>
+    <text x="510" y="133">300ms</text>
+    <text x="610" y="165">400ms</text>
+    <text x="810" y="197">600ms</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="306" y="69">按下的即时反馈　×1</text>
+    <text x="462" y="101">颜色、透明度　×63</text>
+    <text x="562" y="133">位移、展开——默认档　×119</text>
+    <text x="662" y="165">较大面积的移动　×8</text>
+    <text x="862" y="197">入场　×6</text>
+  </g>
+
+  <path d="M40 226h880" stroke="#d9d9d9"/>
+  <text x="40" y="256" font-size="13" font-weight="700" fill="#191919">按钮悬停</text>
+  <text x="104" y="256" font-size="12" fill="#626262">竖条变箭头并右移，底色提亮一档；不上浮、不放大、不加阴影</text>
+
+  <!-- 帧 1 -->
+  <rect x="40" y="280" width="220" height="52" fill="#383838"/>
+  <rect x="56" y="294" width="3" height="24" fill="#fffa00"/>
+  <text x="150" y="312" font-size="16" font-weight="500" fill="#eeeeee" text-anchor="middle">更多情报</text>
+  <!-- 帧 2 -->
+  <rect x="370" y="280" width="220" height="52" fill="#404040"/>
+  <polygon points="390,295 396,306 390,317" fill="#fffa00"/>
+  <text x="480" y="312" font-size="16" font-weight="500" fill="#f6f6f6" text-anchor="middle">更多情报</text>
+  <!-- 帧 3 -->
+  <rect x="700" y="280" width="220" height="52" fill="#484848"/>
+  <polygon points="726,296 738,306 726,316" fill="#fffa00"/>
+  <text x="810" y="312" font-size="16" font-weight="500" fill="#ffffff" text-anchor="middle">更多情报</text>
+
+  <g stroke="#191919" stroke-width="1.5" fill="none">
+    <path d="M276 306h72"/><path d="M606 306h72"/>
+  </g>
+  <g fill="#191919"><polygon points="348,301 358,306 348,311"/><polygon points="678,301 688,306 678,311"/></g>
+
+  <g font-size="12" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">
+    <text x="40" y="356">0ms</text>
+    <text x="370" y="356">150ms</text>
+    <text x="700" y="356">300ms</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="40" y="376">底 control，竖条 3px</text>
+    <text x="370" y="376">clip-path 在两个多边形之间插值</text>
+    <text x="700" y="376">底 control-hover，箭头右移约 10px</text>
+  </g>
+  <text x="40" y="410" font-size="11" fill="#8a8a8a">竖条与箭头是同一个伪元素：用 clip-path 的 polygon 从"左侧四分之一的矩形"过渡到"三角形"，再叠加 translateX。</text>
+</svg>

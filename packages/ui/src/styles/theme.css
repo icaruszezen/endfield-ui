@@ -1,0 +1,389 @@
+/*
+ * endfield-ui 设计令牌（草案）
+ *
+ * 用法：
+ *   @import "tailwindcss";
+ *   @import "./theme.css";
+ *
+ * 结构：
+ *   1. 语义变量      随主题变化；亮色在 :root，暗色在 [data-theme="dark"]
+ *   2. @theme        不随主题变化的原始令牌
+ *   3. @theme inline 把语义变量映射成 Tailwind 颜色工具类
+ *
+ * 每个值的依据与来源等级（实测 / 观察 / 社区 / 推断）写在
+ * docs/design/foundations/ 下的对应文档里；改值时两边一起改。
+ */
+
+/* ------------------------------------------------------------------ */
+/* 1. 语义变量                                                         */
+/* ------------------------------------------------------------------ */
+
+:root {
+  color-scheme: light;
+
+  /* 表面 */
+  --ef-surface: #ffffff;
+  --ef-surface-raised: #fafafa;
+  --ef-surface-sunken: #f2f2f2;
+  --ef-surface-muted: #e6e6e6;
+  --ef-surface-inverse: #191919;
+
+  /* 文字 */
+  --ef-ink: #191919;
+  --ef-ink-secondary: #626262;
+  --ef-ink-tertiary: #8a8a8a;
+  --ef-ink-disabled: #b3b3b3;
+  --ef-ink-inverse: #ffffff;
+
+  /* 线 */
+  --ef-line: #d9d9d9;
+  --ef-line-strong: #b3b3b3;
+
+  /* 行动与选中 */
+  --ef-action: #fffa00;
+  --ef-action-pressed: #eeea00;
+  --ef-on-action: #191919;
+  --ef-accent-ink: #6b5d00;
+
+  /* 中性控件 */
+  --ef-control: #383838;
+  --ef-control-hover: #484848;
+  --ef-control-pressed: #282828;
+  --ef-on-control: #eeeeee;
+
+  /* 焦点与遮罩 */
+  --ef-focus: #191919;
+  --ef-scrim: rgb(0 0 0 / 0.5);
+
+  /* 状态（文字级，在亮色表面上 ≥ 4.5:1） */
+  --ef-danger: #de0909;
+  --ef-success: #007f43;
+  --ef-warning: #b74e00;
+  --ef-info: #25759f;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --ef-surface: #141414;
+  --ef-surface-raised: #1f1f1f;
+  --ef-surface-sunken: #000000;
+  --ef-surface-muted: #282828;
+  --ef-surface-inverse: #fafafa;
+
+  --ef-ink: #fafafa;
+  --ef-ink-secondary: #b3b3b3;
+  --ef-ink-tertiary: #8a8a8a;
+  --ef-ink-disabled: #626262;
+  --ef-ink-inverse: #191919;
+
+  --ef-line: #383838;
+  --ef-line-strong: #626262;
+
+  --ef-action: #fffa00;
+  --ef-action-pressed: #eeea00;
+  --ef-on-action: #191919;
+  --ef-accent-ink: #fffa00;
+
+  --ef-control: #383838;
+  --ef-control-hover: #484848;
+  --ef-control-pressed: #282828;
+  --ef-on-control: #eeeeee;
+
+  --ef-focus: #fffa00;
+  --ef-scrim: rgb(0 0 0 / 0.7);
+
+  /* 状态（文字级，在暗色表面上 ≥ 4.5:1） */
+  --ef-danger: #f74040;
+  --ef-success: #00d872;
+  --ef-warning: #fc6c00;
+  --ef-info: #2d8fc2;
+}
+
+/* ------------------------------------------------------------------ */
+/* 2. 原始令牌                                                         */
+/* ------------------------------------------------------------------ */
+
+@theme {
+  /* —— 颜色：清掉 Tailwind 默认色板，只保留本系统的颜色 —— */
+  --color-*: initial;
+
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* 中性阶：全部来自官网实测 */
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f2f2f2;
+  --color-neutral-200: #e6e6e6;
+  --color-neutral-300: #d9d9d9;
+  --color-neutral-400: #b3b3b3;
+  --color-neutral-500: #8a8a8a;
+  --color-neutral-600: #626262;
+  --color-neutral-700: #484848;
+  --color-neutral-800: #383838;
+  --color-neutral-850: #282828;
+  --color-neutral-900: #191919;
+  --color-neutral-950: #141414;
+
+  /* 信号黄：官网实测；signal-ink 是亮底上的文字用深档（社区） */
+  --color-signal: #fffa00;
+  --color-signal-pressed: #eeea00;
+  --color-signal-deep: #e6de01;
+  --color-signal-ink: #6b5d00;
+
+  /* 角色色：游戏界面取色（社区），用作填充而非文字 */
+  --color-notice: #fc6c00; /* 橙：通知、倒计时、数量 */
+  --color-gain: #bce41d; /* 荧光黄绿：增益 */
+  --color-data: #2a84b4; /* 蓝：量值图表 */
+  --color-region: #06a2a2; /* 青：地区主题 */
+  --color-alert: #f62a2a; /* 红：危险 */
+  --color-confirm: #00d872; /* 绿：确认 */
+  --color-special: #904ef0; /* 紫：特殊 */
+
+  /* 稀有度色阶：由低到高（社区） */
+  --color-rarity-1: #24bafc;
+  --color-rarity-2: #904ef6;
+  --color-rarity-3: #fcba00;
+  --color-rarity-4: #fc6c00;
+
+  /* 注册色条：印刷三原色的屏幕近似值（推断） */
+  --color-reg-magenta: #ec008c;
+  --color-reg-cyan: #00aeef;
+  --color-reg-yellow: #fff200;
+
+  /* —— 字体：只列可自由使用的字体，官网的商业字体不在其中 —— */
+  --font-*: initial;
+
+  --font-sans:
+    "HarmonyOS Sans SC", "Noto Sans SC", "Source Han Sans SC", "PingFang SC",
+    "Microsoft YaHei", system-ui, sans-serif;
+  --font-display: "Archivo", "Montserrat", "HarmonyOS Sans SC", sans-serif;
+  --font-display--font-variation-settings: "wdth" 125;
+  --font-latin: "Outfit", "Urbanist", "HarmonyOS Sans SC", sans-serif;
+  --font-tech: "Space Grotesk", "HarmonyOS Sans SC", sans-serif;
+  --font-tech--font-feature-settings: "tnum" 1;
+  --font-mono:
+    "JetBrains Mono", "Cascadia Code", ui-monospace, "SF Mono", Consolas,
+    monospace;
+
+  /* —— 字阶：比例取自官网（正文 = 1），落到 16px 基准 —— */
+  --text-*: initial;
+
+  --text-micro: 0.625rem; /* 10px 技术微标签 */
+  --text-micro--line-height: 1;
+  --text-xs: 0.75rem; /* 12px 英文小标、页码 */
+  --text-xs--line-height: 1.25;
+  --text-sm: 0.875rem; /* 14px 标签、导航 */
+  --text-sm--line-height: 1.4;
+  --text-base: 1rem; /* 16px 正文 */
+  --text-base--line-height: 1.6;
+  --text-lg: 1.25rem; /* 20px 按钮、页签 */
+  --text-lg--line-height: 1.2;
+  --text-xl: 1.5rem; /* 24px 英文分节标题 */
+  --text-xl--line-height: 1.1;
+  --text-2xl: 2rem; /* 32px 中文分节标题 */
+  --text-2xl--line-height: 1.1;
+  --text-3xl: 2.5rem; /* 40px 色带标题 */
+  --text-3xl--line-height: 1;
+  --text-4xl: 3.25rem; /* 52px 页面标题、名称 */
+  --text-4xl--line-height: 1;
+  --text-5xl: 4.5rem; /* 72px 代号 */
+  --text-5xl--line-height: 1;
+  --text-6xl: 6rem; /* 96px 主视觉大字 */
+  --text-6xl--line-height: 1;
+  --text-ghost: clamp(5rem, 10.4vw, 12.5rem); /* 镂空巨字 */
+  --text-ghost--line-height: 1;
+  --text-ghost--letter-spacing: -0.04em;
+
+  --tracking-ghost: -0.04em;
+  --tracking-label: 0.05em;
+
+  /* —— 圆角：默认直角，另有两档微圆角；胶囊与圆用 rounded-full —— */
+  --radius-*: initial;
+
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+
+  /* —— 阴影：零偏移的环境阴影 —— */
+  --shadow-*: initial;
+
+  --shadow-xs: 0 0 4px rgb(0 0 0 / 0.25);
+  --shadow-sm: 0 0 8px rgb(0 0 0 / 0.25);
+  --shadow-md: 0 0 12px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 0 24px rgb(0 0 0 / 0.3);
+  --shadow-rail: 0 0 12px rgb(0 0 0 / 0.1);
+
+  /* —— 缓动与时长 —— */
+  --ease-standard: ease;
+  --ease-emphasis: ease-in-out;
+  --ease-exit: ease-out;
+
+  --duration-instant: 50ms;
+  --duration-fast: 200ms;
+  --duration-base: 300ms;
+  --duration-slow: 400ms;
+  --duration-slower: 600ms;
+
+  /* —— 母题尺寸 —— */
+  --cut-sm: 6px;
+  --cut-md: 10px;
+  --cut-lg: 16px;
+  --hatch-size: 6px;
+
+  /* —— 动画 —— */
+  --animate-*: initial;
+
+  --animate-flicker: ef-flicker 600ms linear both;
+  --animate-fill: ef-fill 600ms ease-out both;
+  --animate-scroll-hint: ef-scroll-hint 1.4s ease-in-out infinite;
+  --animate-breathe: ef-breathe 2s ease-in-out infinite;
+  --animate-marquee: ef-marquee 20s linear infinite;
+  --animate-spin: ef-spin 1s linear infinite;
+  --animate-blink: ef-blink 1s step-end infinite;
+
+  /* 三次短促闪烁后点亮（官网实测的关键帧节奏） */
+  @keyframes ef-flicker {
+    0% {
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.5;
+    }
+    11% {
+      opacity: 0;
+    }
+    20% {
+      opacity: 0.5;
+    }
+    21% {
+      opacity: 0;
+    }
+    40% {
+      opacity: 0.5;
+    }
+    41% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* 进度条、色块从左侧充填 */
+  @keyframes ef-fill {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  /* 滚动提示：下坠并淡出 */
+  @keyframes ef-scroll-hint {
+    0% {
+      transform: translateY(0);
+      opacity: 0;
+    }
+    60% {
+      opacity: 1;
+    }
+    80% {
+      transform: translateY(1.5rem);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 0;
+    }
+  }
+
+  @keyframes ef-breathe {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+  }
+
+  /* 跑马灯：内容需要重复一遍，走完一半后停顿 */
+  @keyframes ef-marquee {
+    0% {
+      transform: translateX(0);
+    }
+    80%,
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes ef-spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  @keyframes ef-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* 3. 语义颜色 → Tailwind 工具类                                       */
+/* ------------------------------------------------------------------ */
+
+@theme inline {
+  --color-surface: var(--ef-surface);
+  --color-surface-raised: var(--ef-surface-raised);
+  --color-surface-sunken: var(--ef-surface-sunken);
+  --color-surface-muted: var(--ef-surface-muted);
+  --color-surface-inverse: var(--ef-surface-inverse);
+
+  --color-ink: var(--ef-ink);
+  --color-ink-secondary: var(--ef-ink-secondary);
+  --color-ink-tertiary: var(--ef-ink-tertiary);
+  --color-ink-disabled: var(--ef-ink-disabled);
+  --color-ink-inverse: var(--ef-ink-inverse);
+
+  --color-line: var(--ef-line);
+  --color-line-strong: var(--ef-line-strong);
+
+  --color-action: var(--ef-action);
+  --color-action-pressed: var(--ef-action-pressed);
+  --color-on-action: var(--ef-on-action);
+  --color-accent-ink: var(--ef-accent-ink);
+
+  --color-control: var(--ef-control);
+  --color-control-hover: var(--ef-control-hover);
+  --color-control-pressed: var(--ef-control-pressed);
+  --color-on-control: var(--ef-on-control);
+
+  --color-focus: var(--ef-focus);
+  --color-scrim: var(--ef-scrim);
+
+  --color-danger: var(--ef-danger);
+  --color-success: var(--ef-success);
+  --color-warning: var(--ef-warning);
+  --color-info: var(--ef-info);
+}
+
+/* ------------------------------------------------------------------ */
+/* 减少动态效果                                                         */
+/* ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

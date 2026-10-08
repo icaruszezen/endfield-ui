@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="960" height="420" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">四种图像处理方式</title>
+  <desc id="d">人物图：人物偏心并越过边界，背后有黄色旗形和镂空巨字。等距线稿：黑线白面的工业物件压在黄色带上。点云与圆环：深色底上由点组成的模型外套刻度圆环。主视觉接管：整幅画面占满首屏，界面外壳保持中性。</desc>
+  <defs>
+    <pattern id="ih" width="6" height="6" patternUnits="userSpaceOnUse">
+      <path d="M-1 1L1 -1M0 6L6 0M5 7L7 5" stroke="#000000" stroke-width="0.9"/>
+    </pattern>
+    <clipPath id="i1"><rect x="40" y="48" width="205" height="220"/></clipPath>
+    <clipPath id="i4"><rect x="715" y="48" width="205" height="220"/></clipPath>
+  </defs>
+  <rect width="960" height="420" fill="#fafafa"/>
+
+  <!-- 1 人物 -->
+  <rect x="40" y="48" width="205" height="220" fill="#ffffff" stroke="#d9d9d9"/>
+  <g clip-path="url(#i1)">
+    <text x="44" y="160" font-size="110" font-weight="800" fill="url(#ih)" opacity="0.5" letter-spacing="-6" font-family="'Archivo','Arial Black',Arial,sans-serif">NAME</text>
+    <polygon points="120,48 210,48 180,268 90,268" fill="#fffa00"/>
+    <polygon points="118,300 140,130 168,96 204,130 232,300" fill="#b3b3b3"/>
+    <circle cx="170" cy="118" r="34" fill="#8a8a8a"/>
+    <path d="M150 96l-34-40M196 100l40-30" stroke="#8a8a8a" stroke-width="8"/>
+  </g>
+  <rect x="52" y="214" width="14" height="6" fill="#191919"/>
+  <text x="52" y="248" font-size="22" font-weight="700" fill="#191919"><tspan fill="#8a8a8a" font-weight="500">[ </tspan>名<tspan fill="#8a8a8a" font-weight="500"> ]</tspan></text>
+
+  <!-- 2 等距线稿 -->
+  <rect x="265" y="48" width="205" height="220" fill="#ffffff" stroke="#d9d9d9"/>
+  <rect x="265" y="170" width="205" height="60" fill="#fffa00"/>
+  <g fill="#ffffff" stroke="#191919" stroke-width="1.5" stroke-linejoin="round">
+    <polygon points="340,96 392,122 340,148 288,122"/>
+    <polygon points="288,122 340,148 340,200 288,174"/>
+    <polygon points="392,122 340,148 340,200 392,174"/>
+    <polygon points="414,136 446,152 414,168 382,152"/>
+    <polygon points="382,152 414,168 414,204 382,188"/>
+    <polygon points="446,152 414,168 414,204 446,188"/>
+    <ellipse cx="340" cy="112" rx="16" ry="8"/>
+    <path d="M324 112v-18a16 8 0 0 1 32 0v18" />
+    <ellipse cx="340" cy="94" rx="16" ry="8"/>
+  </g>
+  <path d="M276 190l40 20M430 214l30 15" stroke="#191919" stroke-width="1.5"/>
+
+  <!-- 3 点云与圆环 -->
+  <rect x="490" y="48" width="205" height="220" fill="#000000"/>
+  <g fill="none" stroke="#fafafa">
+    <circle cx="592" cy="158" r="62" stroke-opacity="0.35"/>
+    <circle cx="592" cy="158" r="80" stroke-opacity="0.5" stroke-width="7" pathLength="300" stroke-dasharray="1.5 8.5"/>
+    <path d="M592 78A80 80 0 0 1 661 118" stroke-opacity="0.55" stroke-width="5"/>
+  </g>
+  <g fill="#fafafa" fill-opacity="0.75">
+    <circle cx="556" cy="176" r="1.3"/><circle cx="566" cy="170" r="1.3"/><circle cx="576" cy="164" r="1.3"/><circle cx="586" cy="158" r="1.3"/>
+    <circle cx="596" cy="152" r="1.3"/><circle cx="606" cy="148" r="1.3"/><circle cx="616" cy="146" r="1.3"/><circle cx="626" cy="148" r="1.3"/>
+    <circle cx="562" cy="180" r="1.3"/><circle cx="574" cy="174" r="1.3"/><circle cx="586" cy="168" r="1.3"/><circle cx="598" cy="162" r="1.3"/>
+    <circle cx="610" cy="158" r="1.3"/><circle cx="622" cy="156" r="1.3"/><circle cx="570" cy="184" r="1.3"/><circle cx="584" cy="178" r="1.3"/>
+    <circle cx="598" cy="172" r="1.3"/><circle cx="612" cy="168" r="1.3"/><circle cx="548" cy="182" r="1.3"/><circle cx="632" cy="152" r="1.3"/>
+    <circle cx="590" cy="146" r="1.3"/><circle cx="602" cy="140" r="1.3"/><circle cx="578" cy="154" r="1.3"/><circle cx="614" cy="138" r="1.3"/>
+  </g>
+  <rect x="504" y="62" width="40" height="6" fill="#fafafa"/>
+  <rect x="504" y="74" width="24" height="4" fill="#8a8a8a"/>
+
+  <!-- 4 主视觉接管 -->
+  <rect x="715" y="48" width="205" height="220" fill="#c9d3e6"/>
+  <g clip-path="url(#i4)">
+    <polygon points="715,268 760,150 800,190 850,110 920,200 920,268" fill="#9eacc8"/>
+    <polygon points="715,268 790,210 840,236 920,180 920,268" fill="#7f8fb0"/>
+    <circle cx="812" cy="150" r="30" fill="#e8ecf5"/>
+    <polygon points="786,268 800,170 812,150 826,170 840,268" fill="#5c6b8d"/>
+  </g>
+  <rect x="715" y="48" width="14" height="220" fill="#ffffff"/>
+  <rect x="719" y="54" width="6" height="6" fill="#191919"/>
+  <g fill="#d9d9d9"><rect x="719" y="70" width="6" height="6"/><rect x="719" y="82" width="6" height="6"/><rect x="719" y="94" width="6" height="6"/></g>
+  <rect x="800" y="244" width="112" height="18" fill="#191919"/>
+
+  <g font-size="14" font-weight="700" fill="#191919">
+    <text x="40" y="296">人物图</text>
+    <text x="265" y="296">等距线稿</text>
+    <text x="490" y="296">点云与圆环</text>
+    <text x="715" y="296">主视觉接管</text>
+  </g>
+  <g font-size="12" fill="#191919">
+    <text x="40" y="318">人物偏心、越界；背后垫</text>
+    <text x="40" y="336">色块与镂空巨字</text>
+    <text x="265" y="318">黑线白面的工业物件，</text>
+    <text x="265" y="336">压在色带上并越过上沿</text>
+    <text x="490" y="318">深色底上的点阵模型，</text>
+    <text x="490" y="336">外套刻度圆环</text>
+    <text x="715" y="318">整幅画面占满首屏，带来</text>
+    <text x="715" y="336">自己的主题色</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="40" y="358">色块是倾斜的四边形</text>
+    <text x="265" y="358">线宽均匀，无阴影无渐变</text>
+    <text x="490" y="358">只有白与灰，没有彩色</text>
+    <text x="715" y="358">界面外壳保持中性色</text>
+  </g>
+  <text x="40" y="394" font-size="11" fill="#8a8a8a">全部是原创的示意图形，用来说明处理方式，不代表任何官方画面。</text>
+</svg>

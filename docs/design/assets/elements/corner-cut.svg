@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" width="960" height="460" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">切角与斜楔的画法</title>
+  <desc id="d">切角的解剖图：沿四十五度切掉一个角，切口大小由变量控制。三档尺寸分别用于标签、按钮和面板。切角位置的四种变体，以及斜楔标签和焦点环的处理方式。</desc>
+  <rect width="960" height="460" fill="#fafafa"/>
+
+  <!-- 解剖 -->
+  <text x="40" y="34" font-size="13" font-weight="700" fill="#191919">解剖</text>
+  <polygon points="60,64 320,64 360,104 360,184 60,184" fill="#fffa00"/>
+  <path d="M320 64h40v40" fill="none" stroke="#191919" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <text x="200" y="132" font-size="20" font-weight="700" fill="#191919" text-anchor="middle">主要行动</text>
+  <!-- 尺寸线 -->
+  <g stroke="#191919" stroke-width="1.5" fill="none">
+    <path d="M320 52h40M320 48v8M360 48v8"/>
+    <path d="M372 64v40M368 64h8M368 104h8"/>
+  </g>
+  <g font-size="12" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">
+    <text x="340" y="42" text-anchor="middle">--cut</text>
+    <text x="382" y="88">--cut</text>
+  </g>
+  <path d="M332 76a18 18 0 0 0 4 14" fill="none" stroke="#191919" stroke-width="1.2"/>
+  <text x="306" y="94" font-size="11" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">45°</text>
+  <text x="60" y="208" font-size="12" fill="#626262">两条直角边各退回一个 --cut，连成 45° 斜边。</text>
+
+  <!-- 三档 -->
+  <text x="480" y="34" font-size="13" font-weight="700" fill="#191919">三档尺寸</text>
+  <text x="548" y="34" font-size="12" fill="#626262">约为元素高度的四分之一</text>
+  <polygon points="480,64 554,64 560,70 560,88 480,88" fill="#191919"/>
+  <text x="520" y="81" font-size="12" fill="#ffffff" text-anchor="middle">标签</text>
+  <polygon points="600,64 730,64 740,74 740,108 600,108" fill="#383838"/>
+  <text x="670" y="91" font-size="14" font-weight="500" fill="#eeeeee" text-anchor="middle">按钮</text>
+  <polygon points="780,64 904,64 920,80 920,144 780,144" fill="#ffffff" stroke="#b3b3b3"/>
+  <text x="850" y="110" font-size="14" fill="#191919" text-anchor="middle">面板</text>
+  <g font-size="12" font-weight="700" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">
+    <text x="480" y="168">--cut-sm 6px</text>
+    <text x="600" y="168">--cut-md 10px</text>
+    <text x="780" y="168">--cut-lg 16px</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="480" y="186">高 ≤ 28px</text>
+    <text x="600" y="186">高 32 – 48px</text>
+    <text x="780" y="186">高 ≥ 56px</text>
+  </g>
+
+  <path d="M40 228h880" stroke="#d9d9d9"/>
+
+  <!-- 位置变体 -->
+  <text x="40" y="258" font-size="13" font-weight="700" fill="#191919">切哪个角</text>
+  <polygon points="40,280 130,280 144,294 144,336 40,336" fill="#383838"/>
+  <polygon points="170,280 274,280 274,322 260,336 170,336" fill="#383838"/>
+  <polygon points="314,280 404,280 404,322 390,336 300,336 300,294" fill="#383838"/>
+  <polygon points="444,280 520,280 534,294 534,322 520,336 444,336 430,322 430,294" fill="#b3b3b3"/>
+  <path d="M440 286l84 44M524 286l-84 44" stroke="#de0909" stroke-width="2"/>
+  <g font-size="12" fill="#191919">
+    <text x="40" y="358">右上 · 默认</text>
+    <text x="170" y="358">右下 · 默认</text>
+    <text x="300" y="358">对角 · 强调机械感</text>
+    <text x="430" y="358">四角全切 · 不用</text>
+  </g>
+
+  <!-- 斜楔 -->
+  <text x="590" y="258" font-size="13" font-weight="700" fill="#191919">斜楔</text>
+  <text x="626" y="258" font-size="12" fill="#626262">底板倾斜，文字正立</text>
+  <polygon points="606,280 740,280 724,318 590,318" fill="#191919"/>
+  <text x="665" y="305" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle">LV.20</text>
+  <polygon points="770,280 920,280 920,318 754,318" fill="#fffa00"/>
+  <text x="840" y="305" font-size="15" font-weight="700" fill="#191919" text-anchor="middle">当前页签</text>
+  <text x="590" y="340" font-size="12" fill="#626262">用伪元素 skewX 画底板，</text>
+  <text x="590" y="358" font-size="12" fill="#626262">或只斜切一侧。</text>
+
+  <!-- 焦点环 -->
+  <text x="40" y="402" font-size="13" font-weight="700" fill="#191919">焦点环</text>
+  <text x="90" y="402" font-size="12" fill="#626262">clip-path 会把 outline 一起裁掉：把切角画在内层，焦点环画在不裁切的外层</text>
+  <rect x="40" y="416" width="124" height="32" fill="none" stroke="#191919" stroke-width="2"/>
+  <polygon points="44,420 150,420 160,430 160,444 44,444" fill="#383838"/>
+  <text x="102" y="437" font-size="12" fill="#eeeeee" text-anchor="middle">聚焦中</text>
+  <text x="180" y="437" font-size="12" fill="#626262">外层：2px focus 色、2px 间距、不裁切　　内层：clip-path 切角</text>
+</svg>

@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="960" height="400" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">图标网格与示例</title>
+  <desc id="d">二十四单位的图标网格，四周留两单位安全边距，线宽两单位，直角端点。右侧是八个原创示例图标：关闭、折线箭头、斜箭头、加号、菱形、三角、菜单、搜索。</desc>
+  <rect width="960" height="400" fill="#fafafa"/>
+
+  <!-- 网格：10 倍放大 -->
+  <text x="40" y="34" font-size="13" font-weight="700" fill="#191919">24 网格</text>
+  <text x="96" y="34" font-size="12" fill="#626262">放大 10 倍</text>
+  <rect x="40" y="56" width="240" height="240" fill="#ffffff" stroke="#b3b3b3"/>
+  <g stroke="#e6e6e6">
+    <path d="M60 56v240M80 56v240M100 56v240M120 56v240M140 56v240M160 56v240M180 56v240M200 56v240M220 56v240M240 56v240M260 56v240"/>
+    <path d="M40 76h240M40 96h240M40 116h240M40 136h240M40 156h240M40 176h240M40 196h240M40 216h240M40 236h240M40 256h240M40 276h240"/>
+  </g>
+  <rect x="60" y="76" width="200" height="200" fill="none" stroke="#00aeef" stroke-dasharray="4 4"/>
+  <circle cx="160" cy="176" r="100" fill="none" stroke="#ec008c" stroke-opacity="0.5" stroke-dasharray="4 4"/>
+  <!-- 示例：斜箭头 -->
+  <path d="M90 106L230 246M230 126v120h-120" fill="none" stroke="#191919" stroke-width="20" stroke-linejoin="miter" stroke-linecap="butt"/>
+  <g font-size="11" fill="#626262">
+    <text x="40" y="316">蓝虚线：20 × 20 的绘制区（四周各留 2）</text>
+    <text x="40" y="334">红虚线：圆形图标的外接圆</text>
+    <text x="40" y="352">线宽 2，端点平头，拐角尖角</text>
+  </g>
+
+  <!-- 示例图标 -->
+  <text x="340" y="34" font-size="13" font-weight="700" fill="#191919">示例</text>
+  <text x="376" y="34" font-size="12" fill="#626262">本仓库原创，48px 显示</text>
+  <g fill="none" stroke="#191919" stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter">
+    <!-- 关闭 -->
+    <path d="M352 68l32 32M384 68l-32 32"/>
+    <!-- 折线箭头 -->
+    <path d="M440 68l18 16-18 16"/>
+    <!-- 斜箭头 -->
+    <path d="M500 68l32 32M532 72v28h-28"/>
+    <!-- 加号 -->
+    <path d="M580 84h36M598 66v36"/>
+    <!-- 菜单 -->
+    <path d="M744 72h36M744 84h36M744 96h36"/>
+    <!-- 搜索 -->
+    <circle cx="838" cy="80" r="12"/><path d="M847 89l13 13"/>
+  </g>
+  <!-- 菱形 / 三角：实心 -->
+  <polygon points="680,66 698,84 680,102 662,84" fill="#191919"/>
+  <polygon points="900,68 924,84 900,100" fill="#191919"/>
+  <g font-size="12" fill="#191919" text-anchor="middle">
+    <text x="368" y="128">关闭</text>
+    <text x="449" y="128">前进</text>
+    <text x="516" y="128">斜箭头</text>
+    <text x="598" y="128">添加</text>
+    <text x="680" y="128">菱形</text>
+    <text x="762" y="128">菜单</text>
+    <text x="846" y="128">搜索</text>
+    <text x="910" y="128">前往</text>
+  </g>
+
+  <path d="M340 152h580" stroke="#d9d9d9"/>
+
+  <!-- 状态 -->
+  <text x="340" y="182" font-size="13" font-weight="700" fill="#191919">颜色与状态</text>
+  <g>
+    <rect x="340" y="198" width="56" height="56" fill="#ffffff" stroke="#d9d9d9"/>
+    <rect x="412" y="198" width="56" height="56" fill="#ffffff" stroke="#d9d9d9"/>
+    <rect x="484" y="198" width="56" height="56" fill="#ffffff" stroke="#d9d9d9"/>
+    <rect x="484" y="198" width="4" height="56" fill="#191919"/>
+    <rect x="556" y="198" width="56" height="56" fill="#191919"/>
+    <rect x="628" y="198" width="56" height="56" fill="#fffa00"/>
+  </g>
+  <g fill="none" stroke-width="3">
+    <path d="M356 214l24 24M380 218v20h-20" stroke="#d9d9d9"/>
+    <path d="M428 214l24 24M452 218v20h-20" stroke="#8a8a8a"/>
+    <path d="M500 214l24 24M524 218v20h-20" stroke="#191919"/>
+    <path d="M572 214l24 24M596 218v20h-20" stroke="#fffa00"/>
+    <path d="M644 214l24 24M668 218v20h-20" stroke="#191919"/>
+  </g>
+  <g font-size="12" fill="#191919" text-anchor="middle">
+    <text x="368" y="274">未激活</text>
+    <text x="440" y="274">悬停</text>
+    <text x="512" y="274">当前</text>
+    <text x="584" y="274">反转</text>
+    <text x="656" y="274">黄底</text>
+  </g>
+  <g font-size="11" fill="#626262" text-anchor="middle" font-family="'Space Grotesk',Consolas,monospace">
+    <text x="368" y="290">#D9D9D9</text>
+    <text x="440" y="290">#8A8A8A</text>
+    <text x="512" y="290">#191919</text>
+    <text x="584" y="290">#FFFA00</text>
+    <text x="656" y="290">#191919</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="716" y="218">图标用 currentColor，</text>
+    <text x="716" y="236">靠明度变化表示状态；</text>
+    <text x="716" y="254">黄色图标只出现在</text>
+    <text x="716" y="272">深色底上。</text>
+  </g>
+
+  <g font-size="12" fill="#191919">
+    <text x="340" y="326">线性图标用于导航与操作；实心几何（菱形、三角、方块）用于标记与状态。</text>
+    <text x="340" y="346">同一组图标保持同一种画法，不要线性与填充混排。</text>
+  </g>
+  <text x="340" y="376" font-size="11" fill="#8a8a8a">状态色取自官网导航轨的实测值（悬停为 #858585，这里并入中性阶的 #8A8A8A）。</text>
+</svg>

@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 500" width="960" height="500" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">官网移动端布局线框</title>
+  <desc id="d">左图是首屏：白色顶栏、整幅主视觉、竖排下载卡与滚动提示。右图是展开的全屏菜单：导航项列表，当前项为黄底，底部是两个深色按钮，背景有镂空巨字。</desc>
+  <rect width="960" height="500" fill="#fafafa"/>
+
+  <!-- A 首屏 -->
+  <rect x="40" y="40" width="210" height="420" fill="#e6e6e6"/>
+  <polygon points="90,460 120,200 150,150 186,200 210,460" fill="#cfcfcf"/>
+  <circle cx="150" cy="196" r="34" fill="#bdbdbd"/>
+  <rect x="80" y="316" width="130" height="34" fill="#b3b3b3"/>
+  <rect x="92" y="328" width="80" height="8" fill="#fafafa"/>
+  <rect x="82" y="364" width="126" height="24" fill="#191919"/>
+  <rect x="82" y="392" width="126" height="24" fill="#191919"/>
+  <rect x="90" y="370" width="12" height="12" fill="#fffa00"/>
+  <rect x="90" y="398" width="12" height="12" fill="#ffffff"/>
+  <rect x="110" y="373" width="60" height="6" fill="#8a8a8a"/>
+  <rect x="110" y="401" width="60" height="6" fill="#8a8a8a"/>
+  <path d="M139 430l6 6 6-6" fill="none" stroke="#8a8a8a" stroke-width="2"/>
+  <text x="145" y="450" font-size="8" fill="#8a8a8a" text-anchor="middle" font-family="'Space Grotesk',Consolas,monospace">SCROLL</text>
+  <!-- 顶栏 -->
+  <rect x="40" y="40" width="210" height="30" fill="#ffffff"/>
+  <path d="M40 70h210" stroke="#d9d9d9"/>
+  <rect x="48" y="45" width="22" height="20" fill="#191919"/>
+  <rect x="138" y="47" width="16" height="16" fill="#f2f2f2"/>
+  <rect x="158" y="47" width="58" height="16" fill="#191919"/>
+  <polygon points="163,52 171,52 167,58" fill="#ffffff"/>
+  <path d="M175 50v10" stroke="#8a8a8a"/>
+  <rect x="180" y="52" width="30" height="6" fill="#ffffff"/>
+  <path d="M224 50h18M224 55h18M224 60h18" stroke="#191919" stroke-width="2"/>
+
+  <!-- B 菜单 -->
+  <rect x="290" y="40" width="210" height="420" fill="#ffffff" stroke="#d9d9d9"/>
+  <text x="296" y="452" font-size="96" font-weight="800" fill="none" stroke="#e6e6e6" stroke-width="1.5" font-family="'Archivo','Arial Black',Arial,sans-serif">END</text>
+  <rect x="298" y="45" width="22" height="20" fill="#191919"/>
+  <path d="M476 49l14 12M490 49l-14 12" stroke="#191919" stroke-width="2"/>
+  <path d="M290 70h210" stroke="#d9d9d9"/>
+  <!-- 导航项 -->
+  <rect x="302" y="84" width="186" height="26" fill="#fffa00"/>
+  <g fill="#f2f2f2">
+    <rect x="302" y="113" width="186" height="26"/>
+    <rect x="302" y="142" width="186" height="26"/>
+    <rect x="302" y="171" width="186" height="26"/>
+    <rect x="302" y="200" width="186" height="26"/>
+    <rect x="302" y="229" width="186" height="26"/>
+    <rect x="302" y="258" width="186" height="26"/>
+  </g>
+  <rect x="310" y="91" width="12" height="12" fill="#191919"/>
+  <path d="M330 88v18" stroke="#191919" stroke-width="1.5"/>
+  <rect x="338" y="94" width="50" height="6" fill="#191919"/>
+  <g fill="#b3b3b3">
+    <rect x="310" y="120" width="12" height="12"/><rect x="310" y="149" width="12" height="12"/><rect x="310" y="178" width="12" height="12"/>
+    <rect x="310" y="207" width="12" height="12"/><rect x="310" y="236" width="12" height="12"/><rect x="310" y="265" width="12" height="12"/>
+  </g>
+  <g stroke="#d9d9d9" stroke-width="1.5">
+    <path d="M330 117v18"/><path d="M330 146v18"/><path d="M330 175v18"/><path d="M330 204v18"/><path d="M330 233v18"/><path d="M330 262v18"/>
+  </g>
+  <g fill="#191919">
+    <rect x="338" y="123" width="66" height="6"/><rect x="338" y="152" width="78" height="6"/><rect x="338" y="181" width="58" height="6"/>
+    <rect x="338" y="210" width="62" height="6"/><rect x="338" y="239" width="110" height="6"/><rect x="338" y="268" width="34" height="6"/>
+  </g>
+  <!-- 工具行 -->
+  <rect x="302" y="300" width="70" height="20" fill="#e6e6e6"/>
+  <rect x="376" y="300" width="70" height="20" fill="#e6e6e6"/>
+  <rect x="468" y="300" width="20" height="20" fill="#e6e6e6"/>
+  <!-- 底部按钮 -->
+  <rect x="302" y="336" width="90" height="24" fill="#191919"/>
+  <rect x="398" y="336" width="90" height="24" fill="#191919"/>
+
+  <!-- 标注 -->
+  <g font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle" font-family="'Space Grotesk',Consolas,monospace">
+    <circle cx="262" cy="55" r="10" fill="#191919"/><text x="262" y="59">1</text>
+    <circle cx="262" cy="390" r="10" fill="#191919"/><text x="262" y="394">2</text>
+    <circle cx="512" cy="97" r="10" fill="#191919"/><text x="512" y="101">3</text>
+    <circle cx="512" cy="348" r="10" fill="#191919"/><text x="512" y="352">4</text>
+    <circle cx="512" cy="420" r="10" fill="#191919"/><text x="512" y="424">5</text>
+  </g>
+
+  <!-- 图例 -->
+  <g font-size="13" fill="#191919">
+    <text x="560" y="70"><tspan font-weight="700" font-family="'Space Grotesk',Consolas,monospace">1</tspan>　顶栏替代侧轨</text>
+    <text x="560" y="150"><tspan font-weight="700" font-family="'Space Grotesk',Consolas,monospace">2</tspan>　下载卡竖排</text>
+    <text x="560" y="230"><tspan font-weight="700" font-family="'Space Grotesk',Consolas,monospace">3</tspan>　全屏菜单</text>
+    <text x="560" y="310"><tspan font-weight="700" font-family="'Space Grotesk',Consolas,monospace">4</tspan>　底部行动对</text>
+    <text x="560" y="390"><tspan font-weight="700" font-family="'Space Grotesk',Consolas,monospace">5</tspan>　镂空巨字垫底</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="584" y="90">白底加环境阴影；标志、声音、主行动、</text>
+    <text x="584" y="107">菜单四件，主行动仍是黑底白字</text>
+    <text x="584" y="170">桌面端横向的停靠坞改成居中的竖排卡组，</text>
+    <text x="584" y="187">下方加滚动提示</text>
+    <text x="584" y="250">白底；每项是图标 + 竖线 + 文字 + 箭头，</text>
+    <text x="584" y="267">当前项整条变信号黄</text>
+    <text x="584" y="330">两个等宽的深色按钮，承接桌面端侧轨</text>
+    <text x="584" y="347">底部的入口</text>
+    <text x="584" y="410">低对比的装饰层，裁切在容器底部，</text>
+    <text x="584" y="427">不参与交互</text>
+  </g>
+  <text x="560" y="470" font-size="11" fill="#8a8a8a">竖屏时 html 字号为 100vw / 67.5，即 1080px 设计稿下 1rem = 16px。</text>
+</svg>

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 500" width="960" height="500" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">三种分节标题</title>
+  <desc id="d">标准分节标题由灰色滑块、斜箭头、英文标题和中文标题组成；色带标题是一条信号黄的通栏，左侧有等距线稿，右侧是英文副题和主题；竖排侧签是一条竖向的色带，文字旋转九十度。</desc>
+  <rect width="960" height="500" fill="#fafafa"/>
+
+  <!-- A 标准 -->
+  <text x="40" y="34" font-size="13" font-weight="700" fill="#191919">A　标准分节标题</text>
+  <rect x="40" y="50" width="420" height="150" fill="#ffffff" stroke="#d9d9d9"/>
+  <rect x="72" y="84" width="104" height="32" fill="#d9d9d9"/>
+  <path d="M148 91l16 16M164 93v14h-14" fill="none" stroke="#191919" stroke-width="3"/>
+  <text x="186" y="111" font-size="30" font-weight="500" fill="#191919" font-family="'Outfit','Century Gothic','Segoe UI',sans-serif">GAMEPLAY</text>
+  <text x="72" y="164" font-size="40" font-weight="700" fill="#191919">玩法介绍</text>
+  <!-- 尺寸标注 -->
+  <g stroke="#8a8a8a" stroke-width="1" fill="none">
+    <path d="M72 74h104M72 70v8M176 70v8"/>
+    <path d="M62 84v32M58 84h8M58 116h8"/>
+  </g>
+  <g font-size="10" fill="#626262" font-family="'Space Grotesk',Consolas,monospace">
+    <text x="124" y="68" text-anchor="middle">6.5rem</text>
+    <text x="54" y="104" text-anchor="end">2rem</text>
+    <text x="350" y="111">EN 2.25rem</text>
+    <text x="250" y="164">CN 3rem</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="480" y="78">英文在上、中文在下；英文 Medium，中文 Bold。</text>
+    <text x="480" y="100">灰色滑块宽约为高的 3 倍，箭头贴右。</text>
+    <text x="480" y="122">入场：滑块从左滑入 → 箭头从 −45° 转正 → 文字淡入。</text>
+    <text x="480" y="144">深色底上：滑块不变，英文与中文变白。</text>
+    <text x="480" y="174" fill="#191919">用于：版块内的第一级标题，每个版块一个。</text>
+  </g>
+
+  <!-- B 色带 -->
+  <text x="40" y="238" font-size="13" font-weight="700" fill="#191919">B　色带标题</text>
+  <rect x="40" y="254" width="880" height="86" fill="#fffa00"/>
+  <!-- 原创等距线稿：三个叠放的方块 -->
+  <g fill="#ffffff" stroke="#191919" stroke-width="1.5" stroke-linejoin="round" transform="translate(64 0)">
+    <polygon points="110,236 150,256 110,276 70,256"/>
+    <polygon points="70,256 110,276 110,316 70,296"/>
+    <polygon points="150,256 110,276 110,316 150,296"/>
+    <polygon points="170,266 200,281 170,296 140,281"/>
+    <polygon points="140,281 170,296 170,326 140,311"/>
+    <polygon points="200,281 170,296 170,326 200,311"/>
+  </g>
+  <path d="M70 300l56 28M40 318l30 15" stroke="#191919" stroke-width="1.5" fill="none"/>
+  <text x="310" y="288" font-size="16" font-weight="300" fill="#191919" font-family="'Outfit','Century Gothic','Segoe UI',sans-serif">ENDFIELD-UI: DESIGN</text>
+  <text x="310" y="326" font-size="36" font-weight="500" fill="#191919" font-family="'Outfit','Century Gothic','Segoe UI',sans-serif">FOUNDATIONS</text>
+  <g font-size="12" fill="#626262">
+    <text x="40" y="364">通栏信号黄，高约为视口宽的 5%。左侧线稿可以越过色带上沿；副题 Light、主题 Medium，都是英文、都是墨色。</text>
+    <text x="40" y="384" fill="#191919">用于：亮色版块与暗色版块之间的过渡；一页最多一到两条。</text>
+  </g>
+
+  <!-- C 竖排侧签 -->
+  <text x="40" y="424" font-size="13" font-weight="700" fill="#191919">C　竖排侧签</text>
+  <rect x="160" y="404" width="300" height="34" fill="#fffa00"/>
+  <text x="176" y="427" font-size="15" font-weight="700" fill="#191919">最新</text>
+  <path d="M220 411v20" stroke="#191919" stroke-width="2"/>
+  <text x="232" y="427" font-size="15" font-weight="800" fill="#191919" font-family="'Archivo','Arial Black',Arial,sans-serif">SECTION</text>
+  <path d="M474 421h30" stroke="#191919" stroke-width="1.5"/>
+  <polygon points="504,416 514,421 504,426" fill="#191919"/>
+  <text x="528" y="418" font-size="12" fill="#626262">实际使用时整条旋转 90° 竖立在版块左缘，</text>
+  <text x="528" y="436" font-size="12" fill="#626262">通高，宽约 3 – 4rem；也可以是浅灰底。</text>
+  <text x="40" y="472" font-size="12" fill="#191919">用于：轮播、列表这类横向展开的版块，把标题让到侧边。</text>
+</svg>

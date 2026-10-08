@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 470" width="960" height="470" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">闪烁点亮的时间曲线与加载页的三个阶段</title>
+  <desc id="d">上半部分是闪烁点亮的不透明度曲线：在百分之十、二十、四十处各有一次到一半亮度的短促闪烁，随后线性升到完全不透明。下半部分是加载页的三个阶段：充填、就绪、揭示。</desc>
+  <rect width="960" height="470" fill="#fafafa"/>
+
+  <text x="40" y="34" font-size="13" font-weight="700" fill="#191919">闪烁点亮 animate-flicker</text>
+  <text x="212" y="34" font-size="12" fill="#626262">三次短闪后点亮，600ms，匀速</text>
+
+  <!-- 坐标轴 -->
+  <path d="M80 56v124h480" fill="none" stroke="#191919" stroke-width="1.5"/>
+  <g stroke="#e6e6e6"><path d="M80 120h480"/><path d="M80 60h480"/></g>
+  <g font-size="11" fill="#626262" font-family="'Space Grotesk',Consolas,monospace">
+    <text x="72" y="184" text-anchor="end">0</text>
+    <text x="72" y="124" text-anchor="end">0.5</text>
+    <text x="72" y="64" text-anchor="end">1</text>
+    <text x="80" y="198" text-anchor="middle">0%</text>
+    <text x="128" y="198" text-anchor="middle">10</text>
+    <text x="176" y="198" text-anchor="middle">20</text>
+    <text x="272" y="198" text-anchor="middle">40</text>
+    <text x="560" y="198" text-anchor="middle">100%</text>
+  </g>
+  <text x="44" y="118" font-size="11" fill="#626262" transform="rotate(-90 44 118)" text-anchor="middle">不透明度</text>
+  <!-- 曲线 -->
+  <polyline points="80,180 128,120 132.8,180 176,120 180.8,180 272,120 276.8,180 560,60" fill="none" stroke="#191919" stroke-width="2.5" stroke-linejoin="round"/>
+  <g fill="#fffa00" stroke="#191919" stroke-width="1.5">
+    <circle cx="128" cy="120" r="4"/><circle cx="176" cy="120" r="4"/><circle cx="272" cy="120" r="4"/><circle cx="560" cy="60" r="4"/>
+  </g>
+
+  <g font-size="12" fill="#191919">
+    <text x="600" y="76">用于：大图、媒体、标题块的入场</text>
+    <text x="600" y="100">节奏：两次靠得近，第三次隔得远，</text>
+    <text x="600" y="118">像设备通电时的不稳定</text>
+    <text x="600" y="142">每个视口同时只让一处闪烁</text>
+  </g>
+  <text x="600" y="170" font-size="12" fill="#626262">减少动态效果时直接显示终态</text>
+
+  <path d="M40 222h880" stroke="#d9d9d9"/>
+  <text x="40" y="252" font-size="13" font-weight="700" fill="#191919">加载页</text>
+  <text x="90" y="252" font-size="12" fill="#626262">近黑底、黄色进度条、等宽百分比</text>
+
+  <!-- 1 充填 -->
+  <rect x="40" y="272" width="270" height="140" fill="#141414"/>
+  <rect x="40" y="272" width="4" height="140" fill="#fffa00"/>
+  <text x="64" y="346" font-size="44" font-weight="500" fill="#ffffff" font-family="'Space Grotesk',Consolas,monospace">037<tspan font-size="30" font-weight="400">%</tspan></text>
+  <rect x="64" y="368" width="222" height="4" fill="#383838"/>
+  <rect x="64" y="368" width="82" height="4" fill="#fffa00"/>
+  <rect x="64" y="384" width="120" height="5" fill="#626262"/>
+
+  <!-- 2 就绪 -->
+  <rect x="345" y="272" width="270" height="140" fill="#141414"/>
+  <rect x="345" y="272" width="4" height="140" fill="#fffa00"/>
+  <text x="369" y="346" font-size="44" font-weight="500" fill="#ffffff" font-family="'Space Grotesk',Consolas,monospace">100<tspan font-size="30" font-weight="400">%</tspan></text>
+  <rect x="369" y="368" width="222" height="4" fill="#fffa00"/>
+  <rect x="369" y="384" width="120" height="5" fill="#626262"/>
+
+  <!-- 3 揭示 -->
+  <rect x="650" y="272" width="270" height="140" fill="#ffffff" stroke="#d9d9d9"/>
+  <rect x="666" y="290" width="96" height="10" fill="#191919"/>
+  <rect x="666" y="310" width="140" height="6" fill="#d9d9d9"/>
+  <rect x="666" y="324" width="120" height="6" fill="#d9d9d9"/>
+  <rect x="666" y="372" width="70" height="24" fill="#fffa00"/>
+  <rect x="800" y="272" width="120" height="140" fill="#141414"/>
+  <rect x="796" y="272" width="4" height="140" fill="#fffa00"/>
+  <path d="M822 342h56" stroke="#ffffff" stroke-width="1.5"/>
+  <polygon points="878,337 888,342 878,347" fill="#ffffff"/>
+
+  <g font-size="13" font-weight="700" fill="#191919">
+    <text x="40" y="436">1　充填</text>
+    <text x="345" y="436">2　就绪</text>
+    <text x="650" y="436">3　揭示</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="104" y="436">进度条从左充填，数字等宽跳动</text>
+    <text x="409" y="436">进度条充满，停留片刻</text>
+    <text x="714" y="436">遮罩向一侧滑出，露出页面</text>
+  </g>
+  <text x="40" y="458" font-size="11" fill="#8a8a8a">加载页的配色与元素来自官网实测；"揭示"的滑出方向是社区项目的做法。</text>
+</svg>

@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 470" width="960" height="470" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">反馈类组件</title>
+  <desc id="d">进度条、分段进度、进度环；四种语气的提示条；轻提示；加载指示；空状态。</desc>
+  <rect width="960" height="470" fill="#fafafa"/>
+
+  <!-- 进度 -->
+  <text x="40" y="34" font-size="13" font-weight="700" fill="#191919">进度</text>
+  <text x="76" y="34" font-size="12" fill="#626262">灰轨 + 黄填充；数字等宽</text>
+
+  <rect x="40" y="60" width="300" height="8" fill="#d9d9d9"/>
+  <rect x="40" y="60" width="186" height="8" fill="#fffa00" stroke="#191919" stroke-width=".5"/>
+  <text x="352" y="69" font-size="13" font-weight="700" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">62%</text>
+
+  <g>
+    <rect x="40" y="92" width="44" height="8" fill="#fffa00" stroke="#191919" stroke-width=".5"/>
+    <rect x="88" y="92" width="44" height="8" fill="#fffa00" stroke="#191919" stroke-width=".5"/>
+    <rect x="136" y="92" width="44" height="8" fill="#fffa00" stroke="#191919" stroke-width=".5"/>
+    <rect x="184" y="92" width="44" height="8" fill="#d9d9d9"/>
+    <rect x="232" y="92" width="44" height="8" fill="#d9d9d9"/>
+    <rect x="280" y="92" width="60" height="8" fill="#d9d9d9"/>
+  </g>
+  <text x="352" y="101" font-size="13" font-weight="700" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">3 / 6</text>
+
+  <circle cx="470" cy="80" r="28" fill="none" stroke="#d9d9d9" stroke-width="6"/>
+  <path d="M470 52A28 28 0 1 1 442 80" fill="none" stroke="#191919" stroke-width="6"/>
+  <text x="470" y="85" font-size="13" font-weight="700" fill="#191919" text-anchor="middle" font-family="'Space Grotesk',Consolas,monospace">75</text>
+
+  <g font-size="12" fill="#626262">
+    <text x="530" y="66">连续：线性任务的完成度</text>
+    <text x="530" y="86">分段：步骤数明确时</text>
+    <text x="530" y="106">环形：紧凑空间，或围绕头像与图标</text>
+  </g>
+
+  <path d="M40 132h880" stroke="#d9d9d9"/>
+
+  <!-- 提示条 -->
+  <text x="40" y="162" font-size="13" font-weight="700" fill="#191919">提示条</text>
+  <text x="90" y="162" font-size="12" fill="#626262">左缘色条 + 图标 + 文字；底色保持中性</text>
+
+  <g>
+    <rect x="40" y="180" width="430" height="44" fill="#ffffff" stroke="#d9d9d9"/>
+    <rect x="40" y="180" width="4" height="44" fill="#25759f"/>
+    <rect x="58" y="194" width="16" height="16" fill="none" stroke="#25759f" stroke-width="2"/>
+    <path d="M66 199v7" stroke="#25759f" stroke-width="2"/>
+    <text x="86" y="207" font-size="13" fill="#191919">信息：维护将于今晚进行。</text>
+
+    <rect x="490" y="180" width="430" height="44" fill="#ffffff" stroke="#d9d9d9"/>
+    <rect x="490" y="180" width="4" height="44" fill="#007f43"/>
+    <circle cx="516" cy="202" r="8" fill="#007f43"/>
+    <path d="M512 202l3 3 5-6" fill="none" stroke="#ffffff" stroke-width="2"/>
+    <text x="536" y="207" font-size="13" fill="#191919">成功：设置已保存。</text>
+
+    <rect x="40" y="234" width="430" height="44" fill="#ffffff" stroke="#d9d9d9"/>
+    <rect x="40" y="234" width="4" height="44" fill="#b74e00"/>
+    <polygon points="66,246 76,264 56,264" fill="#b74e00"/>
+    <text x="86" y="261" font-size="13" fill="#191919">注意：还有 2 小时结束。</text>
+
+    <rect x="490" y="234" width="430" height="44" fill="#ffffff" stroke="#d9d9d9"/>
+    <rect x="490" y="234" width="4" height="44" fill="#de0909"/>
+    <polygon points="516,246 526,256 516,266 506,256" fill="#de0909"/>
+    <text x="536" y="261" font-size="13" fill="#191919">错误：提交失败，请检查网络后重试。</text>
+  </g>
+
+  <path d="M40 302h880" stroke="#d9d9d9"/>
+
+  <!-- 轻提示 -->
+  <text x="40" y="332" font-size="13" font-weight="700" fill="#191919">轻提示</text>
+  <rect x="40" y="350" width="170" height="40" fill="#000000" fill-opacity=".8"/>
+  <text x="125" y="375" font-size="14" fill="#ffffff" text-anchor="middle">已复制到剪贴板</text>
+  <g font-size="12" fill="#626262">
+    <text x="40" y="412">黑 80%、白字、直角；</text>
+    <text x="40" y="430">淡入淡出，不带图标</text>
+  </g>
+
+  <!-- 加载 -->
+  <text x="280" y="332" font-size="13" font-weight="700" fill="#191919">加载</text>
+  <g>
+    <polygon points="300,352 314,366 300,380 286,366" fill="none" stroke="#191919" stroke-width="2.5"/>
+    <polygon points="300,360 306,366 300,372 294,366" fill="#fffa00" stroke="#191919" stroke-width=".5"/>
+  </g>
+  <text x="330" y="364" font-size="22" font-weight="500" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">037<tspan font-size="15" font-weight="400">%</tspan></text>
+  <rect x="330" y="374" width="110" height="4" fill="#d9d9d9"/>
+  <rect x="330" y="374" width="41" height="4" fill="#fffa00" stroke="#191919" stroke-width=".5"/>
+  <g font-size="12" fill="#626262">
+    <text x="280" y="412">小处：旋转的菱形或圆环；</text>
+    <text x="280" y="430">整页：进度条 + 等宽百分比</text>
+  </g>
+
+  <!-- 空状态 -->
+  <text x="560" y="332" font-size="13" font-weight="700" fill="#191919">空状态</text>
+  <rect x="560" y="350" width="360" height="84" fill="#ffffff" stroke="#d9d9d9" stroke-dasharray="4 4"/>
+  <g fill="none" stroke="#b3b3b3" stroke-width="1.5">
+    <path d="M588 372v-8h8"/><path d="M620 364h8v8"/><path d="M628 412v8h-8"/><path d="M596 420h-8v-8"/>
+    <path d="M602 392h12M608 386v12"/>
+  </g>
+  <text x="650" y="384" font-size="14" font-weight="500" fill="#191919">暂无记录</text>
+  <text x="650" y="404" font-size="12" fill="#626262">完成一次任务后，这里会出现记录。</text>
+
+  <text x="40" y="456" font-size="11" fill="#8a8a8a">进度的配色出自社区对游戏界面的归纳；轻提示与加载页取自官网实测；提示条与空状态是按整体语言推导的建议。</text>
+</svg>

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="960" height="400" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">平均网格与偏心构图的对比</title>
+  <desc id="d">左图是居中标题加等大卡片的平均网格，不推荐。右图是推荐的构图：主角占据偏左的大块面积，信息停靠在右缘的窄栏和底边，巨字被边缘截断。</desc>
+  <rect width="960" height="400" fill="#fafafa"/>
+
+  <!-- 忌 -->
+  <rect x="40" y="56" width="424" height="260" fill="#ffffff" stroke="#d9d9d9"/>
+  <rect x="192" y="76" width="120" height="12" fill="#191919"/>
+  <rect x="212" y="96" width="80" height="6" fill="#b3b3b3"/>
+  <g fill="#f2f2f2" stroke="#d9d9d9">
+    <rect x="64" y="124" width="118" height="80"/><rect x="193" y="124" width="118" height="80"/><rect x="322" y="124" width="118" height="80"/>
+    <rect x="64" y="216" width="118" height="80"/><rect x="193" y="216" width="118" height="80"/><rect x="322" y="216" width="118" height="80"/>
+  </g>
+  <g fill="#fffa00">
+    <rect x="64" y="124" width="118" height="4"/><rect x="193" y="124" width="118" height="4"/><rect x="322" y="124" width="118" height="4"/>
+    <rect x="64" y="216" width="118" height="4"/><rect x="193" y="216" width="118" height="4"/><rect x="322" y="216" width="118" height="4"/>
+  </g>
+  <g fill="#b3b3b3">
+    <rect x="76" y="144" width="60" height="8"/><rect x="205" y="144" width="60" height="8"/><rect x="334" y="144" width="60" height="8"/>
+    <rect x="76" y="236" width="60" height="8"/><rect x="205" y="236" width="60" height="8"/><rect x="334" y="236" width="60" height="8"/>
+    <rect x="76" y="162" width="92" height="5"/><rect x="205" y="162" width="92" height="5"/><rect x="334" y="162" width="92" height="5"/>
+    <rect x="76" y="254" width="92" height="5"/><rect x="205" y="254" width="92" height="5"/><rect x="334" y="254" width="92" height="5"/>
+  </g>
+  <text x="40" y="40" font-size="14" font-weight="700" fill="#de0909">忌</text>
+  <text x="64" y="40" font-size="13" fill="#191919">居中标题 + 等大卡片 + 每张卡一条黄边</text>
+  <text x="40" y="340" font-size="12" fill="#626262">所有内容同等重要，就没有重点；黄色被摊薄成装饰。</text>
+
+  <!-- 宜 -->
+  <rect x="496" y="56" width="424" height="260" fill="#ffffff" stroke="#d9d9d9"/>
+  <!-- 巨字，被右缘截断 -->
+  <clipPath id="c"><rect x="496" y="56" width="424" height="260"/></clipPath>
+  <g clip-path="url(#c)">
+    <text x="640" y="150" font-size="120" font-weight="800" fill="none" stroke="#e6e6e6" stroke-width="2" font-family="'Archivo','Arial Black',Arial,sans-serif">//END</text>
+    <!-- 主角：偏左的大块 -->
+    <polygon points="548,316 584,130 640,84 700,130 740,316" fill="#d9d9d9"/>
+    <circle cx="642" cy="134" r="40" fill="#b3b3b3"/>
+  </g>
+  <!-- 侧轨 -->
+  <rect x="496" y="56" width="20" height="260" fill="#fafafa" stroke="#d9d9d9"/>
+  <rect x="496" y="96" width="3" height="14" fill="#191919"/>
+  <g fill="#d9d9d9"><rect x="502" y="116" width="8" height="8"/><rect x="502" y="134" width="8" height="8"/><rect x="502" y="152" width="8" height="8"/></g>
+  <rect x="502" y="98" width="8" height="8" fill="#191919"/>
+  <!-- 右缘信息栏 -->
+  <rect x="790" y="84" width="110" height="10" fill="#191919"/>
+  <rect x="790" y="102" width="70" height="6" fill="#b3b3b3"/>
+  <rect x="790" y="124" width="34" height="14" fill="#191919"/><rect x="824" y="124" width="60" height="14" fill="#f2f2f2"/>
+  <rect x="790" y="142" width="34" height="14" fill="#191919"/><rect x="824" y="142" width="48" height="14" fill="#f2f2f2"/>
+  <g fill="#d9d9d9"><rect x="790" y="170" width="110" height="5"/><rect x="790" y="181" width="96" height="5"/><rect x="790" y="192" width="104" height="5"/></g>
+  <rect x="790" y="216" width="92" height="26" fill="#fffa00"/>
+  <rect x="806" y="226" width="44" height="6" fill="#191919"/>
+  <!-- 底边带 -->
+  <rect x="516" y="286" width="404" height="30" fill="#191919"/>
+  <g fill="#484848"><rect x="528" y="294" width="60" height="14"/><rect x="596" y="294" width="60" height="14"/><rect x="664" y="294" width="60" height="14"/></g>
+  <text x="496" y="40" font-size="14" font-weight="700" fill="#007f43">宜</text>
+  <text x="520" y="40" font-size="13" fill="#191919">偏心主角 + 边缘停靠 + 唯一的黄色行动</text>
+  <text x="496" y="340" font-size="12" fill="#626262">主角占最大面积且偏离中心；导航、信息、次要入口分别贴左、右、底三边。</text>
+
+  <g font-size="11" fill="#8a8a8a">
+    <text x="496" y="364">巨字越过容器边界被截断，说明它是背景层而不是标题。</text>
+    <text x="40" y="364">这种结构适合真正并列的条目（如物品矩阵），不适合页面骨架。</text>
+  </g>
+</svg>

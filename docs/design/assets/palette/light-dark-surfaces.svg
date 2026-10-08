@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="960" height="400" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">亮色与暗色主题的表面层级</title>
+  <desc id="d">同一组语义令牌在亮色和暗色主题下的取值：页面底、卡片、凹陷区、悬停底、分隔线、三级文字、行动按钮与中性控件。</desc>
+  <rect width="960" height="400" fill="#d9d9d9"/>
+
+  <!-- 亮色 -->
+  <rect x="24" y="24" width="448" height="352" fill="#ffffff"/>
+  <text x="44" y="56" font-size="13" font-weight="700" fill="#191919">亮色 · 默认</text>
+  <text x="44" y="74" font-size="11" fill="#8a8a8a" font-family="'Space Grotesk',Consolas,monospace">surface #FFFFFF</text>
+
+  <rect x="44" y="92" width="408" height="188" fill="#fafafa" stroke="#d9d9d9"/>
+  <text x="60" y="118" font-size="16" font-weight="700" fill="#191919">主文字 ink</text>
+  <text x="60" y="140" font-size="13" fill="#626262">次级文字 ink-secondary</text>
+  <text x="60" y="160" font-size="12" fill="#8a8a8a">三级文字 ink-tertiary，只用于大字或装饰</text>
+  <text x="436" y="118" font-size="11" fill="#8a8a8a" text-anchor="end" font-family="'Space Grotesk',Consolas,monospace">surface-raised #FAFAFA</text>
+
+  <rect x="60" y="176" width="180" height="36" fill="#f2f2f2"/>
+  <text x="72" y="199" font-size="12" fill="#626262">凹陷区 surface-sunken</text>
+  <rect x="256" y="176" width="180" height="36" fill="#e6e6e6"/>
+  <text x="268" y="199" font-size="12" fill="#191919">悬停底 surface-muted</text>
+
+  <path d="M60 232h376" stroke="#d9d9d9" stroke-width="2"/>
+  <text x="60" y="254" font-size="11" fill="#8a8a8a" font-family="'Space Grotesk',Consolas,monospace">line #D9D9D9</text>
+  <path d="M256 250h180" stroke="#b3b3b3" stroke-width="2"/>
+  <text x="436" y="268" font-size="11" fill="#8a8a8a" text-anchor="end" font-family="'Space Grotesk',Consolas,monospace">line-strong #B3B3B3</text>
+
+  <rect x="44" y="300" width="130" height="44" fill="#fffa00"/>
+  <text x="109" y="328" font-size="14" font-weight="700" fill="#191919" text-anchor="middle">action</text>
+  <rect x="186" y="300" width="130" height="44" fill="#383838"/>
+  <rect x="198" y="310" width="3" height="24" fill="#fffa00"/>
+  <text x="256" y="328" font-size="14" font-weight="700" fill="#eeeeee" text-anchor="middle">control</text>
+  <rect x="328" y="300" width="124" height="44" fill="#191919"/>
+  <text x="390" y="328" font-size="13" fill="#ffffff" text-anchor="middle">surface-inverse</text>
+  <text x="44" y="364" font-size="12" fill="#6b5d00" font-weight="700">强调文字 accent-ink #6B5D00</text>
+
+  <!-- 暗色 -->
+  <rect x="488" y="24" width="448" height="352" fill="#141414"/>
+  <text x="508" y="56" font-size="13" font-weight="700" fill="#fafafa">暗色 · data-theme="dark"</text>
+  <text x="508" y="74" font-size="11" fill="#8a8a8a" font-family="'Space Grotesk',Consolas,monospace">surface #141414</text>
+
+  <rect x="508" y="92" width="408" height="188" fill="#1f1f1f" stroke="#383838"/>
+  <text x="524" y="118" font-size="16" font-weight="700" fill="#fafafa">主文字 ink</text>
+  <text x="524" y="140" font-size="13" fill="#b3b3b3">次级文字 ink-secondary</text>
+  <text x="524" y="160" font-size="12" fill="#8a8a8a">三级文字 ink-tertiary，只用于大字或装饰</text>
+  <text x="900" y="118" font-size="11" fill="#8a8a8a" text-anchor="end" font-family="'Space Grotesk',Consolas,monospace">surface-raised #1F1F1F</text>
+
+  <rect x="524" y="176" width="180" height="36" fill="#000000"/>
+  <text x="536" y="199" font-size="12" fill="#b3b3b3">凹陷区 surface-sunken</text>
+  <rect x="720" y="176" width="180" height="36" fill="#282828"/>
+  <text x="732" y="199" font-size="12" fill="#fafafa">悬停底 surface-muted</text>
+
+  <path d="M524 232h376" stroke="#383838" stroke-width="2"/>
+  <text x="524" y="254" font-size="11" fill="#8a8a8a" font-family="'Space Grotesk',Consolas,monospace">line #383838</text>
+  <path d="M720 250h180" stroke="#626262" stroke-width="2"/>
+  <text x="900" y="268" font-size="11" fill="#8a8a8a" text-anchor="end" font-family="'Space Grotesk',Consolas,monospace">line-strong #626262</text>
+
+  <rect x="508" y="300" width="130" height="44" fill="#fffa00"/>
+  <text x="573" y="328" font-size="14" font-weight="700" fill="#191919" text-anchor="middle">action</text>
+  <rect x="650" y="300" width="130" height="44" fill="#383838"/>
+  <rect x="662" y="310" width="3" height="24" fill="#fffa00"/>
+  <text x="720" y="328" font-size="14" font-weight="700" fill="#eeeeee" text-anchor="middle">control</text>
+  <rect x="792" y="300" width="124" height="44" fill="#fafafa"/>
+  <text x="854" y="328" font-size="13" fill="#191919" text-anchor="middle">surface-inverse</text>
+  <text x="508" y="364" font-size="12" fill="#fffa00" font-weight="700">强调文字 accent-ink #FFFA00</text>
+</svg>

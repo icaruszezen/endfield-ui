@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="960" height="440" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">括号与标记</title>
+  <desc id="d">方括号标题把名称包在浅灰括号里；角括号用四个 L 形短线框住选中的格子；取景角标记图像范围；以及斜杠、菱形、三角、斜箭头、加号、感叹号等小标记的含义。</desc>
+  <rect width="960" height="440" fill="#fafafa"/>
+
+  <!-- A 方括号标题 -->
+  <text x="40" y="34" font-size="13" font-weight="700" fill="#191919">方括号标题</text>
+  <rect x="40" y="52" width="340" height="150" fill="#ffffff" stroke="#d9d9d9"/>
+  <text x="60" y="124" font-size="52" font-weight="500" fill="#8a8a8a">[</text>
+  <text x="96" y="124" font-size="52" font-weight="700" fill="#191919">名称</text>
+  <text x="216" y="124" font-size="52" font-weight="500" fill="#8a8a8a">]</text>
+  <rect x="60" y="146" width="96" height="20" fill="#d9d9d9"/>
+  <text x="68" y="161" font-size="12" font-weight="500" fill="#191919" font-family="'Outfit','Century Gothic','Segoe UI',sans-serif">CODENAME</text>
+  <rect x="60" y="178" width="60" height="3" fill="#ec008c"/>
+  <rect x="120" y="178" width="60" height="3" fill="#00aeef"/>
+  <rect x="180" y="178" width="60" height="3" fill="#fff200"/>
+  <rect x="240" y="178" width="120" height="3" fill="#d9d9d9"/>
+  <g font-size="12" fill="#626262">
+    <text x="40" y="224">括号比名称轻一档字重、浅两档颜色；</text>
+    <text x="40" y="242">括号与名称之间留约半个字宽。</text>
+  </g>
+
+  <!-- B 角括号选中 -->
+  <text x="420" y="34" font-size="13" font-weight="700" fill="#191919">角括号选中</text>
+  <g fill="#ffffff" stroke="#d9d9d9">
+    <rect x="420" y="64" width="84" height="84"/>
+    <rect x="524" y="64" width="84" height="84"/>
+    <rect x="628" y="64" width="84" height="84"/>
+  </g>
+  <g fill="#e6e6e6">
+    <rect x="436" y="80" width="52" height="40"/><rect x="540" y="80" width="52" height="40"/><rect x="644" y="80" width="52" height="40"/>
+  </g>
+  <g fill="#b3b3b3">
+    <rect x="436" y="128" width="36" height="5"/><rect x="540" y="128" width="36" height="5"/><rect x="644" y="128" width="36" height="5"/>
+  </g>
+  <!-- 选中的角括号：比格子外扩 4px -->
+  <g fill="none" stroke="#191919" stroke-width="2.5">
+    <path d="M520 74v-14h14"/><path d="M598 60h14v14"/><path d="M612 138v14h-14"/><path d="M534 152h-14v-14"/>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="420" y="176">四角各一个 L 形短线，线宽 2px、臂长 12 – 14px，</text>
+    <text x="420" y="194">比格子外扩 4px；不占用 outline，焦点环另画。</text>
+    <text x="420" y="212">游戏内的名册与物品格有用橙色角括号的做法（社区）。</text>
+  </g>
+
+  <!-- C 取景角 -->
+  <text x="752" y="34" font-size="13" font-weight="700" fill="#191919">取景角</text>
+  <rect x="752" y="64" width="168" height="100" fill="#e6e6e6"/>
+  <g fill="none" stroke="#191919" stroke-width="2">
+    <path d="M752 80v-16h16"/><path d="M904 64h16v16"/><path d="M920 148v16h-16"/><path d="M768 164h-16v-16"/>
+  </g>
+  <path d="M830 114h12M836 108v12" stroke="#191919" stroke-width="1.5"/>
+  <g font-size="12" fill="#626262">
+    <text x="752" y="188">标记图像、地图或</text>
+    <text x="752" y="206">焦点的范围。</text>
+  </g>
+
+  <path d="M40 264h880" stroke="#d9d9d9"/>
+
+  <!-- D 标记词汇 -->
+  <text x="40" y="294" font-size="13" font-weight="700" fill="#191919">标记词汇</text>
+  <text x="104" y="294" font-size="12" fill="#626262">一组内容选一套主要标记，不要混用</text>
+
+  <g>
+    <!-- // -->
+    <text x="40" y="350" font-size="30" font-weight="800" fill="#191919" font-family="'Archivo','Arial Black',Arial,sans-serif">//</text>
+    <!-- 菱形 -->
+    <polygon points="202,326 216,340 202,354 188,340" fill="#191919"/>
+    <polygon points="238,326 252,340 238,354 224,340" fill="none" stroke="#191919" stroke-width="2"/>
+    <!-- 三角 -->
+    <polygon points="342,328 362,340 342,352" fill="#191919"/>
+    <polygon points="372,330 392,330 382,348" fill="#191919"/>
+    <!-- 斜箭头块 -->
+    <rect x="484" y="326" width="56" height="28" fill="#d9d9d9"/>
+    <path d="M516 332l12 12M528 334v10h-10" fill="none" stroke="#191919" stroke-width="2.5"/>
+    <!-- 加号框 -->
+    <rect x="640" y="328" width="24" height="24" fill="none" stroke="#8a8a8a" stroke-width="1.5"/>
+    <path d="M646 340h12M652 334v12" stroke="#8a8a8a" stroke-width="1.5"/>
+    <path d="M684 340h14M691 333v14" stroke="#8a8a8a" stroke-width="1.5"/>
+    <!-- 优先级 -->
+    <text x="790" y="352" font-size="28" font-weight="800" fill="#191919" font-family="'Archivo','Arial Black',Arial,sans-serif">!!!</text>
+    <rect x="786" y="324" width="54" height="34" fill="#fffa00" opacity="0"/>
+  </g>
+  <g font-size="13" font-weight="700" fill="#191919">
+    <text x="40" y="386">斜杠</text>
+    <text x="188" y="386">菱形</text>
+    <text x="342" y="386">三角</text>
+    <text x="484" y="386">斜箭头块</text>
+    <text x="640" y="386">加号</text>
+    <text x="786" y="386">感叹号</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="40" y="406">类目前缀、面包屑</text>
+    <text x="188" y="406">节点、通知、勾选</text>
+    <text x="342" y="406">前往、展开、播放</text>
+    <text x="484" y="406">分节标题的引导</text>
+    <text x="640" y="406">定位点、添加</text>
+    <text x="786" y="406">优先级</text>
+  </g>
+  <g font-size="11" fill="#8a8a8a">
+    <text x="40" y="424">// 新闻</text>
+    <text x="188" y="424">◆ 已选　◇ 未选</text>
+    <text x="342" y="424">▶ 前往　▼ 展开</text>
+    <text x="484" y="424">入场时从 −45° 转正</text>
+    <text x="640" y="424">装饰用时保持低对比</text>
+    <text x="786" y="424">!!! 紧要　! 次要</text>
+  </g>
+</svg>

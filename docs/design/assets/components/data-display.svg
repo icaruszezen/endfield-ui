@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 480" width="960" height="480" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">数据展示类组件</title>
+  <desc id="d">数据行带：浅色画布上的深色行，行内嵌入小型面积图。统计块：大号等宽数字加标签。表格：胶囊列头与直角数据行。时间线：菱形节点。</desc>
+  <rect width="960" height="480" fill="#fafafa"/>
+
+  <!-- 数据行带 -->
+  <text x="40" y="34" font-size="13" font-weight="700" fill="#191919">数据行带</text>
+  <rect x="40" y="52" width="540" height="184" fill="#f2f2f2"/>
+  <rect x="52" y="62" width="516" height="20" rx="10" fill="#d9d9d9"/>
+  <g font-size="11" fill="#191919">
+    <text x="92" y="76">项目</text><text x="250" y="76">走势</text><text x="430" y="76">当前</text><text x="508" y="76">理论</text>
+  </g>
+  <g stroke="#b3b3b3"><path d="M236 66v12"/><path d="M416 66v12"/><path d="M494 66v12"/></g>
+
+  <g>
+    <rect x="52" y="90" width="516" height="42" fill="#141414"/>
+    <rect x="52" y="138" width="516" height="42" fill="#141414"/>
+    <rect x="52" y="186" width="516" height="42" fill="#141414"/>
+  </g>
+  <g fill="#904ef0"><rect x="52" y="90" width="4" height="42"/><rect x="52" y="138" width="4" height="42"/></g>
+  <rect x="52" y="186" width="4" height="42" fill="#06a2a2"/>
+  <circle cx="74" cy="111" r="8" fill="#fffa00"/>
+  <circle cx="74" cy="159" r="8" fill="none" stroke="#8a8a8a" stroke-width="1.5"/>
+  <circle cx="74" cy="207" r="8" fill="#fffa00"/>
+  <g font-size="13" fill="#fafafa">
+    <text x="92" y="116">项目甲</text><text x="92" y="164">项目乙</text><text x="92" y="212">项目丙</text>
+  </g>
+  <path d="M244 128l20-12 20 4 20-14 20 6 20-10 20 8 20-12 16 4v22z" fill="#2a84b4" fill-opacity=".75"/>
+  <path d="M244 176l20-4 20-10 20 8 20-14 20 10 20-6 20 4 16-8v20z" fill="#2a84b4" fill-opacity=".75"/>
+  <path d="M244 224l20-16 20 8 20-4 20-10 20 12 20-2 20 6 16-10v16z" fill="#f62a2a" fill-opacity=".75"/>
+  <g font-size="13" font-weight="700" font-family="'Space Grotesk',Consolas,monospace">
+    <text x="430" y="116" fill="#2d8fc2">+128</text>
+    <text x="430" y="164" fill="#fffa00">−64</text>
+    <text x="430" y="212" fill="#f74040">−212</text>
+  </g>
+  <g font-size="13" fill="#b3b3b3" font-family="'Space Grotesk',Consolas,monospace">
+    <text x="508" y="116">+140</text><text x="508" y="164">−60</text><text x="508" y="212">−180</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="604" y="76">浅色画布 + 深色行带，行间留缝</text>
+    <text x="604" y="98">列头是一条灰色胶囊，竖线分隔</text>
+    <text x="604" y="120">行左：类目色条 + 收藏圆 + 名称</text>
+    <text x="604" y="142">行中：内嵌小型面积图</text>
+    <text x="604" y="164">行右：等宽数字，按语义着色</text>
+    <text x="604" y="194" fill="#191919">蓝 = 产出　黄 = 消耗　红 = 超支</text>
+    <text x="604" y="216">颜色之外还有正负号，不只靠颜色</text>
+  </g>
+
+  <path d="M40 260h880" stroke="#d9d9d9"/>
+
+  <!-- 统计块 -->
+  <text x="40" y="290" font-size="13" font-weight="700" fill="#191919">统计块</text>
+  <rect x="40" y="308" width="4" height="72" fill="#191919"/>
+  <text x="56" y="324" font-size="11" fill="#626262" font-family="'Space Grotesk',Consolas,monospace">// TOTAL</text>
+  <text x="56" y="366" font-size="40" font-weight="500" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">1,280</text>
+  <text x="180" y="366" font-size="14" fill="#626262">件</text>
+  <rect x="204" y="346" width="52" height="20" fill="#bce41d"/>
+  <text x="230" y="361" font-size="12" font-weight="700" fill="#191919" text-anchor="middle" font-family="'Space Grotesk',Consolas,monospace">+6%</text>
+  <g font-size="12" fill="#626262">
+    <text x="40" y="404">不装进卡片：左缘一条竖线 + 微标 +</text>
+    <text x="40" y="422">大号等宽数字；增量用荧光黄绿小签</text>
+  </g>
+
+  <!-- 表格 -->
+  <text x="330" y="290" font-size="13" font-weight="700" fill="#191919">表格</text>
+  <rect x="330" y="308" width="300" height="24" fill="#191919"/>
+  <g font-size="12" font-weight="500" fill="#ffffff">
+    <text x="342" y="325">名称</text><text x="470" y="325">类型</text><text x="618" y="325" text-anchor="end">数量</text>
+  </g>
+  <g stroke="#d9d9d9"><path d="M330 360h300"/><path d="M330 388h300"/><path d="M330 416h300"/></g>
+  <rect x="330" y="360" width="300" height="28" fill="#f2f2f2"/>
+  <g font-size="13" fill="#191919">
+    <text x="342" y="351">条目甲</text><text x="342" y="379">条目乙</text><text x="342" y="407">条目丙</text>
+    <text x="470" y="351">材料</text><text x="470" y="379">装备</text><text x="470" y="407">材料</text>
+  </g>
+  <g font-size="13" fill="#191919" text-anchor="end" font-family="'Space Grotesk',Consolas,monospace">
+    <text x="618" y="351">24</text><text x="618" y="379">3</text><text x="618" y="407">108</text>
+  </g>
+  <text x="330" y="436" font-size="12" fill="#626262">表头墨底白字；行高紧凑；数字右对齐等宽；悬停行换底</text>
+
+  <!-- 时间线 -->
+  <text x="680" y="290" font-size="13" font-weight="700" fill="#191919">时间线</text>
+  <path d="M692 316v96" stroke="#b3b3b3" stroke-width="2"/>
+  <polygon points="692,308 700,316 692,324 684,316" fill="#191919"/>
+  <polygon points="692,348 700,356 692,364 684,356" fill="#fffa00" stroke="#191919" stroke-width="1.5"/>
+  <polygon points="692,388 700,396 692,404 684,396" fill="#fafafa" stroke="#8a8a8a" stroke-width="1.5"/>
+  <g font-size="11" fill="#626262" font-family="'Space Grotesk',Consolas,monospace">
+    <text x="712" y="312">09.02</text><text x="712" y="352">09.24</text><text x="712" y="392">10.01</text>
+  </g>
+  <g font-size="13" fill="#191919">
+    <text x="712" y="330">已完成的节点</text><text x="712" y="370" font-weight="700">当前节点</text><text x="712" y="410" fill="#626262">未到的节点</text>
+  </g>
+  <text x="680" y="436" font-size="12" fill="#626262">菱形节点：实心 = 已过，黄 = 当前，空心 = 未到</text>
+
+  <text x="40" y="462" font-size="11" fill="#8a8a8a">数据行带与数字语义色出自社区对游戏界面的归纳；统计块、表格、时间线是按整体语言推导的建议。数字均为占位。</text>
+</svg>

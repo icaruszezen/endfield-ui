@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="960" height="440" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">四种字体角色</title>
+  <desc id="d">中文黑体负责阅读，宽体英文负责巨型标题，几何英文负责分节标题与标签，技术字负责数字与微标。</desc>
+  <rect width="960" height="440" fill="#fafafa"/>
+
+  <!-- 1 中文黑体 -->
+  <rect x="40" y="32" width="432" height="176" fill="#ffffff" stroke="#d9d9d9"/>
+  <rect x="40" y="32" width="4" height="176" fill="#191919"/>
+  <text x="60" y="60" font-size="12" font-weight="700" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">font-sans</text>
+  <text x="452" y="60" font-size="12" fill="#626262" text-anchor="end">中文黑体 · 阅读层</text>
+  <text x="60" y="118" font-size="44" font-weight="700" fill="#191919">界面与排印</text>
+  <text x="60" y="150" font-size="16" fill="#191919">常规 Regular　中等 Medium　粗体 Bold</text>
+  <text x="60" y="180" font-size="12" fill="#626262">正文、标题、按钮、标签。三档字重，标题不靠加大字距。</text>
+  <text x="60" y="198" font-size="11" fill="#8a8a8a">替代：HarmonyOS Sans SC · Noto Sans SC · 思源黑体</text>
+
+  <!-- 2 宽体英文 -->
+  <rect x="488" y="32" width="432" height="176" fill="#ffffff" stroke="#d9d9d9"/>
+  <rect x="488" y="32" width="4" height="176" fill="#fffa00"/>
+  <text x="508" y="60" font-size="12" font-weight="700" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">font-display</text>
+  <text x="900" y="60" font-size="12" fill="#626262" text-anchor="end">宽体英文 · 结构层</text>
+  <text x="508" y="124" font-size="58" font-weight="800" fill="#191919" font-family="'Archivo','Arial Black','Segoe UI',Arial,sans-serif" textLength="390" lengthAdjust="spacingAndGlyphs">//DISPLAY</text>
+  <text x="508" y="152" font-size="16" font-weight="700" fill="#191919" font-family="'Archivo','Arial Black','Segoe UI',Arial,sans-serif" textLength="92" lengthAdjust="spacingAndGlyphs">01 / 04</text>
+  <text x="508" y="180" font-size="12" fill="#626262">巨型镂空字、分页数字。全大写，字面宽，负字距。</text>
+  <text x="508" y="198" font-size="11" fill="#8a8a8a">替代：Archivo（wdth 125）· Montserrat</text>
+
+  <!-- 3 几何英文 -->
+  <rect x="40" y="224" width="432" height="176" fill="#ffffff" stroke="#d9d9d9"/>
+  <rect x="40" y="224" width="4" height="176" fill="#8a8a8a"/>
+  <text x="60" y="252" font-size="12" font-weight="700" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">font-latin</text>
+  <text x="452" y="252" font-size="12" fill="#626262" text-anchor="end">几何英文 · 结构层</text>
+  <text x="60" y="310" font-size="48" font-weight="300" fill="#191919" font-family="'Outfit','Century Gothic','Segoe UI',Arial,sans-serif">CODENAME</text>
+  <text x="60" y="342" font-size="18" font-weight="500" fill="#191919" font-family="'Outfit','Century Gothic','Segoe UI',Arial,sans-serif">SECTION LABEL</text>
+  <text x="60" y="372" font-size="12" fill="#626262">代号、色带标题、英文分节名、英文微标签。Light 与 Medium 两档。</text>
+  <text x="60" y="390" font-size="11" fill="#8a8a8a">替代：Outfit · Urbanist</text>
+
+  <!-- 4 技术字 -->
+  <rect x="488" y="224" width="432" height="176" fill="#ffffff" stroke="#d9d9d9"/>
+  <rect x="488" y="224" width="4" height="176" fill="#b3b3b3"/>
+  <text x="508" y="252" font-size="12" font-weight="700" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">font-tech</text>
+  <text x="900" y="252" font-size="12" fill="#626262" text-anchor="end">技术字 · 结构层</text>
+  <text x="508" y="308" font-size="40" font-weight="500" fill="#191919" font-family="'Space Grotesk','JetBrains Mono',Consolas,monospace">2D / 3D</text>
+  <text x="508" y="342" font-size="18" fill="#191919" font-family="'Space Grotesk','JetBrains Mono',Consolas,monospace">2026.10.08 · 12:00 · 087%</text>
+  <text x="508" y="372" font-size="12" fill="#626262">开关标记、日期、百分比、坐标。开启等宽数字。</text>
+  <text x="508" y="390" font-size="11" fill="#8a8a8a">Space Grotesk（官网同款，SIL OFL）</text>
+
+  <text x="40" y="426" font-size="11" fill="#8a8a8a">图中字形为系统回退字体，宽体效果用横向拉伸模拟，仅用于说明角色分工。</text>
+</svg>

@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520" width="960" height="520" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">六类游戏界面的结构示意</title>
+  <desc id="d">角色工作室、仓库矩阵、技能树、数据简报、地图、通讯六类界面的结构缩略图，表现各自的主角、分区和选中方式。</desc>
+  <defs>
+    <linearGradient id="r1" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#24bafc" stop-opacity=".55"/><stop offset="1" stop-color="#24bafc" stop-opacity="0"/></linearGradient>
+    <linearGradient id="r2" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#904ef6" stop-opacity=".55"/><stop offset="1" stop-color="#904ef6" stop-opacity="0"/></linearGradient>
+    <linearGradient id="r3" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#fcba00" stop-opacity=".6"/><stop offset="1" stop-color="#fcba00" stop-opacity="0"/></linearGradient>
+    <linearGradient id="r4" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#fc6c00" stop-opacity=".6"/><stop offset="1" stop-color="#fc6c00" stop-opacity="0"/></linearGradient>
+    <clipPath id="f1"><rect x="40" y="40" width="280" height="158"/></clipPath>
+    <clipPath id="f3"><rect x="640" y="40" width="280" height="158"/></clipPath>
+    <clipPath id="f5"><rect x="340" y="280" width="280" height="158"/></clipPath>
+  </defs>
+  <rect width="960" height="520" fill="#fafafa"/>
+
+  <!-- 1 角色工作室 -->
+  <rect x="40" y="40" width="280" height="158" fill="#e6e6e6"/>
+  <g clip-path="url(#f1)">
+    <polygon points="230,40 320,40 320,198 190,198" fill="#fffa00"/>
+    <polygon points="140,198 156,96 176,74 200,96 216,198" fill="#b3b3b3"/>
+    <circle cx="178" cy="88" r="20" fill="#8a8a8a"/>
+    <ellipse cx="178" cy="190" rx="60" ry="10" fill="none" stroke="#b3b3b3"/>
+    <text x="250" y="110" font-size="44" font-weight="800" fill="#191919" font-family="'Archivo','Arial Black',Arial,sans-serif">80</text>
+  </g>
+  <rect x="52" y="56" width="72" height="12" fill="#191919"/>
+  <rect x="52" y="56" width="3" height="12" fill="#fffa00"/>
+  <g fill="#b3b3b3"><rect x="52" y="76" width="72" height="5"/><rect x="52" y="87" width="60" height="5"/><rect x="52" y="98" width="66" height="5"/></g>
+  <rect x="52" y="116" width="72" height="12" fill="#191919"/>
+  <rect x="52" y="116" width="3" height="12" fill="#fffa00"/>
+  <g fill="#b3b3b3"><rect x="52" y="136" width="64" height="5"/><rect x="52" y="147" width="72" height="5"/></g>
+  <rect x="246" y="150" width="62" height="18" rx="9" fill="#ffffff"/>
+  <circle cx="256" cy="159" r="6" fill="#191919"/>
+
+  <!-- 2 仓库矩阵 -->
+  <rect x="340" y="40" width="280" height="158" fill="#f2f2f2"/>
+  <g fill="#ffffff" stroke="#d9d9d9">
+    <rect x="352" y="64" width="38" height="38"/><rect x="396" y="64" width="38" height="38"/><rect x="440" y="64" width="38" height="38"/><rect x="484" y="64" width="38" height="38"/>
+    <rect x="352" y="108" width="38" height="38"/><rect x="396" y="108" width="38" height="38"/><rect x="440" y="108" width="38" height="38"/><rect x="484" y="108" width="38" height="38"/>
+    <rect x="352" y="152" width="38" height="38"/><rect x="396" y="152" width="38" height="38"/><rect x="440" y="152" width="38" height="38"/><rect x="484" y="152" width="38" height="38"/>
+  </g>
+  <rect x="352" y="84" width="38" height="18" fill="url(#r4)"/><rect x="396" y="84" width="38" height="18" fill="url(#r3)"/>
+  <rect x="440" y="84" width="38" height="18" fill="url(#r3)"/><rect x="484" y="84" width="38" height="18" fill="url(#r2)"/>
+  <rect x="352" y="128" width="38" height="18" fill="url(#r2)"/><rect x="396" y="128" width="38" height="18" fill="url(#r2)"/>
+  <rect x="440" y="128" width="38" height="18" fill="url(#r1)"/><rect x="484" y="128" width="38" height="18" fill="url(#r1)"/>
+  <rect x="352" y="172" width="38" height="18" fill="url(#r1)"/><rect x="396" y="172" width="38" height="18" fill="url(#r1)"/>
+  <rect x="440" y="172" width="38" height="18" fill="url(#r1)"/><rect x="484" y="172" width="38" height="18" fill="url(#r1)"/>
+  <g fill="none" stroke="#fc6c00" stroke-width="2">
+    <path d="M393 69v-8h8"/><path d="M429 61h8v8"/><path d="M437 97v8h-8"/><path d="M401 105h-8v-8"/>
+  </g>
+  <rect x="352" y="48" width="44" height="10" rx="5" fill="#191919"/><rect x="400" y="48" width="36" height="10" rx="5" fill="#ffffff" stroke="#b3b3b3"/><rect x="440" y="48" width="36" height="10" rx="5" fill="#ffffff" stroke="#b3b3b3"/>
+  <rect x="534" y="48" width="78" height="142" fill="#ffffff" stroke="#d9d9d9"/>
+  <rect x="542" y="56" width="62" height="46" fill="#e6e6e6"/>
+  <rect x="542" y="110" width="50" height="7" fill="#191919"/>
+  <g fill="#b3b3b3"><rect x="542" y="124" width="62" height="4"/><rect x="542" y="132" width="54" height="4"/><rect x="542" y="140" width="58" height="4"/></g>
+  <rect x="542" y="166" width="62" height="16" rx="8" fill="#191919"/>
+
+  <!-- 3 技能树 -->
+  <rect x="640" y="40" width="280" height="158" fill="#f2f2f2"/>
+  <g clip-path="url(#f3)">
+    <text x="646" y="150" font-size="120" font-weight="800" fill="none" stroke="#d9d9d9" stroke-width="1.5" font-family="'Archivo','Arial Black',Arial,sans-serif">1</text>
+    <text x="786" y="150" font-size="120" font-weight="800" fill="none" stroke="#d9d9d9" stroke-width="1.5" font-family="'Archivo','Arial Black',Arial,sans-serif">2</text>
+  </g>
+  <path d="M780 40v158" stroke="#d9d9d9"/>
+  <g fill="none" stroke="#f7c506" stroke-width="2">
+    <path d="M688 80h40v40h44"/><path d="M728 120v40h44"/><path d="M796 120h44v-40h30"/><path d="M840 120v40h30"/>
+  </g>
+  <g>
+    <rect x="664" y="68" width="24" height="24" fill="#f7c506"/><rect x="664" y="92" width="24" height="5" fill="#b3b3b3"/>
+    <rect x="772" y="108" width="24" height="24" fill="#f7c506"/><rect x="772" y="132" width="24" height="5" fill="#b3b3b3"/>
+    <rect x="772" y="148" width="24" height="24" fill="#f7c506"/><rect x="772" y="172" width="24" height="5" fill="#b3b3b3"/>
+    <rect x="870" y="68" width="24" height="24" fill="#d9d9d9"/><rect x="870" y="92" width="24" height="5" fill="#b3b3b3"/>
+    <rect x="870" y="148" width="24" height="24" fill="#d9d9d9"/><rect x="870" y="172" width="24" height="5" fill="#b3b3b3"/>
+  </g>
+  <circle cx="688" cy="68" r="6" fill="#191919"/><path d="M685 68l2 2 4-4" fill="none" stroke="#ffffff" stroke-width="1.5"/>
+  <circle cx="796" cy="108" r="6" fill="#191919"/><path d="M793 108l2 2 4-4" fill="none" stroke="#ffffff" stroke-width="1.5"/>
+
+  <!-- 4 数据简报 -->
+  <rect x="40" y="280" width="280" height="158" fill="#f2f2f2"/>
+  <rect x="52" y="290" width="256" height="12" rx="6" fill="#d9d9d9"/>
+  <g>
+    <rect x="52" y="310" width="256" height="34" fill="#282828"/>
+    <rect x="52" y="350" width="256" height="34" fill="#282828"/>
+    <rect x="52" y="390" width="256" height="34" fill="#282828"/>
+  </g>
+  <g fill="#904ef0"><rect x="52" y="310" width="3" height="34"/><rect x="52" y="350" width="3" height="34"/><rect x="52" y="390" width="3" height="34"/></g>
+  <g fill="#fffa00"><circle cx="70" cy="327" r="6"/><circle cx="70" cy="367" r="6"/></g>
+  <circle cx="70" cy="407" r="6" fill="none" stroke="#8a8a8a"/>
+  <g fill="#fafafa"><rect x="84" y="323" width="50" height="6"/><rect x="84" y="363" width="42" height="6"/><rect x="84" y="403" width="56" height="6"/></g>
+  <path d="M150 340l14-10 14 4 14-12 14 6 14-10 10 4v18z" fill="#2a84b4" fill-opacity=".7"/>
+  <path d="M150 380l14-4 14-8 14 6 14-10 14 8 10-6v14z" fill="#2a84b4" fill-opacity=".7"/>
+  <path d="M150 420l14-12 14 6 14-4 14-8 14 10 10-2v10z" fill="#f62a2a" fill-opacity=".7"/>
+  <g font-size="10" font-weight="700" font-family="'Space Grotesk',Consolas,monospace" text-anchor="end">
+    <text x="300" y="331" fill="#2d8fc2">+128</text>
+    <text x="300" y="371" fill="#fffa00">−64</text>
+    <text x="300" y="411" fill="#f74040">−212</text>
+  </g>
+
+  <!-- 5 地图 -->
+  <rect x="340" y="280" width="280" height="158" fill="#1f1f1f"/>
+  <g clip-path="url(#f5)" fill="none" stroke="#626262">
+    <path d="M430 360c10-20 40-24 52-8s2 40-20 42-42-14-32-34z"/>
+    <path d="M410 360c14-36 72-44 94-12s2 72-40 74-70-24-54-62z"/>
+    <path d="M388 362c18-54 108-64 140-18s2 104-62 106-98-34-78-88z"/>
+    <path d="M364 366c22-72 146-88 188-26s2 136-84 138-132-42-104-112z"/>
+  </g>
+  <polygon points="452,330 500,338 512,370 480,392 440,376" fill="#fffa00" fill-opacity=".85"/>
+  <path d="M352 408h40l20-16" fill="none" stroke="#fffa00" stroke-width="2" stroke-dasharray="2 4"/>
+  <text x="352" y="298" font-size="9" fill="#b3b3b3" font-family="'Space Grotesk',Consolas,monospace">// MAP / REGION</text>
+  <rect x="540" y="296" width="68" height="100" fill="#fafafa"/>
+  <rect x="548" y="304" width="44" height="7" fill="#191919"/>
+  <g fill="#b3b3b3"><rect x="548" y="318" width="52" height="4"/><rect x="548" y="326" width="46" height="4"/><rect x="548" y="334" width="50" height="4"/></g>
+  <rect x="548" y="372" width="52" height="14" rx="7" fill="#191919"/>
+  <rect x="540" y="406" width="68" height="20" rx="10" fill="#383838"/>
+  <g fill="none" stroke="#fafafa" stroke-width="1.5"><path d="M444 334v-10h10"/><path d="M506 324h10v10"/><path d="M516 386v10h-10"/><path d="M454 396h-10v-10"/></g>
+
+  <!-- 6 通讯 -->
+  <rect x="640" y="280" width="280" height="158" fill="#1f1f1f"/>
+  <g fill="#383838"><rect x="650" y="292" width="92" height="26" rx="4"/><rect x="650" y="324" width="92" height="26" rx="4"/><rect x="650" y="356" width="92" height="26" rx="4"/><rect x="650" y="388" width="92" height="26" rx="4"/></g>
+  <rect x="650" y="324" width="92" height="26" rx="4" fill="#fafafa"/>
+  <g fill="#8a8a8a"><circle cx="664" cy="305" r="8"/><circle cx="664" cy="369" r="8"/><circle cx="664" cy="401" r="8"/></g>
+  <circle cx="664" cy="337" r="8" fill="#383838"/>
+  <polygon points="718,292 742,292 742,304 726,304" fill="#fffa00"/>
+  <polygon points="718,356 742,356 742,368 726,368" fill="#fffa00"/>
+  <path d="M754 280v158" stroke="#383838"/>
+  <rect x="766" y="300" width="96" height="30" rx="8" fill="#484848"/>
+  <rect x="766" y="338" width="70" height="22" rx="8" fill="#484848"/>
+  <rect x="822" y="370" width="86" height="30" rx="8" fill="#fafafa"/>
+  <rect x="766" y="412" width="142" height="18" rx="9" fill="#fafafa"/>
+
+  <!-- 标题 -->
+  <g font-size="14" font-weight="700" fill="#191919">
+    <text x="40" y="222">角色工作室</text>
+    <text x="340" y="222">仓库矩阵</text>
+    <text x="640" y="222">技能树</text>
+    <text x="40" y="462">数据简报</text>
+    <text x="340" y="462">地图</text>
+    <text x="640" y="462">通讯</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="40" y="242">主体居中偏左，数据列在左，</text>
+    <text x="40" y="259">右侧一块巨型黄色斜楔承载等级</text>
+    <text x="340" y="242">密集白卡，底部渐变表示稀有度，</text>
+    <text x="340" y="259">选中用角括号，右侧详情栏</text>
+    <text x="640" y="242">浅纸底，黄色节点与直角折线，</text>
+    <text x="640" y="259">幽灵数字分期，完成打黑圆勾</text>
+    <text x="40" y="482">浅画布上的深色行带，行内嵌</text>
+    <text x="40" y="499">小图表；蓝产出、黄消耗、红超支</text>
+    <text x="340" y="482">暗底等高线，选区黄色高亮加</text>
+    <text x="340" y="499">角钩，详情卡跟随选区</text>
+    <text x="640" y="482">暗底圆角行，未读是黄色角形</text>
+    <text x="640" y="499">横幅；对方深灰气泡、自己白色</text>
+  </g>
+</svg>

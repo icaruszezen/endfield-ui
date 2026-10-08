@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 260" width="960" height="260" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">中性色阶</title>
+  <desc id="d">十三级中性色，从纯白到近黑，分为纸阶、灰阶、墨阶三组，并标注各自的用途。</desc>
+  <rect width="960" height="260" fill="#fafafa"/>
+
+  <!-- 分组标注 -->
+  <g fill="none" stroke="#191919" stroke-width="2">
+    <path d="M40 52v-8h336v8"/>
+    <path d="M380 52v-8h200v8"/>
+    <path d="M584 52v-8h336v8"/>
+  </g>
+  <g font-size="13" fill="#191919" font-weight="700">
+    <text x="40" y="32">纸阶</text>
+    <text x="380" y="32">灰阶</text>
+    <text x="584" y="32">墨阶</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="76" y="32">表面与分隔</text>
+    <text x="416" y="32">次级文字与图标</text>
+    <text x="620" y="32">控件、文字与暗色表面</text>
+  </g>
+
+  <!-- 色块 -->
+  <g stroke="#d9d9d9" stroke-width="1">
+    <rect x="40" y="64" width="64" height="96" fill="#ffffff"/>
+    <rect x="108" y="64" width="64" height="96" fill="#fafafa"/>
+    <rect x="176" y="64" width="64" height="96" fill="#f2f2f2"/>
+    <rect x="244" y="64" width="64" height="96" fill="#e6e6e6"/>
+    <rect x="312" y="64" width="64" height="96" fill="#d9d9d9"/>
+    <rect x="380" y="64" width="64" height="96" fill="#b3b3b3"/>
+    <rect x="448" y="64" width="64" height="96" fill="#8a8a8a"/>
+    <rect x="516" y="64" width="64" height="96" fill="#626262"/>
+    <rect x="584" y="64" width="64" height="96" fill="#484848"/>
+    <rect x="652" y="64" width="64" height="96" fill="#383838"/>
+    <rect x="720" y="64" width="64" height="96" fill="#282828"/>
+    <rect x="788" y="64" width="64" height="96" fill="#191919"/>
+    <rect x="856" y="64" width="64" height="96" fill="#141414"/>
+  </g>
+
+  <!-- 令牌名 -->
+  <g font-size="13" fill="#191919" font-weight="700" font-family="'Space Grotesk','JetBrains Mono',Consolas,monospace">
+    <text x="40" y="182">0</text>
+    <text x="108" y="182">50</text>
+    <text x="176" y="182">100</text>
+    <text x="244" y="182">200</text>
+    <text x="312" y="182">300</text>
+    <text x="380" y="182">400</text>
+    <text x="448" y="182">500</text>
+    <text x="516" y="182">600</text>
+    <text x="584" y="182">700</text>
+    <text x="652" y="182">800</text>
+    <text x="720" y="182">850</text>
+    <text x="788" y="182">900</text>
+    <text x="856" y="182">950</text>
+  </g>
+
+  <!-- 色值 -->
+  <g font-size="11" fill="#626262" font-family="'Space Grotesk','JetBrains Mono',Consolas,monospace">
+    <text x="40" y="200">#FFFFFF</text>
+    <text x="108" y="200">#FAFAFA</text>
+    <text x="176" y="200">#F2F2F2</text>
+    <text x="244" y="200">#E6E6E6</text>
+    <text x="312" y="200">#D9D9D9</text>
+    <text x="380" y="200">#B3B3B3</text>
+    <text x="448" y="200">#8A8A8A</text>
+    <text x="516" y="200">#626262</text>
+    <text x="584" y="200">#484848</text>
+    <text x="652" y="200">#383838</text>
+    <text x="720" y="200">#282828</text>
+    <text x="788" y="200">#191919</text>
+    <text x="856" y="200">#141414</text>
+  </g>
+
+  <!-- 用途 -->
+  <g font-size="12" fill="#191919">
+    <text x="40" y="222">页面底</text>
+    <text x="108" y="222">卡片底</text>
+    <text x="176" y="222">凹陷区</text>
+    <text x="244" y="222">悬停底</text>
+    <text x="312" y="222">分隔线</text>
+    <text x="380" y="222">禁用字</text>
+    <text x="448" y="222">三级字</text>
+    <text x="516" y="222">次级字</text>
+    <text x="584" y="222">控件悬停</text>
+    <text x="652" y="222">控件底</text>
+    <text x="720" y="222">控件按下</text>
+    <text x="788" y="222">主文字</text>
+    <text x="856" y="222">暗色底</text>
+  </g>
+
+  <text x="40" y="246" font-size="11" fill="#8a8a8a">全部取自官网实测。用途一行是亮色主题下的角色；暗色主题的对应关系见"亮暗表面"图。</text>
+</svg>

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="960" height="420" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">三种巨字</title>
+  <desc id="d">斜纹镂空字用细斜纹填充字形；描边镂空字只有轮廓；实心巨字是纯色并被容器边缘截断。三者都是背景装饰层。</desc>
+  <defs>
+    <pattern id="gh" width="6" height="6" patternUnits="userSpaceOnUse">
+      <path d="M-1 1L1 -1M0 6L6 0M5 7L7 5" stroke="#000000" stroke-width="0.9"/>
+    </pattern>
+    <clipPath id="g1"><rect x="40" y="56" width="280" height="200"/></clipPath>
+    <clipPath id="g2"><rect x="340" y="56" width="280" height="200"/></clipPath>
+    <clipPath id="g3"><rect x="640" y="56" width="280" height="200"/></clipPath>
+  </defs>
+  <rect width="960" height="420" fill="#fafafa"/>
+
+  <!-- 1 斜纹镂空 -->
+  <rect x="40" y="56" width="280" height="200" fill="#ffffff" stroke="#d9d9d9"/>
+  <g clip-path="url(#g1)">
+    <text x="48" y="200" font-size="150" font-weight="800" fill="url(#gh)" opacity="0.6" letter-spacing="-6" font-family="'Archivo','Arial Black',Arial,sans-serif">//END</text>
+  </g>
+  <rect x="60" y="212" width="90" height="10" fill="#191919"/>
+  <rect x="60" y="230" width="150" height="5" fill="#b3b3b3"/>
+
+  <!-- 2 描边镂空 -->
+  <rect x="340" y="56" width="280" height="200" fill="#ffffff" stroke="#d9d9d9"/>
+  <g clip-path="url(#g2)">
+    <text x="348" y="200" font-size="150" font-weight="800" fill="none" stroke="#191919" stroke-opacity="0.22" stroke-width="1.5" letter-spacing="-6" font-family="'Archivo','Arial Black',Arial,sans-serif">02</text>
+  </g>
+  <rect x="360" y="212" width="90" height="10" fill="#191919"/>
+  <rect x="360" y="230" width="150" height="5" fill="#b3b3b3"/>
+
+  <!-- 3 实心截断 -->
+  <rect x="640" y="56" width="280" height="200" fill="#ffffff" stroke="#d9d9d9"/>
+  <g clip-path="url(#g3)">
+    <text x="660" y="124" font-size="150" font-weight="800" fill="#191919" letter-spacing="-6" font-family="'Archivo','Arial Black',Arial,sans-serif">//END</text>
+  </g>
+  <rect x="660" y="150" width="130" height="86" fill="#191919"/>
+  <rect x="800" y="186" width="90" height="10" fill="#191919"/>
+  <rect x="800" y="204" width="70" height="5" fill="#b3b3b3"/>
+
+  <g font-size="14" font-weight="700" fill="#191919">
+    <text x="40" y="284">斜纹镂空</text>
+    <text x="340" y="284">描边镂空</text>
+    <text x="640" y="284">实心截断</text>
+  </g>
+  <g font-size="12" fill="#191919">
+    <text x="40" y="306">字形用细斜纹填充，整体 60% 不透明</text>
+    <text x="340" y="306">透明填充，1 – 1.5px 描边，约 20% 墨色</text>
+    <text x="640" y="306">纯墨色，上沿越出容器被截断</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="40" y="326">官网的版块分隔、移动端菜单背景（实测）</text>
+    <text x="340" y="326">章节编号、阶段、完成态的庆祝词（社区）</text>
+    <text x="640" y="326">版块顶部的分隔；可做横向跑马灯（观察）</text>
+    <text x="40" y="346">background-clip: text + 斜纹渐变</text>
+    <text x="340" y="346">-webkit-text-stroke + color: transparent</text>
+    <text x="640" y="346">父级 overflow: clip</text>
+  </g>
+
+  <path d="M40 368h880" stroke="#d9d9d9"/>
+  <g font-size="12" fill="#191919">
+    <text x="40" y="392">共同规则：text-ghost 字号、宽体全大写、字距 −0.04em；放在内容之下、不可选中、不可点击、对辅助技术隐藏；</text>
+    <text x="40" y="410">对比度必须明显低于真正的标题；窄屏缩小或移除。</text>
+  </g>
+</svg>

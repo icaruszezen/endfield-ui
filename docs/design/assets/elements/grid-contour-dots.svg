@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 380" width="960" height="380" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">三种底纹：工程网格、等高线、点阵</title>
+  <desc id="d">工程网格是大间距的细线并在交点处加十字；等高线是疏密不等的闭合曲线；点阵是等距排列的小点。三者都以极低的对比度铺在内容之下。</desc>
+  <defs>
+    <pattern id="dots" width="12" height="12" patternUnits="userSpaceOnUse">
+      <circle cx="6" cy="6" r="1.2" fill="#191919"/>
+    </pattern>
+    <clipPath id="p1"><rect x="40" y="56" width="280" height="190"/></clipPath>
+    <clipPath id="p2"><rect x="340" y="56" width="280" height="190"/></clipPath>
+  </defs>
+  <rect width="960" height="380" fill="#fafafa"/>
+
+  <!-- 网格 -->
+  <rect x="40" y="56" width="280" height="190" fill="#ffffff" stroke="#d9d9d9"/>
+  <g clip-path="url(#p1)">
+    <g stroke="#191919" stroke-opacity="0.1">
+      <path d="M112 56v190M184 56v190M256 56v190M40 128h280M40 200h280"/>
+    </g>
+    <g stroke="#191919" stroke-opacity="0.45" stroke-width="1.2">
+      <path d="M107 128h10M112 123v10M179 128h10M184 123v10M251 128h10M256 123v10"/>
+      <path d="M107 200h10M112 195v10M179 200h10M184 195v10M251 200h10M256 195v10"/>
+    </g>
+  </g>
+  <rect x="64" y="84" width="96" height="10" fill="#191919"/>
+  <rect x="64" y="102" width="150" height="5" fill="#b3b3b3"/>
+
+  <!-- 等高线 -->
+  <rect x="340" y="56" width="280" height="190" fill="#ffffff" stroke="#d9d9d9"/>
+  <g clip-path="url(#p2)" fill="none" stroke="#191919" stroke-opacity="0.18">
+    <path d="M470 150c10-22 44-26 58-8s2 44-22 46-46-16-36-38z"/>
+    <path d="M448 150c14-40 78-48 102-14s2 78-44 80-74-26-58-66z"/>
+    <path d="M424 152c18-58 116-70 150-20s2 112-66 114-106-36-84-94z"/>
+    <path d="M398 156c22-78 156-94 200-28s2 146-88 148-140-46-112-120z"/>
+    <path d="M370 160c26-98 198-118 252-36s2 180-110 182-174-56-142-146z"/>
+    <path d="M340 166c30-118 240-142 304-44s2 214-132 216-208-66-172-172z"/>
+  </g>
+  <rect x="364" y="84" width="96" height="10" fill="#191919"/>
+  <rect x="364" y="102" width="150" height="5" fill="#b3b3b3"/>
+
+  <!-- 点阵 -->
+  <rect x="640" y="56" width="280" height="190" fill="#ffffff" stroke="#d9d9d9"/>
+  <rect x="640" y="56" width="280" height="190" fill="url(#dots)" opacity="0.14"/>
+  <rect x="664" y="84" width="96" height="10" fill="#191919"/>
+  <rect x="664" y="102" width="150" height="5" fill="#b3b3b3"/>
+
+  <g font-size="14" font-weight="700" fill="#191919">
+    <text x="40" y="274">工程网格</text>
+    <text x="340" y="274">等高线</text>
+    <text x="640" y="274">点阵</text>
+  </g>
+  <g font-size="12" fill="#191919">
+    <text x="40" y="296">间距 64 – 96px 的细线，交点加十字</text>
+    <text x="340" y="296">疏密不等的闭合曲线</text>
+    <text x="640" y="296">间距 12 – 24px 的小点</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="40" y="316">线 ≤ 10% 墨色，十字可到 40%</text>
+    <text x="340" y="316">15 – 20% 墨色，1px</text>
+    <text x="640" y="316">整体 8 – 14% 不透明</text>
+    <text x="40" y="336">工作室、技能树、图解（社区）</text>
+    <text x="340" y="336">地图、探索、物品页底纹（社区）</text>
+    <text x="640" y="336">弹窗、卡片的底（官网实测 8%）</text>
+  </g>
+  <text x="40" y="364" font-size="11" fill="#8a8a8a">图中的对比度为了看得清略有加强。一个视口选一种；纹理上方的文字区域最好垫一层实色底。</text>
+</svg>

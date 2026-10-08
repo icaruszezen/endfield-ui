@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 500" width="960" height="500" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">信号黄、角色色与稀有度色阶</title>
+  <desc id="d">信号黄及其按下、深档与文字档；黄色在纸底上的正确与错误用法；七种角色色；四级稀有度色阶；三色注册条。</desc>
+  <rect width="960" height="500" fill="#fafafa"/>
+
+  <!-- A 信号黄 -->
+  <text x="40" y="34" font-size="13" font-weight="700" fill="#191919">信号黄</text>
+  <text x="96" y="34" font-size="12" fill="#626262">官网实测</text>
+
+  <rect x="40" y="48" width="220" height="124" fill="#fffa00"/>
+  <text x="56" y="78" font-size="15" font-weight="700" fill="#191919">signal</text>
+  <text x="56" y="98" font-size="12" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">#FFFA00</text>
+  <text x="56" y="156" font-size="12" fill="#191919">行动 · 选中 · 进度</text>
+
+  <rect x="268" y="48" width="130" height="58" fill="#eeea00"/>
+  <text x="280" y="72" font-size="12" font-weight="700" fill="#191919">signal-pressed</text>
+  <text x="280" y="90" font-size="11" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">#EEEA00  按下</text>
+
+  <rect x="268" y="114" width="130" height="58" fill="#e6de01"/>
+  <text x="280" y="138" font-size="12" font-weight="700" fill="#191919">signal-deep</text>
+  <text x="280" y="156" font-size="11" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">#E6DE01  深档</text>
+
+  <rect x="406" y="48" width="130" height="124" fill="#6b5d00"/>
+  <text x="418" y="78" font-size="12" font-weight="700" fill="#ffffff">signal-ink</text>
+  <text x="418" y="96" font-size="11" fill="#ffffff" font-family="'Space Grotesk',Consolas,monospace">#6B5D00</text>
+  <text x="418" y="140" font-size="12" fill="#ffffff">亮底上的</text>
+  <text x="418" y="158" font-size="12" fill="#ffffff">强调文字</text>
+
+  <!-- 用法对照 -->
+  <rect x="568" y="48" width="352" height="124" fill="#ffffff" stroke="#d9d9d9"/>
+  <rect x="584" y="64" width="150" height="40" fill="#fffa00"/>
+  <text x="659" y="90" font-size="15" font-weight="700" fill="#191919" text-anchor="middle">前往游戏</text>
+  <text x="746" y="82" font-size="12" fill="#191919">墨字压黄底</text>
+  <text x="746" y="100" font-size="12" fill="#007f43" font-family="'Space Grotesk',Consolas,monospace">15.9 : 1  ✓</text>
+  <text x="659" y="146" font-size="15" font-weight="700" fill="#fffa00" text-anchor="middle">前往游戏</text>
+  <text x="746" y="138" font-size="12" fill="#191919">黄字压纸底</text>
+  <text x="746" y="156" font-size="12" fill="#de0909" font-family="'Space Grotesk',Consolas,monospace">1.1 : 1  ✗</text>
+
+  <!-- B 角色色 -->
+  <text x="40" y="214" font-size="13" font-weight="700" fill="#191919">角色色</text>
+  <text x="96" y="214" font-size="12" fill="#626262">游戏界面取色（社区），用作填充</text>
+
+  <g>
+    <rect x="40" y="228" width="118" height="72" fill="#fc6c00"/>
+    <rect x="166" y="228" width="118" height="72" fill="#bce41d"/>
+    <rect x="292" y="228" width="118" height="72" fill="#2a84b4"/>
+    <rect x="418" y="228" width="118" height="72" fill="#06a2a2"/>
+    <rect x="544" y="228" width="118" height="72" fill="#f62a2a"/>
+    <rect x="670" y="228" width="118" height="72" fill="#00d872"/>
+    <rect x="796" y="228" width="124" height="72" fill="#904ef0"/>
+  </g>
+  <g font-size="12" font-weight="700" fill="#191919">
+    <text x="40" y="320">notice 橙</text>
+    <text x="166" y="320">gain 荧光黄绿</text>
+    <text x="292" y="320">data 蓝</text>
+    <text x="418" y="320">region 青</text>
+    <text x="544" y="320">alert 红</text>
+    <text x="670" y="320">confirm 绿</text>
+    <text x="796" y="320">special 紫</text>
+  </g>
+  <g font-size="11" fill="#626262" font-family="'Space Grotesk',Consolas,monospace">
+    <text x="40" y="337">#FC6C00</text>
+    <text x="166" y="337">#BCE41D</text>
+    <text x="292" y="337">#2A84B4</text>
+    <text x="418" y="337">#06A2A2</text>
+    <text x="544" y="337">#F62A2A</text>
+    <text x="670" y="337">#00D872</text>
+    <text x="796" y="337">#904EF0</text>
+  </g>
+  <g font-size="12" fill="#191919">
+    <text x="40" y="356">通知、倒计时、数量</text>
+    <text x="166" y="356">增益、增量</text>
+    <text x="292" y="356">量值图表、流程</text>
+    <text x="418" y="356">地区与机构主题</text>
+    <text x="544" y="356">危险、超支</text>
+    <text x="670" y="356">确认、充裕</text>
+    <text x="796" y="356">特殊、战术物品</text>
+  </g>
+
+  <!-- C 稀有度 -->
+  <text x="40" y="398" font-size="13" font-weight="700" fill="#191919">稀有度色阶</text>
+  <text x="124" y="398" font-size="12" fill="#626262">由低到高（社区）</text>
+  <g>
+    <rect x="40" y="412" width="104" height="40" fill="#24bafc"/>
+    <rect x="152" y="412" width="104" height="40" fill="#904ef6"/>
+    <rect x="264" y="412" width="104" height="40" fill="#fcba00"/>
+    <rect x="376" y="412" width="104" height="40" fill="#fc6c00"/>
+  </g>
+  <g font-size="11" fill="#626262" font-family="'Space Grotesk',Consolas,monospace">
+    <text x="40" y="470">rarity-1 #24BAFC</text>
+    <text x="152" y="470">rarity-2 #904EF6</text>
+    <text x="264" y="470">rarity-3 #FCBA00</text>
+    <text x="376" y="470">rarity-4 #FC6C00</text>
+  </g>
+  <path d="M40 484h430" stroke="#191919" stroke-width="2" fill="none"/>
+  <path d="M470 478l10 6-10 6z" fill="#191919"/>
+
+  <!-- D 注册色条 -->
+  <text x="568" y="398" font-size="13" font-weight="700" fill="#191919">注册色条</text>
+  <text x="640" y="398" font-size="12" fill="#626262">印刷三原色的屏幕近似值（推断）</text>
+  <rect x="568" y="412" width="12" height="40" fill="#ec008c"/>
+  <rect x="580" y="412" width="12" height="40" fill="#00aeef"/>
+  <rect x="592" y="412" width="12" height="40" fill="#fff200"/>
+  <g font-size="11" fill="#626262" font-family="'Space Grotesk',Consolas,monospace">
+    <text x="620" y="426">reg-magenta #EC008C</text>
+    <text x="620" y="440">reg-cyan    #00AEEF</text>
+    <text x="620" y="454">reg-yellow  #FFF200</text>
+  </g>
+  <text x="568" y="484" font-size="11" fill="#8a8a8a">只做装饰微条，不承担任何数据或状态语义。</text>
+</svg>

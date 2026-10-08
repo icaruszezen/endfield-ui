@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 340" width="960" height="340" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">四类形状及其含义</title>
+  <desc id="d">直角用于信息与默认控件；切角与斜楔用于行动与机械；圆与弧用于头像与仪表；胶囊用于筛选、资源与短状态。</desc>
+  <rect width="960" height="340" fill="#fafafa"/>
+  <g stroke="#e6e6e6"><path d="M250 32v276"/><path d="M480 32v276"/><path d="M710 32v276"/></g>
+
+  <!-- 1 直角 -->
+  <rect x="50" y="48" width="170" height="112" fill="#ffffff" stroke="#d9d9d9"/>
+  <rect x="62" y="62" width="44" height="20" fill="#191919"/>
+  <rect x="106" y="62" width="70" height="20" fill="#f2f2f2"/>
+  <rect x="62" y="98" width="146" height="6" fill="#d9d9d9"/>
+  <rect x="62" y="112" width="120" height="6" fill="#d9d9d9"/>
+  <rect x="62" y="126" width="136" height="6" fill="#d9d9d9"/>
+  <rect x="50" y="176" width="124" height="38" fill="#383838"/>
+  <rect x="60" y="186" width="3" height="18" fill="#fffa00"/>
+  <text x="118" y="200" font-size="13" font-weight="500" fill="#eeeeee" text-anchor="middle">更多</text>
+
+  <!-- 2 切角与斜楔 -->
+  <polygon points="280,48 432,48 450,66 450,94 280,94" fill="#fffa00"/>
+  <text x="365" y="77" font-size="15" font-weight="700" fill="#191919" text-anchor="middle">确认</text>
+  <polygon points="292,112 408,112 396,140 280,140" fill="#191919"/>
+  <text x="344" y="131" font-size="13" font-weight="500" fill="#ffffff" text-anchor="middle">TAG</text>
+  <polygon points="280,214 450,160 450,214" fill="#383838"/>
+  <path d="M280 160v16M280 160h16" stroke="#191919" stroke-width="2" fill="none"/>
+
+  <!-- 3 圆与弧 -->
+  <circle cx="548" cy="96" r="38" fill="#fffa00"/>
+  <circle cx="548" cy="96" r="32" fill="#d9d9d9"/>
+  <circle cx="548" cy="86" r="11" fill="#b3b3b3"/>
+  <path d="M526 116a22 16 0 0 1 44 0z" fill="#b3b3b3"/>
+  <circle cx="644" cy="96" r="34" fill="none" stroke="#d9d9d9" stroke-width="6"/>
+  <path d="M644 62A34 34 0 1 1 610 96" fill="none" stroke="#191919" stroke-width="6"/>
+  <text x="644" y="101" font-size="14" font-weight="500" fill="#191919" text-anchor="middle" font-family="'Space Grotesk',Consolas,monospace">75%</text>
+  <circle cx="548" cy="188" r="24" fill="#ffffff" stroke="#d9d9d9"/>
+  <path d="M553 178l-10 10 10 10" fill="none" stroke="#383838" stroke-width="2.5"/>
+  <circle cx="612" cy="188" r="24" fill="#ffffff" stroke="#d9d9d9"/>
+  <path d="M607 178l10 10-10 10" fill="none" stroke="#383838" stroke-width="2.5"/>
+
+  <!-- 4 胶囊 -->
+  <rect x="740" y="56" width="170" height="48" rx="24" fill="#191919"/>
+  <circle cx="764" cy="80" r="18" fill="#fafafa"/>
+  <path d="M768 73l-7 7 7 7" fill="none" stroke="#383838" stroke-width="2.5"/>
+  <circle cx="886" cy="80" r="18" fill="#fafafa"/>
+  <path d="M882 73l7 7-7 7" fill="none" stroke="#383838" stroke-width="2.5"/>
+  <text x="825" y="85" font-size="14" fill="#ffffff" text-anchor="middle" font-family="'Space Grotesk',Consolas,monospace">1 / 4</text>
+  <rect x="740" y="126" width="74" height="30" rx="15" fill="#ffffff" stroke="#b3b3b3"/>
+  <text x="777" y="146" font-size="13" fill="#191919" text-anchor="middle">筛选</text>
+  <rect x="822" y="126" width="88" height="30" rx="15" fill="#191919"/>
+  <text x="866" y="146" font-size="13" fill="#ffffff" text-anchor="middle">已选中</text>
+  <rect x="740" y="172" width="116" height="30" rx="15" fill="#f2f2f2"/>
+  <circle cx="756" cy="187" r="9" fill="#191919"/>
+  <text x="772" y="192" font-size="13" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">1,280</text>
+
+  <!-- 说明 -->
+  <g font-size="15" font-weight="700" fill="#191919">
+    <text x="50" y="256">直角</text>
+    <text x="280" y="256">切角与斜楔</text>
+    <text x="510" y="256">圆与弧</text>
+    <text x="740" y="256">胶囊</text>
+  </g>
+  <g font-size="12" fill="#191919">
+    <text x="50" y="278">信息、默认</text>
+    <text x="280" y="278">行动、机械、权限</text>
+    <text x="510" y="278">人、技能、仪表</text>
+    <text x="740" y="278">对话、筛选、资源</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="50" y="298">面板、标签、表格、按钮</text>
+    <text x="280" y="298">主行动、等级带、选区角钩</text>
+    <text x="510" y="298">头像、翻页钮、进度环</text>
+    <text x="740" y="298">导航器、筛选项、货币</text>
+  </g>
+</svg>

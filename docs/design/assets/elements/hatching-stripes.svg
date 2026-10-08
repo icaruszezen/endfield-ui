@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 470" width="960" height="470" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">斜纹与警示条纹</title>
+  <desc id="d">六像素方格内两条四十五度斜带构成的斜纹，有细、中、粗三种密度，分别用于镂空字、深色按钮底纹和浅色面底纹；以及黄黑相间的警示条纹。</desc>
+  <defs>
+    <pattern id="h-fine" width="6" height="6" patternUnits="userSpaceOnUse">
+      <path d="M-1 1L1 -1M0 6L6 0M5 7L7 5" stroke="#000000" stroke-width="0.75"/>
+    </pattern>
+    <pattern id="h-mid" width="6" height="6" patternUnits="userSpaceOnUse">
+      <path d="M-1 1L1 -1M0 6L6 0M5 7L7 5" stroke="#424242" stroke-width="1.5"/>
+    </pattern>
+    <pattern id="h-wide" width="6" height="6" patternUnits="userSpaceOnUse">
+      <path d="M-1 1L1 -1M0 6L6 0M5 7L7 5" stroke="#000000" stroke-width="1.9"/>
+    </pattern>
+    <pattern id="hazard" width="24" height="24" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="12" height="24" fill="#fffa00"/>
+      <rect x="12" width="12" height="24" fill="#191919"/>
+    </pattern>
+    <clipPath id="tile1"><rect x="40" y="64" width="120" height="120"/></clipPath>
+    <clipPath id="tile2"><rect x="350" y="64" width="120" height="120"/></clipPath>
+    <clipPath id="tile3"><rect x="660" y="64" width="120" height="120"/></clipPath>
+  </defs>
+  <rect width="960" height="470" fill="#fafafa"/>
+
+  <text x="40" y="34" font-size="13" font-weight="700" fill="#191919">斜纹</text>
+  <text x="76" y="34" font-size="12" fill="#626262">6px 方格、−45°、每格两条斜带。左：放大 20 倍的单格；右：实际效果</text>
+
+  <!-- 细 -->
+  <rect x="40" y="64" width="120" height="120" fill="#ffffff" stroke="#b3b3b3"/>
+  <g clip-path="url(#tile1)" stroke="#191919" stroke-width="15">
+    <path d="M20 84L60 44M40 184L160 64M140 204L180 164"/>
+  </g>
+  <rect x="40" y="64" width="120" height="120" fill="none" stroke="#b3b3b3"/>
+  <rect x="176" y="64" width="140" height="120" fill="#ffffff" stroke="#d9d9d9"/>
+  <text x="246" y="152" font-size="84" font-weight="800" fill="url(#h-fine)" opacity="0.6" text-anchor="middle" font-family="'Archivo','Arial Black',Arial,sans-serif">//</text>
+
+  <!-- 中 -->
+  <rect x="350" y="64" width="120" height="120" fill="#383838"/>
+  <g clip-path="url(#tile2)" stroke="#424242" stroke-width="30">
+    <path d="M330 84L370 44M350 184L470 64M450 204L490 164"/>
+  </g>
+  <rect x="486" y="64" width="140" height="120" fill="#ffffff" stroke="#d9d9d9"/>
+  <rect x="498" y="102" width="116" height="44" fill="#383838"/>
+  <rect x="498" y="102" width="116" height="44" fill="url(#h-mid)"/>
+  <text x="556" y="130" font-size="14" font-weight="500" fill="#ffffff" text-anchor="middle">返回</text>
+
+  <!-- 粗 -->
+  <rect x="660" y="64" width="120" height="120" fill="#e6e6e6"/>
+  <g clip-path="url(#tile3)" stroke="#000000" stroke-opacity="0.05" stroke-width="38">
+    <path d="M640 84L680 44M660 184L780 64M760 204L800 164"/>
+  </g>
+  <rect x="796" y="64" width="124" height="120" fill="#ffffff" stroke="#d9d9d9"/>
+  <rect x="796" y="108" width="124" height="32" fill="#e6e6e6"/>
+  <rect x="796" y="108" width="124" height="32" fill="url(#h-wide)" opacity="0.05"/>
+  <rect x="806" y="112" width="24" height="24" fill="#fafafa" stroke="#d9d9d9"/>
+  <rect x="886" y="112" width="24" height="24" fill="#fafafa" stroke="#d9d9d9"/>
+  <text x="858" y="129" font-size="12" fill="#191919" text-anchor="middle" font-family="'Space Grotesk',Consolas,monospace">1 / 4</text>
+
+  <g font-size="13" font-weight="700" fill="#191919">
+    <text x="40" y="210">细 · 镂空字</text>
+    <text x="350" y="210">中 · 深色底纹</text>
+    <text x="660" y="210">粗 · 浅色底纹</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="40" y="230">单条约占 9%；黑色，整体 60% 不透明，</text>
+    <text x="40" y="248">以文字形状裁切。</text>
+    <text x="350" y="230">单条约占 18%；比底色亮一档</text>
+    <text x="350" y="248">（#424242 压 #383838）。</text>
+    <text x="660" y="230">单条约占 22%；黑色，5% 不透明，</text>
+    <text x="660" y="248">铺在分页条、标题栏上。</text>
+  </g>
+
+  <path d="M40 276h880" stroke="#d9d9d9"/>
+
+  <!-- 警示条纹 -->
+  <text x="40" y="306" font-size="13" font-weight="700" fill="#191919">警示条纹</text>
+  <text x="104" y="306" font-size="12" fill="#626262">黄黑等宽、45°，每条 12px（社区）</text>
+  <rect x="40" y="326" width="400" height="12" fill="url(#hazard)"/>
+  <rect x="40" y="356" width="400" height="60" fill="#191919"/>
+  <rect x="40" y="356" width="400" height="6" fill="url(#hazard)"/>
+  <rect x="56" y="380" width="120" height="8" fill="#fafafa"/>
+  <rect x="56" y="396" width="200" height="5" fill="#8a8a8a"/>
+  <g font-size="12" fill="#191919">
+    <text x="480" y="336">只作窄条：分隔线、页脚顶边、危险操作区的边缘。</text>
+    <text x="480" y="372">高度 6 – 12px，不要铺成大面积底纹。</text>
+    <text x="480" y="396">一个视口最多一处；它和红色一样带有"危险"含义，</text>
+    <text x="480" y="414">不要用在普通内容上。</text>
+  </g>
+  <text x="40" y="446" font-size="11" fill="#8a8a8a">三种斜纹的占比取自官网实测；官网上没有量到警示条纹，它出自社区项目对游戏界面的归纳。</text>
+</svg>

@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" width="960" height="460" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">卡片、物品格与列表行</title>
+  <desc id="d">面板、媒体卡、物品格的四种状态（默认、选中、锁定、新内容）以及列表行的默认、悬停和选中状态。</desc>
+  <defs>
+    <linearGradient id="cr1" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#24bafc" stop-opacity=".55"/><stop offset="1" stop-color="#24bafc" stop-opacity="0"/></linearGradient>
+    <linearGradient id="cr2" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#904ef6" stop-opacity=".55"/><stop offset="1" stop-color="#904ef6" stop-opacity="0"/></linearGradient>
+    <linearGradient id="cr3" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#fcba00" stop-opacity=".6"/><stop offset="1" stop-color="#fcba00" stop-opacity="0"/></linearGradient>
+    <linearGradient id="cr4" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#fc6c00" stop-opacity=".6"/><stop offset="1" stop-color="#fc6c00" stop-opacity="0"/></linearGradient>
+    <pattern id="ch" width="6" height="6" patternUnits="userSpaceOnUse">
+      <path d="M-1 1L1 -1M0 6L6 0M5 7L7 5" stroke="#ffffff" stroke-width="1"/>
+    </pattern>
+    <filter id="camb" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#000000" flood-opacity="0.18"/></filter>
+  </defs>
+  <rect width="960" height="460" fill="#fafafa"/>
+
+  <!-- 面板 -->
+  <text x="40" y="34" font-size="13" font-weight="700" fill="#191919">面板</text>
+  <rect x="40" y="52" width="220" height="150" fill="#ffffff" stroke="#d9d9d9"/>
+  <rect x="40" y="52" width="220" height="30" fill="#191919"/>
+  <rect x="40" y="52" width="4" height="30" fill="#fffa00"/>
+  <text x="56" y="72" font-size="13" font-weight="500" fill="#ffffff">基础属性</text>
+  <g fill="#191919" font-size="13">
+    <text x="56" y="108">生命</text><text x="56" y="134">攻击</text><text x="56" y="160">防御</text>
+  </g>
+  <g fill="#191919" font-size="13" font-weight="700" text-anchor="end" font-family="'Space Grotesk',Consolas,monospace">
+    <text x="244" y="108">5,495</text><text x="244" y="134">312</text><text x="244" y="160">124</text>
+  </g>
+  <g stroke="#e6e6e6"><path d="M56 116h188"/><path d="M56 142h188"/></g>
+  <text x="56" y="188" font-size="11" fill="#8a8a8a">直角 · 1px 线 · 无阴影</text>
+
+  <!-- 媒体卡 -->
+  <text x="300" y="34" font-size="13" font-weight="700" fill="#191919">媒体卡</text>
+  <rect x="300" y="52" width="240" height="120" rx="6" fill="#d9d9d9" filter="url(#camb)"/>
+  <polygon points="300,172 360,110 410,140 470,90 540,150 540,172" fill="#bdbdbd"/>
+  <text x="300" y="194" font-size="11" fill="#8a8a8a" font-family="'Space Grotesk',Consolas,monospace">// 新闻  2026.10.08</text>
+  <text x="300" y="214" font-size="14" font-weight="500" fill="#191919">标题写在图片之外</text>
+
+  <!-- 物品格 -->
+  <text x="590" y="34" font-size="13" font-weight="700" fill="#191919">物品格</text>
+  <g fill="#ffffff" stroke="#d9d9d9">
+    <rect x="590" y="56" width="72" height="88"/><rect x="678" y="56" width="72" height="88"/><rect x="766" y="56" width="72" height="88"/><rect x="854" y="56" width="66" height="88"/>
+  </g>
+  <rect x="590" y="100" width="72" height="44" fill="url(#cr1)"/>
+  <rect x="678" y="100" width="72" height="44" fill="url(#cr3)"/>
+  <rect x="766" y="100" width="72" height="44" fill="url(#cr2)"/>
+  <rect x="854" y="100" width="66" height="44" fill="url(#cr4)"/>
+  <rect x="854" y="100" width="66" height="44" fill="url(#ch)" opacity=".35"/>
+  <g fill="#b3b3b3">
+    <polygon points="626,72 642,92 626,112 610,92"/><polygon points="714,72 730,92 714,112 698,92"/>
+    <polygon points="802,72 818,92 802,112 786,92"/><polygon points="887,72 903,92 887,112 871,92"/>
+  </g>
+  <g font-size="11" font-weight="700" fill="#191919" font-family="'Space Grotesk',Consolas,monospace" text-anchor="end">
+    <text x="656" y="138">×24</text><text x="744" y="138">×3</text><text x="914" y="138">×1</text>
+  </g>
+  <!-- 选中 -->
+  <g fill="none" stroke="#191919" stroke-width="2.5">
+    <path d="M674 64v-12h12"/><path d="M742 52h12v12"/><path d="M754 136v12h-12"/><path d="M686 148h-12v-12"/>
+  </g>
+  <!-- 锁 -->
+  <rect x="772" y="124" width="12" height="10" fill="#191919"/>
+  <path d="M774 124v-4a4 4 0 0 1 8 0v4" fill="none" stroke="#191919" stroke-width="2"/>
+  <!-- NEW -->
+  <rect x="854" y="56" width="30" height="14" fill="#fffa00"/>
+  <text x="869" y="67" font-size="9" font-weight="700" fill="#191919" text-anchor="middle" font-family="'Space Grotesk',Consolas,monospace">NEW</text>
+  <g font-size="12" fill="#191919" text-anchor="middle">
+    <text x="626" y="168">默认</text><text x="714" y="168">选中</text><text x="802" y="168">锁定</text><text x="887" y="168">最高档 + 新</text>
+  </g>
+  <g font-size="11" fill="#626262">
+    <text x="590" y="190">稀有度用底部渐变，不用整圈描边；选中用角括号；</text>
+    <text x="590" y="207">锁定在左下放锁图标，卡面不变灰；最高档叠细斜纹</text>
+  </g>
+
+  <path d="M40 240h880" stroke="#d9d9d9"/>
+
+  <!-- 列表行 -->
+  <text x="40" y="270" font-size="13" font-weight="700" fill="#191919">列表行</text>
+  <rect x="40" y="288" width="420" height="132" fill="#ffffff" stroke="#d9d9d9"/>
+  <rect x="40" y="288" width="420" height="44" fill="#ffffff"/>
+  <rect x="40" y="332" width="420" height="44" fill="#f2f2f2"/>
+  <rect x="40" y="376" width="420" height="44" fill="#e6e6e6"/>
+  <rect x="40" y="376" width="4" height="44" fill="#fffa00" stroke="#191919" stroke-width=".5"/>
+  <g stroke="#d9d9d9"><path d="M40 332h420"/><path d="M40 376h420"/></g>
+  <g font-size="14" fill="#191919">
+    <text x="60" y="315">默认行</text><text x="60" y="359">悬停行</text><text x="60" y="403" font-weight="700">选中行</text>
+  </g>
+  <g font-size="12" fill="#626262" text-anchor="end" font-family="'Space Grotesk',Consolas,monospace">
+    <text x="444" y="315">01</text><text x="444" y="359">02</text><text x="444" y="403">03</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="490" y="312">默认：表面色，行间 1px 线</text>
+    <text x="490" y="336">悬停：surface-sunken</text>
+    <text x="490" y="360">选中：surface-muted + 左缘 4px 强调条 + 加粗</text>
+    <text x="490" y="394">深色界面里选中行可以整行反转为白底墨字（社区）。</text>
+    <text x="490" y="414">行内不放装饰；数字右对齐、等宽。</text>
+  </g>
+  <text x="40" y="444" font-size="11" fill="#8a8a8a">面板、媒体卡、列表行按官网的做法绘制；物品格的稀有度渐变、锁定与选中方式出自社区对游戏界面的归纳。</text>
+</svg>
