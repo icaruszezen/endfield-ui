@@ -17,10 +17,13 @@ import {
   Progress,
   Radio,
   RadioGroup,
+  Select,
   ResourceChip,
   SectionTitle,
   Stat,
   Switch,
+  ToastProvider,
+  useToast,
   Tag,
   Textarea,
 } from "@endfield-ui/react";
@@ -28,7 +31,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState, type FormEvent } from "react";
 import { FuelIcon, OreIcon } from "./_shared/ResourceIcons";
 
-/** 用表单与反馈类控件搭一个设置页。文案与数据全部虚构。 */
+/**
+ * 用表单与反馈类控件搭一个设置页。文案与数据全部虚构。
+ * 保存成功只是一句确认，用会自己消失的轻提示；没填对要用户处理，用常驻的提示条。
+ */
 const meta = {
   title: "示例/设置页",
   parameters: { controls: { disable: true } },
@@ -48,10 +54,23 @@ const shifts = [
 
 const categories = ["新闻", "公告", "维护", "活动"];
 
+const regions = [
+  { value: "valley", label: "四号谷地" },
+  { value: "ridge", label: "北岭" },
+  { value: "basin", label: "盐湖盆地" },
+  { value: "delta", label: "三角洲（未开放）", disabled: true },
+];
+
+const cadences = [
+  { value: "shift", label: "每班一次" },
+  { value: "daily", label: "每天一次" },
+  { value: "weekly", label: "每周一次" },
+];
+
 function Settings() {
+  const toast = useToast();
   const [codename, setCodename] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [shift, setShift] = useState("a");
   const [subscribed, setSubscribed] = useState(["公告", "维护"]);
 
@@ -63,7 +82,9 @@ function Settings() {
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     setSubmitted(true);
-    setSaved(codename.trim() !== "");
+    if (codename.trim() !== "") {
+      toast({ message: "设置已保存", tone: "success" });
+    }
   };
 
   return (
@@ -106,11 +127,6 @@ function Settings() {
       </section>
 
       <form noValidate onSubmit={handleSubmit} className="flex flex-col gap-10">
-        {saved && (
-          <Alert tone="success" onClose={() => setSaved(false)}>
-            设置已保存。
-          </Alert>
-        )}
         {codenameError && (
           <Alert tone="danger" title="有 1 项没有填对">
             <a href="#settings-codename" className="underline underline-offset-4">
@@ -147,6 +163,17 @@ function Settings() {
             </Field>
             <Field label="联络频段" help="三位数字。">
               <Input inputMode="numeric" defaultValue="142" end="MHz" />
+            </Field>
+            <Field label="所属地区" help="决定默认的补给线。">
+              <Select items={regions} defaultValue="ridge" name="region" />
+            </Field>
+            <Field label="上报周期">
+              <Select
+                items={cadences}
+                placeholder="请选择"
+                name="cadence"
+                panelVariant="strong"
+              />
             </Field>
           </div>
           <Field label="交接备注" help="写给下一班的人看。">
@@ -252,7 +279,6 @@ function Settings() {
             onClick={() => {
               setCodename("");
               setSubmitted(false);
-              setSaved(false);
             }}
           >
             放弃修改
@@ -266,5 +292,9 @@ function Settings() {
 
 export const Page: Story = {
   name: "站点设置",
-  render: () => <Settings />,
+  render: () => (
+    <ToastProvider>
+      <Settings />
+    </ToastProvider>
+  ),
 };

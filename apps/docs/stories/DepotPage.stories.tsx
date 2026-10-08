@@ -5,6 +5,8 @@ import {
   Button,
   ButtonGroup,
   CompletionBanner,
+  Dialog,
+  DialogClose,
   EmptyState,
   Field,
   GhostText,
@@ -24,7 +26,10 @@ import {
   TabPanel,
   Tabs,
   TickRing,
+  ToastProvider,
+  Tooltip,
   Viewfinder,
+  useToast,
   type ItemSlotRarity,
 } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
@@ -33,6 +38,7 @@ import { CrateIcon, FuelIcon, OreIcon } from "./_shared/ResourceIcons";
 
 /**
  * 用物品格、楔形页签、角括号、取景角这一批游戏风格的控件搭一个仓库页。
+ * 销毁要先过一个确认弹窗，完成后出一条可以撤销的轻提示。
  * 文案与数据全部虚构，图标是原创的几何图形。
  */
 const meta = {
@@ -98,6 +104,7 @@ const slotGrid =
   "grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-2 p-1";
 
 function Depot() {
+  const toast = useToast();
   const [items, setItems] = useState(stock);
   const [selectedId, setSelectedId] = useState<string | null>("alloy");
   const [locked, setLocked] = useState<ReadonlySet<string>>(
@@ -139,8 +146,21 @@ function Depot() {
 
   const discard = () => {
     if (!selected || isLocked) return;
-    setItems((current) => current.filter((item) => item.id !== selected.id));
-    setSelectedId(null);
+    const removed = selected;
+    // 选中移到下一格（没有就上一格），不让详情面板空下来
+    const next = sorted[position] ?? sorted[position - 2] ?? null;
+    setItems((current) => current.filter((item) => item.id !== removed.id));
+    setSelectedId(next?.id ?? null);
+    toast({
+      message: `已销毁 ${removed.name}`,
+      action: {
+        label: "撤销",
+        onClick: () => {
+          setItems((current) => [...current, removed]);
+          setSelectedId(removed.id);
+        },
+      },
+    });
   };
 
   const SelectedIcon = selected?.icon;
@@ -245,13 +265,15 @@ function Depot() {
                     <PanelBody>
                       <ButtonGroup aria-label="物品操作" gap="sm">
                         <Kbd>L</Kbd>
-                        <Button
-                          variant="light"
-                          size="sm"
-                          onClick={() => toggleLock(selected.id)}
-                        >
-                          {isLocked ? "解锁" : "锁定"}
-                        </Button>
+                        <Tooltip content="锁定的物品不会被销毁" side="bottom">
+                          <Button
+                            variant="light"
+                            size="sm"
+                            onClick={() => toggleLock(selected.id)}
+                          >
+                            {isLocked ? "解锁" : "锁定"}
+                          </Button>
+                        </Tooltip>
                         <Button size="sm">使用</Button>
                       </ButtonGroup>
                     </PanelBody>
@@ -273,14 +295,34 @@ function Depot() {
                     销毁后无法恢复。已锁定的物品不能销毁。
                   </p>
                   <ButtonGroup className="mt-4" aria-label="销毁物品">
-                    <Button
-                      variant="danger"
+                    {/* 破坏性操作先确认：点遮罩不关，按钮文字里写明后果 */}
+                    <Dialog
+                      alert
                       size="sm"
-                      disabled={!selected || isLocked}
-                      onClick={discard}
-                    >
-                      销毁所选
-                    </Button>
+                      trigger={
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          disabled={!selected || isLocked}
+                        >
+                          销毁所选
+                        </Button>
+                      }
+                      title={`销毁${selected?.name ?? "物品"}`}
+                      description={`仓库里的 ${selected?.count ?? 0} 件会全部销毁。`}
+                      footer={
+                        <>
+                          <DialogClose>
+                            <Button variant="light">取消</Button>
+                          </DialogClose>
+                          <DialogClose>
+                            <Button variant="danger" onClick={discard}>
+                              {`销毁 ${selected?.count ?? 0} 件`}
+                            </Button>
+                          </DialogClose>
+                        </>
+                      }
+                    />
                   </ButtonGroup>
                 </PanelBody>
               </Panel>
@@ -317,5 +359,9 @@ function Depot() {
 
 export const Page: Story = {
   name: "仓库",
-  render: () => <Depot />,
+  render: () => (
+    <ToastProvider>
+      <Depot />
+    </ToastProvider>
+  ),
 };

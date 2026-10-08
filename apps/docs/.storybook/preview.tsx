@@ -52,7 +52,8 @@ const withTheme: Decorator = (Story, context) => {
       mode={single ? "light" : requested}
       fill={context.viewMode === "story"}
     >
-      {single && (
+      {/* 文档页里每个 story 都会套一层外壳，说明只在单独打开时出现一次 */}
+      {single && context.viewMode === "story" && (
         <p className="mb-4 font-tech text-xs text-ink-tertiary uppercase">
           // 这一页不并排：用工具栏的"主题"切换亮暗
         </p>

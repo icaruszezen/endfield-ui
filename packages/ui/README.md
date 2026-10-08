@@ -6,12 +6,13 @@
 
 | 类别 | 控件 |
 | --- | --- |
-| 基础 | Button / ButtonGroup、IconButton、Tag / TagPair、Badge、Kbd、SectionTitle、Tabs、Panel |
-| 表单 | Field、Input、Textarea、Checkbox、Radio / RadioGroup、Switch、Stepper、FilterChip |
-| 反馈 | Alert、Progress / ProgressRing、Spinner、Skeleton、EmptyState、Loader、CompletionBanner、RecIndicator |
-| 展示 | Stat、List / ListRow、MediaCard、ItemSlot、Timeline、ResourceChip、Countdown、Marquee、ScrollHint |
+| 基础 | Button / ButtonGroup、IconButton、Tag / TagPair、Badge、Kbd、SectionTitle、BracketTitle、Tabs、Panel |
+| 表单 | Field、Input、Textarea、Select、Checkbox、Radio / RadioGroup、Switch、Stepper、FilterChip |
+| 反馈 | Alert、Toast、Progress / ProgressRing、Spinner、Skeleton、EmptyState、Loader、CompletionBanner、RecIndicator |
+| 浮层 | Tooltip、Dialog、Drawer、DropdownMenu |
+| 展示 | Stat、List / ListRow、MediaCard、ItemSlot、Timeline、Term、ResourceChip、Countdown、Marquee、ScrollHint |
 | 导航 | Breadcrumb、Pagination、Navigator、DashIndicator |
-| 母题 | CornerBrackets、Viewfinder、GhostText、Hatch、RegistrationStrip、TickRing、HazardStripe |
+| 母题 | CornerBrackets、Viewfinder、GhostText、Hatch、Texture、RegistrationStrip、TickRing、HazardStripe |
 
 包还没有发布到 npm，目前只在本仓库的工作区里使用。
 
@@ -22,7 +23,7 @@
 | 框架 | React 19 + TypeScript |
 | 样式 | Tailwind CSS v4（CSS-first，`@theme` 令牌，不使用 `tailwind.config.js`） |
 | 变体 | 手写的 `Record<Variant, string>` + `cn()`（`clsx` + `tailwind-merge`） |
-| 无障碍基元 | 还没有引入：现有控件都建立在原生元素上。Radix UI / React Aria / Base UI 三选一，写第一个浮层组件前决定 |
+| 无障碍基元 | [Base UI](https://base-ui.com)（`@base-ui/react`），只用在浮层上：文字提示、弹窗、抽屉、轻提示、下拉选择、下拉菜单。其余控件建立在原生元素上 |
 | 构建 | tsdown（ESM + 类型声明）+ `@tailwindcss/cli`（预编译 CSS） |
 | 测试 | Vitest + Testing Library（jsdom） |
 
@@ -126,6 +127,113 @@ import { Loader } from "@endfield-ui/react";
 
 不知道真实进度就不传 `value`。只想盖住页面的一块区域时加 `fullscreen={false}`，并让那块区域带 `relative` 与 `overflow-hidden`。
 
+### 浮层
+
+文字提示、弹窗、抽屉、下拉菜单、下拉选择、轻提示。焦点的进出与锁定、键盘、定位与翻转都交给 Base UI，这里只管长相；用的时候不用自己拼部件。触发元素作为一个 React 元素传进去：
+
+```tsx
+import {
+  Button,
+  Dialog,
+  DialogClose,
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  IconButton,
+  Tooltip,
+} from "@endfield-ui/react";
+
+<Tooltip content="锁定的物品不会被销毁">
+  <IconButton aria-label="锁定">
+    <Lock />
+  </IconButton>
+</Tooltip>
+
+<Dialog
+  alert
+  size="sm"
+  trigger={<Button variant="danger">销毁</Button>}
+  title="销毁 3 件物资"
+  description="销毁之后无法找回。"
+  footer={
+    <>
+      <DialogClose>
+        <Button variant="light">取消</Button>
+      </DialogClose>
+      <DialogClose>
+        <Button variant="danger" onClick={destroy}>
+          销毁 3 件
+        </Button>
+      </DialogClose>
+    </>
+  }
+/>
+
+<DropdownMenu trigger={<Button variant="light">操作</Button>}>
+  <DropdownMenuItem onClick={rename}>重命名</DropdownMenuItem>
+  <DropdownMenuItem href="/detail">查看详情</DropdownMenuItem>
+  <DropdownMenuSeparator />
+  <DropdownMenuItem tone="danger" onClick={remove}>
+    删除
+  </DropdownMenuItem>
+</DropdownMenu>
+```
+
+- `Dialog` 与 `Drawer` 也可以不传 `trigger`，自己用 `open` / `onOpenChange` 控制。`alert` 是破坏性操作的确认：点遮罩不关。
+- `Drawer` 的 `side` 是 `right`（默认）、`left`、`bottom`，都可以朝来的方向划走。
+- 触发元素要是一个按钮，并且把收到的属性和 `ref` 交给原生元素。本库的 `Button`、`IconButton` 都可以直接用。
+
+下拉选择的触发器和输入框长得一样，放进 `Field` 自动关联标签与错误说明：
+
+```tsx
+import { Field, Select } from "@endfield-ui/react";
+
+<Field label="所属地区" error={error}>
+  <Select
+    name="region"
+    placeholder="请选择"
+    items={[
+      { value: "valley", label: "四号谷地" },
+      { value: "ridge", label: "北岭" },
+    ]}
+    value={region}
+    onValueChange={setRegion}
+  />
+</Field>
+```
+
+轻提示要先在应用最外层包一个 `ToastProvider`，里面的任何地方用 `useToast()` 弹出。同时只显示一条，新的替换旧的：
+
+```tsx
+import { ToastProvider, useToast } from "@endfield-ui/react";
+
+<ToastProvider>
+  <App />
+</ToastProvider>;
+
+function SaveButton() {
+  const toast = useToast();
+  return (
+    <Button
+      onClick={async () => {
+        await save();
+        toast({ message: "设置已保存", tone: "success" });
+      }}
+    >
+      保存
+    </Button>
+  );
+}
+```
+
+带 `action` 的提示（"撤销"）会多停一会儿并出现关闭图标。需要用户处理的信息不要用轻提示，用 `Alert` 或 `Dialog`。
+
+接入时要知道的三件事：
+
+- **浮层挂在 `<body>` 下。** 它们的 `z-index` 是 `--z-overlay`（300），轻提示是 `--z-toast`（400）。应用里有更高的层时，在 `:root` 上改这两个变量。所有浮层共用一个值、靠打开的先后叠，所以弹窗里的下拉能盖住弹窗——不要单独给某个浮层加高。
+- **局部主题会跟过去。** 暗色版块（`data-theme="dark"`）里的按钮打开的弹窗也是暗色的：浮层打开时从触发元素往上找最近的 `data-theme` / `data-choice` 抄到自己身上。没有触发元素的受控弹窗跟随 `<html>`；需要时把 `data-theme` 直接传给它。
+- **`@base-ui/react` 是本包的依赖**，装本包时会一起装上，不用另外引入。
+
 ### 游戏风格的控件
 
 物品格的宽度跟着所在的网格走。格子里只有图标，`name` 是给读屏的名称；选中是四角的角括号，画在格子之外 4px，所以网格四周要留出这段空隙：
@@ -163,7 +271,20 @@ import { ItemSlot, Tab, TabList, Tabs } from "@endfield-ui/react";
 
 ### 母题
 
-镂空巨字、斜纹、注册色条、刻度圆环、取景角、警示条纹、角括号各有一个组件。除了角括号（它表示选中），其余都是纯装饰：对读屏隐藏、不挡点击，高对比模式与打印时不显示。
+镂空巨字、斜纹、底纹、注册色条、刻度圆环、取景角、警示条纹、角括号各有一个组件。除了角括号（它表示选中），其余都是纯装饰：对读屏隐藏、不挡点击，高对比模式与打印时不显示。
+
+底纹有点阵、工程网格、等高线三种（`<Texture variant="dots" | "grid" | "contour">`），铺满最近的定位祖先。一个视口选一种，文字下面垫一层实色：
+
+```tsx
+import { BracketTitle, Texture } from "@endfield-ui/react";
+
+<section className="relative overflow-clip bg-surface-raised p-4">
+  <Texture />
+  <div className="relative bg-surface-raised p-5">
+    <BracketTitle>北区仓储站</BracketTitle>
+  </div>
+</section>
+```
 
 ```tsx
 import { GhostText, TickRing, Viewfinder } from "@endfield-ui/react";
@@ -184,7 +305,7 @@ import { GhostText, TickRing, Viewfinder } from "@endfield-ui/react";
 
 叠在画面上的东西（取景角、刻度圆环、录制指示）颜色跟的是**画面**，不是页面：画面是深色的就在它上面加 `data-theme="dark"`。
 
-用 Tailwind 的项目也可以直接用工具类（`cut-tr`、`wedge-r`、`corner-brackets`、`ghost-hatch`、`hatch`、`hazard`），见 [styles/README.md](src/styles/README.md)。这些母题最容易用过头，什么时候该用见 [母题文档](../../docs/design/elements/corner-and-wedge.md)。
+用 Tailwind 的项目也可以直接用工具类（`cut-tr`、`wedge-r`、`corner-brackets`、`ghost-hatch`、`hatch`、`hazard`、`dot-grid`、`blueprint-grid`、`contour`），见 [styles/README.md](src/styles/README.md)。这些母题最容易用过头，什么时候该用见 [母题文档](../../docs/design/elements/corner-and-wedge.md)。
 
 ### 主题
 
@@ -215,7 +336,7 @@ packages/ui/
     ├── index.ts      入口
     ├── components/   一组件一目录，见 components/README.md
     ├── styles/       令牌、母题工具类、样式入口，见 styles/README.md
-    ├── hooks/        与组件无关的通用 hooks
+    ├── hooks/        与组件无关的通用 hooks（主题、受控状态、浮层的局部主题）
     ├── lib/          纯函数工具
     └── icons/        原创图标组件，不收录官方图标
 ```

@@ -3,9 +3,15 @@ import {
   BreadcrumbItem,
   Button,
   DashIndicator,
+  DialogClose,
+  Drawer,
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
   EmptyState,
   Field,
   FilterChip,
+  IconButton,
   Input,
   List,
   ListRow,
@@ -14,17 +20,24 @@ import {
   Pagination,
   ProgressRing,
   SectionTitle,
+  Select,
   Stepper,
   Switch,
   Tag,
   Timeline,
   TimelineItem,
+  ToastProvider,
+  useToast,
 } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState, type ReactNode } from "react";
 import { ScenePlaceholder } from "./_shared/Placeholders";
+import { MoreIcon } from "./_shared/ResourceIcons";
 
-/** 用分页、媒体卡、时间线这一批控件搭一个列表页。文案与数据全部虚构。 */
+/**
+ * 用分页、媒体卡、时间线这一批控件搭一个列表页。文案与数据全部虚构。
+ * 排序是下拉选择，"更多"是下拉菜单；页面窄的时候类别筛选收进抽屉。
+ */
 const meta = {
   title: "示例/列表页",
   parameters: { controls: { disable: true } },
@@ -43,6 +56,11 @@ const subjects = [
   "采样点渗水处理",
   "秋季计划征集建议",
   "夜间值守安排调整",
+];
+
+const orders = [
+  { value: "newest", label: "最新在前" },
+  { value: "oldest", label: "最早在前" },
 ];
 
 const pad = (value: number) => String(value).padStart(2, "0");
@@ -74,6 +92,7 @@ function Label({ children }: { children: ReactNode }) {
 }
 
 function Archive() {
+  const toast = useToast();
   const [query, setQuery] = useState("");
   const [picked, setPicked] = useState<string[]>([]);
   // 导航器的第 0 项是"全部"
@@ -81,15 +100,18 @@ function Archive() {
   const [asList, setAsList] = useState(false);
   const [pageSize, setPageSize] = useState(6);
   const [page, setPage] = useState(1);
+  const [order, setOrder] = useState("newest");
 
   const zone = zoneIndex === 0 ? null : zones[zoneIndex - 1];
   const keyword = query.trim();
-  const matched = records.filter(
+  const filtered = records.filter(
     (record) =>
       (zone === null || record.zone === zone) &&
       (picked.length === 0 || picked.includes(record.category)) &&
       (keyword === "" || record.title.includes(keyword)),
   );
+  // 数据本来就是从新到旧排的
+  const matched = order === "newest" ? filtered : [...filtered].reverse();
 
   const pageCount = Math.max(1, Math.ceil(matched.length / pageSize));
   const current = Math.min(page, pageCount);
@@ -108,6 +130,29 @@ function Archive() {
       setPicked([]);
       setZoneIndex(0);
     });
+
+  // 宽的时候排在工具条里，窄的时候收进抽屉：同一组胶囊
+  const categoryChips = (
+    <div className="flex min-h-10 flex-wrap items-center gap-2">
+      {categories.map((category) => (
+        <FilterChip
+          key={category}
+          selected={picked.includes(category)}
+          onSelectedChange={(selected) =>
+            refilter(() =>
+              setPicked(
+                selected
+                  ? [...picked, category]
+                  : picked.filter((item) => item !== category),
+              ),
+            )
+          }
+        >
+          {category}
+        </FilterChip>
+      ))}
+    </div>
+  );
 
   return (
     <div className="@container mx-auto flex max-w-5xl flex-col gap-10">
@@ -133,27 +178,45 @@ function Archive() {
             onChange={(event) => refilter(() => setQuery(event.target.value))}
           />
         </Field>
-        <Field group label="类别">
-          <div className="flex h-10 flex-wrap items-center gap-2">
-            {categories.map((category) => (
-              <FilterChip
-                key={category}
-                selected={picked.includes(category)}
-                onSelectedChange={(selected) =>
-                  refilter(() =>
-                    setPicked(
-                      selected
-                        ? [...picked, category]
-                        : picked.filter((item) => item !== category),
-                    ),
-                  )
-                }
-              >
-                {category}
-              </FilterChip>
-            ))}
-          </div>
+        <Field label="排序" className="w-36">
+          <Select
+            variant="outline"
+            items={orders}
+            value={order}
+            onValueChange={(next) => refilter(() => setOrder(next))}
+          />
         </Field>
+        <Field group label="类别" className="hidden @2xl:block">
+          {categoryChips}
+        </Field>
+        {/* 页面窄的时候类别收进抽屉；按钮上写出选了几个 */}
+        <div className="@2xl:hidden">
+          <Drawer
+            accent
+            trigger={
+              <Button variant="light">
+                {picked.length === 0 ? "筛选" : `筛选 · ${picked.length}`}
+              </Button>
+            }
+            title="筛选"
+            footer={
+              <>
+                <DialogClose>
+                  <Button variant="light" onClick={reset}>
+                    清除筛选
+                  </Button>
+                </DialogClose>
+                <DialogClose>
+                  <Button>完成</Button>
+                </DialogClose>
+              </>
+            }
+          >
+            <Field group label="类别">
+              {categoryChips}
+            </Field>
+          </Drawer>
+        </div>
         <Switch
           aria-label="列表视图"
           offLabel="网格"
@@ -165,10 +228,39 @@ function Archive() {
 
       <div className="grid gap-x-12 gap-y-10 @3xl:grid-cols-[minmax(0,1fr)_15rem]">
         <main className="@container flex min-w-0 flex-col gap-6">
-          <p role="status" className="text-sm text-ink-secondary">
-            {`共 ${matched.length} 条记录`}
-            {zone !== null && `，${zone}`}
-          </p>
+          <div className="flex items-center justify-between gap-4">
+            <p role="status" className="text-sm text-ink-secondary">
+              {`共 ${matched.length} 条记录`}
+              {zone !== null && `，${zone}`}
+            </p>
+            <DropdownMenu
+              align="end"
+              trigger={
+                <IconButton size="sm" aria-label="更多操作">
+                  <MoreIcon />
+                </IconButton>
+              }
+            >
+              <DropdownMenuItem
+                disabled={matched.length === 0}
+                onClick={() =>
+                  toast({
+                    message: `已导出 ${matched.length} 条记录`,
+                    tone: "success",
+                  })
+                }
+              >
+                导出当前结果
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => toast("检索条件的链接已复制")}
+              >
+                复制链接
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={reset}>清除筛选</DropdownMenuItem>
+            </DropdownMenu>
+          </div>
 
           {matched.length === 0 ? (
             <EmptyState
@@ -300,5 +392,9 @@ function Archive() {
 
 export const Page: Story = {
   name: "档案",
-  render: () => <Archive />,
+  render: () => (
+    <ToastProvider>
+      <Archive />
+    </ToastProvider>
+  ),
 };
