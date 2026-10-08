@@ -6,13 +6,15 @@
  */
 
 /* ------------------------------------------------------------------ */
-/* 斜纹：6px 方格、-45°。默认是"粗"档，用在浅色条带上                    */
+/* 斜纹：6px 方格、-45°。默认是"粗"档，用在跟随主题的条带上：            */
+/* 斜带取墨色的 5%，亮色下约等于实测的黑 5%，暗色下是比底色亮一档的浅带   */
 /* ------------------------------------------------------------------ */
 
 @utility hatch {
   background-image: repeating-linear-gradient(
     -45deg,
-    var(--hatch-color, rgb(0 0 0 / 0.05)) 0 var(--hatch-width, 1.9px),
+    var(--hatch-color, color-mix(in srgb, var(--ef-ink) 5%, transparent)) 0
+      var(--hatch-width, 1.9px),
     transparent 0 calc(var(--hatch-size) * 0.7071)
   );
 }

@@ -111,6 +111,33 @@ export const SwitchStates: Story = {
   ),
 };
 
+export const DualLabelSwitch: Story = {
+  name: "双标签开关",
+  render: () => (
+    <div className="flex flex-col items-start gap-2">
+      <div className="grid grid-cols-2 gap-x-8">
+        <Switch aria-label="三维视图" offLabel="2D" onLabel="3D" />
+        <Switch aria-label="三维视图" offLabel="2D" onLabel="3D" defaultChecked />
+        <Switch aria-label="三维视图" offLabel="2D" onLabel="3D" disabled />
+        <Switch
+          aria-label="三维视图"
+          offLabel="2D"
+          onLabel="3D"
+          defaultChecked
+          disabled
+        />
+      </div>
+      <Switch offLabel="列表" onLabel="网格">
+        档案的排列方式
+      </Switch>
+      {/* 压在图像或深色版块上：轨道是半透明的 */}
+      <div className="hatch bg-control p-6">
+        <Switch aria-label="三维视图" offLabel="2D" onLabel="3D" />
+      </div>
+    </div>
+  ),
+};
+
 export const LongLabel: Story = {
   name: "长标签换行",
   render: () => (

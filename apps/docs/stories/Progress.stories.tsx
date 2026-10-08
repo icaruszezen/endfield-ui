@@ -1,4 +1,4 @@
-import { Button, Progress } from "@endfield-ui/react";
+import { Button, Progress, ProgressRing } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 
@@ -80,6 +80,40 @@ export const CustomValue: Story = {
       formatValue={(value, max) => `${value} / ${max}`}
       aria-label="采样点"
     />
+  ),
+};
+
+export const Ring: Story = {
+  name: "进度环",
+  render: () => (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center gap-6">
+        {[0, 25, 64, 100].map((value) => (
+          <ProgressRing
+            key={value}
+            value={value}
+            showValue
+            aria-label={`进度 ${value}%`}
+          />
+        ))}
+      </div>
+      <div className="flex flex-wrap items-center gap-6">
+        <ProgressRing size={24} value={64} aria-label="小号" />
+        <ProgressRing size={32} value={64} aria-label="中号" />
+        <ProgressRing size={72} value={64} showValue aria-label="大号" />
+        <ProgressRing size={96} value={64} showValue aria-label="特大号" />
+      </div>
+      <div className="flex flex-wrap items-center gap-6">
+        {/* 围住一个头像或图标 */}
+        <ProgressRing size={56} value={72} aria-label="甲组的进度">
+          <span className="flex size-10 items-center justify-center rounded-full bg-surface-muted text-sm font-bold">
+            甲
+          </span>
+        </ProgressRing>
+        <ProgressRing aria-label="正在连接" />
+        <ProgressRing size={24} aria-label="正在连接" />
+      </div>
+    </div>
   ),
 };
 

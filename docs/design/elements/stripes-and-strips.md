@@ -12,7 +12,7 @@
 | --- | --- | --- | --- |
 | 细 | 约 9% | 黑，整体 60% 不透明 | 以文字形状裁切，做镂空巨字 |
 | 中 | 约 18% | 比底色亮一档（`#424242` 压 `#383838`） | 深色按钮的底纹（官网的返回按钮） |
-| 粗 | 约 22% | 黑，5% 不透明 | 浅色条带：分页条、弹窗标题栏 |
+| 粗 | 约 22% | 墨色（`ink`），5% 不透明 | 跟随主题的条带：分页条、弹窗标题栏 |
 
 三档的区别只是斜带的宽度和颜色，方格大小与角度不变。
 
@@ -22,19 +22,22 @@
 @utility hatch {
   background-image: repeating-linear-gradient(
     -45deg,
-    var(--hatch-color, rgb(0 0 0 / 0.05)) 0 var(--hatch-width, 1.9px),
+    var(--hatch-color, color-mix(in srgb, var(--ef-ink) 5%, transparent)) 0
+      var(--hatch-width, 1.9px),
     transparent 0 calc(var(--hatch-size) * 0.7071)
   );
 }
 ```
 
-`--hatch-size` 是方格边长（令牌值 6px）；45° 斜纹的重复周期是边长的 0.7071 倍。默认值是"粗"档。三档对应的 `--hatch-width`（斜带的垂直厚度）：
+`--hatch-size` 是方格边长（令牌值 6px）；45° 斜纹的重复周期是边长的 0.7071 倍。默认值是"粗"档。
+
+"粗"档实测是黑 5%（官网只有浅色的条带）。实现里换成了墨色的 5%：亮色下 `ink` 是 `#191919`，和黑 5% 看不出差别；暗色下 `ink` 是近白，斜带变成比底色亮一档的浅带，条带放进暗色主题不用另写一套。三档对应的 `--hatch-width`（斜带的垂直厚度）：
 
 | 档 | `--hatch-width` | `--hatch-color` |
 | --- | --- | --- |
 | 细 | 0.75px | `rgb(0 0 0 / 0.6)` |
 | 中 | 1.5px | `var(--color-neutral-700)` 或比底色亮一档的值 |
-| 粗 | 1.9px | `rgb(0 0 0 / 0.05)` |
+| 粗 | 1.9px | `color-mix(in srgb, var(--ef-ink) 5%, transparent)` |
 
 ```html
 <!-- 分页条 -->

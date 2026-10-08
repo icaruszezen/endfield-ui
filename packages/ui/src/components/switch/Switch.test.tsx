@@ -59,4 +59,51 @@ describe("Switch", () => {
     render(<Switch aria-label="自动同步" />);
     expect(screen.getByRole("switch", { name: "自动同步" })).toBeInTheDocument();
   });
+
+  describe("双标签", () => {
+    it("两个值都写在轨道上，但只是给眼睛看的", () => {
+      render(<Switch aria-label="三维视图" offLabel="2D" onLabel="3D" />);
+      // 名称来自 aria-label，不是轨道上的字
+      expect(
+        screen.getByRole("switch", { name: "三维视图" }),
+      ).toBeInTheDocument();
+      expect(screen.getByText("2D")).toHaveAttribute("aria-hidden", "true");
+      expect(screen.getByText("3D")).toHaveAttribute("aria-hidden", "true");
+    });
+
+    it("仍然是一个开关：点击切换并通知 onCheckedChange", async () => {
+      const onCheckedChange = vi.fn();
+      render(
+        <Switch
+          aria-label="三维视图"
+          offLabel="2D"
+          onLabel="3D"
+          onCheckedChange={onCheckedChange}
+        />,
+      );
+      const control = screen.getByRole("switch");
+      expect(control).not.toBeChecked();
+
+      await userEvent.click(control);
+      expect(control).toBeChecked();
+      expect(onCheckedChange).toHaveBeenLastCalledWith(true);
+    });
+
+    it("可以再带一个右侧的文字标签", () => {
+      render(
+        <Switch offLabel="2D" onLabel="3D">
+          三维视图
+        </Switch>,
+      );
+      expect(
+        screen.getByRole("switch", { name: "三维视图" }),
+      ).toBeInTheDocument();
+    });
+
+    it("只传一个值时还是普通开关", () => {
+      // @ts-expect-error 两个值必须成对出现
+      render(<Switch aria-label="自动同步" onLabel="开" />);
+      expect(screen.queryByText("开")).toBeNull();
+    });
+  });
 });
