@@ -1,8 +1,16 @@
 # icons
 
-原创图标组件。目前只有基础控件自己用到的八个：
+原创图标组件。目前只有控件自己用到的十四个：
 
-`ArrowCorner`（斜箭头 ↘）、`ArrowLeft`、`ArrowRight`、`ChevronLeft`、`ChevronRight`、`TriangleRight`（实心三角 ▶）、`Close`、`Plus`。
+| 图标 | 用在哪 |
+| --- | --- |
+| `ArrowCorner`（斜箭头 ↘）、`ArrowLeft`、`ArrowRight` | 分节标题、文字按钮 |
+| `ChevronLeft`、`ChevronRight` | 返回按钮、翻页 |
+| `TriangleRight`（实心三角 ▶） | 页签的箭头块 |
+| `Close`、`Plus`、`Minus`、`Check` | 关闭、增减、已选与半选 |
+| `StatusInfo`、`StatusSuccess`、`StatusWarning`、`StatusDanger` | 提示条的四种色调、输入框的错误图标 |
+
+四个状态图标的外形各不相同——方框、圆、三角、菱形——状态因此不只靠颜色区分。
 
 ## 规则
 

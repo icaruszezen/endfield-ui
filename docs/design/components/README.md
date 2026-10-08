@@ -1,6 +1,6 @@
 # 组件规范
 
-把基础规范落到具体控件上：每个组件长什么样、有哪些状态、多大。这里是 [`packages/ui`](../../../packages/ui/README.md) 的设计输入。**第一期已经实现**，其余各期还只有规范。
+把基础规范落到具体控件上：每个组件长什么样、有哪些状态、多大。这里是 [`packages/ui`](../../../packages/ui/README.md) 的设计输入。**第一期和第二期的大部分已经实现**，各期清单里逐项标了状态；没标"已实现"的还只有规范。
 
 ## 怎么读
 
@@ -63,10 +63,12 @@
 
 所有组件只使用 [theme.css](../../../packages/ui/src/styles/theme.css) 里的语义令牌（`surface`、`ink`、`line`、`action`、`control`…），因此自动适配亮 / 暗主题与主题色接管。组件内不出现十六进制色值。
 
-两条实现时定下的细则：
+几条实现时定下的细则：
 
 - **随主题翻转的颜色一律用语义令牌。** 只有"本来就是为某一种底色设计"的填充才直接用 `neutral-*`、在两个主题下保持不变，清单见 [色彩](../foundations/color.md) 的"哪些颜色有意不随主题变"。
-- **压在反转块上的强调记号用 `accent-ink-inverse`，不直接用 `action`。** `surface-inverse` 在暗色主题下是近白，黄色压在上面看不见。
+- **压在反转块上的强调记号用 `accent-ink-inverse`，不直接用 `action`。** `surface-inverse` 在暗色主题下是近白，黄色压在上面看不见。面板标题带的竖条、已选的复选与单选、开启的开关都是这一条。
+- **压在页面表面上的强调记号用 `accent-ink`。** 行动色在亮色表面上同样看不见（必填标记）。
+- **悬停底用 `bg-ink/5`，不用 `surface-sunken`。** 后者在暗色主题下是纯黑，悬停会变暗而选中变亮，方向相反（页签、列表行）。
 
 ### 无障碍
 
@@ -94,46 +96,55 @@
 | Tabs | [导航](navigation.md) | 激活时文字让位给箭头 |
 | Panel | [卡片](card.md) | 直角、1px 线、无阴影 |
 
-这一期有意没做的：媒体卡、物品格、列表行（[卡片](card.md)）；页签的 `wedge` 变体；胶囊族的筛选、资源、倒计时徽章；日期块的小红角。
+这一期当时没做、后来补上的：列表行、胶囊族的筛选 / 资源 / 倒计时徽章、增益签、日期块的小红角。仍然没做的：媒体卡、物品格（[卡片](card.md)）；页签的 `wedge` 变体。
 
 ### 第二期：表单与反馈
 
-能搭出设置页、表单页。
+能搭出设置页、表单页。在 Storybook 的"示例 / 设置页"里可以看到用它们搭出来的页面。
 
-| 组件 | 规范 |
-| --- | --- |
-| Input / Textarea | [表单](form.md) |
-| Select | [表单](form.md) |
-| Checkbox / Radio / Switch | [表单](form.md) |
-| Progress | [反馈](feedback.md) |
-| Alert | [反馈](feedback.md) |
-| Toast | [反馈](feedback.md) |
+| 组件 | 规范 | 状态 |
+| --- | --- | --- |
+| Field | [表单](form.md) | 已实现 |
+| Input / Textarea | [表单](form.md) | 已实现 |
+| Checkbox / Radio / Switch | [表单](form.md) | 已实现 |
+| FilterChip | [数据展示](data-display.md) | 已实现 |
+| Progress | [反馈](feedback.md) | 已实现（进度环未做） |
+| Alert | [反馈](feedback.md) | 已实现 |
+| Select | [表单](form.md) | 未做，挪到第三期 |
+| Toast | [反馈](feedback.md) | 未做，挪到第三期 |
+| 步进器、双标签开关 | [表单](form.md) | 未做 |
+
+Select 的面板和 Toast 的容器都是浮层，需要定位与焦点管理。它们和第三期的浮层共用同一套无障碍基元，所以等基元选定后一起做。
 
 ### 第三期：浮层与导航
 
 能搭出完整的应用外壳。
 
-| 组件 | 规范 |
-| --- | --- |
-| Dialog | [浮层](overlay.md) |
-| Drawer | [浮层](overlay.md) |
-| DropdownMenu / Tooltip | [浮层](overlay.md) |
-| SideRail / TopBar | [导航](navigation.md) |
-| Pagination / Navigator | [导航](navigation.md) |
-| Breadcrumb | [导航](navigation.md) |
+| 组件 | 规范 | 状态 |
+| --- | --- | --- |
+| Dialog | [浮层](overlay.md) | |
+| Drawer | [浮层](overlay.md) | |
+| DropdownMenu / Tooltip | [浮层](overlay.md) | |
+| Select / Toast | [表单](form.md)、[反馈](feedback.md) | 从第二期挪来 |
+| SideRail / TopBar | [导航](navigation.md) | |
+| Pagination / Navigator | [导航](navigation.md) | |
+| Breadcrumb | [导航](navigation.md) | 已实现 |
 
 ### 第四期：数据与游戏风格
 
 能搭出工具站、数据面板、游戏风格的界面。
 
-| 组件 | 规范 |
-| --- | --- |
-| Table | [数据展示](data-display.md) |
-| DataRow | [数据展示](data-display.md) |
-| Stat | [数据展示](data-display.md) |
-| Timeline | [数据展示](data-display.md) |
-| ItemSlot | [卡片](card.md) |
-| EmptyState / Loader | [反馈](feedback.md) |
+| 组件 | 规范 | 状态 |
+| --- | --- | --- |
+| Table | [数据展示](data-display.md) | |
+| DataRow | [数据展示](data-display.md) | |
+| Stat | [数据展示](data-display.md) | 已实现 |
+| ResourceChip / Countdown | [数据展示](data-display.md) | 已实现 |
+| List / ListRow | [卡片](card.md) | 已实现 |
+| Timeline | [数据展示](data-display.md) | |
+| ItemSlot | [卡片](card.md) | |
+| EmptyState / Skeleton | [反馈](feedback.md) | 已实现 |
+| Loader（加载页） | [反馈](feedback.md) | |
 
 ### 第五期：母题组件
 

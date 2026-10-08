@@ -2,7 +2,16 @@
 
 终末地风格的 React 基础控件库。非官方，详见 [NOTICE](../../NOTICE.md)。
 
-**第一期已实现**：Button、IconButton、Tag / TagPair、Badge、SectionTitle、Tabs、Panel。全部适配亮 / 暗主题与主题色接管。包还没有发布到 npm，目前只在本仓库的工作区里使用。
+已实现的控件，全部适配亮 / 暗主题与主题色接管：
+
+| 类别 | 控件 |
+| --- | --- |
+| 基础 | Button、IconButton、Tag / TagPair、Badge、SectionTitle、Tabs、Panel |
+| 表单 | Field、Input、Textarea、Checkbox、Radio / RadioGroup、Switch、FilterChip |
+| 反馈 | Alert、Progress、Skeleton、EmptyState |
+| 展示与导航 | Stat、List / ListRow、ResourceChip、Countdown、Breadcrumb |
+
+包还没有发布到 npm，目前只在本仓库的工作区里使用。
 
 ## 技术栈
 
@@ -11,7 +20,7 @@
 | 框架 | React 19 + TypeScript |
 | 样式 | Tailwind CSS v4（CSS-first，`@theme` 令牌，不使用 `tailwind.config.js`） |
 | 变体 | 手写的 `Record<Variant, string>` + `cn()`（`clsx` + `tailwind-merge`） |
-| 无障碍基元 | 第一期没有引入。Radix UI / React Aria / Base UI 三选一，写第一个浮层组件前决定 |
+| 无障碍基元 | 还没有引入：现有控件都建立在原生元素上。Radix UI / React Aria / Base UI 三选一，写第一个浮层组件前决定 |
 | 构建 | tsdown（ESM + 类型声明）+ `@tailwindcss/cli`（预编译 CSS） |
 | 测试 | Vitest + Testing Library（jsdom） |
 
@@ -57,6 +66,30 @@ export function Bulletin() {
   );
 }
 ```
+
+### 表单
+
+标签、帮助文字、错误说明由 `Field` 统一关联到里面的控件；一组复选或一个单选组用 `group`，渲染成 `<fieldset>` + `<legend>`。
+
+```tsx
+import { Checkbox, Field, Input, Radio, RadioGroup, Switch } from "@endfield-ui/react";
+
+<Field label="代号" required help="两到十二个字母。" error={error}>
+  <Input value={codename} onChange={(event) => setCodename(event.target.value)} />
+</Field>
+
+<Field group label="测绘精度">
+  <RadioGroup defaultValue="standard" onValueChange={setPrecision}>
+    <Radio value="draft">草图</Radio>
+    <Radio value="standard">标准</Radio>
+  </RadioGroup>
+</Field>
+
+<Checkbox defaultChecked>归档时保存原始读数</Checkbox>
+<Switch onCheckedChange={setSync}>自动同步</Switch>
+```
+
+表单控件都是原生 `<input>` / `<textarea>` 套样式：`name`、`value`、`required`、`ref` 这些属性直接落在原生元素上，可以照常放进 `<form>` 提交。`className` 给的是外层（输入框的外框、复选框的整行）。
 
 ### 主题
 
