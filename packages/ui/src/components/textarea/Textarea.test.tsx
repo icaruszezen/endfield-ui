@@ -58,4 +58,12 @@ describe("Textarea", () => {
     render(<Textarea aria-label="备注" invalid />);
     expect(screen.getByRole("textbox")).toHaveAttribute("aria-invalid", "true");
   });
+
+  it("outline 换成四边描边", () => {
+    render(<Textarea aria-label="备注" variant="outline" />);
+    const box = screen.getByRole("textbox").parentElement;
+    expect(box).toHaveAttribute("data-variant", "outline");
+    expect(box).toHaveClass("border", "bg-surface");
+    expect(box).not.toHaveClass("border-b-2");
+  });
 });

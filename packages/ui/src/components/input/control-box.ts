@@ -2,25 +2,46 @@ import { cn } from "../../lib/cn";
 import { focusRingWithin } from "../../lib/focus-ring";
 
 /*
- * 输入框与多行文本共用的外框：凹陷的底 + 一条 2px 的底边线，直角。
- * 状态靠底边线的颜色变化：默认灰 → 悬停深一档 → 聚焦墨 → 错误红。
+ * 输入框与多行文本共用的外框，直角，两种画法：
+ * - `sunken` 凹陷的底 + 一条 2px 的底边线，默认；
+ * - `outline` 四边 1px 的描边 + 页面底色，放在凹陷底色的区域里时用。
+ * 状态都靠边线的颜色变化：默认灰 → 悬停深一档 → 聚焦墨 → 错误红。
  */
 
+export type ControlVariant = "sunken" | "outline";
+
 type BoxState = {
+  variant?: ControlVariant;
   invalid: boolean;
   disabled: boolean;
   readOnly: boolean;
 };
 
-export function controlBox({ invalid, disabled, readOnly }: BoxState) {
+const frame: Record<ControlVariant, string> = {
+  sunken: "border-b-2",
+  outline: "border",
+};
+
+const fill: Record<ControlVariant, string> = {
+  sunken: "bg-surface-sunken",
+  outline: "bg-surface",
+};
+
+export function controlBox({
+  variant = "sunken",
+  invalid,
+  disabled,
+  readOnly,
+}: BoxState) {
   return cn(
-    "flex w-full min-w-0 border-b-2 text-ink",
+    "flex w-full min-w-0 text-ink",
+    frame[variant],
     "transition-colors duration-(--duration-fast) ease-standard",
     focusRingWithin,
     readOnly
-      ? // 只读：没有底边线、底变透明。边线留一条透明的，高度不跳
+      ? // 只读：没有边线、底变透明。边线留透明的，尺寸不跳
         "border-transparent bg-transparent"
-      : "bg-surface-sunken",
+      : fill[variant],
     disabled
       ? "cursor-not-allowed border-line text-ink-disabled"
       : invalid

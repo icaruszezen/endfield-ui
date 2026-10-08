@@ -63,6 +63,19 @@ describe("Input", () => {
     expect(input).toHaveValue("SEVENTH");
   });
 
+  it("默认是凹陷底 + 底边线，outline 换成四边描边", () => {
+    const { rerender } = render(<Input aria-label="代号" />);
+    let box = screen.getByRole("textbox").parentElement;
+    expect(box).toHaveAttribute("data-variant", "sunken");
+    expect(box).toHaveClass("border-b-2", "bg-surface-sunken");
+
+    rerender(<Input aria-label="代号" variant="outline" />);
+    box = screen.getByRole("textbox").parentElement;
+    expect(box).toHaveAttribute("data-variant", "outline");
+    expect(box).toHaveClass("border", "bg-surface");
+    expect(box).not.toHaveClass("border-b-2", "bg-surface-sunken");
+  });
+
   it("尺寸写在外框上", () => {
     render(<Input aria-label="代号" size="lg" />);
     expect(screen.getByRole("textbox").parentElement).toHaveAttribute(

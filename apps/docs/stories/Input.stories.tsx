@@ -76,6 +76,37 @@ export const Adornments: Story = {
   ),
 };
 
+export const Outline: Story = {
+  name: "四边描边",
+  render: () => (
+    <div className="flex flex-col gap-6">
+      {/* 凹陷底色的区域里，默认的凹陷输入框会融进去，这时换成描边 */}
+      <div className="flex flex-wrap items-end gap-4 bg-surface-sunken p-4">
+        <Field label="检索" className="min-w-40 flex-1">
+          <Input variant="outline" placeholder="代号或编号" />
+        </Field>
+        <Field label="深度不超过" className="w-32">
+          <Input variant="outline" inputMode="decimal" end="m" />
+        </Field>
+      </div>
+      <div className="flex flex-col gap-6 bg-surface-sunken p-4">
+        <Field label="错误" error="代号只能包含字母，去掉数字后再试。">
+          <Input variant="outline" defaultValue="SEVENTH-7" />
+        </Field>
+        <Field label="禁用" disabled>
+          <Input variant="outline" defaultValue="SEVENTH" />
+        </Field>
+        <Field label="只读">
+          <Input variant="outline" readOnly defaultValue="SEVENTH" />
+        </Field>
+        <Field label="备注">
+          <Textarea variant="outline" showCount maxLength={200} />
+        </Field>
+      </div>
+    </div>
+  ),
+};
+
 export const Multiline: Story = {
   name: "多行文本",
   render: () => (

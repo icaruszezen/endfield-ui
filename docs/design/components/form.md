@@ -13,8 +13,8 @@
 | 控件 | 写法 | 状态 |
 | --- | --- | --- |
 | 字段 | `<Field label help error required>`；一组控件用 `<Field group>` | 已实现 |
-| 输入框 | `<Input size start end invalid>` | 已实现（四边描边的变体未做） |
-| 多行文本 | `<Textarea showCount maxLength>` | 已实现 |
+| 输入框 | `<Input variant size start end invalid>` | 已实现 |
+| 多行文本 | `<Textarea variant showCount maxLength>` | 已实现 |
 | 复选框 | `<Checkbox indeterminate>` | 已实现（方案 A） |
 | 单选 | `<RadioGroup>` + `<Radio value>` | 已实现（方案 A） |
 | 开关 | `<Switch>` | 已实现（双标签开关未做） |
@@ -62,6 +62,16 @@
 为什么不用四边描边：`line`（`#D9D9D9`）在白底上只有 1.4:1，做输入框边界不够清楚；而加深到够清楚的描边又会让表单显得很重。凹陷底 + 加粗的底边线在两者之间取得平衡。
 
 确实需要四边描边时（比如输入框放在 `surface-sunken` 的区域里），用 1px `line-strong`。
+
+这一种写成 `variant="outline"`（默认是 `sunken`），输入框和多行文本都有：
+
+| 项 | `sunken` | `outline` |
+| --- | --- | --- |
+| 边 | 只有底边，2px | 四边，1px |
+| 底 | `surface-sunken` | `surface` |
+| 用在哪 | 页面与面板上，默认 | 凹陷底色的工具条、筛选栏里 |
+
+两种变体的状态色完全相同（默认 `line-strong` → 悬停 `ink-secondary` → 聚焦 `ink` → 错误 `danger`）。`outline` 的底用 `surface` 而不是透明：放进凹陷的区域后，它要比周围亮一档才看得出是一个可以填写的格子。
 
 实现：
 

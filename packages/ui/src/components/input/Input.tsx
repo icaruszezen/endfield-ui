@@ -2,11 +2,21 @@ import type { ComponentProps, ReactNode } from "react";
 import { StatusDanger } from "../../icons/StatusDanger";
 import { cn } from "../../lib/cn";
 import { useFieldControl } from "../field/Field";
-import { controlBox, controlElement } from "./control-box";
+import {
+  controlBox,
+  controlElement,
+  type ControlVariant,
+} from "./control-box";
 
 export type InputSize = "sm" | "md" | "lg";
+export type InputVariant = ControlVariant;
 
 export type InputProps = Omit<ComponentProps<"input">, "size"> & {
+  /**
+   * - `sunken` 凹陷的底 + 一条底边线，默认；
+   * - `outline` 四边描边，放在凹陷底色的区域（工具条、筛选栏）里时用。
+   */
+  variant?: InputVariant;
   /** 32 / 40 / 56px 高 */
   size?: InputSize;
   /** 框内左端：图标 */
@@ -30,6 +40,7 @@ const iconSize: Record<InputSize, number> = { sm: 14, md: 16, lg: 20 };
  * 每个输入框都要有标签：放进 `Field`，或者自己传 `aria-label`。
  */
 export function Input({
+  variant = "sunken",
   size = "md",
   start,
   end,
@@ -52,10 +63,11 @@ export function Input({
 
   return (
     <div
+      data-variant={variant}
       data-size={size}
       data-invalid={invalid ? "" : undefined}
       className={cn(
-        controlBox({ invalid, disabled, readOnly }),
+        controlBox({ variant, invalid, disabled, readOnly }),
         "items-center",
         boxSize[size],
         className,

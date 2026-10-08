@@ -1,9 +1,15 @@
 import { useState, type ChangeEvent, type ComponentProps } from "react";
 import { cn } from "../../lib/cn";
 import { useFieldControl } from "../field/Field";
-import { controlBox, controlElement } from "../input/control-box";
+import {
+  controlBox,
+  controlElement,
+  type ControlVariant,
+} from "../input/control-box";
 
 export type TextareaProps = ComponentProps<"textarea"> & {
+  /** `sunken` 凹陷底 + 底边线（默认），或 `outline` 四边描边 */
+  variant?: ControlVariant;
   /** 错误态：底边线变红。放在 `Field` 里时跟随它的 `error` */
   invalid?: boolean;
   /** 在右下角显示字数；有 `maxLength` 时显示成 `12 / 200` */
@@ -14,6 +20,7 @@ export type TextareaProps = ComponentProps<"textarea"> & {
  * 多行文本，最少三行。`className` 给外框，其余属性与 `ref` 给里面的 `<textarea>`。
  */
 export function Textarea({
+  variant = "sunken",
   invalid: invalidProp,
   showCount = false,
   id: idProp,
@@ -50,9 +57,10 @@ export function Textarea({
 
   return (
     <div
+      data-variant={variant}
       data-invalid={invalid ? "" : undefined}
       className={cn(
-        controlBox({ invalid, disabled, readOnly }),
+        controlBox({ variant, invalid, disabled, readOnly }),
         "flex-col text-base",
         className,
       )}

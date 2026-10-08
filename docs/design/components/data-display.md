@@ -180,6 +180,19 @@
 
 横向的时间轴（排期、日历）见 [宣传物料](../surfaces/promotional.md) 的版本日历：日期是墨底白字的小块，条目从起始日的位置开始、长度表示持续时间。
 
+已实现为 `<Timeline>` + `<TimelineItem status date title>`，`status` 取 `past`（默认）、`current`、`upcoming`：
+
+| 状态 | 节点 | 文字 |
+| --- | --- | --- |
+| `past` | `ink` 实心 | `ink` |
+| `current` | `action` 底 + 2px `on-action` 描边 | `ink`，加粗 |
+| `upcoming` | 2px `ink-tertiary` 描边，空心 | `ink-secondary` |
+
+- 当前节点的描边用 `on-action` 而不是 `ink`：黄色在白底上看不见，需要这一圈墨色；暗色下 `on-action` 仍是墨色，融进页面后剩一个黄色菱形，不会多出一圈白边。
+- 轴只画在节点之间，不从节点后面穿过，空心菱形不需要垫底色，放在哪种表面上都是空的。
+- 没有日期时节点对齐标题的第一行；标题换行时节点不跟着居中。
+- 列表是 `<ol>`；当前项带 `aria-current="step"`，节点与轴线对读屏隐藏。
+
 ## 富文本里的语义着色
 
 游戏内的技能与效果描述会在正文里给机制词上色，并配一个小图标（社区）：
