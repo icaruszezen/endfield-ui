@@ -314,3 +314,85 @@ test("两个主题：键盘移到当前项上，它的底色会变", async () =>
     await page.key("Escape");
   }
 });
+
+test("远程检索：正在查找时面板里是一行状态，不说没有匹配；结果回来后换成选项", async () => {
+  const { page } = storybook;
+  await page.story("控件-combobox-组合框--remote");
+  const status = () =>
+    page.evaluate(() =>
+      [...document.querySelectorAll("[role=status]")]
+        .map((element) => (element.textContent ?? "").trim())
+        .filter(Boolean),
+    );
+
+  await page.click(INPUT);
+  await page.type("s-0");
+  await page.waitFor(
+    async () => (await status()).includes("正在查找…"),
+    "打字之后应该先出现正在查找",
+  );
+  assert.ok(
+    !(await status()).includes("没有匹配的选项"),
+    "查找中不应该说没有匹配",
+  );
+
+  await page.waitFor(
+    async () =>
+      (await options(page)).join() !== "" && (await status()).length === 0,
+    "结果回来之后状态行应该消失、列出选项",
+  );
+  assert.ok(
+    (await options(page)).every((label) => label.startsWith("南岸")),
+    "按编号 s-0 回来的应该都是南岸的站",
+  );
+});
+
+test("远程检索：选中的站不在后来的结果里，输入框里的名字也还在", async () => {
+  const { page } = storybook;
+  await page.story("控件-combobox-组合框--remote");
+  await page.click(INPUT);
+  await page.type("s-03");
+  await page.waitFor(
+    async () => (await options(page)).join() === "南岸三号站",
+    "按编号 s-03 应该只剩南岸三号站",
+  );
+  await page.key("ArrowDown");
+  await page.key("Enter");
+  await page.waitGone(PANEL);
+  assert.equal(await inputValue(page), "南岸三号站");
+
+  // 再搜别的：这一批结果里没有南岸三号站了
+  await page.evaluate(() =>
+    document.querySelector<HTMLInputElement>("input[role=combobox]")!.select(),
+  );
+  await page.type("n-0");
+  await page.waitFor(async () => {
+    const found = await options(page);
+    return found.length > 0 && found.every((label) => label.startsWith("北区"));
+  }, "按编号 n-0 回来的应该都是北区的站");
+  // 没选就离开：输入框回到原来的值——它的文字是组合框自己记着的
+  await page.key("Escape");
+  await page.waitGone(PANEL);
+  await page.waitFor(
+    async () => (await inputValue(page)) === "南岸三号站",
+    "值对应的选项不在这一批里，输入框里的名字也应该还在",
+  );
+});
+
+test("一直在查找的样子：只有状态行，没有选项也没有空说明", async () => {
+  const { page } = storybook;
+  await page.story("控件-combobox-组合框--loading");
+  await page.waitFor(
+    () =>
+      page.evaluate(() =>
+        [...document.querySelectorAll("[role=status]")].some(
+          (element) =>
+            element.textContent?.trim() === "正在查找…" &&
+            element.getBoundingClientRect().height > 0,
+        ),
+      ),
+    "应该有一行正在查找",
+  );
+  assert.deepEqual(await options(page), []);
+  assert.equal(await emptyNote(page), false);
+});

@@ -7,6 +7,7 @@ export * from "./components/checkbox";
 export * from "./components/chip";
 export * from "./components/combobox";
 export * from "./components/completion-banner";
+export * from "./components/context-menu";
 export * from "./components/corner-brackets";
 export * from "./components/countdown";
 export * from "./components/data-row";

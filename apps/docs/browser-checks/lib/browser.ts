@@ -37,6 +37,8 @@ const KEY_CODES: Record<string, number> = {
   Enter: 13,
   Escape: 27,
   Space: 32,
+  PageUp: 33,
+  PageDown: 34,
   End: 35,
   Home: 36,
   ArrowLeft: 37,
@@ -44,7 +46,9 @@ const KEY_CODES: Record<string, number> = {
   ArrowRight: 39,
   ArrowDown: 40,
   Delete: 46,
+  ContextMenu: 93,
   F6: 117,
+  F10: 121,
 };
 
 function findBrowser(): string {
@@ -477,12 +481,48 @@ export async function launch({
       }
     },
 
-    async click(target: Target) {
+    /** 点一下。`button: "right"` 是右键：页面会收到 contextmenu */
+    async click(
+      target: Target,
+      { button = "left" }: { button?: "left" | "right" } = {},
+    ) {
       const { x, y } = await point(target);
-      const at = { x, y, button: "left", clickCount: 1 };
+      const at = { x, y, button, clickCount: 1 };
       await send("Input.dispatchMouseEvent", { type: "mouseMoved", x, y });
       await send("Input.dispatchMouseEvent", { type: "mousePressed", ...at });
       await send("Input.dispatchMouseEvent", { type: "mouseReleased", ...at });
+    },
+
+    /** 按住拖过去再松开。中间走几步：拖动类的控件要看到指针在动 */
+    async drag(from: Target, to: Target) {
+      const start = await point(from);
+      const end = await point(to);
+      const held = { button: "left", buttons: 1 };
+      await send("Input.dispatchMouseEvent", { type: "mouseMoved", ...start });
+      await send("Input.dispatchMouseEvent", {
+        type: "mousePressed",
+        ...start,
+        ...held,
+        clickCount: 1,
+      });
+      const steps = 6;
+      for (let step = 1; step <= steps; step += 1) {
+        await send("Input.dispatchMouseEvent", {
+          type: "mouseMoved",
+          x: start.x + ((end.x - start.x) * step) / steps,
+          y: start.y + ((end.y - start.y) * step) / steps,
+          ...held,
+        });
+      }
+      await send("Input.dispatchMouseEvent", {
+        type: "mouseReleased",
+        ...end,
+        button: "left",
+        clickCount: 1,
+      });
+      await evaluate(
+        () => new Promise((resolve) => requestAnimationFrame(resolve)),
+      );
     },
 
     /** 当前焦点，写成 `角色:名称`；没有角色时用标签名，名称优先取 `aria-label` */

@@ -277,3 +277,88 @@ test("两个主题：悬停的行、选中的行和普通的行底色各不相�
     );
   }
 });
+
+test("表头吸顶：表身在容器里滚过去，表头还在容器的上沿并压在内容上面", async () => {
+  const { page } = storybook;
+  await page.story("控件-table-表格--sticky-header");
+  const before = await page.evaluate(() => {
+    const scroller = document.querySelector(
+      "#storybook-root table",
+    )!.parentElement!;
+    return {
+      overflowing: scroller.scrollHeight > scroller.clientHeight + 1,
+      role: scroller.getAttribute("role"),
+      tabIndex: scroller.getAttribute("tabindex"),
+      // 只是纵向溢出：冻结列右缘的那条线不该出现
+      overflowingX: scroller.hasAttribute("data-overflowing"),
+    };
+  });
+  assert.ok(before.overflowing, "这个高度下表身应该比容器高");
+  assert.deepEqual(
+    [before.role, before.tabIndex, before.overflowingX],
+    ["region", "0", false],
+    "纵向溢出时容器同样是一个能聚焦的区域",
+  );
+
+  const after = await page.evaluate(() => {
+    const scroller = document.querySelector(
+      "#storybook-root table",
+    )!.parentElement!;
+    scroller.scrollTop = 150;
+    const top = scroller.getBoundingClientRect().top;
+    const headers = [...scroller.querySelectorAll("thead th")];
+    const first = headers[0]!.getBoundingClientRect();
+    const hit = document.elementFromPoint(
+      first.left + first.width / 2,
+      first.top + first.height / 2,
+    );
+    return {
+      scrolled: scroller.scrollTop,
+      pinned: headers.every(
+        (header) => Math.abs(header.getBoundingClientRect().top - top) < 1,
+      ),
+      onTop: headers[0] === hit || headers[0]!.contains(hit),
+      opaque: headers.every((header) => {
+        const color = getComputedStyle(header).backgroundColor;
+        return color !== "rgba(0, 0, 0, 0)" && color !== "transparent";
+      }),
+    };
+  });
+  assert.ok(after.scrolled > 0, "应该能纵向滚动");
+  assert.ok(after.pinned, "滚过去之后表头应该还贴着容器的上沿");
+  assert.ok(after.onTop, "表头应该压在滚过去的行上面");
+  assert.ok(after.opaque, "表头不能是透明的");
+});
+
+test("表头吸顶并冻结首列：两个方向都滚过去，左上角那一格压在最上面", async () => {
+  const { page } = storybook;
+  await page.story("控件-table-表格--sticky-both");
+  const found = await page.evaluate(() => {
+    const scroller = document.querySelector(
+      "#storybook-root table",
+    )!.parentElement!;
+    scroller.scrollTop = 120;
+    scroller.scrollLeft = 90;
+    const box = scroller.getBoundingClientRect();
+    const corner = scroller.querySelector("thead th")!;
+    const rect = corner.getBoundingClientRect();
+    const hit = (x: number, y: number) => {
+      const element = document.elementFromPoint(x, y);
+      return element === corner || corner.contains(element);
+    };
+    return {
+      scrolled: [scroller.scrollLeft > 0, scroller.scrollTop > 0],
+      pinned:
+        Math.abs(rect.left - box.left) < 1 && Math.abs(rect.top - box.top) < 1,
+      // 四个角都点得到它：滚过来的列头和滚上来的首列都在它下面
+      onTop:
+        hit(rect.left + 3, rect.top + 3) &&
+        hit(rect.right - 3, rect.top + 3) &&
+        hit(rect.left + 3, rect.bottom - 3) &&
+        hit(rect.right - 3, rect.bottom - 3),
+    };
+  });
+  assert.deepEqual(found.scrolled, [true, true], "两个方向都应该能滚");
+  assert.ok(found.pinned, "左上角那一格应该留在容器的左上角");
+  assert.ok(found.onTop, "左上角那一格应该压在冻结的列和吸顶的行之上");
+});

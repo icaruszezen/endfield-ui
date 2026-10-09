@@ -220,6 +220,75 @@ describe("Combobox", () => {
     );
   });
 
+  describe("远程检索", () => {
+    it("loading：面板里是一行正在查找，不显示没有匹配", async () => {
+      const user = userEvent.setup();
+      render(<Combobox items={[]} aria-label="站点" filter={false} loading />);
+      await user.type(screen.getByRole("combobox"), "北");
+      expect(await screen.findByText("正在查找…")).toBeVisible();
+      expect(screen.queryByText("没有匹配的选项")).not.toBeInTheDocument();
+    });
+
+    it("loading 结束还是没有：换成没有匹配", async () => {
+      const user = userEvent.setup();
+      const { rerender } = render(
+        <Combobox items={[]} aria-label="站点" filter={false} loading />,
+      );
+      await user.type(screen.getByRole("combobox"), "西");
+      await screen.findByText("正在查找…");
+
+      rerender(<Combobox items={[]} aria-label="站点" filter={false} />);
+      expect(await screen.findByText("没有匹配的选项")).toBeVisible();
+      expect(screen.queryByText("正在查找…")).not.toBeInTheDocument();
+    });
+
+    it("filter={false}：给什么显示什么，不按输入的文字再筛一遍", async () => {
+      const user = userEvent.setup();
+      render(<Combobox items={stations} aria-label="站点" filter={false} />);
+      await user.type(screen.getByRole("combobox"), "完全对不上的字");
+      await screen.findByRole("listbox");
+      expect(options()).toHaveLength(stations.length);
+    });
+
+    it("选中的那一项不在后来的这批 items 里，值也还在", async () => {
+      const user = userEvent.setup();
+      function Remote() {
+        const [items, setItems] = useState(stations.slice(0, 2));
+        const [value, setValue] = useState<string | null>(null);
+        return (
+          <form data-testid="form">
+            <Combobox
+              items={items}
+              filter={false}
+              name="station"
+              aria-label="站点"
+              value={value}
+              onValueChange={setValue}
+            />
+            <button type="button" onClick={() => setItems(stations.slice(2))}>
+              换一批
+            </button>
+          </form>
+        );
+      }
+      render(<Remote />);
+      const input = screen.getByRole("combobox");
+      await user.click(input);
+      await user.click(
+        await screen.findByRole("option", { name: "北区十二号站" }),
+      );
+      expect(input).toHaveValue("北区十二号站");
+
+      await user.click(screen.getByRole("button", { name: "换一批" }));
+      expect(input).toHaveValue("北区十二号站");
+      expect(
+        new FormData(screen.getByTestId<HTMLFormElement>("form")).get(
+          "station",
+        ),
+      ).toBe("n12");
+    });
+  });
+
   describe("多选", () => {
     it("选了不关面板，已选项在框里排成小块，值是数组", async () => {
       const user = userEvent.setup();

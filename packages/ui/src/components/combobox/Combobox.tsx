@@ -5,6 +5,7 @@ import { Close } from "../../icons/Close";
 import { StatusDanger } from "../../icons/StatusDanger";
 import { TriangleRight } from "../../icons/TriangleRight";
 import { cn } from "../../lib/cn";
+import { Spinner } from "../spinner/Spinner";
 import { MenuCheck } from "../dropdown-menu/MenuCheck";
 import {
   menuGroupLabel,
@@ -64,6 +65,18 @@ type ComboboxCommonProps = {
   panelVariant?: MenuVariant;
   /** 一个都没匹配上时面板里的说明 */
   emptyText?: ReactNode;
+  /**
+   * 正在取选项：面板里出一行"正在查找…"，这时不显示 `emptyText`。
+   * 已经拿到的选项照常显示
+   */
+  loading?: boolean;
+  /** `loading` 时那一行的文字 */
+  loadingText?: ReactNode;
+  /**
+   * 关掉之后不在本地筛选：`items` 给什么就显示什么。
+   * 选项由服务器按输入的文字返回时用，配合 `onInputValueChange` 和 `loading`
+   */
+  filter?: boolean;
   /** 清除钮的可访问名称 */
   clearLabel?: string;
   /** 右侧三角按钮的可访问名称 */
@@ -157,6 +170,9 @@ export function Combobox(props: ComboboxProps) {
     size = "md",
     panelVariant = "plain",
     emptyText = "没有匹配的选项",
+    loading = false,
+    loadingText = "正在查找…",
+    filter: filterLocally = true,
     clearLabel = "清除",
     toggleLabel = "展开选项",
     invalid: invalidProp,
@@ -189,11 +205,16 @@ export function Combobox(props: ComboboxProps) {
     () => (isGrouped(items) ? items.flatMap((group) => group.items) : items),
     [items],
   );
+  // 远程检索时 items 每次只是一部分：选中的那一项可能不在这一批里。
+  // 把见过的选项都记下来，值才一直找得到它的文字
+  const seen = useRef(new Map<string, ComboboxOption>());
+  for (const option of options) seen.current.set(option.value, option);
+
   // 对外的值是字符串，基元要的是选项本身
   const find = (value: string | null | undefined) =>
-    options.find((option) => option.value === value) ?? null;
+    value == null ? null : (seen.current.get(value) ?? null);
   const findAll = (values: readonly string[]) =>
-    options.filter((option) => values.includes(option.value));
+    values.flatMap((value) => seen.current.get(value) ?? []);
 
   // 匹配文字和别名；不分大小写、不分全半角
   const { contains } = BaseCombobox.useFilter({ sensitivity: "base" });
@@ -339,10 +360,25 @@ export function Combobox(props: ComboboxProps) {
               "max-w-(--available-width) min-w-(--anchor-width)",
             )}
           >
-            <BaseCombobox.Empty className="px-3 py-2 text-sm text-ink-secondary empty:hidden">
-              {emptyText}
+            {/*
+             * 这两行是播报给读屏的状态区，元素本身要一直在：空着的时候不占地方
+             * （内边距只在有内容时才有），而不是 display: none
+             */}
+            <BaseCombobox.Status className="flex items-center gap-2 text-sm text-ink-secondary not-empty:px-3 not-empty:py-2">
+              {loading && (
+                <>
+                  <Spinner size="sm" label={null} />
+                  {loadingText}
+                </>
+              )}
+            </BaseCombobox.Status>
+            <BaseCombobox.Empty className="text-sm text-ink-secondary not-empty:px-3 not-empty:py-2">
+              {loading ? null : emptyText}
             </BaseCombobox.Empty>
-            <BaseCombobox.List className="max-h-[min(var(--available-height),20rem)] overflow-y-auto overscroll-contain empty:hidden">
+            <BaseCombobox.List
+              aria-busy={loading || undefined}
+              className="max-h-[min(var(--available-height),20rem)] overflow-y-auto overscroll-contain empty:hidden"
+            >
               {grouped
                 ? (group: ComboboxOptionGroup) => (
                     <BaseCombobox.Group key={group.label} items={group.items}>
@@ -364,7 +400,7 @@ export function Combobox(props: ComboboxProps) {
 
   const common = {
     items,
-    filter,
+    filter: filterLocally ? filter : null,
     name,
     disabled,
     required,

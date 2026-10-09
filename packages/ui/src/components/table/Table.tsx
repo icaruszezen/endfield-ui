@@ -20,6 +20,7 @@ type TableContextValue = {
   headerVariant: TableHeaderVariant;
   size: TableSize;
   sticky: boolean;
+  stickyHeader: boolean;
   ruled: boolean;
 };
 
@@ -27,6 +28,7 @@ const TableContext = createContext<TableContextValue>({
   headerVariant: "band",
   size: "md",
   sticky: false,
+  stickyHeader: false,
   ruled: false,
 });
 
@@ -46,22 +48,30 @@ export type TableProps = Omit<ComponentProps<"table">, "aria-label"> & {
   size?: TableSize;
   /** 横向滚动时冻结第一列。列多、窄屏上要滚着看时打开 */
   stickyFirstColumn?: boolean;
+  /**
+   * 表身在容器里纵向滚动时，表头留在容器的上沿。
+   * 容器要有一个高度上限才滚得起来：`className="max-h-96"`
+   */
+  stickyHeader?: boolean;
   /** 每隔五行加重一条线。行数很多时帮眼睛数行 */
   ruled?: boolean;
   /** 给外面那层横向滚动的容器；其余属性给 `<table>` */
   className?: string;
 };
 
-/** 容器里的内容是不是比容器宽 */
-function useOverflowingX() {
+/** 容器里的内容是不是比容器宽、比容器高 */
+function useOverflowing() {
   const ref = useRef<HTMLDivElement>(null);
-  const [overflowing, setOverflowing] = useState(false);
+  const [x, setX] = useState(false);
+  const [y, setY] = useState(false);
 
   useEffect(() => {
     const node = ref.current;
     if (!node || typeof ResizeObserver === "undefined") return;
-    const measure = () =>
-      setOverflowing(node.scrollWidth > node.clientWidth + 1);
+    const measure = () => {
+      setX(node.scrollWidth > node.clientWidth + 1);
+      setY(node.scrollHeight > node.clientHeight + 1);
+    };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(node);
@@ -69,14 +79,14 @@ function useOverflowingX() {
     return () => observer.disconnect();
   }, []);
 
-  return [ref, overflowing] as const;
+  return [ref, { x, y }] as const;
 }
 
 /**
  * 表格：原生 `<table>` 套样式。里面放 `TableHead`、`TableBody`、`TableRow`、
  * `TableHeaderCell`、`TableCell`。
  *
- * 放不下时在自己的容器里横向滚动，不撑破页面。整行不可点：
+ * 放不下时在自己的容器里横向滚动，不撑破页面；给容器一个高度上限，它也能纵向滚动。整行不可点：
  * 要进详情把名称写成链接，要勾选在第一列放 `Checkbox`。
  */
 export function Table({
@@ -84,31 +94,40 @@ export function Table({
   headerVariant = "band",
   size = "md",
   stickyFirstColumn = false,
+  stickyHeader = false,
   ruled = false,
   className,
   ...props
 }: TableProps) {
-  const [scrollerRef, overflowing] = useOverflowingX();
+  const [scrollerRef, overflowing] = useOverflowing();
+  const scrollable = overflowing.x || overflowing.y;
   const context = useMemo(
-    () => ({ headerVariant, size, sticky: stickyFirstColumn, ruled }),
-    [headerVariant, size, stickyFirstColumn, ruled],
+    () => ({
+      headerVariant,
+      size,
+      sticky: stickyFirstColumn,
+      stickyHeader,
+      ruled,
+    }),
+    [headerVariant, size, stickyFirstColumn, stickyHeader, ruled],
   );
 
   return (
     <TableContext value={context}>
       <div
         ref={scrollerRef}
-        data-overflowing={overflowing ? "" : undefined}
-        // 只有真的能横向滚动时才是一个能聚焦的区域：键盘要能滚它，
+        // 冻结列右缘的那条线只看横向
+        data-overflowing={overflowing.x ? "" : undefined}
+        // 只有真的能滚动时才是一个能聚焦的区域：键盘要能滚它，
         // 但不溢出的时候不该白占一个 Tab 停靠点
-        {...(overflowing && {
+        {...(scrollable && {
           role: "region",
           "aria-label": label,
           tabIndex: 0,
         })}
         className={cn(
           // 冻结列的底要知道表格压在什么颜色上；压在别的底色上时用 className 改这个变量
-          "group/table isolate overflow-x-auto [--table-surface:var(--ef-surface)]",
+          "group/table isolate overflow-auto [--table-surface:var(--ef-surface)]",
           focusRingInset,
           className,
         )}
@@ -202,6 +221,13 @@ const cellPadding = "px-3 first:pl-4 last:pr-4";
 /* 冻结的第一列 */
 const stickyCell = "first:sticky first:left-0 first:z-1";
 
+/*
+ * 吸顶的表头。左上角那一格同时属于冻结的列和吸顶的行，要压在两者之上：
+ * 表身的冻结格在文档里排在后面，层级相同时会盖住它
+ */
+const stickyHead = "sticky top-0 z-1";
+const stickyCorner = "first:z-2";
+
 const headerFill: Record<TableHeaderVariant, string> = {
   band: "bg-surface-inverse text-ink-inverse",
   muted: "bg-surface-muted text-ink",
@@ -245,7 +271,7 @@ export function TableHeaderCell({
   children,
   ...props
 }: TableHeaderCellProps) {
-  const { headerVariant, sticky } = useContext(TableContext);
+  const { headerVariant, sticky, stickyHeader } = useContext(TableContext);
 
   return (
     <th
@@ -259,6 +285,7 @@ export function TableHeaderCell({
         // 能排序的列，内边距让给里面的按钮：整格都能点
         onSort ? "p-0" : cellPadding,
         sticky && stickyCell,
+        stickyHeader && [stickyHead, sticky && stickyCorner],
         className,
       )}
     >

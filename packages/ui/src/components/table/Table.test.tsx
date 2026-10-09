@@ -95,7 +95,7 @@ describe("Table", () => {
     render(<Shipments className="max-w-80" data-testid="table" />);
     const table = screen.getByTestId("table");
     expect(table.tagName).toBe("TABLE");
-    expect(table.parentElement).toHaveClass("max-w-80", "overflow-x-auto");
+    expect(table.parentElement).toHaveClass("max-w-80", "overflow-auto");
   });
 
   it("两种表头、两档行高", () => {
@@ -200,6 +200,39 @@ describe("Table", () => {
       "first:sticky",
       "bg-surface-inverse",
     );
+  });
+
+  it("stickyHeader：列头吸在容器上沿；和冻结首列同开时左上角压在两者之上", () => {
+    const { rerender } = render(<Shipments stickyHeader />);
+    const first = () => screen.getByRole("columnheader", { name: "批次" });
+    expect(first()).toHaveClass("sticky", "top-0", "z-1");
+    expect(first()).not.toHaveClass("first:z-2");
+    // 表身的格子不跟着吸
+    expect(screen.getByRole("rowheader", { name: "TR-2041" })).not.toHaveClass(
+      "top-0",
+    );
+
+    rerender(<Shipments stickyHeader stickyFirstColumn />);
+    expect(first()).toHaveClass("sticky", "top-0", "first:left-0", "first:z-2");
+  });
+
+  it("纵向溢出时滚动容器同样是一个能聚焦的区域，但不算横向溢出", () => {
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe() {}
+        disconnect() {}
+      },
+    );
+    vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockReturnValue(900);
+    vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(320);
+
+    render(<Shipments stickyHeader />);
+    const region = screen.getByRole("region", { name: "运输批次" });
+    expect(region).toHaveAttribute("tabindex", "0");
+    expect(region).not.toHaveAttribute("data-overflowing");
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it("不溢出时滚动容器不占 Tab 停靠点", () => {

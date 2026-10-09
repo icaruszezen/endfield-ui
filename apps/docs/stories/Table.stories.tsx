@@ -28,6 +28,7 @@ const meta = {
     headerVariant: "band",
     size: "md",
     stickyFirstColumn: false,
+    stickyHeader: false,
     ruled: false,
   },
   argTypes: {
@@ -297,6 +298,46 @@ export const Sticky: Story = {
             <TableRow key={row.id} selected={index === 2}>
               {cells(row)}
             </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  ),
+};
+
+/* 给容器一个高度上限，表身在里面纵向滚动，表头留在上沿 */
+export const StickyHeader: Story = {
+  name: "表头吸顶",
+  args: { stickyHeader: true, size: "sm", className: "max-h-64" },
+  render: (args) => (
+    <Table {...args}>
+      {head}
+      <TableBody>
+        {shipments.map((row) => (
+          <TableRow key={row.id}>{cells(row)}</TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  ),
+};
+
+/* 两个方向都滚：左上角那一格压在冻结的列和吸顶的行之上 */
+export const StickyBoth: Story = {
+  name: "表头吸顶并冻结首列",
+  args: {
+    stickyHeader: true,
+    stickyFirstColumn: true,
+    headerVariant: "muted",
+    size: "sm",
+    className: "max-h-64",
+  },
+  render: (args) => (
+    <div className="max-w-80">
+      <Table {...args}>
+        {head}
+        <TableBody>
+          {shipments.map((row) => (
+            <TableRow key={row.id}>{cells(row)}</TableRow>
           ))}
         </TableBody>
       </Table>

@@ -1,6 +1,6 @@
 import { Combobox, Field, type ComboboxSingleProps } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { useState, type ComponentType } from "react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
 import { stationGroups, stations } from "./_shared/stations";
 
 const meta = {
@@ -153,6 +153,68 @@ export const Narrow: Story = {
       />
     </div>
   ),
+};
+
+/*
+ * 选项由"服务器"按输入的文字返回：这里用一个 600ms 的定时器假装。
+ * filter={false} 不在本地再筛一遍；loading 时面板里是一行"正在查找…"
+ */
+function RemoteSearch() {
+  const [results, setResults] = useState(() => stations.slice(0, 5));
+  const [pending, setPending] = useState(false);
+  const [station, setStation] = useState<string | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => () => clearTimeout(timer.current), []);
+
+  const search = (text: string) => {
+    clearTimeout(timer.current);
+    setPending(true);
+    timer.current = setTimeout(() => {
+      const query = text.trim().toLowerCase();
+      setResults(
+        stations
+          .filter(
+            (item) =>
+              item.label.includes(query) ||
+              item.keywords.some((code) => code.toLowerCase().includes(query)),
+          )
+          .slice(0, 5),
+      );
+      setPending(false);
+    }, 600);
+  };
+
+  return (
+    <Field
+      label="目的站"
+      help="每次只返回前五个结果；选中的站不在后来的结果里也没关系。"
+    >
+      <Combobox
+        items={results}
+        filter={false}
+        loading={pending}
+        placeholder="输入站名或编号"
+        value={station}
+        onValueChange={setStation}
+        onInputValueChange={search}
+      />
+    </Field>
+  );
+}
+
+export const Remote: Story = {
+  name: "远程检索",
+  parameters: { controls: { disable: true } },
+  render: () => <RemoteSearch />,
+};
+
+/* 一直在加载，供截图核对 */
+export const Loading: Story = {
+  name: "正在查找的样子",
+  tags: ["!autodocs"],
+  parameters: { sideBySide: false },
+  args: { items: [], filter: false, loading: true, defaultOpen: true },
 };
 
 /* 默认打开，供截图核对。不进文档页，也不并排 */

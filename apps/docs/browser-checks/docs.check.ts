@@ -17,6 +17,7 @@ const pages = [
   "控件-topbar-顶栏与全屏菜单--docs",
   "控件-navaction-主行动块--docs",
   "控件-dropdownmenu-下拉菜单--docs",
+  "控件-contextmenu-右键菜单--docs",
   "控件-tooltip-文字提示--docs",
   "控件-popover-气泡卡片--docs",
   "控件-flyoutbar-展开条--docs",

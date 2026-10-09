@@ -222,7 +222,7 @@
 
 | 部件 | 属性 |
 | --- | --- |
-| `Table` | `label`（名称，必填）、`headerVariant`、`size`、`stickyFirstColumn`、`ruled` |
+| `Table` | `label`（名称，必填）、`headerVariant`、`size`、`stickyFirstColumn`、`stickyHeader`、`ruled` |
 | `TableHeaderCell` | `numeric`、`align`、`sort`、`onSort` |
 | `TableRow` | `selected` |
 | `TableCell` | `numeric`、`align`、`rowHeader`、`reveal` |
@@ -230,8 +230,10 @@
 - **表头** 32px 高。`headerVariant="band"`（默认）是反转的标题带，和面板的标题带是同一个样子；`"muted"` 是上面说的浅表头。
 - **行高**两档：`sm` 36px、`md` 44px（默认）。行间 1px `line`，最后一行下面不画；`ruled` 打开后每隔五行换成 `line-strong`。
 - **单元格默认不折行。** 放不下的时候表格在自己的容器里横向滚动，不把字挤成两行，也不撑破页面。确实要折行的长文字列，自己加 `whitespace-normal` 并给一个最小宽度。
-- **只有真的溢出时**，滚动的那一层才是一个能聚焦的区域（`role="region"`，名称同表格）：键盘得能滚它，但不溢出的时候不该白占一个 Tab 停靠点。
+- **只有真的溢出时**（横向或纵向），滚动的那一层才是一个能聚焦的区域（`role="region"`，名称同表格）：键盘得能滚它，但不溢出的时候不该白占一个 Tab 停靠点。
 - **`stickyFirstColumn` 冻结首列**，溢出时它的右缘多一条线。冻结的那一格必须不透明，否则滚过去的内容会从它下面透出来——所以它的底不是透明的：平时是表格所在的底色，悬停时是"`ink` 5% 混进这个底色"算出来的实色（看上去和其余单元格上那层半透明的悬停底一样），选中时是 `surface-muted`。表格默认认为自己压在 `surface` 上；压在别的底色上（比如面板里）时，给 `Table` 加 `className="[--table-surface:var(--ef-surface-raised)]"`。
+- **`stickyHeader` 表头吸顶**：表身在容器里纵向滚动时表头留在容器的上沿。容器要有一个高度上限才滚得起来，由使用方给：`<Table stickyHeader className="max-h-96">`。和 `stickyFirstColumn` 同开时，左上角那一格压在两者之上。
+  - **表头吸不到页面的上沿。** 表格要在自己的容器里横向滚动，而 CSS 的 `sticky` 只认最近的那个滚动容器——容器一旦能横向滚，表头就只能相对它吸附。行数多到要整页滚着看时，给容器一个 `max-h-[70vh]` 之类的上限，让表身在容器里滚。
 - **排序**的状态由使用方自己拿着。传了 `onSort` 的列，列名变成一个铺满整格的按钮，右侧一个 8px 的实心三角；`onSort` 拿到的是点了之后该换成的方向（没排或降序时是升序，升序时是降序）。
   - 没按这一列排时三角是 40% 的不透明度，朝下；按它排时三角指明方向（升序朝上、降序朝下），颜色换成强调色。
   - 强调色在反转的标题带上用 `accent-ink-inverse`——暗色主题下标题带是近白，黄色压在上面看不见；浅表头上用 `accent-ink`。焦点环同理：标题带上的焦点环也用 `accent-ink-inverse`，普通的焦点色在那上面看不见。
