@@ -21,6 +21,8 @@ const pages = [
   "控件-accordion-折叠面板--docs",
   "控件-slider-滑块--docs",
   "控件-avatar-头像与头像切换--docs",
+  "控件-carousel-媒体轮播--docs",
+  "控件-panel-面板--docs",
   "控件-tooltip-文字提示--docs",
   "控件-popover-气泡卡片--docs",
   "控件-flyoutbar-展开条--docs",

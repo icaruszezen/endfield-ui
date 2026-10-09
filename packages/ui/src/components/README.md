@@ -29,6 +29,7 @@
 | `accordion/` | `Accordion`、`AccordionItem`（折叠面板） | [卡片](../../../../docs/design/components/card.md) |
 | `list/` | `List`、`ListRow` | [卡片](../../../../docs/design/components/card.md) |
 | `media-card/` | `MediaCard` | [卡片](../../../../docs/design/components/card.md) |
+| `carousel/` | `Carousel`、`CarouselSlide`（媒体轮播） | [卡片](../../../../docs/design/components/card.md) |
 | `item-slot/` | `ItemSlot`、`ItemGrid`（方向键导航的矩阵） | [卡片](../../../../docs/design/components/card.md) |
 | `table/` | `Table`、`TableHead`、`TableBody`、`TableRow`、`TableHeaderCell`、`TableCell` | [数据展示](../../../../docs/design/components/data-display.md) |
 | `timeline/` | `Timeline`、`TimelineItem` | [数据展示](../../../../docs/design/components/data-display.md) |
