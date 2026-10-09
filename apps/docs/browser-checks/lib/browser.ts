@@ -418,6 +418,24 @@ export async function launch({
     pause: sleep,
 
     /**
+     * 等到读出来的东西和期望的一样（按 JSON 比）。读的是会过渡的样式时用它，
+     * 不要读一次就断言：状态刚变、或者暗色主题刚载入，头几帧量到的是过渡的起点。
+     * 一直等不到就用 deepEqual 报错，能看到差在哪
+     */
+    async waitEqual<T>(read: () => Promise<T>, expected: T, message: string) {
+      let last: T | undefined;
+      try {
+        await waitFor(
+          async () =>
+            JSON.stringify((last = await read())) === JSON.stringify(expected),
+          message,
+        );
+      } catch {
+        assert.deepEqual(last, expected, message);
+      }
+    },
+
+    /**
      * 等几帧。状态刚变、马上要读一个**会过渡的样式**（颜色、位置）当基准时用：
      * "减少动态效果"把过渡压到了 0.01ms，但它要到下一帧才走完，
      * 紧跟着读到的是过渡的起点——本机碰巧读得到终点，CI 上不一定

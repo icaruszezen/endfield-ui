@@ -112,7 +112,15 @@ test("重复：不加，字留着，已有的那个小块闪一下反转填充�
           background: getComputedStyle(chip).backgroundColor,
         }));
       });
-    const rest = (await fill())[0]!.background;
+    // 平时的底色从令牌里读（新建一个探针）：小块自己的底色在暗色主题刚载入时还在过渡
+    const rest = await page.evaluate(() => {
+      const probe = document.createElement("i");
+      probe.style.color = "var(--ef-surface-muted)";
+      document.querySelector("#storybook-root > *")!.append(probe);
+      const color = getComputedStyle(probe).color;
+      probe.remove();
+      return color;
+    });
 
     await page.key("Tab");
     await page.type("滤芯");

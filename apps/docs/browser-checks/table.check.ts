@@ -383,44 +383,49 @@ test("行展开：键盘展开收起；明细是紧跟着的一行通栏，展�
     async () => (await details(page)).join() === "TR-2041,TR-2044",
     "回车应该展开第一行",
   );
-  await page.frames();
 
-  const found = await page.evaluate(() => {
-    const toggle = document.activeElement as HTMLElement;
-    const row = toggle.closest("tr")!;
-    const detail = row.nextElementSibling as HTMLTableRowElement;
-    const table = row.closest("table")!;
-    const cell = detail.cells[0]!;
-    return {
-      expanded: toggle.getAttribute("aria-expanded"),
-      controls: toggle.getAttribute("aria-controls") === detail.id,
-      cells: detail.cells.length,
-      colSpan: cell.colSpan,
-      columns: table.querySelectorAll("thead th").length,
-      fullWidth:
-        Math.abs(
-          cell.getBoundingClientRect().width -
-            table.getBoundingClientRect().width,
-        ) < 1,
-      // 主行和明细之间没有线；线在明细下面
-      rowLine: getComputedStyle(row.cells[0]!).borderBottomColor,
-      detailLine: getComputedStyle(cell).borderBottomWidth,
-      sameFill:
-        getComputedStyle(cell).backgroundColor ===
-        getComputedStyle(row).backgroundColor,
-    };
-  });
-  assert.deepEqual(found, {
-    expanded: "true",
-    controls: true,
-    cells: 1,
-    colSpan: 5,
-    columns: 5,
-    fullWidth: true,
-    rowLine: "rgba(0, 0, 0, 0)",
-    detailLine: "1px",
-    sameFill: false,
-  });
+  // 主行的下边线是过渡成透明的：等它到位，不读一次就断言
+  const read = () =>
+    page.evaluate(() => {
+      const toggle = document.activeElement as HTMLElement;
+      const row = toggle.closest("tr")!;
+      const detail = row.nextElementSibling as HTMLTableRowElement;
+      const table = row.closest("table")!;
+      const cell = detail.cells[0]!;
+      return {
+        expanded: toggle.getAttribute("aria-expanded"),
+        controls: toggle.getAttribute("aria-controls") === detail.id,
+        cells: detail.cells.length,
+        colSpan: cell.colSpan,
+        columns: table.querySelectorAll("thead th").length,
+        fullWidth:
+          Math.abs(
+            cell.getBoundingClientRect().width -
+              table.getBoundingClientRect().width,
+          ) < 1,
+        // 主行和明细之间没有线；线在明细下面
+        rowLine: getComputedStyle(row.cells[0]!).borderBottomColor,
+        detailLine: getComputedStyle(cell).borderBottomWidth,
+        sameFill:
+          getComputedStyle(cell).backgroundColor ===
+          getComputedStyle(row).backgroundColor,
+      };
+    });
+  await page.waitEqual(
+    read,
+    {
+      expanded: "true",
+      controls: true,
+      cells: 1,
+      colSpan: 5,
+      columns: 5,
+      fullWidth: true,
+      rowLine: "rgba(0, 0, 0, 0)",
+      detailLine: "1px",
+      sameFill: false,
+    },
+    "展开之后：明细通栏、主行不画下边线",
+  );
 
   // 三角转了过去
   await page.waitFor(
@@ -557,22 +562,24 @@ test("行展开：每隔五行的加重线只数主行；第五行展开着时�
       };
     });
 
+  // 边线的颜色是过渡过去的：每一步都等它到位，不读一次就断言。
   // 第五行一开始开着：它自己没有下边线，加重的线在明细下面
-  assert.deepEqual(await lines(), {
-    main: ["line", "none", "strong"],
-    details: ["strong"],
-  });
+  await page.waitEqual(
+    lines,
+    { main: ["line", "none", "strong"], details: ["strong"] },
+    "第五行展开着：它自己没有下边线，加重的线在明细下面",
+  );
 
   await page.click("text=全部收起");
   await page.waitFor(
     async () => (await details(page)).length === 0,
     "全部收起之后不该还有明细",
   );
-  await page.frames();
-  assert.deepEqual(await lines(), {
-    main: ["line", "strong", "strong"],
-    details: [],
-  });
+  await page.waitEqual(
+    lines,
+    { main: ["line", "strong", "strong"], details: [] },
+    "全部收起：加重的线回到第五、第十行自己下面",
+  );
 
   // 全部展开：十二行都开着，加重的线只在第五、第十行的明细下面
   await page.click("text=全部展开");
@@ -580,13 +587,17 @@ test("行展开：每隔五行的加重线只数主行；第五行展开着时�
     async () => (await details(page)).length === 12,
     "全部展开应该有十二行明细",
   );
-  await page.frames();
-  const all = await lines();
-  assert.deepEqual(all.main, ["none", "none", "none"]);
-  assert.deepEqual(
-    all.details
-      .map((line, index) => (line === "strong" ? index + 1 : 0))
-      .filter(Boolean),
-    [5, 10],
+  await page.waitEqual(
+    async () => {
+      const all = await lines();
+      return {
+        main: all.main,
+        strong: all.details
+          .map((line, index) => (line === "strong" ? index + 1 : 0))
+          .filter(Boolean),
+      };
+    },
+    { main: ["none", "none", "none"], strong: [5, 10] },
+    "全部展开：主行都不画下边线，加重的线只在第五、第十行的明细下面",
   );
 });

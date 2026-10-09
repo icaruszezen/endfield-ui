@@ -133,24 +133,31 @@ test("开关钮按下：填充反转，字是反转的墨色、图标是黄记�
     );
     assert.notEqual(inverse, bar, `${theme}：按下的底和带子同色`);
 
+    // 暗色主题是载入之后过渡过去的：等颜色到位，不读一次就断言。
     // 有字的：字是反转的墨色
-    const text = await look(page, "标准");
-    assert.deepEqual(
-      [text.pressed, text.background, text.color],
+    await page.waitEqual(
+      async () => {
+        const text = await look(page, "标准");
+        return [text.pressed, text.background, text.color];
+      },
       ["true", inverse, inkInverse],
       `${theme}：按下的"标准"`,
     );
     // 只有图标的：图标是黄记号
-    const icon = await look(page, "路线");
-    assert.deepEqual(
-      [icon.pressed, icon.background, icon.icon],
+    await page.waitEqual(
+      async () => {
+        const icon = await look(page, "路线");
+        return [icon.pressed, icon.background, icon.icon];
+      },
       ["true", inverse, mark],
       `${theme}：按下的"路线"`,
     );
     // 没按下的：透明底、次级墨色
-    const rest = await look(page, "等高线");
-    assert.deepEqual(
-      [rest.pressed, rest.background, rest.color, rest.icon],
+    await page.waitEqual(
+      async () => {
+        const rest = await look(page, "等高线");
+        return [rest.pressed, rest.background, rest.color, rest.icon];
+      },
       ["false", "rgba(0, 0, 0, 0)", secondary, secondary],
       `${theme}：没按下的"等高线"`,
     );
