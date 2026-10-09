@@ -312,24 +312,52 @@ test("长标题折行，不截断", async () => {
   await page.story("控件-toc-页内目录--long-titles");
   const found = await page.evaluate((css) => {
     const nav = document.querySelector<HTMLElement>(css)!;
-    // 折不折行看字宽，而 CI 上没有中文字体、字比本机窄：把目录压到 80px，
-    // 什么字体下第一条标题都得折
+    // 把目录压窄，让标题放不下
     nav.style.width = "80px";
     const links = [...nav.querySelectorAll<HTMLElement>("a")];
-    const first = getComputedStyle(links[0]!);
+    const link = links[0]!;
+    const style = getComputedStyle(link);
     const oneLine =
-      parseFloat(first.lineHeight) +
-      parseFloat(first.paddingTop) +
-      parseFloat(first.paddingBottom);
+      parseFloat(style.lineHeight) +
+      parseFloat(style.paddingTop) +
+      parseFloat(style.paddingBottom);
+
+    // 这条标题一行写完要多宽：不同的机器上字体不一样（CI 上没有中文字体），
+    // 所以不假定它一定放不下，量出来再说
+    link.style.whiteSpace = "nowrap";
+    const natural = link.scrollWidth;
+    link.style.whiteSpace = "";
+    const available = link.clientWidth;
+    const lines = Math.round(
+      (link.offsetHeight - (oneLine - parseFloat(style.lineHeight))) /
+        parseFloat(style.lineHeight),
+    );
+
     return {
-      wrapped: links[0]!.offsetHeight > oneLine + 1,
-      clipped: links.some((link) => link.scrollWidth > link.clientWidth + 1),
+      // 放不下就得折成多行；量到的数一起带出来，没过的时候看得到
+      wraps: natural <= available || lines > 1,
+      measured: { natural, available, lines },
+      // 不是靠截断收住的
+      whiteSpace: style.whiteSpace,
+      textOverflow: style.textOverflow,
+      clipped: links.some((item) => item.scrollWidth > item.clientWidth + 1),
       inside: links.every(
-        (link) =>
-          link.getBoundingClientRect().right <=
+        (item) =>
+          item.getBoundingClientRect().right <=
           nav.getBoundingClientRect().right + 0.5,
       ),
     };
   }, NAV);
-  assert.deepEqual(found, { wrapped: true, clipped: false, inside: true });
+  assert.deepEqual(
+    { ...found, measured: undefined },
+    {
+      wraps: true,
+      measured: undefined,
+      whiteSpace: "normal",
+      textOverflow: "clip",
+      clipped: false,
+      inside: true,
+    },
+    `量到的：${JSON.stringify(found.measured)}`,
+  );
 });
