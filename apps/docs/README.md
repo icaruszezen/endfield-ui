@@ -36,6 +36,7 @@ pnpm dev
 - `.storybook/main.ts` 把 `@endfield-ui/react` 别名到 `packages/ui/src/index.ts`，所以改组件源码即热更新，不用先构建。
 - `.storybook/preview.css` 引入 `@endfield-ui/react/tailwind.css`，再用 `@source` 把 stories 里的类名交给 Tailwind。
 - `.storybook/preview-head.html` 从 Google Fonts 加载 Archivo、Outfit、Space Grotesk 三款开源字体；断网时回退到系统字体，层级关系仍然成立。
+- 根 README 里的示例页截图（`docs/screenshots/`）由 `browser-checks/readme-shots.ts` 生成。示例页改了样子之后，先 `pnpm build:docs`，再 `pnpm --filter @endfield-ui/docs shots` 重截；换了哪一页、哪个主题，README 里那张图的链接跟着改。
 
 ## 写 story 时要留意
 

@@ -7,6 +7,7 @@
     "dev": "storybook dev -p 6106 --no-open",
     "build": "storybook build",
     "test:browser": "node --test --test-concurrency=1 --test-timeout=120000 --test-force-exit \"browser-checks/*.check.ts\"",
+    "shots": "node browser-checks/readme-shots.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
