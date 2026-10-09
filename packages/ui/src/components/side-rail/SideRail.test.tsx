@@ -9,6 +9,7 @@ import {
   SideRailItem,
   type SideRailProps,
 } from "./SideRail";
+import { SideRailSub, SideRailSubItem } from "./SideRailSub";
 
 const icon = <svg />;
 
@@ -197,5 +198,173 @@ describe("SideRail", () => {
     const nav = screen.getByRole("navigation");
     expect(nav).toHaveClass("h-full");
     expect(nav).not.toHaveClass("h-dvh");
+  });
+});
+
+function TreeRail({
+  current = "people",
+  ...props
+}: Partial<SideRailProps> & {
+  current?: string | null;
+  subProps?: Partial<React.ComponentProps<typeof SideRailSub>>;
+}) {
+  const { subProps, ...rail } = props;
+  return (
+    <SideRail aria-label="主导航" {...rail}>
+      <SideRailItem icon={icon} href="#overview">
+        总览
+      </SideRailItem>
+      <SideRailSub icon={icon} label="档案" {...subProps}>
+        <SideRailSubItem href="#people" current={current === "people"}>
+          人员
+        </SideRailSubItem>
+        <SideRailSubItem
+          href="#stations"
+          current={current === "stations"}
+          end={<span>26</span>}
+        >
+          站点
+        </SideRailSubItem>
+        <SideRailSubItem href="#routes" disabled>
+          线路
+        </SideRailSubItem>
+      </SideRailSub>
+    </SideRail>
+  );
+}
+
+describe("SideRailSub", () => {
+  it("父项是一个报告展开状态的按钮，子项是一个以它命名的子列表", () => {
+    render(<TreeRail />);
+    const parent = screen.getByRole("button", { name: "档案" });
+    // 当前项在里面：默认展开
+    expect(parent).toHaveAttribute("aria-expanded", "true");
+    const list = screen.getByRole("list", { name: "档案" });
+    expect(within(list).getAllByRole("listitem")).toHaveLength(3);
+    expect(within(list).getByRole("link", { name: "人员" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    // 父项不是页面
+    expect(parent).not.toHaveAttribute("aria-current");
+  });
+
+  it("当前项不在里面时默认收着；点父项展开", async () => {
+    const user = userEvent.setup();
+    const onOpenChange = vi.fn();
+    render(<TreeRail current={null} subProps={{ onOpenChange }} />);
+    const parent = screen.getByRole("button", { name: "档案" });
+    expect(parent).toHaveAttribute("aria-expanded", "false");
+    expect(
+      screen.queryByRole("link", { name: "人员" }),
+    ).not.toBeInTheDocument();
+
+    await user.click(parent);
+    expect(onOpenChange).toHaveBeenLastCalledWith(true);
+    expect(parent).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("link", { name: "人员" })).toBeInTheDocument();
+  });
+
+  it("短竖条只出现一处：展开时在子项上，收着时父项替它显示", async () => {
+    const user = userEvent.setup();
+    render(<TreeRail />);
+    const parent = screen.getByRole("button", { name: "档案" });
+    const bar = "before:bg-ink";
+    expect(parent).not.toHaveClass(bar);
+    expect(screen.getByRole("link", { name: "人员" })).toHaveClass(bar);
+    // 展开着父项也不退回次要色
+    expect(parent).toHaveClass("text-ink");
+
+    await user.click(parent);
+    await waitFor(() =>
+      expect(parent).toHaveAttribute("aria-expanded", "false"),
+    );
+    expect(parent).toHaveClass(bar, "font-bold");
+  });
+
+  it("受控：展开不展开由外面决定", async () => {
+    const user = userEvent.setup();
+    const onOpenChange = vi.fn();
+    render(<TreeRail subProps={{ open: false, onOpenChange }} />);
+    const parent = screen.getByRole("button", { name: "档案" });
+    expect(parent).toHaveAttribute("aria-expanded", "false");
+    await user.click(parent);
+    expect(onOpenChange).toHaveBeenLastCalledWith(true);
+    expect(parent).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("子项：行尾的补充、禁用、按钮形态和 render", () => {
+    render(
+      <SideRail aria-label="主导航">
+        <SideRailSub icon={icon} label="档案" defaultOpen>
+          <SideRailSubItem href="#stations" end={<span>26</span>}>
+            站点
+          </SideRailSubItem>
+          <SideRailSubItem href="#routes" disabled>
+            线路
+          </SideRailSubItem>
+          <SideRailSubItem onClick={() => {}}>导出</SideRailSubItem>
+          <SideRailSubItem render={<RouterLink to="/logs" />}>
+            日志
+          </SideRailSubItem>
+        </SideRailSub>
+      </SideRail>,
+    );
+    expect(
+      screen.getByRole("link", { name: /^站点 ?26$/ }),
+    ).toBeInTheDocument();
+    const disabled = screen.getByRole("link", { name: "线路" });
+    expect(disabled).not.toHaveAttribute("href");
+    expect(disabled).toHaveAttribute("aria-disabled", "true");
+    expect(screen.getByRole("button", { name: "导出" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "日志" })).toHaveAttribute(
+      "href",
+      "/app/logs",
+    );
+  });
+
+  it("收起的侧轨：父项只剩图标，点开是一块以它命名的菜单，子项是菜单项", async () => {
+    const user = userEvent.setup();
+    render(<TreeRail collapsed />);
+    const parent = screen.getByRole("button", { name: "档案" });
+    expect(parent).toHaveAttribute("aria-haspopup", "menu");
+    // 当前项藏在菜单里：父项替它显示成当前的样子
+    expect(parent).toHaveClass("before:bg-ink", "font-bold");
+    expect(
+      screen.queryByRole("list", { name: "档案" }),
+    ).not.toBeInTheDocument();
+
+    await user.click(parent);
+    const menu = await screen.findByRole("menu");
+    expect(
+      within(menu).getByRole("group", { name: "档案" }),
+    ).toBeInTheDocument();
+    const items = within(menu).getAllByRole("menuitem");
+    expect(items.map((item) => item.textContent)).toEqual([
+      "人员",
+      "站点26",
+      "线路",
+    ]);
+    expect(items[0]).toHaveAttribute("aria-current", "page");
+    expect(items[0]).toHaveAttribute("href", "#people");
+    expect(items[2]).toHaveAttribute("aria-disabled", "true");
+    expect(items[2]).not.toHaveAttribute("href");
+  });
+
+  it("收起的侧轨：键盘打开菜单，Esc 关闭后焦点回到父项", async () => {
+    const user = userEvent.setup();
+    render(<TreeRail collapsed />);
+    const parent = screen.getByRole("button", { name: "档案" });
+    parent.focus();
+    await user.keyboard("{Enter}");
+    await screen.findByRole("menu");
+    await waitFor(() =>
+      expect(screen.getByRole("menuitem", { name: "人员" })).toHaveFocus(),
+    );
+    await user.keyboard("{Escape}");
+    await waitFor(() =>
+      expect(screen.queryByRole("menu")).not.toBeInTheDocument(),
+    );
+    expect(parent).toHaveFocus();
   });
 });

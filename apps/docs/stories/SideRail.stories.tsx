@@ -7,6 +7,8 @@ import {
   SideRail,
   SideRailGroup,
   SideRailItem,
+  SideRailSub,
+  SideRailSubItem,
 } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState, type ReactNode } from "react";
@@ -230,6 +232,64 @@ export const GroupsCollapsed: Story = {
       </SideRail>
     </Frame>
   ),
+};
+
+/*
+ * 二级：一个栏目下面还有几个去处。父项只管展开收起；
+ * 当前项在里面时默认展开，收着的时候父项替它显示成"当前"
+ */
+function Tree({ collapsed = false }: { collapsed?: boolean }) {
+  const [page, setPage] = useState("people");
+  const sub = (value: string) => ({
+    current: page === value,
+    onClick: () => setPage(value),
+  });
+  return (
+    <Frame>
+      <SideRail
+        aria-label="主导航"
+        collapsed={collapsed}
+        className="h-full"
+        brand={brandLink(collapsed)}
+      >
+        <SideRailItem icon={<GridIcon />} {...sub("overview")}>
+          总览
+        </SideRailItem>
+        <SideRailSub icon={<RouteIcon />} label="调度">
+          <SideRailSubItem {...sub("today")}>今日批次</SideRailSubItem>
+          <SideRailSubItem
+            {...sub("delayed")}
+            end={<Badge count={3} aria-label="3 个延误" />}
+          >
+            延误
+          </SideRailSubItem>
+        </SideRailSub>
+        <SideRailSub icon={<ArchiveIcon />} label="档案">
+          <SideRailSubItem {...sub("people")}>人员</SideRailSubItem>
+          <SideRailSubItem {...sub("stations")}>站点</SideRailSubItem>
+          <SideRailSubItem {...sub("routes")} disabled>
+            线路（未开放）
+          </SideRailSubItem>
+        </SideRailSub>
+        <SideRailItem icon={<SlidersIcon />} {...sub("settings")}>
+          设置
+        </SideRailItem>
+      </SideRail>
+    </Frame>
+  );
+}
+
+export const SubTree: Story = {
+  name: "二级",
+  parameters: { controls: { disable: true } },
+  render: () => <Tree />,
+};
+
+/* 收起的侧轨上没有地方就地展开：父项悬停或点击时向右弹出一块菜单 */
+export const SubTreeCollapsed: Story = {
+  name: "二级：收起时是弹出的菜单",
+  parameters: { controls: { disable: true } },
+  render: () => <Tree collapsed />,
 };
 
 /* 用路由库时把它的链接组件传给 render；没有地址的项传 onClick，是按钮 */

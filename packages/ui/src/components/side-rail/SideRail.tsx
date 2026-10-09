@@ -13,7 +13,48 @@ import { focusRingInset } from "../../lib/focus-ring";
 import { LinkElement, type LinkRender } from "../link-element/LinkElement";
 import { NavActionContext } from "../nav-action/NavAction";
 
-const SideRailContext = createContext({ collapsed: false });
+export const SideRailContext = createContext({ collapsed: false });
+
+/**
+ * 一行栏目的样子：普通栏目和二级的父项共用。
+ * `current` 是"显示成当前的样子"（墨色、加粗、左缘的短竖条），不管 aria-current
+ */
+export function railItemClass({
+  current,
+  disabled,
+}: {
+  current: boolean;
+  disabled: boolean;
+}) {
+  return cn(
+    // 左内边距 20px + 24px 的图标位：收起成 64px 时图标正好居中，展开收起时它不跑位
+    "relative flex h-12 w-full items-center gap-3 pr-4 pl-5 text-left text-sm font-medium",
+    "transition-colors duration-(--duration-fast) ease-standard",
+    focusRingInset,
+    disabled
+      ? "cursor-not-allowed text-ink-disabled"
+      : [
+          current ? "font-bold text-ink" : "text-ink-secondary",
+          "hover:bg-surface-muted hover:text-ink",
+          // 收起时浮出来的那块文字（或菜单）还开着：这一项保持同样的底，两块连成一条
+          "data-popup-open:bg-surface-muted data-popup-open:text-ink",
+        ],
+    current &&
+      "before:absolute before:top-1/2 before:left-0 before:h-5 before:w-1 before:-translate-y-1/2 before:bg-ink before:content-['']",
+  );
+}
+
+/** 24px 的图标位，里面的图标 20px */
+export function RailIcon({ children }: { children: ReactNode }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="flex size-6 shrink-0 items-center justify-center [&_svg]:size-5"
+    >
+      {children}
+    </span>
+  );
+}
 
 export type SideRailProps = Omit<ComponentProps<"nav">, "aria-label"> & {
   /** 这块导航的名称，比如"主导航" */
@@ -31,7 +72,7 @@ export type SideRailProps = Omit<ComponentProps<"nav">, "aria-label"> & {
   action?: ReactNode;
   /** 最下面的次要入口 */
   footer?: ReactNode;
-  /** `SideRailItem`、`SideRailGroup` */
+  /** `SideRailItem`、`SideRailGroup`、`SideRailSub` */
   children: ReactNode;
 };
 
@@ -158,31 +199,11 @@ export function SideRailItem({
   const { anchorRef, portalRef } = usePortalScope();
   const isLink = href !== undefined || render !== undefined;
 
-  const classes = cn(
-    // 左内边距 20px + 24px 的图标位：收起成 64px 时图标正好居中，展开收起时它不跑位
-    "relative flex h-12 w-full items-center gap-3 pr-4 pl-5 text-left text-sm font-medium",
-    "transition-colors duration-(--duration-fast) ease-standard",
-    focusRingInset,
-    disabled
-      ? "cursor-not-allowed text-ink-disabled"
-      : [
-          current ? "font-bold text-ink" : "text-ink-secondary",
-          "hover:bg-surface-muted hover:text-ink",
-          // 收起时浮出来的那块文字还开着：这一项保持同样的底，两块连成一条
-          "data-popup-open:bg-surface-muted data-popup-open:text-ink",
-        ],
-    current &&
-      "before:absolute before:top-1/2 before:left-0 before:h-5 before:w-1 before:-translate-y-1/2 before:bg-ink before:content-['']",
-  );
+  const classes = railItemClass({ current, disabled });
 
   const content = (
     <>
-      <span
-        aria-hidden="true"
-        className="flex size-6 shrink-0 items-center justify-center [&_svg]:size-5"
-      >
-        {icon}
-      </span>
+      <RailIcon>{icon}</RailIcon>
       <span className={collapsed ? "sr-only" : "min-w-0 flex-1 truncate"}>
         {children}
       </span>
@@ -266,7 +287,7 @@ export type SideRailGroupProps = Omit<ComponentProps<"li">, "children"> & {
   children: ReactNode;
 };
 
-/** 把几个栏目归成一组。栏目多的时候用；不做能展开收起的二级。 */
+/** 把几个栏目归成一组。栏目多的时候用。它只是分组；能展开收起的是 `SideRailSub`。 */
 export function SideRailGroup({
   label,
   className,

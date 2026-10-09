@@ -366,3 +366,155 @@ test("320px 宽：顶栏不溢出，菜单里的东西都在视口里", async ()
     await page.setSize(1200, 800);
   }
 });
+
+const SUB = "#storybook-root nav";
+/** 侧轨里现在带短竖条（"当前"的样子）的那几项的文字 */
+const marked = (page: Page) =>
+  page.evaluate(() =>
+    [...document.querySelectorAll("#storybook-root nav :is(a, button)")]
+      .filter((element) => {
+        const bar = getComputedStyle(element, "::before");
+        return bar.content !== "none" && parseFloat(bar.width) >= 3;
+      })
+      .map((element) => (element.textContent ?? "").trim()),
+  );
+
+test("侧轨二级：当前项在里面的那一组默认展开；点父项收起，短竖条换到父项上", async () => {
+  const { page } = storybook;
+  await page.story("控件-siderail-侧轨--sub-tree");
+  const expandedOf = (name: string) =>
+    page.evaluate(
+      (label) =>
+        [...document.querySelectorAll("#storybook-root nav button")]
+          .find((button) => button.textContent?.trim() === label)!
+          .getAttribute("aria-expanded"),
+      name,
+    );
+  assert.equal(
+    await expandedOf("档案"),
+    "true",
+    "当前项在档案里，应该默认展开",
+  );
+  assert.equal(await expandedOf("调度"), "false");
+  assert.deepEqual(
+    await page.text(`${SUB} [aria-current=page]`),
+    ["人员"],
+    "aria-current 只在子项上",
+  );
+  assert.deepEqual(await marked(page), ["人员"], "短竖条只在当前子项上");
+
+  await page.click("text=档案");
+  await page.waitFor(
+    async () => (await expandedOf("档案")) === "false",
+    "点父项应该收起",
+  );
+  await page.waitFor(
+    async () => (await marked(page)).join() === "档案",
+    "收着的时候父项替它显示成当前的样子",
+  );
+  assert.ok(
+    !(await page.visible(`${SUB} [aria-current=page]`)),
+    "收起之后子项不在页面里",
+  );
+});
+
+test("侧轨二级：键盘展开另一组，Tab 走进子项；子项和父项的文字对齐", async () => {
+  const { page } = storybook;
+  await page.story("控件-siderail-侧轨--sub-tree");
+  await page.evaluate(() =>
+    [...document.querySelectorAll<HTMLElement>("#storybook-root nav button")]
+      .find((button) => button.textContent?.trim() === "调度")!
+      .focus(),
+  );
+  await page.key("Enter");
+  await page.waitVisible("#storybook-root nav ul[aria-label=调度]");
+  await page.key("Tab");
+  await page.waitFocused("button:今日批次");
+  await page.key("Enter");
+  await page.waitFor(
+    async () =>
+      (await page.text(`${SUB} [aria-current=page]`)).join() === "今日批次",
+    "回车应该选中这个子项",
+  );
+
+  const lefts = await page.evaluate(() => {
+    const textLeft = (element: Element) => {
+      const range = document.createRange();
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+      range.selectNodeContents(walker.nextNode()!);
+      return Math.round(range.getBoundingClientRect().left);
+    };
+    const find = (label: string) =>
+      [...document.querySelectorAll("#storybook-root nav button")].find(
+        (button) => button.textContent?.trim() === label,
+      )!;
+    return {
+      parent: textLeft(find("调度")),
+      child: textLeft(find("今日批次")),
+    };
+  });
+  assert.equal(lefts.child, lefts.parent, "子项的文字应该和父项的文字对齐");
+});
+
+test("收起的侧轨上的二级：点父项向右弹出菜单，键盘能走能选，Esc 回到父项", async () => {
+  const { page } = storybook;
+  await page.story("控件-siderail-侧轨--sub-tree-collapsed");
+  const MENU = "[role=menu]";
+  assert.deepEqual(
+    await marked(page),
+    ["档案"],
+    "当前项藏在菜单里：父项替它显示成当前的样子",
+  );
+
+  await page.evaluate(() =>
+    document
+      .querySelector<HTMLElement>(
+        "#storybook-root nav button[aria-haspopup=menu]",
+      )!
+      .focus(),
+  );
+  await page.waitFocused("button:调度");
+  await page.key("Enter");
+  await page.waitVisible(MENU);
+  await page.waitFocused(/^menuitem:今日批次/, "打开后焦点应该在第一项");
+  assert.deepEqual(await page.text(`${MENU} [role=group] > :first-child`), [
+    "调度",
+  ]);
+
+  const placed = await page.evaluate(() => {
+    const menu = document.querySelector("[role=menu]")!.getBoundingClientRect();
+    const rail = document
+      .querySelector("#storybook-root nav")!
+      .getBoundingClientRect();
+    return Math.round(menu.left - rail.right);
+  });
+  assert.ok(Math.abs(placed) <= 2, `菜单应该贴着侧轨的右缘：差 ${placed}px`);
+
+  await page.key("ArrowDown");
+  await page.waitFocused(/^menuitem:延误/);
+  await page.key("Escape");
+  await page.waitGone(MENU);
+  await page.waitFocused("button:调度", "关闭后焦点应该回到父项");
+
+  // 再打开，选一项：菜单关上，那一项成为当前
+  await page.key("Enter");
+  await page.waitVisible(MENU);
+  await page.waitFocused(/^menuitem:今日批次/);
+  await page.key("Enter");
+  await page.waitGone(MENU);
+  await page.waitFor(
+    async () => (await marked(page)).join() === "调度",
+    "选了调度里的一项，短竖条应该换到调度上",
+  );
+});
+
+test("收起的侧轨上的二级：悬停也会弹出菜单", async () => {
+  const { page } = storybook;
+  await page.story("控件-siderail-侧轨--sub-tree-collapsed");
+  await page.moveTo("#storybook-root nav button[aria-haspopup=menu]");
+  await page.waitVisible("[role=menu]", "悬停父项应该弹出菜单");
+  assert.deepEqual(await page.text("[role=menu] [role=menuitem]"), [
+    "今日批次",
+    "延误3",
+  ]);
+});
