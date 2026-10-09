@@ -10,6 +10,7 @@ import {
   Countdown,
   EmptyState,
   Field,
+  FileUpload,
   FilterChip,
   Input,
   List,
@@ -33,6 +34,7 @@ import {
   ToastProvider,
   useToast,
   Tag,
+  TagInput,
   Textarea,
 } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
@@ -225,11 +227,38 @@ function Settings() {
             />
           </Field>
 
+          {/* 自己打出来的一串短词：回车或逗号加一个 */}
+          <Field
+            label="站点标签"
+            help="回车或逗号分开，最多八个。粘贴一串也行。"
+          >
+            <TagInput
+              name="tags"
+              max={8}
+              defaultValue={["北岭", "管廊"]}
+              placeholder="输入后按回车"
+            />
+          </Field>
+
           <Field label="交接备注" help="写给下一班的人看。">
             <Textarea
               showCount
               maxLength={200}
               defaultValue="北段管廊的第二个采样点有渗水，取样前先确认排水泵已经开启。"
+            />
+          </Field>
+
+          {/* 只管选和列：真要上传时，由页面自己发请求、给每一行进度 */}
+          <Field
+            label="交接附件"
+            help="PDF 或图片，单个不超过 10 MB，最多 3 个。"
+          >
+            <FileUpload
+              multiple
+              accept=".pdf,image/*"
+              maxSize={10 * 1024 * 1024}
+              maxFiles={3}
+              name="attachments"
             />
           </Field>
         </section>

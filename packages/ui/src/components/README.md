@@ -4,6 +4,7 @@
 | --- | --- | --- |
 | `button/` | `Button`、`ButtonGroup` | [按钮](../../../../docs/design/components/button.md) |
 | `icon-button/` | `IconButton` | [按钮](../../../../docs/design/components/button.md) |
+| `toolbar/` | `Toolbar`、`ToolbarButton`、`ToolbarToggle`、`ToolbarToggleGroup`、`ToolbarGroup`、`ToolbarSeparator`（工具栏：整条一个 Tab 停靠点） | [按钮](../../../../docs/design/components/button.md) |
 | `tag/` | `Tag`、`TagPair` | [数据展示](../../../../docs/design/components/data-display.md) |
 | `badge/` | `Badge` | [数据展示](../../../../docs/design/components/data-display.md) |
 | `chip/` | `FilterChip`、`ResourceChip` | [数据展示](../../../../docs/design/components/data-display.md) |
@@ -26,6 +27,7 @@
 | `navigator/` | `Navigator` | [导航](../../../../docs/design/components/navigation.md) |
 | `dash-indicator/` | `DashIndicator` | [导航](../../../../docs/design/components/navigation.md) |
 | `steps/` | `Steps`、`Step`（步骤条；`Stepper` 是数字步进器，不是它） | [导航](../../../../docs/design/components/navigation.md) |
+| `toc/` | `Toc`、`TocItem`（页内目录：滚到哪一节哪一项亮） | [导航](../../../../docs/design/components/navigation.md) |
 | `back-to-top/` | `BackToTop`（回到顶部：滚过一段才出现的悬浮钮） | [导航](../../../../docs/design/components/navigation.md) |
 | `panel/` | `Panel`、`PanelHeader`、`PanelBody`、`PanelRows`、`PanelRow` | [卡片](../../../../docs/design/components/card.md) |
 | `accordion/` | `Accordion`、`AccordionItem`（折叠面板） | [卡片](../../../../docs/design/components/card.md) |
@@ -34,7 +36,7 @@
 | `play-button/` | `PlayButton`、`PlayMark`（播放钮与不能点的播放记号） | [卡片](../../../../docs/design/components/card.md) |
 | `carousel/` | `Carousel`、`CarouselSlide`（媒体轮播） | [卡片](../../../../docs/design/components/card.md) |
 | `item-slot/` | `ItemSlot`、`ItemGrid`（方向键导航的矩阵） | [卡片](../../../../docs/design/components/card.md) |
-| `table/` | `Table`、`TableHead`、`TableBody`、`TableRow`、`TableHeaderCell`、`TableCell` | [数据展示](../../../../docs/design/components/data-display.md) |
+| `table/` | `Table`、`TableHead`、`TableBody`、`TableRow`、`TableHeaderCell`、`TableCell`、`TableExpander`（行展开的钮） | [数据展示](../../../../docs/design/components/data-display.md) |
 | `timeline/` | `Timeline`、`TimelineItem` | [数据展示](../../../../docs/design/components/data-display.md) |
 | `schedule/` | `Schedule`、`ScheduleTrack`、`ScheduleItem`（排期：横向的时间轨图） | [数据展示](../../../../docs/design/components/data-display.md) |
 | `field/` | `Field`、`useFieldControl`、`useFieldContext` | [表单](../../../../docs/design/components/form.md) |
@@ -64,6 +66,8 @@
 | `popover/` | `Popover`、`PopoverClose` | [浮层](../../../../docs/design/components/overlay.md) |
 | `select/` | `Select`、`SelectItem`、`SelectGroup`、`SelectSeparator` | [表单](../../../../docs/design/components/form.md) |
 | `combobox/` | `Combobox`（可搜索的下拉，含多选、分组与远程检索） | [表单](../../../../docs/design/components/form.md) |
+| `tag-input/` | `TagInput`（标签输入：自己打出来的一串短词） | [表单](../../../../docs/design/components/form.md) |
+| `file-upload/` | `FileUpload`、`FileItem`（文件上传：只管选和列，不管传） | [表单](../../../../docs/design/components/form.md) |
 | `toast/` | `ToastProvider`、`useToast` | [反馈](../../../../docs/design/components/feedback.md) |
 | `rec-indicator/` | `RecIndicator` | [测绘叠层](../../../../docs/design/elements/hud-overlays.md) |
 | `marquee/` | `Marquee` | [动效](../../../../docs/design/foundations/motion.md) |
@@ -82,7 +86,8 @@
 | 文件 | 谁在用 |
 | --- | --- |
 | `chip/capsule-style.ts` | `FilterChip`、`Tabs` 的 `capsule` 变体 |
-| `input/control-box.ts` | `Input`、`Textarea` 的外框（凹陷与描边两种），`Select`、`DatePicker` 的触发器和 `Combobox` 的外框也用它 |
+| `input/control-box.ts` | `Input`、`Textarea` 的外框（凹陷与描边两种），`Select`、`DatePicker` 的触发器和 `Combobox`、`TagInput` 的外框也用它 |
+| `input/value-chip.ts` | 框里排着的直角小块（已经定下来的值）：`Combobox` 的多选、`TagInput` |
 | `checkbox/choice-style.ts` | `Checkbox`、`Radio`、`Switch` 的行与方格（含菱形方案的写法） |
 | `dialog/overlay-style.ts` | `Dialog`、`Drawer` 的遮罩、深色标题带、关闭按钮 |
 | `dialog/initial-focus.ts` | `Dialog`、`Drawer` 打开时焦点落在哪 |

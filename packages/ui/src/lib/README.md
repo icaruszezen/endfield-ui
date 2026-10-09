@@ -10,6 +10,7 @@
 | `defined.ts` | `defined()`：去掉值是 `undefined` 的属性。把控件的属性合并到使用方给的元素上（`render`）之前用，免得把那个元素自己写的盖掉 |
 | `decor.ts` | `decor`：装饰层共用的类 |
 | `date.ts` | 日期的纯函数：加减日和月、比较、把两天排成先后、夹到范围内、月历的六行七列。日期一律是 `YYYY-MM-DD` 的字符串，全部按 UTC 算，不碰本地时区。`Calendar`、`DatePicker`、`Schedule` 共用，不对外导出 |
+| `file.ts` | 文件的纯函数：按 `accept` 认类型（扩展名、MIME、`image/*` 通配）、把字节数写成 `1.2 MB`、取扩展名、判断是不是同一个文件。`FileUpload` 用，不对外导出 |
 
 没有单独的"变体工具"：各组件直接写 `Record<Variant, string>` 再用 `cn()` 合并，够用且类型清楚。
 

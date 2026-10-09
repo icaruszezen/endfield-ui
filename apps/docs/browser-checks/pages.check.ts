@@ -786,3 +786,219 @@ test("设置页：步骤条说走到了第二步；分段选择的值随表单�
   await page.key("ArrowLeft");
   await page.waitFor(async () => (await clock()) === "24", "← 回到 24 小时");
 });
+
+test("调度台：一行展开看装车明细；工具栏换行高、全部展开，导出在菜单里", async () => {
+  const { page } = storybook;
+  await page.story("示例-调度台--page");
+  const details = () => count(page, "#storybook-root tbody tr[data-detail]");
+  const rowHeight = () =>
+    page.evaluate(
+      () =>
+        document.querySelector<HTMLElement>(
+          "#storybook-root tbody tr td:nth-child(2)",
+        )!.offsetHeight,
+    );
+  const pressed = (name: string) =>
+    page.evaluate(
+      (label) =>
+        document
+          .querySelector(
+            `#storybook-root [role=toolbar] [aria-label="${label}"]`,
+          )!
+          .getAttribute("aria-pressed"),
+      name,
+    );
+  assert.equal(await details(), 0, "一开始都是收起的");
+
+  // 展开第一行：明细出现在它下面；批次还是八行
+  await page.click("text=TR-2041 的明细");
+  await page.waitFor(async () => (await details()) === 1, "应该展开一行明细");
+  assert.match(
+    (await page.text("#storybook-root tbody tr[data-detail]"))[0]!,
+    /装箱/,
+  );
+  assert.equal(
+    await count(page, "#storybook-root tbody tr:not([data-detail])"),
+    8,
+  );
+
+  // 工具栏整条只占一个 Tab 停靠点
+  assert.equal(
+    await page.evaluate(
+      () =>
+        [
+          ...document.querySelectorAll<HTMLElement>(
+            "#storybook-root [role=toolbar] button",
+          ),
+        ].filter((button) => button.tabIndex === 0).length,
+    ),
+    1,
+  );
+
+  // 行高：紧凑。再点一次按下的那个，它不弹起来（行高是二选一）
+  const before = await rowHeight();
+  await page.click("text=紧凑行高");
+  await page.waitFor(
+    async () => (await rowHeight()) < before,
+    "紧凑之后行应该变矮",
+  );
+  await page.click("text=紧凑行高");
+  await page.pause(300);
+  assert.deepEqual(
+    [await pressed("紧凑行高"), await pressed("标准行高")],
+    ["true", "false"],
+  );
+
+  // 全部展开、全部收起：钮上的字跟着换
+  await page.click("text=全部展开");
+  await page.waitFor(async () => (await details()) === 8, "八行都应该展开");
+  await page.click("text=全部收起");
+  await page.waitFor(async () => (await details()) === 0, "应该全部收起");
+
+  // 导出是一个菜单：没勾选时"导出选中的"是禁用的
+  await page.click("text=导出");
+  await page.waitVisible("[role=menu]");
+  assert.deepEqual(await page.text("[role=menu] [role=menuitem]"), [
+    "导出本页",
+    "导出选中的",
+  ]);
+  assert.equal(
+    await page.evaluate(() =>
+      [...document.querySelectorAll("[role=menu] [role=menuitem]")]
+        .at(-1)!
+        .getAttribute("aria-disabled"),
+    ),
+    "true",
+  );
+  await page.click("text=导出本页");
+  await page.waitGone("[role=menu]");
+  await waitToast(page, "导出之后应该出一条轻提示");
+});
+
+test("设置页：标签输入加一个，附件拖进来列出来；两样都在表单里", async () => {
+  const { page } = storybook;
+  await page.story("示例-设置页--page");
+  const values = () =>
+    page.evaluate(() => {
+      const data = new FormData(document.querySelector("form")!);
+      return {
+        tags: data.getAll("tags"),
+        files: data
+          .getAll("attachments")
+          .filter((entry) => entry instanceof File && entry.size > 0)
+          .map((entry) => (entry as File).name),
+      };
+    });
+  assert.deepEqual(await values(), { tags: ["北岭", "管廊"], files: [] });
+
+  await page.click("#storybook-root [data-variant]:has([data-tag]) input");
+  await page.type("二号线,");
+  await page.waitFor(
+    async () => (await values()).tags.join() === "北岭,管廊,二号线",
+    "打逗号应该加一个标签",
+  );
+
+  // 合成一个带文件的拖放：一个合格的、一个类型不对的
+  await page.evaluate(() => {
+    const data = new DataTransfer();
+    data.items.add(
+      new File([new Uint8Array(2048)], "交接单.pdf", {
+        type: "application/pdf",
+      }),
+    );
+    data.items.add(
+      new File([new Uint8Array(64)], "工具.exe", {
+        type: "application/x-msdownload",
+      }),
+    );
+    document.querySelector("#storybook-root [data-dropzone]")!.dispatchEvent(
+      new DragEvent("drop", {
+        dataTransfer: data,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+  });
+  await page.waitFor(
+    async () => (await values()).files.join() === "交接单.pdf",
+    "合格的文件应该在表单里",
+  );
+  assert.equal(
+    (await page.text("#storybook-root [data-rejections]"))[0],
+    "1 个文件没有加进来：工具.exe 类型不对",
+  );
+});
+
+test("内容页：够宽时右边有页内目录，滚到哪亮到哪；并排时两份都窄，不显示", async () => {
+  const { page } = storybook;
+  await page.story("示例-内容页--page");
+  const NAV = "#storybook-root nav:has(a[data-toc-section])";
+  const current = () =>
+    page.evaluate(
+      (css) =>
+        document.querySelector(`${css} a[aria-current=location]`)
+          ?.textContent ?? null,
+      NAV,
+    );
+  const sectionTop = (title: string) =>
+    page.evaluate(
+      ({ css, text }) => {
+        const link = [
+          ...document.querySelectorAll<HTMLElement>(`${css} a`),
+        ].find((node) => node.textContent === text)!;
+        return document
+          .getElementById(link.dataset.tocSection!)!
+          .getBoundingClientRect().top;
+      },
+      { css: NAV, text: title },
+    );
+
+  await page.waitVisible(NAV, "单独一份、够宽的时候应该有目录");
+  assert.deepEqual(await page.text(`${NAV} a`), [
+    "最新情报",
+    "日常作业",
+    "队员",
+    "本月排期",
+    "站点档案",
+  ]);
+
+  // 滚到"队员"那一节贴着视口的上沿
+  const top = await sectionTop("队员");
+  await page.evaluate((delta) => window.scrollBy(0, delta), top);
+  await page.waitFor(
+    async () => (await current()) === "队员",
+    "滚到队员那一节，目录里它应该亮",
+  );
+  // 目录是 sticky 的：还在视口里
+  assert.ok(
+    await page.evaluate((css) => {
+      const rect = document.querySelector(css)!.getBoundingClientRect();
+      return rect.top >= 0 && rect.bottom <= innerHeight;
+    }, NAV),
+    "目录应该跟着留在视口里",
+  );
+
+  // 点一项：跳过去，它亮。（页面上还有一个同名的轮播，所以按选择器点目录里的那个）
+  await page.click(`${NAV} a[data-toc-section$=fieldwork]`);
+  await page.waitFor(
+    async () => (await current()) === "日常作业",
+    "点了日常作业，它应该亮",
+  );
+  await page.waitFor(
+    async () => Math.abs(await sectionTop("日常作业")) < 2,
+    "页面应该跳到这一节",
+  );
+
+  // 并排：每一份都不够宽，目录不显示
+  await page.story("示例-内容页--page", "both");
+  assert.deepEqual(
+    await page.evaluate(
+      (css) =>
+        [...document.querySelectorAll(css)].map(
+          (nav) => getComputedStyle(nav).display,
+        ),
+      NAV,
+    ),
+    ["none", "none"],
+  );
+});

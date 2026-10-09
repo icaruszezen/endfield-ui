@@ -41,12 +41,12 @@
 | 调度台 | 内容页 |
 | --- | --- |
 | [![调度台的暗色截图](docs/screenshots/dispatch-dark.png)](https://icaruszezen.github.io/endfield-ui/?path=/story/示例-调度台--page&globals=theme:dark) | [![内容页的亮色截图](docs/screenshots/content-light.png)](https://icaruszezen.github.io/endfield-ui/?path=/story/示例-内容页--page&globals=theme:light) |
-| 带外壳的一页：侧轨（窄屏换成顶栏加全屏菜单）、统计块、组合框与日期范围筛选，一张能排序、勾选、带行内操作和右键菜单的表格 | 官网气质的一页：通栏色带与分节标题、页签、面板，往下是媒体轮播、头像切换和排期 |
+| 带外壳的一页：侧轨（窄屏换成顶栏加全屏菜单）、统计块、组合框与日期范围筛选，一张能排序、勾选、展开看明细、带行内操作和右键菜单的表格，表格上面一条工具栏 | 官网气质的一页：通栏色带与分节标题、页签、面板，往下是媒体轮播、头像切换和排期；够宽时右边一列页内目录 |
 
 | 设置页 | 列表页 |
 | --- | --- |
 | [![设置页的亮色截图](docs/screenshots/settings-light.png)](https://icaruszezen.github.io/endfield-ui/?path=/story/示例-设置页--page&globals=theme:light) | [![列表页的暗色截图](docs/screenshots/list-dark.png)](https://icaruszezen.github.io/endfield-ui/?path=/story/示例-列表页--page&globals=theme:dark) |
-| 表单与反馈：步骤条、字段与校验、下拉选择与组合框、分段选择、滑块、折叠面板，带一次完整的"提交 → 报错 → 改正 → 保存" | 检索、排序、筛选，网格与列表两种视图，分页；侧栏里是胶囊导航器、进度环、步进器和时间线 |
+| 表单与反馈：步骤条、字段与校验、下拉选择与组合框、标签输入、文件上传、分段选择、滑块、折叠面板，带一次完整的"提交 → 报错 → 改正 → 保存" | 检索、排序、筛选，网格与列表两种视图，分页；侧栏里是胶囊导航器、进度环、步进器和时间线 |
 
 演示内容都是原创的占位图和虚构文案。
 
@@ -54,12 +54,12 @@
 
 | 类别 | 控件 |
 | --- | --- |
-| 基础 | Button / ButtonGroup、IconButton、Tag / TagPair、Badge、Kbd、SectionTitle、BracketTitle、Tabs、Panel |
-| 表单 | Field、Input、Textarea、Select、Combobox、DatePicker / DateRangePicker / Calendar、Checkbox、Radio / RadioGroup、SegmentedControl、Switch、Stepper、Slider、FilterChip |
+| 基础 | Button / ButtonGroup、IconButton、Toolbar、Tag / TagPair、Badge、Kbd、SectionTitle、BracketTitle、Tabs、Panel |
+| 表单 | Field、Input、Textarea、Select、Combobox、TagInput、DatePicker / DateRangePicker / Calendar、FileUpload / FileItem、Checkbox、Radio / RadioGroup、SegmentedControl、Switch、Stepper、Slider、FilterChip |
 | 反馈 | Alert、Toast、Progress / ProgressRing、Spinner、Skeleton、EmptyState、Loader、CompletionBanner、RecIndicator |
 | 浮层 | Tooltip、Popover、Dialog、Drawer、DropdownMenu、ContextMenu、FlyoutBar |
-| 展示 | Table、Stat、Sparkline、DataRowList / DataRow、List / ListRow、Accordion、MediaCard、PlayButton / PlayMark、Carousel、ItemSlot / ItemGrid、Avatar、Timeline、Schedule、Term、ResourceChip、Countdown、Marquee、ScrollHint |
-| 导航 | SideRail（含二级）、TopBar、NavMenu、NavAction、Breadcrumb、Pagination、Navigator、AvatarSwitcher、DashIndicator、Steps、BackToTop |
+| 展示 | Table（行能展开）、Stat、Sparkline、DataRowList / DataRow、List / ListRow、Accordion、MediaCard、PlayButton / PlayMark、Carousel、ItemSlot / ItemGrid、Avatar、Timeline、Schedule、Term、ResourceChip、Countdown、Marquee、ScrollHint |
+| 导航 | SideRail（含二级）、TopBar、NavMenu、NavAction、Breadcrumb、Pagination、Navigator、AvatarSwitcher、DashIndicator、Steps、Toc、BackToTop |
 | 母题 | CornerBrackets、Viewfinder、GhostText、Hatch、Texture、RegistrationStrip、TickRing、HazardStripe |
 
 - **亮、暗与局部主题。** 默认亮色，`data-theme="dark"` 写在 `<html>` 或任意容器上就是暗色。标题带这类"和页面相反"的区域是 `data-theme="inverse"`，放进去的按钮、复选框、焦点环按这条带子的底色取值，见 [色彩](docs/design/foundations/color.md#反转块里的局部主题)。

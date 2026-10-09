@@ -6,12 +6,12 @@
 
 | 类别 | 控件 |
 | --- | --- |
-| 基础 | Button / ButtonGroup、IconButton、Tag / TagPair、Badge、Kbd、SectionTitle、BracketTitle、Tabs、Panel |
-| 表单 | Field、Input、Textarea、Select、Combobox、DatePicker / DateRangePicker / Calendar、Checkbox、Radio / RadioGroup、SegmentedControl、Switch、Stepper、Slider、FilterChip |
+| 基础 | Button / ButtonGroup、IconButton、Toolbar、Tag / TagPair、Badge、Kbd、SectionTitle、BracketTitle、Tabs、Panel |
+| 表单 | Field、Input、Textarea、Select、Combobox、TagInput、DatePicker / DateRangePicker / Calendar、FileUpload / FileItem、Checkbox、Radio / RadioGroup、SegmentedControl、Switch、Stepper、Slider、FilterChip |
 | 反馈 | Alert、Toast、Progress / ProgressRing、Spinner、Skeleton、EmptyState、Loader、CompletionBanner、RecIndicator |
 | 浮层 | Tooltip、Popover、Dialog、Drawer、DropdownMenu、ContextMenu、FlyoutBar |
-| 展示 | Table、Stat、Sparkline、DataRowList / DataRow、List / ListRow、Accordion、MediaCard、PlayButton / PlayMark、Carousel、ItemSlot / ItemGrid、Avatar、Timeline、Schedule、Term、ResourceChip、Countdown、Marquee、ScrollHint |
-| 导航 | SideRail（含二级）、TopBar、NavMenu、NavAction、Breadcrumb、Pagination、Navigator、AvatarSwitcher、DashIndicator、Steps、BackToTop |
+| 展示 | Table（行能展开）、Stat、Sparkline、DataRowList / DataRow、List / ListRow、Accordion、MediaCard、PlayButton / PlayMark、Carousel、ItemSlot / ItemGrid、Avatar、Timeline、Schedule、Term、ResourceChip、Countdown、Marquee、ScrollHint |
+| 导航 | SideRail（含二级）、TopBar、NavMenu、NavAction、Breadcrumb、Pagination、Navigator、AvatarSwitcher、DashIndicator、Steps、Toc、BackToTop |
 | 母题 | CornerBrackets、Viewfinder、GhostText、Hatch、Texture、RegistrationStrip、TickRing、HazardStripe |
 
 包还没有发布到 npm，目前只在本仓库的工作区里使用。
@@ -156,6 +156,31 @@ import { DatePicker, DateRangePicker, Field, Slider } from "@endfield-ui/react";
 - 只要能选一段的月历，用 `<Calendar range>`：值从一个日期变成一对。它只显示一个月，跨月的长区间翻一次月再点第二下。
 - `Slider` 的 `onValueChange` 拖的每一步都触发，要发请求的事放在 `onValueCommitted` 里。
 
+自己打出来的一串短词用标签输入，选文件用文件上传：
+
+```tsx
+import { Field, FileItem, FileUpload, TagInput } from "@endfield-ui/react";
+
+<Field label="站点标签" help="回车或逗号分开，最多八个。">
+  <TagInput name="tags" max={8} value={tags} onValueChange={setTags} />
+</Field>
+
+<Field label="交接附件" help="PDF 或图片，单个不超过 10 MB。">
+  <FileUpload
+    multiple
+    accept=".pdf,image/*"
+    maxSize={10 * 1024 * 1024}
+    name="attachments"
+    value={files}
+    onValueChange={setFiles}
+  />
+</Field>
+```
+
+- `TagInput` 回车或打出分隔符（默认半角、全角逗号）就加一个，粘贴一串会拆开；没加成的（已经有了、到了 `max`、没过 `validate`）交给 `onReject`。要从现成的选项里挑，用 `Combobox` 的 `multiple`。
+- `FileUpload` 只管选和列，不发请求。里面是一个真的 `<input type="file">`：带 `name` 时列表里的文件随表单提交。不合 `accept` / `maxSize` / `maxFiles` 的不收，并在下面说明原因。
+- 选了就要传、要显示进度时，用 `renderFile` 自己返回带状态的那一行：`<FileItem name size status="uploading" progress={40} onRemove={remove} />`。
+
 ### 带状态的控件
 
 步进器、分页条、胶囊导航器都有受控与非受控两种用法：传 `value` / `page` / `index` 就由外面决定，只传 `default…` 就由控件自己记。
@@ -193,6 +218,32 @@ import { Step, Steps } from "@endfield-ui/react";
 - 横排在所在的容器窄于 28rem 时自动改成竖排；`orientation="vertical"` 是一直竖排。它靠容器查询量宽度，所以要放在有确定宽度的地方（默认撑满一栏）。
 - 传了 `href`、`render` 或 `onClick` 的那一步可以点，用来回到做过的步骤；没传就是纯文字。
 - `Steps` 是步骤条，`Stepper` 是加减数字的步进器，别拿错。
+
+一排作用于同一个对象的小工具收进工具栏：整条只占一个 Tab 停靠点，方向键在里面走。
+
+```tsx
+import {
+  Toolbar,
+  ToolbarButton,
+  ToolbarSeparator,
+  ToolbarToggle,
+  ToolbarToggleGroup,
+} from "@endfield-ui/react";
+
+<Toolbar aria-label="表格工具">
+  <ToolbarToggleGroup aria-label="图层" multiple value={layers} onValueChange={setLayers}>
+    <ToolbarToggle value="route" icon={<RouteIcon />} aria-label="路线" />
+    <ToolbarToggle value="beacon" icon={<BeaconIcon />} aria-label="信标" />
+  </ToolbarToggleGroup>
+  <ToolbarSeparator />
+  <ToolbarToggle pressed={ruled} onPressedChange={setRuled}>加重线</ToolbarToggle>
+  <ToolbarButton icon={<PrintIcon />} onClick={print}>打印</ToolbarButton>
+</Toolbar>
+```
+
+- 开关组的值是数组：默认同时只按下一个（也可以一个都不按），`multiple` 可以按下几个。表单里"必须选一个"的用 `SegmentedControl`。
+- 只有图标的钮必须有 `aria-label`。`ToolbarButton` 可以交给 `DropdownMenu` / `Popover` 的 `trigger`，也可以用 `Tooltip` 包住。
+- 不在工具栏里放输入框：左右方向键在输入框里是移光标。
 
 ### 加载页
 
@@ -454,6 +505,16 @@ import {
 - 整行不可点。要进详情把名称写成链接，要勾选在第一列放 `Checkbox`。
 - 表头两种：`band`（反转的标题带，默认）和 `muted`；`ruled` 每隔五行加重一条线。
 - `stickyHeader` 让表头留在容器的上沿；容器的高度上限自己给（`className="max-h-96"`）。
+- 一行下面还有明细时，给 `TableRow` 传 `detail`，并在某一格里放一个 `TableExpander`（通常在名称前面）：展开时明细出现在这一行下面，通栏。状态默认各行自己记，要"全部展开"就用 `expanded` / `onExpandedChange` 自己拿着。
+
+```tsx
+<TableRow detail={<Manifest id={row.id} />}>
+  <TableCell rowHeader>
+    <TableExpander aria-label={`${row.id} 的明细`} /> {row.id}
+  </TableCell>
+  <TableCell numeric>{row.count}</TableCell>
+</TableRow>
+```
 
 ### 内容与展示
 
@@ -514,6 +575,21 @@ import {
 - `Schedule` 的条目只写起止日期，位置和错行都是算出来的；放不下时在自己的容器里横向滚动。
 - `BackToTop` 滚过 400px 才出现，默认钉在视口右下角；点了回到顶部，焦点也交还给页面的头上。要看某个滚动容器时传 `target`，并用 `className` 改位置。祖先上有 `transform` 或容器查询（`@container`）时 `fixed` 不再相对视口：把它放在那一栏的最后，加 `className="sticky bottom-4 self-end"`。
 - 本库不带任何图片：头像、轮播和排期里的图都由使用方给。
+
+长页面旁边放一列页内目录：
+
+```tsx
+import { Toc, TocItem } from "@endfield-ui/react";
+
+<Toc title="// 本页" offset={64} className="sticky top-20">
+  <TocItem href="#bulletin">最新情报</TocItem>
+  <TocItem href="#crew" level={2}>队员</TocItem>
+</Toc>
+```
+
+- 滚到哪一节哪一项亮（`aria-current="location"`）；滚到底是最后一项。点一项就是点一个锚点链接，滚不滚、平不平滑由浏览器和页面的 CSS 决定。
+- 页面有吸顶的页头时 `offset` 传它的高度，并给各节的标题加同样大小的 `scroll-mt-*`。内容在某个滚动容器里时传 `target`。
+- 位置自己给（`sticky`）；窄屏放不下时由页面收起来。
 
 ### 游戏风格的控件
 

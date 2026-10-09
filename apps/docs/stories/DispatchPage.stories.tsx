@@ -5,6 +5,7 @@ import {
   Combobox,
   ContextMenu,
   DateRangePicker,
+  DropdownMenu,
   DropdownMenuItem,
   DropdownMenuSeparator,
   EmptyState,
@@ -28,14 +29,21 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableExpander,
   TableHead,
   TableHeaderCell,
   TableRow,
   Tag,
   ToastProvider,
+  Toolbar,
+  ToolbarButton,
+  ToolbarSeparator,
+  ToolbarToggle,
+  ToolbarToggleGroup,
   TopBar,
   useToast,
   type DateRange,
+  type TableSize,
   type TableSortDirection,
 } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
@@ -45,19 +53,25 @@ import {
   ArchiveIcon,
   CollapseIcon,
   CrateIcon,
+  DenseRowsIcon,
+  DownloadIcon,
+  ExpandIcon,
   GridIcon,
   LinkIcon,
   MailIcon,
   PrintIcon,
   RouteIcon,
+  RowsIcon,
+  RuleIcon,
   ShareIcon,
   SlidersIcon,
 } from "./_shared/ResourceIcons";
+import { ShipmentDetail } from "./_shared/ShipmentDetail";
 import { shipments, type Shipment } from "./_shared/shipments";
 import { stationGroups, stationLabel } from "./_shared/stations";
 
 /**
- * 用侧轨、顶栏、全屏菜单、表格、组合框、日期范围、右键菜单搭一个带外壳的工具页。
+ * 用侧轨、顶栏、全屏菜单、表格（行能展开）、工具栏、组合框、日期范围、右键菜单搭一个带外壳的工具页。
  * 宽屏是侧轨（"档案"带二级）；窄于 1024px 时换成顶栏 + 全屏菜单——是换一套，不是把侧轨缩小。
  * 文案与数据全部虚构，标志和图标是原创的几何图形。
  */
@@ -129,6 +143,10 @@ function Board() {
   }>({ key: "id", direction: "ascending" });
   const [picked, setPicked] = useState<ReadonlySet<string>>(() => new Set());
   const [page, setPage] = useState(1);
+  // 表格上面那条工具栏管的三样：行高、每五行的加重线、哪些行展开着
+  const [density, setDensity] = useState<TableSize>("md");
+  const [ruled, setRuled] = useState(false);
+  const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
 
   const matched = useMemo(() => {
     const sign = sort.direction === "ascending" ? 1 : -1;
@@ -157,6 +175,18 @@ function Board() {
   const current = Math.min(page, pageCount);
   const visible = matched.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
   const pickedHere = visible.filter((row) => picked.has(row.id)).length;
+  const allOpen =
+    visible.length > 0 && visible.every((row) => open.has(row.id));
+
+  const expand = (ids: string[], expanded: boolean) =>
+    setOpen((before) => {
+      const next = new Set(before);
+      for (const id of ids) {
+        if (expanded) next.add(id);
+        else next.delete(id);
+      }
+      return next;
+    });
 
   const column = (key: SortKey) => ({
     sort: sort.key === key ? sort.direction : null,
@@ -303,10 +333,70 @@ function Board() {
                 .join(" 至 ")} 发车`}
             {picked.size > 0 && `，已选 ${picked.size}`}
           </p>
+          {/* 一排作用于这张表的小工具：整条只占一个 Tab 停靠点 */}
+          <Toolbar aria-label="表格工具" size="sm">
+            {/* 行高是二选一：再点一次按下的那个，它不该弹起来，所以空的不收 */}
+            <ToolbarToggleGroup
+              aria-label="行高"
+              value={[density]}
+              onValueChange={(next) => {
+                if (next[0] === "md" || next[0] === "sm") setDensity(next[0]);
+              }}
+            >
+              <ToolbarToggle
+                value="md"
+                icon={<RowsIcon />}
+                aria-label="标准行高"
+              />
+              <ToolbarToggle
+                value="sm"
+                icon={<DenseRowsIcon />}
+                aria-label="紧凑行高"
+              />
+            </ToolbarToggleGroup>
+            <ToolbarSeparator />
+            <ToolbarToggle
+              icon={<RuleIcon />}
+              aria-label="每五行加重一条线"
+              pressed={ruled}
+              onPressedChange={setRuled}
+            />
+            <ToolbarButton
+              icon={<ExpandIcon />}
+              disabled={visible.length === 0}
+              onClick={() =>
+                expand(
+                  visible.map((row) => row.id),
+                  !allOpen,
+                )
+              }
+            >
+              {allOpen ? "全部收起" : "全部展开"}
+            </ToolbarButton>
+            <ToolbarSeparator />
+            <DropdownMenu
+              align="end"
+              trigger={
+                <ToolbarButton icon={<DownloadIcon />}>导出</ToolbarButton>
+              }
+            >
+              <DropdownMenuItem
+                onClick={() => toast(`已导出本页的 ${visible.length} 个批次`)}
+              >
+                导出本页
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={picked.size === 0}
+                onClick={() => toast(`已导出选中的 ${picked.size} 个批次`)}
+              >
+                导出选中的
+              </DropdownMenuItem>
+            </DropdownMenu>
+          </Toolbar>
         </div>
 
         {/* 第一列是勾选框加批次号：横向滚动时冻结它，滚到哪都知道看的是哪一行 */}
-        <Table label="运输批次" stickyFirstColumn>
+        <Table label="运输批次" stickyFirstColumn size={density} ruled={ruled}>
           <TableHead>
             <TableRow>
               <TableHeaderCell {...column("id")}>批次</TableHeaderCell>
@@ -350,10 +440,21 @@ function Board() {
             {visible.map((row) => (
               // 每一行上点右键：和行尾那两个按钮是同一组操作
               <ContextMenu key={row.id} menu={rowMenu(row)}>
-                <TableRow selected={picked.has(row.id)}>
+                {/* 一行下面压着装车明细：给行传 detail，名称前面放一个展开钮 */}
+                <TableRow
+                  selected={picked.has(row.id)}
+                  detail={<ShipmentDetail row={row} />}
+                  expanded={open.has(row.id)}
+                  onExpandedChange={(expanded) => expand([row.id], expanded)}
+                >
                   <TableCell rowHeader>
                     <span className="flex items-center gap-3">
+                      <TableExpander aria-label={`${row.id} 的明细`} />
                       <Checkbox
+                        // 复选框自带 40px 的点击区，会把行撑高：紧凑时收掉，行才矮得下来
+                        className={
+                          density === "sm" ? "min-h-0 py-0" : undefined
+                        }
                         aria-label={`选中 ${row.id}`}
                         checked={picked.has(row.id)}
                         onCheckedChange={(checked) => toggle([row.id], checked)}

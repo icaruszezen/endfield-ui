@@ -23,16 +23,18 @@ import {
   Tabs,
   Tag,
   TagPair,
+  Toc,
+  TocItem,
 } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { IsoCube } from "./_shared/IsoCube";
 import { ScenePlaceholder } from "./_shared/Placeholders";
 import { crew } from "./_shared/Portraits";
 import { CrateIcon, RouteIcon, SlidersIcon } from "./_shared/ResourceIcons";
 
 /**
- * 搭一个官网气质的内容页：分节标题、页签、面板，加上媒体轮播、头像切换和排期；滚下去之后右下角有回到顶部。
+ * 搭一个官网气质的内容页：分节标题、页签、面板，加上媒体轮播、头像切换和排期；够宽时右边一列页内目录，滚下去之后右下角有回到顶部。
  * 文案与数据全部虚构；图是原创的占位图和几何剪影。
  */
 const meta = {
@@ -141,10 +143,46 @@ function Crew() {
   );
 }
 
-export const Page: Story = {
-  name: "勘探队主页",
-  render: () => (
-    <div className="@container mx-auto flex max-w-3xl flex-col gap-12">
+const chapters = [
+  ["bulletin", "最新情报"],
+  ["fieldwork", "日常作业"],
+  ["crew", "队员"],
+  ["schedule", "本月排期"],
+  ["station", "站点档案"],
+] as const;
+
+function Home() {
+  // 这一页在预览里可能并排渲染两份：小节的 id 各加一个前缀，不撞在一起
+  const prefix = useId().replace(/[^a-z0-9]/gi, "");
+  const anchor = (name: (typeof chapters)[number][0]) => `${prefix}-${name}`;
+
+  return (
+    <div className="@container mx-auto max-w-5xl">
+      <div className="flex items-start justify-center gap-10">
+        <Content anchor={anchor} />
+        {/* 容器够宽才有这一列；窄了就不显示，由页面自己决定，不是目录的事 */}
+        <Toc
+          title="// 本页"
+          className="sticky top-6 hidden w-40 shrink-0 @4xl:block"
+        >
+          {chapters.map(([name, title]) => (
+            <TocItem key={name} href={`#${anchor(name)}`}>
+              {title}
+            </TocItem>
+          ))}
+        </Toc>
+      </div>
+    </div>
+  );
+}
+
+function Content({
+  anchor,
+}: {
+  anchor: (name: (typeof chapters)[number][0]) => string;
+}) {
+  return (
+    <div className="@container flex max-w-3xl min-w-0 flex-1 flex-col gap-12">
       <SectionTitle
         variant="band"
         subtitle="Survey Division"
@@ -153,7 +191,7 @@ export const Page: Story = {
         Seventh Field
       </SectionTitle>
 
-      <section className="flex flex-col gap-6">
+      <section id={anchor("bulletin")} className="flex flex-col gap-6">
         <div className="flex items-end justify-between gap-4">
           <SectionTitle latin="Bulletin" meta="// 情报　共 5 条">
             最新情报
@@ -195,7 +233,7 @@ export const Page: Story = {
         </div>
       </section>
 
-      <section className="flex flex-col gap-6">
+      <section id={anchor("fieldwork")} className="flex flex-col gap-6">
         <SectionTitle latin="Fieldwork">日常作业</SectionTitle>
         <Carousel aria-label="日常作业" indicator>
           {works.map((work, position) => (
@@ -210,12 +248,12 @@ export const Page: Story = {
         </Carousel>
       </section>
 
-      <section className="flex flex-col gap-6">
+      <section id={anchor("crew")} className="flex flex-col gap-6">
         <SectionTitle latin="Crew">队员</SectionTitle>
         <Crew />
       </section>
 
-      <section className="flex flex-col gap-6">
+      <section id={anchor("schedule")} className="flex flex-col gap-6">
         <SectionTitle latin="Schedule" meta="// 十月">
           本月排期
         </SectionTitle>
@@ -266,7 +304,7 @@ export const Page: Story = {
         </Schedule>
       </section>
 
-      <section className="flex flex-col gap-6">
+      <section id={anchor("station")} className="flex flex-col gap-6">
         <SectionTitle latin="Station">站点档案</SectionTitle>
         <div className="flex flex-wrap gap-2">
           <TagPair name="所属" value="第七勘探队" />
@@ -304,5 +342,10 @@ export const Page: Story = {
       */}
       <BackToTop className="sticky bottom-4 self-end" />
     </div>
-  ),
+  );
+}
+
+export const Page: Story = {
+  name: "勘探队主页",
+  render: () => <Home />,
 };
