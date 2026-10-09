@@ -99,6 +99,7 @@ export function Toc({
       return active;
     },
     // count 没在里面用到：它变了这个函数就换一个，滚动的监听跟着重新接、重新算一次
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
     [target, offset, count],
   );
   const spied = useScrollPosition<string | null>(target, read, null);

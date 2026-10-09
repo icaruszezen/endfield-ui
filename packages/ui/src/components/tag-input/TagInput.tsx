@@ -287,6 +287,7 @@ export function TagInput({
     onKeyDown?.(event);
     if (event.defaultPrevented || readOnly) return;
     // 输入法正在组字时的回车是在选字，不是提交
+    // oxlint-disable-next-line typescript/no-deprecated -- Safari 上确认选字的那一下回车，isComposing 已经是 false，只有 keyCode 还是 229
     if (event.nativeEvent.isComposing || event.keyCode === 229) return;
     const input = event.currentTarget;
 

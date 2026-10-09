@@ -95,7 +95,7 @@ export function ImageViewer({
   // 标题、说明和大图都从子元素上读，所以子元素必须直接是 ImageViewerItem
   const items = Children.toArray(children).filter((child) =>
     isValidElement<ItemLike>(child),
-  ) as ReactElement<ItemLike>[];
+  );
   const count = items.length;
   const last = Math.max(0, count - 1);
 

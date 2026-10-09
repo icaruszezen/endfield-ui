@@ -33,6 +33,7 @@ type OwnProps = {
   /** 右上角的小圆位：已装备者的头像 */
   badge?: ReactNode;
   /** 售罄 / 不可用：整卡压一层遮罩。传文字（"售罄"）会写在遮罩上 */
+  // oxlint-disable-next-line typescript/no-redundant-type-constituents -- ReactNode 本来就含 boolean，写出来是让人一眼看到两种用法
   unavailable?: boolean | ReactNode;
   /** 传了就整格渲染成链接 */
   href?: string;

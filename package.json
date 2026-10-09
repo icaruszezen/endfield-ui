@@ -13,10 +13,13 @@
     "test": "pnpm --filter @endfield-ui/react test",
     "test:browser": "pnpm --filter @endfield-ui/docs test:browser",
     "typecheck": "pnpm -r typecheck",
+    "lint": "oxlint",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
   "devDependencies": {
+    "oxlint": "^1.87.0",
+    "oxlint-tsgolint": "^7.0.2003",
     "prettier": "^3.9.9"
   }
 }

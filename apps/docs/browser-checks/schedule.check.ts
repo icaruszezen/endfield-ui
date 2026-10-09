@@ -71,7 +71,7 @@ test("今天的竖线对着今天那一格的左缘", async () => {
   await page.story("控件-schedule-排期--playground");
   const { days, today } = await layout(page);
   assert.ok(today !== null, "应该有今天的竖线");
-  assert.ok(near(today!, days[8]!.left), "9 号的竖线应该在第 9 格的左缘");
+  assert.ok(near(today, days[8]!.left), "9 号的竖线应该在第 9 格的左缘");
 });
 
 test("同一条轨里时间重叠的条目自动错到下一行，谁也不压着谁", async () => {

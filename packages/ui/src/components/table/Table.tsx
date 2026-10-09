@@ -313,6 +313,7 @@ function DetailRow({
   const [measured, setMeasured] = useState<number | null>(null);
 
   // 每次渲染都重新数：列是使用方的，随时可能多一列少一列
+  // oxlint-disable-next-line react-hooks/exhaustive-deps -- 不写依赖是有意的；数出来没变时 setMeasured 不会再引出一次渲染
   useLayoutEffect(() => {
     const row = rowRef.current;
     if (!row) return;

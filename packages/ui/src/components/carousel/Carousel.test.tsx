@@ -180,12 +180,16 @@ describe("Carousel", () => {
     // 滑的途中路过第二张：还没停，不改
     track.scrollLeft = 380;
     fireEvent.scroll(track);
-    act(() => vi.advanceTimersByTime(60));
+    act(() => {
+      vi.advanceTimersByTime(60);
+    });
     expect(onIndexChange).not.toHaveBeenCalled();
 
     track.scrollLeft = 800;
     fireEvent.scroll(track);
-    act(() => vi.advanceTimersByTime(200));
+    act(() => {
+      vi.advanceTimersByTime(200);
+    });
     expect(onIndexChange).toHaveBeenLastCalledWith(2);
     expect(screen.getByText("3 / 3")).toBeInTheDocument();
   });

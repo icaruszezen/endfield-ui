@@ -334,7 +334,7 @@ test("调度台：宽屏是侧轨，窄屏换成顶栏和全屏菜单；栏目�
         page.evaluate(() =>
           document
             .querySelector("#storybook-root main")!
-            .textContent!.includes("档案"),
+            .textContent.includes("档案"),
         ),
       "主体应该换成档案这一栏",
     );
@@ -374,7 +374,7 @@ test("调度台：侧轨的二级点开，选里面的一项", async () => {
     await page.evaluate(() =>
       document
         .querySelector("#storybook-root main")!
-        .textContent!.includes("档案 · 站点"),
+        .textContent.includes("档案 · 站点"),
     ),
     "主体应该换成档案 · 站点",
   );
@@ -689,7 +689,7 @@ test("列表页：影像类目的卡片封面上带播放记号，别的不带",
       (card) => ({
         video: /影像/.test(card.querySelector("p")?.textContent ?? ""),
         mark: card.querySelector("span[aria-hidden=true][data-size]") !== null,
-        spoken: card.querySelector("a")!.textContent!.startsWith("视频："),
+        spoken: card.querySelector("a")!.textContent.startsWith("视频："),
         links: card.querySelectorAll("a, button").length,
       }),
     ),
@@ -894,6 +894,7 @@ test("设置页：标签输入加一个，附件拖进来列出来；两样都�
   await page.click("#storybook-root [data-variant]:has([data-tag]) input");
   await page.type("二号线,");
   await page.waitFor(
+    // oxlint-disable-next-line typescript/no-base-to-string -- 这个字段填的是文字，取出来的都是字符串
     async () => (await values()).tags.join() === "北岭,管廊,二号线",
     "打逗号应该加一个标签",
   );

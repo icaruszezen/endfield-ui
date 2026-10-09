@@ -1,0 +1,72 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  // 写了 plugins 就不再带默认的那三组（typescript、unicorn、oxc），所以这里连它们一起列出来
+  "plugins": ["typescript", "unicorn", "oxc", "react", "vitest"],
+  "options": {
+    // 要类型信息的规则由 oxlint-tsgolint 跑，它里面是和 tsc 同一套 TypeScript 7
+    "typeAware": true,
+    // 豁免注释对应的问题没了，注释也要跟着删
+    "reportUnusedDisableDirectives": "error"
+  },
+  // 只开"八成是写错了"这一类；风格、偏好类的一概不开，下面再按条补几样
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    // 文档注释里举例用的全角空格（`// 新闻　2026.10.08`）是有意的
+    "no-irregular-whitespace": ["error", { "skipComments": true }],
+
+    "typescript/no-floating-promises": [
+      "error",
+      {
+        // node:test 的 test() 返回 Promise，写在顶层不用等。
+        // 名单是按声明的名字认的，子测试 t.test() 也叫 test，没等也会被放过——
+        // 哪天用上子测试，要自己记得 await
+        "allowForKnownSafeCalls": [
+          { "from": "package", "package": "node:test", "name": ["test"] }
+        ]
+      }
+    ],
+    "typescript/no-misused-promises": "error",
+    "typescript/no-unnecessary-type-assertion": "error",
+    "typescript/no-deprecated": "error",
+    "typescript/no-explicit-any": "error",
+
+    "react/rules-of-hooks": "error",
+    // 这三条是从 React Compiler 搬来的，看不穿"把 ref 交给一个稍后才读它的函数"这类写法，
+    // 误报不少，先只提醒不拦。
+    // 另外：一个组件里只要有一条 react-hooks 的豁免注释，这三条就整个跳过那个组件
+    "react/refs": "warn",
+    "react/set-state-in-effect": "warn",
+    "react/immutability": "warn",
+
+    // expect 的第二个参数是没过时打出来的说明
+    "vitest/valid-expect": ["error", { "maxArgs": 2 }],
+    // 要求每个 vi.fn() 都写上类型参数，太啰嗦
+    "vitest/require-mock-type-parameters": "off"
+  },
+  "overrides": [
+    {
+      // 这里是 Node 脚本，useStorybook 不是 React 的钩子
+      "files": ["apps/docs/browser-checks/**"],
+      "rules": {
+        "react/rules-of-hooks": "off"
+      }
+    },
+    {
+      // 示例页把表单里取出来的值直接拼成字符串给人看
+      "files": ["apps/docs/stories/**"],
+      "rules": {
+        "typescript/no-base-to-string": "off",
+        "typescript/restrict-template-expressions": "off"
+      }
+    },
+    {
+      // 测试里的 sort() 只是比较之前把顺序理一下，排的都是字符串
+      "files": ["**/*.test.ts", "**/*.test.tsx"],
+      "rules": {
+        "typescript/require-array-sort-compare": "off"
+      }
+    }
+  ]
+}

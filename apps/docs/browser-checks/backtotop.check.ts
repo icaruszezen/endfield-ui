@@ -147,10 +147,10 @@ test("整页：没开「减少动态效果」时要的是平滑滚动，开了�
       const original = window.scrollTo.bind(window);
       const calls: unknown[] = [];
       Object.assign(window, { scrollCalls: calls });
-      window.scrollTo = ((...args: unknown[]) => {
+      window.scrollTo = (...args: unknown[]) => {
         calls.push(args[0]);
         return (original as (...all: unknown[]) => void)(...args);
-      }) as typeof window.scrollTo;
+      };
     });
     await page.click(BUTTON);
     await page.waitFor(

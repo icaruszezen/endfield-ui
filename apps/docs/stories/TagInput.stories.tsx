@@ -1,6 +1,6 @@
 import { Button, Field, Input, TagInput } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { useState, type FormEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 
 /* 文案全部虚构 */
 const meta = {
@@ -105,7 +105,7 @@ export const Validate: Story = {
 
 function InFieldExample() {
   const [submitted, setSubmitted] = useState<string | null>(null);
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     setSubmitted(

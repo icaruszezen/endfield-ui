@@ -40,7 +40,7 @@ import {
   Textarea,
 } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { useState, type FormEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import { FuelIcon, OreIcon } from "./_shared/ResourceIcons";
 import { stationGroups } from "./_shared/stations";
 
@@ -99,7 +99,7 @@ function Settings() {
       ? "代号不能为空，请填写两到十二个字母。"
       : undefined;
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = (event: SubmitEvent) => {
     event.preventDefault();
     setSubmitted(true);
     if (codename.trim() !== "") {

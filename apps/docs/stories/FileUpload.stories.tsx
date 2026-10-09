@@ -6,7 +6,7 @@ import {
   type FileItemStatus,
 } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type SubmitEvent } from "react";
 
 const MB = 1024 * 1024;
 
@@ -213,7 +213,7 @@ export const Items: Story = {
 function InFieldExample() {
   const [submitted, setSubmitted] = useState<string | null>(null);
   const [missing, setMissing] = useState(false);
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const files = data

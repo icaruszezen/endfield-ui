@@ -82,7 +82,7 @@ pnpm dev
 
 第二条命令启动 Storybook（`http://localhost:6106`）。其余命令见 [packages/ui/README.md](packages/ui/README.md#开发)。
 
-每次推送到 `main`，[GitHub Actions](.github/workflows/deploy.yml) 会跑格式检查、类型检查、测试和构建，把 Storybook 发布到上面的在线地址，并在真的浏览器里跑一遍键盘、焦点与布局的[实测](apps/docs/README.md#浏览器实测)。
+每次推送到 `main`，[GitHub Actions](.github/workflows/deploy.yml) 会跑格式检查、代码检查、类型检查、测试和构建，把 Storybook 发布到上面的在线地址，并在真的浏览器里跑一遍键盘、焦点与布局的[实测](apps/docs/README.md#浏览器实测)。
 
 ## 仓库结构
 

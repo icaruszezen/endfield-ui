@@ -203,13 +203,11 @@ test("两级：层级只是缩进，引线不跟着缩进；名称来自小标",
       padding: [...nav.querySelectorAll("a")].map(
         (link) => getComputedStyle(link).paddingLeft,
       ),
-      lefts: [
-        ...new Set(
-          [...nav.querySelectorAll("a")].map((link) =>
-            Math.round(link.getBoundingClientRect().left),
-          ),
+      lefts: new Set(
+        [...nav.querySelectorAll("a")].map((link) =>
+          Math.round(link.getBoundingClientRect().left),
         ),
-      ].length,
+      ).size,
     };
   }, NAV);
   assert.deepEqual(found, {

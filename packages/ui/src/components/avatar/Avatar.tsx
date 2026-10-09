@@ -39,9 +39,12 @@ export const avatarSelectedRing =
 /** 中文名取第一个字；拉丁字母的名字取前两个词的首字母 */
 export function initialsOf(name: string): string {
   const words = name.trim().split(/\s+/).filter(Boolean);
+  // 展开是按码位拆的，取到的是完整的一个字；用下标取，生僻字会只拿到半个
+  // oxlint-disable-next-line typescript/no-misused-spread
   const first = [...(words[0] ?? "")][0];
   if (!first) return "";
   if (!/[a-z]/i.test(first)) return first;
+  // oxlint-disable-next-line typescript/no-misused-spread -- 同上
   const second = words.length > 1 ? ([...words[1]!][0] ?? "") : "";
   return (first + second).toUpperCase();
 }

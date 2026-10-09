@@ -27,6 +27,7 @@ export type Point = { x: number; y: number };
 export type Target = string | Point;
 
 // DevTools 协议的消息体没有随 Node 带类型，这里按用到的字段取
+// oxlint-disable-next-line typescript/no-explicit-any
 type Message = any;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

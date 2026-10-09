@@ -7,7 +7,7 @@ import {
   Select,
 } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { useState, type FormEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 
 /* 文案全部虚构；图标是原创的几何图形 */
 const meta = {
@@ -141,7 +141,7 @@ export const States: Story = {
 function InFieldExample() {
   const [submitted, setSubmitted] = useState<string | null>(null);
   const [missing, setMissing] = useState(false);
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const shift = data.get("shift");

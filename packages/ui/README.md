@@ -792,10 +792,13 @@ packages/ui/
 | `pnpm test` | 跑单元测试 |
 | `pnpm test:browser` | 在真的浏览器里测键盘、焦点与布局（先 `pnpm build:docs`），见 [apps/docs](https://github.com/icaruszezen/endfield-ui/blob/main/apps/docs/README.md#浏览器实测) |
 | `pnpm typecheck` | 类型检查全部工作区包 |
+| `pnpm lint` | 用 oxlint 查写错的地方：漏掉的 `await`、钩子的用法、已弃用的接口等 |
 | `pnpm build` | 生成 `dist/index.js`、`dist/index.d.ts`、`dist/styles.css` |
 | `pnpm format` | 用 Prettier 格式化全仓库；`pnpm format:check` 只检查不改，CI 跑的是它 |
 
 格式用 Prettier 的默认配置，提交前跑一次 `pnpm format`。Markdown 不在它的范围里（它会把表格逐列补空格对齐）；Tailwind 的类名顺序也不归它管。
+
+代码检查用 oxlint（配置在根目录的 `.oxlintrc.json`），没用 ESLint：typescript-eslint 还不支持 TypeScript 7，要用就得另装一份 6.x 专门给它；oxlint 里要类型信息的规则和 `tsc` 是同一套编译器。只开"八成是写错了"的那一类规则，风格类的不开。有意为之的写法用 `// oxlint-disable-next-line 规则名 -- 原因` 就地豁免。输出里的提醒（warning）不拦 CI，报错（error）才拦。
 
 TypeScript 用的是 7.0。tsdown 在这个版本下生成类型声明时会提示"API 尚不稳定"，目前产物正常；如果以后出问题，退路是 `tsc --emitDeclarationOnly`。
 

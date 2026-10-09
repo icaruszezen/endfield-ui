@@ -116,7 +116,7 @@ test("口令不对：字段报错，每一格的底边线变成危险色", async
       page.evaluate(() =>
         document
           .querySelector("#storybook-root")!
-          .textContent!.includes("口令不对，再核对一遍交接单。"),
+          .textContent.includes("口令不对，再核对一遍交接单。"),
       ),
     "填满了但不对，字段应该报错",
   );

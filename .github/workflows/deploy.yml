@@ -1,6 +1,6 @@
 name: 构建与部署
 
-# 推送到 main 后：格式检查、类型检查、测试、构建组件库与 Storybook，
+# 推送到 main 后：格式检查、代码检查、类型检查、测试、构建组件库与 Storybook，
 # 再把 Storybook 发布到 GitHub Pages；同时拿这份 Storybook 去跑浏览器实测。
 on:
   push:
@@ -39,6 +39,9 @@ jobs:
 
       - name: 格式检查
         run: pnpm format:check
+
+      - name: 代码检查
+        run: pnpm lint
 
       - name: 类型检查
         run: pnpm typecheck
