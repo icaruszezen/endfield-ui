@@ -47,7 +47,7 @@
 ## 准备
 
 - [x] **0.1 规范里补上这次的约定。** [motion.md](design/foundations/motion.md) 加一节"补的几条约定"：状态的记号要有过渡、进出不对称、方向位移、错开、跟手的不加过渡。位移量的令牌留到第一次用它的 2.1 再加进 `theme.css`，这一步只写下数值。
-- [ ] **0.2 实测驱动加一个"等动效走完"。** [browser.ts](../apps/docs/browser-checks/lib/browser.ts) 现在只有 `frames()`、`waitFor`、`waitEqual`、`waitFocused`。加一个等 `document.getAnimations()` 全部结束的办法，后面每一步改旧断言时用它，不靠多等几帧去碰。
+- [x] **0.2 实测驱动加一个"等动效走完"。** [browser.ts](../apps/docs/browser-checks/lib/browser.ts) 现在只有 `frames()`、`waitFor`、`waitEqual`、`waitFocused`。加了 `page.settled(选择器?)`：等范围内有限时长的过渡和动画都结束（循环的不等），之后读一次就是终态。后面每一步改旧断言时用它，不靠多等几帧去碰。
 
 ## 模块一：状态记号（最易，纯 CSS）
 

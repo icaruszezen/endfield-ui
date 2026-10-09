@@ -463,6 +463,36 @@ export async function launch({
       );
     },
 
+    /**
+     * 等动效走完：范围内（不传选择器就是整页，含伪元素）有限时长的过渡和动画
+     * 都结束了才返回。状态变了之后要读**终态**时用它——之后读一次就行，不用轮询。
+     * 循环的动画（加载指示、跑马灯、刻度环）不等：它们不会结束。
+     *
+     * 先等两帧：状态刚变的那一刻过渡可能还没被创建出来，这时候问会得到"已经没有了"
+     */
+    async settled(selector?: string, message = "动效没有走完") {
+      await page.frames();
+      await waitFor(
+        () =>
+          evaluate((css) => {
+            const root = css
+              ? document.querySelector(css)
+              : document.documentElement;
+            if (!root) return true;
+            return root.getAnimations({ subtree: true }).every((animation) => {
+              const iterations =
+                animation.effect?.getComputedTiming().iterations;
+              return (
+                iterations === Infinity ||
+                animation.playState === "finished" ||
+                animation.playState === "idle"
+              );
+            });
+          }, selector ?? null),
+        message,
+      );
+    },
+
     /** 打开一个 story 的画布，等它渲染完 */
     story(id: string, theme: Theme = "light") {
       return goto(

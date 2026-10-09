@@ -31,10 +31,7 @@ async function assertAnimatesInAndOut(
     `${name}进场没有过渡`,
     2000,
   );
-  await page.waitFor(
-    async () => (await running(page, selector)) === 0,
-    `${name}的进场过渡没有走完`,
-  );
+  await page.settled(selector, `${name}的进场过渡没有走完`);
   assert.equal(await opacity(page, selector), 1, `${name}没有停在不透明`);
 
   await page.key("Escape");
@@ -89,4 +86,41 @@ test("减少动态效果：弹窗直接出现", async () => {
     ),
   );
   assert.ok(seconds < 0.001, `过渡时长应该接近零，实际是 ${seconds}s`);
+});
+
+test("等动效走完（page.settled）：之后读一次就是终态；循环的动画不会让它挂住", async () => {
+  const { page } = storybook;
+  await page.setReducedMotion(false);
+  try {
+    await page.story("控件-dialog-弹窗--playground");
+    await page.click("text=归档");
+    await page.waitVisible("[role=dialog]");
+    await page.settled("[role=dialog]");
+    // 不轮询：过渡走完了，读到的就是终点
+    assert.equal(await opacity(page, "[role=dialog]"), 1);
+    assert.equal(await running(page, "[role=dialog]"), 0);
+    await page.key("Escape");
+    await page.waitGone("[role=dialog]");
+
+    // 加载指示一直在转。它在页面上，settled 也照样回来
+    await page.story("控件-spinner-行内加载指示--playground");
+    const spinning = await page.evaluate(
+      () =>
+        document
+          .getAnimations()
+          .filter(
+            (animation) =>
+              animation.effect?.getComputedTiming().iterations === Infinity,
+          ).length,
+    );
+    assert.ok(spinning > 0, "这个 story 里应该有一个循环的动画在跑");
+    const started = Date.now();
+    await page.settled();
+    assert.ok(
+      Date.now() - started < 2000,
+      "循环的动画不该让 settled 一直等下去",
+    );
+  } finally {
+    await page.setReducedMotion(true);
+  }
 });
