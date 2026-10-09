@@ -30,6 +30,7 @@ export * from "./components/hatch";
 export * from "./components/hazard-stripe";
 export * from "./components/hover-card";
 export * from "./components/icon-button";
+export * from "./components/image-viewer";
 export * from "./components/input";
 export * from "./components/item-slot";
 export * from "./components/kbd";

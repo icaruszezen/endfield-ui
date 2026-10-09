@@ -39,6 +39,7 @@ const pages = [
   "控件-scrollarea-滚动区--docs",
   "控件-otpinput-验证码输入--docs",
   "控件-hovercard-悬浮卡--docs",
+  "控件-imageviewer-图片查看--docs",
   "控件-panel-面板--docs",
   "控件-tooltip-文字提示--docs",
   "控件-popover-气泡卡片--docs",

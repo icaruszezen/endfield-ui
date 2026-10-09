@@ -2,10 +2,7 @@ import {
   Children,
   createContext,
   isValidElement,
-  useCallback,
   useContext,
-  useEffect,
-  useRef,
   type ComponentProps,
   type KeyboardEvent,
   type ReactNode,
@@ -17,6 +14,7 @@ import { cn } from "../../lib/cn";
 import { focusRing } from "../../lib/focus-ring";
 import { DashIndicator } from "../dash-indicator/DashIndicator";
 import { IconButton } from "../icon-button/IconButton";
+import { useSnapTrack } from "./snap-track";
 
 export type CarouselRatio = "16/9" | "4/3" | "1/1" | "3/4" | "21/9";
 
@@ -58,9 +56,6 @@ export type CarouselProps = Omit<
 
 type SlideLike = { title?: ReactNode; description?: ReactNode };
 
-/** 滚动停下之后多久算"停稳了"。没有 scrollend 事件的浏览器靠它 */
-const SETTLE_MS = 120;
-
 /**
  * 媒体轮播：一次看一张的大幅媒体，前后翻。不自动播放。
  * 轨道是原生的横向滚动加滚动吸附，触屏滑动是浏览器自带的。
@@ -91,11 +86,12 @@ export function Carousel({
     onChange: onIndexChange,
   });
   const index = Math.min(Math.max(rawIndex, 0), last);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const settleTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  // 给不跟着渲染重建的回调（尺寸变化）读最新的下标
-  const indexRef = useRef(index);
-  indexRef.current = index;
+  // 下标和滚动位置互相跟的那一段，和图片查看共用
+  const { trackRef, onScroll } = useSnapTrack({
+    index,
+    count,
+    onSettle: setIndex,
+  });
 
   const go = (next: number) => {
     if (count === 0) return;
@@ -113,42 +109,6 @@ export function Carousel({
       trackRef.current.focus({ preventScroll: true });
     }
   };
-
-  // 下标变了：滚过去。已经在那儿（用户自己滑过去的）就不动
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track || track.clientWidth === 0) return;
-    if (Math.round(track.scrollLeft / track.clientWidth) === index) return;
-    track.scrollTo?.({ left: index * track.clientWidth, behavior: "smooth" });
-  }, [index]);
-
-  // 宽度变了：轨道的滚动位置是像素，会错开，重新对到当前这一张（不要动画）
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track || typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(() => {
-      track.scrollTo?.({
-        left: indexRef.current * track.clientWidth,
-        behavior: "instant",
-      });
-    });
-    observer.observe(track);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => () => clearTimeout(settleTimer.current), []);
-
-  // 用户自己滑：等滚动停稳，由停下的位置定下标。滚动途中不改——
-  // 翻页钮触发的滚动会路过中间那几张
-  const onScroll = useCallback(() => {
-    clearTimeout(settleTimer.current);
-    settleTimer.current = setTimeout(() => {
-      const track = trackRef.current;
-      if (!track || track.clientWidth === 0) return;
-      const stopped = Math.round(track.scrollLeft / track.clientWidth);
-      setIndex(Math.min(Math.max(stopped, 0), last));
-    }, SETTLE_MS);
-  }, [setIndex, last]);
 
   const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     const next = {

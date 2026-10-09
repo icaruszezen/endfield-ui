@@ -19,7 +19,7 @@
 | 气泡卡片 | `<Popover trigger title description side align>`；"点了就关"的按钮包进 `<PopoverClose>` | 已实现 |
 | 悬浮卡 | `<HoverCard trigger title description side align delay closeDelay>` | 已实现 |
 
-下拉选择见 [表单](form.md)，轻提示见 [反馈](feedback.md)。
+下拉选择见 [表单](form.md)，轻提示见 [反馈](feedback.md)，图片查看的大图层见 [卡片](card.md#图片查看)。
 
 行为与无障碍（焦点、键盘、定位、关闭时机）交给 [Base UI](https://base-ui.com)，本库只管长相。实现时对下文规格做的调整都写在各节里，并标了"实现"。
 

@@ -119,6 +119,10 @@ const stories = [
   "控件-hovercard-悬浮卡--in-text",
   "控件-hovercard-悬浮卡--list",
   "控件-hovercard-悬浮卡--narrow",
+  "控件-imageviewer-图片查看--playground",
+  "控件-imageviewer-图片查看--narrow",
+  "控件-imageviewer-图片查看--ratios",
+  "控件-imageviewer-图片查看--own-layout",
   "控件-brackettitle-方括号标题--sizes",
   "母题-texture-底纹--variants",
 ];

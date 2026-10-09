@@ -102,3 +102,52 @@ export function ImagePlaceholder() {
     </svg>
   );
 }
+
+/* 有自己尺寸的占位图，给"图要按原比例整张显示"的地方用（图片查看） */
+const photoFrames = {
+  // 横幅 4:3、竖幅 3:4、宽幅 21:9
+  landscape: [1200, 900],
+  portrait: [900, 1200],
+  wide: [1680, 720],
+} as const;
+
+const photoTones = [
+  ["#d9d9d9", "#b3b3b3", "#8a8a8a", "#626262"],
+  ["#383838", "#484848", "#626262", "#8a8a8a"],
+  ["#e6e6e6", "#b3b3b3", "#626262", "#383838"],
+] as const;
+
+/**
+ * 第 `seed` 张占位照片，输出成 data URI，直接当 `<img src>` 用。
+ * 和场景位是同一种三层地形，但它是一张真的图片：有固有的宽高，
+ * 颜色写死——真实的照片也不会跟着主题换色。
+ */
+export function photo(
+  seed: number,
+  frame: keyof typeof photoFrames = "landscape",
+): string {
+  const [width, height] = photoFrames[frame];
+  const [sky, far, mid, near] = photoTones[seed % photoTones.length]!;
+  // 三条山脊的起伏各错开一点，免得一组图一模一样
+  const ridge = (base: number, swing: number, shift: number) => {
+    const points = Array.from({ length: 7 }, (_, step) => {
+      const x = (width / 6) * step;
+      const y =
+        height * base +
+        Math.sin(step * 1.7 + seed * 1.3 + shift) * height * swing;
+      return `${x.toFixed(0)} ${y.toFixed(0)}`;
+    });
+    return `M0 ${height} L${points.join(" L")} L${width} ${height}z`;
+  };
+  const svg = [
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
+    `<path d="M0 0h${width}v${height}H0z" fill="${sky}"/>`,
+    `<path d="${ridge(0.5, 0.1, 0)}" fill="${far}"/>`,
+    `<path d="${ridge(0.66, 0.08, 2)}" fill="${mid}"/>`,
+    `<path d="${ridge(0.82, 0.06, 4)}" fill="${near}"/>`,
+    // 右上角一个小方块当"太阳"：看得出图有没有被裁掉一角
+    `<path d="M${width - 140} 60h80v80h-80z" fill="${near}"/>`,
+    `</svg>`,
+  ].join("");
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
