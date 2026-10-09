@@ -69,6 +69,7 @@ pnpm test:browser
 | `BROWSER_FLAGS` | 额外的启动参数，空格分隔，排在驱动自己的参数后面。CI 上是 `--no-sandbox` |
 | `STORYBOOK_URL` | 改测这个地址，不起本地的静态服务器：正在跑的 `pnpm dev`（`http://localhost:6106`），或者在线版本 |
 | `CPU_THROTTLE` | 把页面放慢几倍（`2` 就是一半的速度）。本机太快，有些竞态碰不上，放慢之后会露出来 |
+| `BLOCK_URLS` | 逗号分隔的地址样式，匹配到的请求立刻失败。本机到 Google Fonts 的网络不稳时设成 `*fonts.googleapis.com*,*fonts.gstatic.com*`：不然样式表一卡，页面要等它超时，一整个文件的检查都报"页面没有渲染出来"。屏蔽之后页面用回退字体 |
 
 只跑一个文件：在 `apps/docs` 下 `node --test browser-checks/dialog.check.ts`。
 

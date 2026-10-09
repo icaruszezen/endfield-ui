@@ -285,6 +285,14 @@ export async function launch({
   if (throttle > 1) {
     await send("Emulation.setCPUThrottlingRate", { rate: throttle });
   }
+  // BLOCK_URLS=*fonts.googleapis.com*,*fonts.gstatic.com*：这些地址的请求立刻失败。
+  // 预览站的字体从 Google Fonts 取，本机到那边的网络一卡，页面就得等样式表超时（见过两分钟），
+  // 整个文件的检查跟着报"页面没有渲染出来"。屏蔽之后页面用回退字体，检查不再看网络的脸色
+  const blocked = process.env.BLOCK_URLS?.split(",").filter(Boolean) ?? [];
+  if (blocked.length > 0) {
+    await send("Network.enable");
+    await send("Network.setBlockedURLs", { urls: blocked });
+  }
 
   async function evaluate<Args extends unknown[], Result>(
     fn: (...args: Args) => Result,
