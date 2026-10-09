@@ -279,6 +279,12 @@ export async function launch({
   await send("Runtime.enable");
   // 截图之后页面会被当成失去焦点，键盘事件随之慢一拍：让它始终算作有焦点
   await send("Emulation.setFocusEmulationEnabled", { enabled: true });
+  // CPU_THROTTLE=2：把页面放慢一半。本机太快，"状态刚变就读样式"这类竞态碰不上；
+  // 放慢之后和 CI 上一样会露出来。推送前跑一遍。再慢（4）抽屉的进场会等超时
+  const throttle = Number(process.env.CPU_THROTTLE);
+  if (throttle > 1) {
+    await send("Emulation.setCPUThrottlingRate", { rate: throttle });
+  }
 
   async function evaluate<Args extends unknown[], Result>(
     fn: (...args: Args) => Result,

@@ -1,4 +1,6 @@
 import {
+  Accordion,
+  AccordionItem,
   Alert,
   Breadcrumb,
   BreadcrumbItem,
@@ -21,6 +23,7 @@ import {
   Select,
   ResourceChip,
   SectionTitle,
+  Slider,
   Stat,
   Switch,
   ToastProvider,
@@ -245,6 +248,19 @@ function Settings() {
             <Switch>夜间只接收紧急告警</Switch>
             <Switch disabled>向上级站点抄送（需要管理员权限）</Switch>
           </div>
+          <Field label="告警音量" help="0 是静音。值随表单提交。">
+            <Slider
+              name="volume"
+              defaultValue={60}
+              step={5}
+              showValue
+              marks={[
+                { value: 0, label: "静音" },
+                { value: 50, label: "50" },
+                { value: 100, label: "最大" },
+              ]}
+            />
+          </Field>
           <Field group label="订阅的情报类目">
             <div className="flex flex-wrap gap-2">
               {categories.map((category) => (
@@ -309,6 +325,35 @@ function Settings() {
               </PanelBody>
             </Panel>
           </div>
+        </section>
+
+        {/* 不常用的收进折叠面板。收起的内容不在页面里，所以这里面不放要提交的字段 */}
+        <section className="flex flex-col gap-6">
+          <SectionTitle variant="plain">高级</SectionTitle>
+          <Accordion multiple>
+            <AccordionItem value="sync" title="同步" extra="2 项">
+              <div className="flex flex-col">
+                <Switch defaultChecked>只在接入站内网络时同步</Switch>
+                <Switch>同步失败时自动重试</Switch>
+              </div>
+            </AccordionItem>
+            <AccordionItem value="cache" title="本地缓存" extra="128 MB">
+              <p className="mb-3 text-sm text-ink-secondary">
+                缓存的是最近三十天的测绘图。清掉之后下次打开会重新下载。
+              </p>
+              <Button size="sm" variant="light" type="button">
+                清除缓存
+              </Button>
+            </AccordionItem>
+            <AccordionItem value="reset" title="恢复默认">
+              <p className="mb-3 text-sm text-ink-secondary">
+                把这一页的设置全部改回默认值。站点代号和交接记录不受影响。
+              </p>
+              <Button size="sm" variant="danger" type="button">
+                恢复默认设置
+              </Button>
+            </AccordionItem>
+          </Accordion>
         </section>
 
         <div className="flex flex-wrap justify-end gap-3 border-t border-line pt-6">

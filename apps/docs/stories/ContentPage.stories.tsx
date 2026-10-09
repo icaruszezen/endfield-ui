@@ -1,6 +1,10 @@
 import {
+  AvatarSwitcher,
+  AvatarSwitcherItem,
   Badge,
   Button,
+  Carousel,
+  CarouselSlide,
   ChevronLeft,
   ChevronRight,
   IconButton,
@@ -8,6 +12,9 @@ import {
   PanelHeader,
   PanelRow,
   PanelRows,
+  Schedule,
+  ScheduleItem,
+  ScheduleTrack,
   SectionTitle,
   Tab,
   TabList,
@@ -17,9 +24,16 @@ import {
   TagPair,
 } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useState } from "react";
 import { IsoCube } from "./_shared/IsoCube";
+import { ScenePlaceholder } from "./_shared/Placeholders";
+import { crew } from "./_shared/Portraits";
+import { CrateIcon, RouteIcon, SlidersIcon } from "./_shared/ResourceIcons";
 
-/** 用第一期的控件搭一个官网气质的内容页。文案与数据全部虚构。 */
+/**
+ * 搭一个官网气质的内容页：分节标题、页签、面板，加上媒体轮播、头像切换和排期。
+ * 文案与数据全部虚构；图是原创的占位图和几何剪影。
+ */
 const meta = {
   title: "示例/内容页",
   parameters: { controls: { disable: true } },
@@ -64,6 +78,65 @@ function EntryList({
         </li>
       ))}
     </ul>
+  );
+}
+
+const works = [
+  {
+    title: "线路测绘",
+    description:
+      "沿着管廊布设信标，把走过的每一段记进图里。没测过的地方在图上是一片斜纹。",
+  },
+  {
+    title: "物资调度",
+    description: "把批次派往各个站点；延误超过两小时的会自动上报给值班调度。",
+  },
+  {
+    title: "站点维护",
+    description: "滤芯、电池、信标都有寿命。到期前三天，站点会出现在待办里。",
+  },
+];
+
+/* 官网"干员情报"的排法：左边一列头像，右边是选中这个人的介绍 */
+function Crew() {
+  const people = crew.slice(0, 4);
+  const [current, setCurrent] = useState(people[0]!.value);
+  const person = people.find((item) => item.value === current)!;
+  return (
+    <div className="flex items-start gap-6">
+      <AvatarSwitcher
+        aria-label="队员"
+        value={current}
+        onValueChange={setCurrent}
+      >
+        {people.map((item) => (
+          <AvatarSwitcherItem
+            key={item.value}
+            value={item.value}
+            label={item.label}
+            src={item.src}
+          />
+        ))}
+      </AvatarSwitcher>
+      <div aria-live="polite" className="flex min-w-0 flex-col gap-3 pt-10">
+        <p className="text-3xl font-bold wrap-anywhere">
+          <span aria-hidden="true" className="text-line-strong">
+            {"[ "}
+          </span>
+          {person.label}
+          <span aria-hidden="true" className="text-line-strong">
+            {" ]"}
+          </span>
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <TagPair name="岗位" value={person.role} />
+          <TagPair name="所属" value="第七勘探队" />
+        </div>
+        <p className="max-w-prose text-ink-secondary">
+          {`${person.label}负责${person.role}。这段介绍是编的，用来看一段正文放在这里的样子。`}
+        </p>
+      </div>
+    </div>
   );
 }
 
@@ -119,6 +192,77 @@ export const Page: Story = {
             <Button variant="light">未读</Button>
           </Badge>
         </div>
+      </section>
+
+      <section className="flex flex-col gap-6">
+        <SectionTitle latin="Fieldwork">日常作业</SectionTitle>
+        <Carousel aria-label="日常作业" indicator>
+          {works.map((work, position) => (
+            <CarouselSlide
+              key={work.title}
+              title={work.title}
+              description={work.description}
+            >
+              <ScenePlaceholder seed={position} />
+            </CarouselSlide>
+          ))}
+        </Carousel>
+      </section>
+
+      <section className="flex flex-col gap-6">
+        <SectionTitle latin="Crew">队员</SectionTitle>
+        <Crew />
+      </section>
+
+      <section className="flex flex-col gap-6">
+        <SectionTitle latin="Schedule" meta="// 十月">
+          本月排期
+        </SectionTitle>
+        <Schedule
+          label="十月排期"
+          start="2026-10-01"
+          end="2026-10-31"
+          today="2026-10-09"
+        >
+          <ScheduleTrack label="测绘" icon={<RouteIcon />}>
+            <ScheduleItem
+              start="2026-10-01"
+              end="2026-10-12"
+              title="管廊北段测绘"
+              type="限时"
+              media={<ScenePlaceholder seed={0} />}
+            />
+            <ScheduleItem
+              start="2026-10-15"
+              end="2026-10-28"
+              title="第三岩层复测"
+              type="常驻"
+              media={<ScenePlaceholder seed={1} />}
+            />
+          </ScheduleTrack>
+          <ScheduleTrack label="补给" icon={<CrateIcon />}>
+            <ScheduleItem
+              start="2026-10-05"
+              end="2026-10-11"
+              title="南岸补给周"
+              type="双倍"
+            />
+            <ScheduleItem
+              start="2026-10-19"
+              end="2026-10-25"
+              title="北区补给周"
+              type="双倍"
+            />
+          </ScheduleTrack>
+          <ScheduleTrack label="系统" icon={<SlidersIcon />}>
+            <ScheduleItem
+              variant="system"
+              start="2026-10-01"
+              end="2026-10-31"
+              title="每日巡检签到"
+            />
+          </ScheduleTrack>
+        </Schedule>
       </section>
 
       <section className="flex flex-col gap-6">

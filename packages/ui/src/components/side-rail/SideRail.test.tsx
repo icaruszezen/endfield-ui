@@ -282,6 +282,21 @@ describe("SideRailSub", () => {
     expect(parent).toHaveClass(bar, "font-bold");
   });
 
+  it("当前项后来换到了里面：自己展开", async () => {
+    const { rerender } = render(<TreeRail current={null} />);
+    const parent = () => screen.getByRole("button", { name: "档案" });
+    expect(parent()).toHaveAttribute("aria-expanded", "false");
+
+    rerender(<TreeRail current="stations" />);
+    await waitFor(() =>
+      expect(parent()).toHaveAttribute("aria-expanded", "true"),
+    );
+    expect(screen.getByRole("link", { name: /^站点/ })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  });
+
   it("受控：展开不展开由外面决定", async () => {
     const user = userEvent.setup();
     const onOpenChange = vi.fn();

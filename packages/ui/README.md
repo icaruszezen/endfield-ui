@@ -7,11 +7,11 @@
 | 类别 | 控件 |
 | --- | --- |
 | 基础 | Button / ButtonGroup、IconButton、Tag / TagPair、Badge、Kbd、SectionTitle、BracketTitle、Tabs、Panel |
-| 表单 | Field、Input、Textarea、Select、Combobox、Checkbox、Radio / RadioGroup、Switch、Stepper、FilterChip |
+| 表单 | Field、Input、Textarea、Select、Combobox、DatePicker / Calendar、Checkbox、Radio / RadioGroup、Switch、Stepper、Slider、FilterChip |
 | 反馈 | Alert、Toast、Progress / ProgressRing、Spinner、Skeleton、EmptyState、Loader、CompletionBanner、RecIndicator |
-| 浮层 | Tooltip、Popover、Dialog、Drawer、DropdownMenu、FlyoutBar |
-| 展示 | Table、Stat、Sparkline、DataRowList / DataRow、List / ListRow、MediaCard、ItemSlot / ItemGrid、Timeline、Term、ResourceChip、Countdown、Marquee、ScrollHint |
-| 导航 | SideRail、TopBar、NavMenu、NavAction、Breadcrumb、Pagination、Navigator、DashIndicator |
+| 浮层 | Tooltip、Popover、Dialog、Drawer、DropdownMenu、ContextMenu、FlyoutBar |
+| 展示 | Table、Stat、Sparkline、DataRowList / DataRow、List / ListRow、Accordion、MediaCard、Carousel、ItemSlot / ItemGrid、Avatar、Timeline、Schedule、Term、ResourceChip、Countdown、Marquee、ScrollHint |
+| 导航 | SideRail（含二级）、TopBar、NavMenu、NavAction、Breadcrumb、Pagination、Navigator、AvatarSwitcher、DashIndicator |
 | 母题 | CornerBrackets、Viewfinder、GhostText、Hatch、Texture、RegistrationStrip、TickRing、HazardStripe |
 
 包还没有发布到 npm，目前只在本仓库的工作区里使用。
@@ -23,7 +23,7 @@
 | 框架 | React 19 + TypeScript |
 | 样式 | Tailwind CSS v4（CSS-first，`@theme` 令牌，不使用 `tailwind.config.js`） |
 | 变体 | 手写的 `Record<Variant, string>` + `cn()`（`clsx` + `tailwind-merge`） |
-| 无障碍基元 | [Base UI](https://base-ui.com)（`@base-ui/react`），用在浮层和组合框上：文字提示、气泡卡片、弹窗、抽屉、全屏菜单、轻提示、下拉选择、组合框、下拉菜单、展开条。其余控件建立在原生元素上 |
+| 无障碍基元 | [Base UI](https://base-ui.com)（`@base-ui/react`），用在浮层和几个行为复杂的控件上：文字提示、气泡卡片、弹窗、抽屉、全屏菜单、轻提示、下拉选择、组合框、下拉菜单、右键菜单、展开条、折叠面板、滑块、头像。其余控件建立在原生元素上（月历是手写的：Base UI 还没有公开的日历基元） |
 | 构建 | tsdown（ESM + 类型声明）+ `@tailwindcss/cli`（预编译 CSS） |
 | 测试 | Vitest + Testing Library（jsdom） |
 
@@ -108,6 +108,29 @@ import { Checkbox, Field, Input, Radio, RadioGroup, Switch } from "@endfield-ui/
 ```
 
 表单控件都是原生 `<input>` / `<textarea>` 套样式：`name`、`value`、`required`、`ref` 这些属性直接落在原生元素上，可以照常放进 `<form>` 提交。`className` 给的是外层（输入框的外框、复选框的整行）。
+
+滑块和日期选择同样放进 `Field`，带 `name` 时值随表单提交：
+
+```tsx
+import { DatePicker, Field, Slider } from "@endfield-ui/react";
+
+<Field label="告警音量">
+  <Slider name="volume" value={volume} onValueChange={setVolume} step={5} showValue />
+</Field>
+
+<Field label="载重（吨）">
+  {/* value 传两个数就是范围滑块 */}
+  <Slider value={range} onValueChange={setRange} max={120} showValue />
+</Field>
+
+<Field label="发车日期">
+  <DatePicker name="depart" value={date} onValueChange={setDate} min="2026-10-01" />
+</Field>
+```
+
+- 日期一律是 `YYYY-MM-DD` 的字符串（和原生的 `<input type="date">` 一样），没选是 `null`。
+- `DatePicker` 的触发器是按钮，不能打字；只要月历不要外框，用 `Calendar`。
+- `Slider` 的 `onValueChange` 拖的每一步都触发，要发请求的事放在 `onValueCommitted` 里。
 
 ### 带状态的控件
 
@@ -198,6 +221,7 @@ import {
 - `Dialog` 有两处默认关着的装饰：`ornament`（标题下一排小方点）和 `cornerArt`（左下角的线稿，传你自己的原创图形）。
 - `Drawer` 的 `side` 是 `right`（默认）、`left`、`bottom`，都可以朝来的方向划走。
 - 菜单里除了操作项，还有单选组（`DropdownMenuRadioGroup`，当前项）、复选项（`DropdownMenuCheckboxItem`，能开能关的设置，勾了不关菜单）和一层子菜单（`DropdownMenuSub`）。
+- `ContextMenu` 是右键菜单：`<ContextMenu menu={…}>` 包住被右键的那个元素，`menu` 里放的就是上面这些 `DropdownMenuItem`。它只是捷径——里面的操作在页面上要另有入口。
 - `FlyoutBar` 是从一个图标按钮旁边拉开的一条横排操作（分享的几个去处），键盘上是一个横向的菜单。里面放 `FlyoutBarItem`：子元素是图标，只有图标时必须给 `aria-label`。触发按钮用 `<IconButton variant="inverse">`，它的 `aria-label` 同时是这一条的名称。
 - `Popover` 是点击触发、里面可以操作的一小块面板（`trigger`、`title`、`description` + 子元素），不打断页面。一句说明用 `Tooltip`，必须做完才能继续的用 `Dialog`。
 - 触发元素要是一个按钮，并且把收到的属性和 `ref` 交给原生元素。本库的 `Button`、`IconButton` 都可以直接用。
@@ -245,6 +269,7 @@ import { Combobox, Field } from "@endfield-ui/react";
 - `label` 必须是字符串；检索匹配 `label` 和 `keywords`（不显示的别名）。要分组就传 `{ label, items }` 的数组。
 - 值只能是选项里有的；清除之后 `onValueChange` 拿到 `null`。
 - 加 `multiple`：值是数组，已选项在框里排成一个个小块，框会跟着长高。
+- 选项由服务器按输入返回时：`onInputValueChange` 拿到输入的文字去取，`filter={false}` 不在本地再筛一遍，`loading` 时面板里是一行"正在查找…"。
 
 轻提示要先在应用最外层包一个 `ToastProvider`，里面的任何地方用 `useToast()` 弹出。同时只显示一条，新的替换旧的：
 
@@ -335,6 +360,7 @@ import {
 ```
 
 - `SideRail` 默认展开（图标 + 文字）；`collapsed` 收起成只有图标的窄轨，悬停或键盘聚焦时栏目名浮出来。栏目多了用 `SideRailGroup label` 分组。
+- 一个栏目下面还有几个去处：`<SideRailSub icon label>` 里放 `<SideRailSubItem>`。父项只管展开收起；当前项在里面时自己展开。侧轨收起时它变成向右弹出的菜单。
 - `NavAction` 是"主行动块"：整个产品最主要的那个去处。放进侧轨、顶栏、全屏菜单的底部时，摆法由它们决定。
 - `NavMenu` 打开时焦点移入并被限制在内，背景不可滚动；点一个栏目默认关上。
 - 本库不带标志和栏目图标，都由使用方给。
@@ -386,6 +412,56 @@ import {
 - `reveal` 的单元格里放行内操作：悬停或焦点进了这一行才显示，触屏上常显。
 - 整行不可点。要进详情把名称写成链接，要勾选在第一列放 `Checkbox`。
 - 表头两种：`band`（反转的标题带，默认）和 `muted`；`ruled` 每隔五行加重一条线。
+- `stickyHeader` 让表头留在容器的上沿；容器的高度上限自己给（`className="max-h-96"`）。
+
+### 内容与展示
+
+```tsx
+import {
+  Accordion,
+  AccordionItem,
+  Avatar,
+  AvatarSwitcher,
+  AvatarSwitcherItem,
+  Carousel,
+  CarouselSlide,
+  Schedule,
+  ScheduleItem,
+  ScheduleTrack,
+} from "@endfield-ui/react";
+
+<Accordion defaultValue={["route"]}>
+  <AccordionItem value="route" title="批次发出之后还能改派吗">
+    能。在调度台里选中批次，再选新的目的站。
+  </AccordionItem>
+</Accordion>
+
+<Avatar name="陈知远" src={portrait} />
+
+<AvatarSwitcher aria-label="队员" value={person} onValueChange={setPerson}>
+  <AvatarSwitcherItem value="chen" label="陈知远" src={portrait} />
+  <AvatarSwitcherItem value="lin" label="林澈" />
+</AvatarSwitcher>
+
+<Carousel aria-label="玩法介绍">
+  <CarouselSlide title="线路测绘" description="沿着管廊布设信标。">
+    <img src={shot} alt="" />
+  </CarouselSlide>
+</Carousel>
+
+<Schedule label="十月排期" start="2026-10-01" end="2026-10-31" today={today}>
+  <ScheduleTrack label="测绘" icon={<RouteIcon />}>
+    <ScheduleItem start="2026-10-03" end="2026-10-12" title="管廊北段" type="限时" />
+  </ScheduleTrack>
+</Schedule>
+```
+
+- `Accordion` 默认只开一节，`multiple` 可以同时开几节；`value` 总是数组。收起的内容不在页面里。
+- `Avatar` 没有图、图加载失败时显示名字的首字；旁边已经写了名字时传 `alt=""`。
+- `AvatarSwitcher` 是一列头像里选一个，语义是单选组（方向键换人）；放不下时给它一个高度上限。
+- `Carousel` 不自动播放。轨道是原生的横向滚动，触屏上直接滑；不在眼前的幻灯片 `Tab` 走不进去。
+- `Schedule` 的条目只写起止日期，位置和错行都是算出来的；放不下时在自己的容器里横向滚动。
+- 本库不带任何图片：头像、轮播和排期里的图都由使用方给。
 
 ### 游戏风格的控件
 
@@ -507,6 +583,8 @@ function ThemeToggle() {
 `useTheme` 读写 `<html data-theme>`，支持 `"light"`、`"dark"`、`"system"`，选择记在 `localStorage` 的 `ef-theme` 里。要避免首屏闪一下亮色，在 `<head>` 里用一小段内联脚本提前把 `data-theme` 写好。
 
 把强调色换成自己的主题色，见 [色彩](../../docs/design/foundations/color.md) 的"主题色接管"。
+
+还有第三个取值 `data-theme="inverse"`：和所在的主题相反。面板的标题带、表格的表头带、完成横幅用的就是它，所以放进去的按钮、复选框、焦点环不用另外处理。自己做一块"和页面相反"、里面还要放控件的区域时，写 `data-theme="inverse"` 加 `bg-surface text-ink`——取到的就是 `surface-inverse` / `ink-inverse`。反转块里不要再嵌反转块。
 
 ## 目录
 

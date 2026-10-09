@@ -340,11 +340,121 @@ test("调度台：宽屏是侧轨，窄屏换成顶栏和全屏菜单；栏目�
     await page.setSize(1280, 900);
   }
 
-  // 回到宽屏：侧轨上的当前项跟着变了
+  // 回到宽屏：侧轨上的当前项跟着变了。全屏菜单里选的是"档案 · 人员"，
+  // 它在侧轨上是"档案"这个二级里的一项——二级原来收着，现在自己展开了
   await page.waitFor(
     async () =>
-      (await page.text(`${RAIL} [aria-current=page]`)).join() === "档案",
-    "窄屏上选的栏目，回到宽屏应该还是它",
+      (await page.text(`${RAIL} [aria-current=page]`)).join() === "人员",
+    "窄屏上选的栏目，回到宽屏应该还是它，而且它所在的二级展开了",
+  );
+});
+
+test("调度台：侧轨的二级点开，选里面的一项", async () => {
+  const { page } = storybook;
+  await page.story("示例-调度台--page");
+  const parent = () =>
+    page.evaluate(() =>
+      [...document.querySelectorAll("#storybook-root nav button")]
+        .find((button) => button.textContent?.trim() === "档案")!
+        .getAttribute("aria-expanded"),
+    );
+  assert.equal(await parent(), "false", "当前栏目是调度，档案应该收着");
+
+  await page.click("text=档案");
+  await page.waitFor(async () => (await parent()) === "true", "点档案应该展开");
+  await page.click("text=站点");
+  await page.waitFor(
+    async () =>
+      (await page.text(`${RAIL} [aria-current=page]`)).join() === "站点",
+    "点站点，它应该成为当前项",
+  );
+  assert.ok(
+    await page.evaluate(() =>
+      document
+        .querySelector("#storybook-root main")!
+        .textContent!.includes("档案 · 站点"),
+    ),
+    "主体应该换成档案 · 站点",
+  );
+});
+
+test("调度台：行上点右键，标记到站；和行尾的按钮是同一组操作", async () => {
+  const { page } = storybook;
+  await page.story("示例-调度台--page");
+  const ROW = "#storybook-root tbody tr:nth-child(1)";
+  const status = () =>
+    page.evaluate(
+      (css) => document.querySelector(css)!.children[3]!.textContent,
+      ROW,
+    );
+  assert.equal(await status(), "已延误");
+
+  await page.click(`${ROW} td:nth-child(2)`, { button: "right" });
+  await page.waitVisible("[role=menu]");
+  assert.deepEqual(await page.text("[role=menu] [role=menuitem]"), [
+    "复制链接",
+    "打印单据",
+    "标记到站",
+  ]);
+  await page.waitFocused(/^menu:/);
+  await page.key("End");
+  await page.waitFocused("menuitem:标记到站");
+  await page.key("Enter");
+  await page.waitGone("[role=menu]");
+  await page.waitFor(
+    async () => (await status()) === "已到站",
+    "这一行应该变成已到站",
+  );
+  await waitToast(page, "TR-2041 已标记为到站");
+
+  // 已经到站的行：菜单里这一项是禁用的
+  await page.click(`${ROW} td:nth-child(2)`, { button: "right" });
+  await page.waitVisible("[role=menu]");
+  assert.equal(
+    await page.evaluate(() =>
+      [...document.querySelectorAll("[role=menu] [role=menuitem]")]
+        .find((item) => item.textContent === "标记到站")!
+        .getAttribute("aria-disabled"),
+    ),
+    "true",
+  );
+});
+
+test("调度台：按发车日期筛选", async () => {
+  const { page } = storybook;
+  await page.story("示例-调度台--page");
+  const dates = () =>
+    page.evaluate(() =>
+      [...document.querySelectorAll("#storybook-root tbody tr")].map(
+        (row) => row.children[7]!.textContent,
+      ),
+    );
+  assert.ok(new Set(await dates()).size > 1, "一开始各天的批次都有");
+
+  await page.click("#storybook-root button[aria-haspopup=dialog]");
+  await page.waitVisible("[role=dialog]");
+  await page.click('[role=dialog] [data-date="2026-10-06"]');
+  await page.waitGone("[role=dialog]");
+  await page.waitFor(async () => {
+    const shown = await dates();
+    return shown.length > 0 && shown.every((date) => date === "10.06");
+  }, "选了 10 月 6 日，剩下的行都应该是这一天发车");
+  assert.match(
+    (await page.text("#storybook-root main [role=status]"))[0]!,
+    /10\.06 发车/,
+  );
+
+  // 清除：面板里的"清除"
+  await page.click("#storybook-root button[aria-haspopup=dialog]");
+  await page.waitVisible("[role=dialog]");
+  await page.evaluate(() =>
+    [...document.querySelectorAll<HTMLElement>("[role=dialog] button")]
+      .find((button) => button.textContent === "清除")!
+      .click(),
+  );
+  await page.waitFor(
+    async () => (await dates()).length === 8,
+    "清除之后回到一页八行",
   );
 });
 
@@ -472,4 +582,92 @@ test("仓库页：物品格矩阵只占一个 Tab 停靠点，方向键换格子
     async () => (await name()) !== before,
     "← 应该把焦点移到左边一格",
   );
+});
+
+test("设置页：滑块的值随表单提交；高级设置收在折叠面板里", async () => {
+  const { page } = storybook;
+  await page.story("示例-设置页--page");
+  const volume = () =>
+    page.evaluate(() =>
+      new FormData(document.querySelector("form")!).get("volume"),
+    );
+  assert.equal(await volume(), "60");
+  await page.evaluate(() =>
+    document
+      .querySelector<HTMLElement>("#storybook-root input[type=range]")!
+      .focus(),
+  );
+  await page.key("ArrowRight");
+  await page.waitFor(async () => (await volume()) === "65", "→ 加一步是 65");
+
+  const expanded = () =>
+    page.evaluate(() =>
+      [...document.querySelectorAll("#storybook-root h3 button")].map(
+        (button) => button.getAttribute("aria-expanded"),
+      ),
+    );
+  assert.deepEqual(await expanded(), ["false", "false", "false"]);
+  await page.click("text=本地缓存128 MB");
+  await page.waitFor(
+    async () => (await expanded()).join() === "false,true,false",
+    "点本地缓存应该展开它",
+  );
+  assert.ok(
+    await page.evaluate(() =>
+      [
+        ...document.querySelectorAll("#storybook-root [role=region] button"),
+      ].some((button) => button.textContent === "清除缓存"),
+    ),
+    "展开之后里面的按钮在页面里",
+  );
+});
+
+test("内容页：轮播翻页换说明，头像切换换人，排期在自己里面滚", async () => {
+  const { page } = storybook;
+  await page.story("示例-内容页--page");
+
+  const caption = async () =>
+    (
+      await page.text(
+        "#storybook-root [aria-roledescription=轮播] [aria-live] p",
+      )
+    )[0];
+  assert.equal(await caption(), "线路测绘");
+  await page.click("text=下一张");
+  await page.waitFor(
+    async () => (await caption()) === "物资调度",
+    "点下一张，说明应该换成第二张的",
+  );
+
+  const name = async () =>
+    (await page.text("#storybook-root [role=radiogroup] + [aria-live] p"))[0] ??
+    "";
+  assert.match(await name(), /陈知远/);
+  await page.evaluate(() =>
+    document
+      .querySelector<HTMLElement>(
+        "#storybook-root [role=radiogroup] input:checked",
+      )!
+      .focus(),
+  );
+  await page.key("ArrowDown");
+  await page.waitFor(
+    async () => /林澈/.test(await name()),
+    "↓ 换到下一个人，右边的介绍跟着换",
+  );
+
+  const schedule = await page.evaluate(() => {
+    const root = document.querySelector<HTMLElement>(
+      "#storybook-root [style*='--schedule-days']",
+    )!;
+    return {
+      items: root.querySelectorAll("li").length,
+      scrolls: root.scrollWidth > root.clientWidth + 1,
+      pageScrolls:
+        document.documentElement.scrollWidth >
+        document.documentElement.clientWidth,
+    };
+  });
+  // 内容区最宽 768px，三十一天放不下：排期在自己里面横向滚动
+  assert.deepEqual(schedule, { items: 5, scrolls: true, pageScrolls: false });
 });

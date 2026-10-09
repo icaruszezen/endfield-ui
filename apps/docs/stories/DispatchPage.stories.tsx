@@ -3,6 +3,10 @@ import {
   Button,
   Checkbox,
   Combobox,
+  ContextMenu,
+  DatePicker,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
   EmptyState,
   Field,
   FlyoutBar,
@@ -17,6 +21,8 @@ import {
   SideRail,
   SideRailGroup,
   SideRailItem,
+  SideRailSub,
+  SideRailSubItem,
   Sparkline,
   Stat,
   Table,
@@ -50,8 +56,8 @@ import { shipments, type Shipment } from "./_shared/shipments";
 import { stationGroups, stationLabel } from "./_shared/stations";
 
 /**
- * 用侧轨、顶栏、全屏菜单、表格、组合框搭一个带外壳的工具页。
- * 宽屏是侧轨；窄于 1024px 时换成顶栏 + 全屏菜单——是换一套，不是把侧轨缩小。
+ * 用侧轨、顶栏、全屏菜单、表格、组合框、日期选择、右键菜单搭一个带外壳的工具页。
+ * 宽屏是侧轨（"档案"带二级）；窄于 1024px 时换成顶栏 + 全屏菜单——是换一套，不是把侧轨缩小。
  * 文案与数据全部虚构，标志和图标是原创的几何图形。
  */
 const meta = {
@@ -68,13 +74,32 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/* parent 是它在侧轨里挂在哪个二级下面；全屏菜单是平的，写成"档案 · 人员" */
 const sections = [
   { key: "overview", label: "总览", icon: GridIcon, group: null },
   { key: "dispatch", label: "调度", icon: RouteIcon, group: "作业" },
   { key: "depot", label: "仓库", icon: CrateIcon, group: "作业" },
-  { key: "archive", label: "档案", icon: ArchiveIcon, group: "资料" },
+  {
+    key: "people",
+    label: "人员",
+    icon: ArchiveIcon,
+    group: "资料",
+    parent: "档案",
+  },
+  {
+    key: "stations",
+    label: "站点",
+    icon: ArchiveIcon,
+    group: "资料",
+    parent: "档案",
+  },
   { key: "settings", label: "设置", icon: SlidersIcon, group: "资料" },
 ] as const;
+
+const fullLabel = (item: (typeof sections)[number]) =>
+  "parent" in item ? `${item.parent} · ${item.label}` : item.label;
+
+const TODAY = "2026-10-09";
 
 type SectionKey = (typeof sections)[number]["key"];
 type SortKey = "id" | "count" | "weight";
@@ -96,6 +121,7 @@ function Board() {
   const toast = useToast();
   const [rows, setRows] = useState(shipments);
   const [station, setStation] = useState<string | null>(null);
+  const [date, setDate] = useState<string | null>(null);
   const [sort, setSort] = useState<{
     key: SortKey;
     direction: TableSortDirection;
@@ -107,6 +133,7 @@ function Board() {
     const sign = sort.direction === "ascending" ? 1 : -1;
     return rows
       .filter((row) => station === null || row.station === station)
+      .filter((row) => date === null || row.date === date)
       .sort((a, b) => {
         const left = a[sort.key];
         const right = b[sort.key];
@@ -117,7 +144,7 @@ function Board() {
             : String(left).localeCompare(String(right)))
         );
       });
-  }, [rows, station, sort]);
+  }, [rows, station, date, sort]);
 
   const pageCount = Math.max(1, Math.ceil(matched.length / PAGE_SIZE));
   const current = Math.min(page, pageCount);
@@ -152,6 +179,37 @@ function Board() {
     setPicked(new Set());
     toast({ message: `已把 ${count} 个批次标记为到站`, tone: "success" });
   };
+
+  const copyLink = (id: string) => toast(`已复制 ${id} 的链接`);
+  const print = (id: string) => toast(`${id} 的单据已送去打印`);
+  const markOne = (id: string) => {
+    setRows((before) =>
+      before.map((row) => (row.id === id ? { ...row, status: "已到站" } : row)),
+    );
+    toast({ message: `${id} 已标记为到站`, tone: "success" });
+  };
+
+  // 右键菜单只是捷径：前两项行尾有按钮，"标记到站"勾选之后工具条里有
+  const rowMenu = (row: Shipment) => (
+    <>
+      <DropdownMenuItem
+        iconStart={<LinkIcon />}
+        onClick={() => copyLink(row.id)}
+      >
+        复制链接
+      </DropdownMenuItem>
+      <DropdownMenuItem iconStart={<PrintIcon />} onClick={() => print(row.id)}>
+        打印单据
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem
+        disabled={row.status === "已到站"}
+        onClick={() => markOne(row.id)}
+      >
+        标记到站
+      </DropdownMenuItem>
+    </>
+  );
 
   const delayed = rows.filter((row) => row.status === "已延误").length;
   const moving = rows.filter((row) => row.status === "运输中").length;
@@ -191,6 +249,20 @@ function Board() {
             }}
           />
         </Field>
+        <Field label="发车日期" className="w-44">
+          <DatePicker
+            variant="outline"
+            placeholder="哪天都行"
+            today={TODAY}
+            min="2026-10-01"
+            max="2026-10-31"
+            value={date}
+            onValueChange={(next) => {
+              setDate(next);
+              setPage(1);
+            }}
+          />
+        </Field>
         <Button
           variant="light"
           disabled={picked.size === 0}
@@ -218,6 +290,7 @@ function Board() {
           <p role="status" className="text-sm text-ink-secondary">
             {`共 ${matched.length} 个批次`}
             {station !== null && `，${stationLabel(station)}`}
+            {date !== null && `，${date.slice(5).replace("-", ".")} 发车`}
             {picked.size > 0 && `，已选 ${picked.size}`}
           </p>
         </div>
@@ -237,19 +310,26 @@ function Board() {
               <TableHeaderCell numeric {...column("weight")}>
                 载重（吨）
               </TableHeaderCell>
+              <TableHeaderCell>发车</TableHeaderCell>
               <TableHeaderCell align="end">操作</TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {visible.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="py-6 whitespace-normal">
+                <TableCell colSpan={9} className="py-6 whitespace-normal">
                   <EmptyState
                     bordered={false}
-                    title="这个站没有在途的批次"
-                    description="换一个站点，或者清掉筛选条件。"
+                    title="没有符合条件的批次"
+                    description="换一个站点或日期，或者清掉筛选条件。"
                     action={
-                      <Button variant="light" onClick={() => setStation(null)}>
+                      <Button
+                        variant="light"
+                        onClick={() => {
+                          setStation(null);
+                          setDate(null);
+                        }}
+                      >
                         清除筛选
                       </Button>
                     }
@@ -258,52 +338,58 @@ function Board() {
               </TableRow>
             )}
             {visible.map((row) => (
-              <TableRow key={row.id} selected={picked.has(row.id)}>
-                <TableCell rowHeader>
-                  <span className="flex items-center gap-3">
-                    <Checkbox
-                      aria-label={`选中 ${row.id}`}
-                      checked={picked.has(row.id)}
-                      onCheckedChange={(checked) => toggle([row.id], checked)}
+              // 每一行上点右键：和行尾那两个按钮是同一组操作
+              <ContextMenu key={row.id} menu={rowMenu(row)}>
+                <TableRow selected={picked.has(row.id)}>
+                  <TableCell rowHeader>
+                    <span className="flex items-center gap-3">
+                      <Checkbox
+                        aria-label={`选中 ${row.id}`}
+                        checked={picked.has(row.id)}
+                        onCheckedChange={(checked) => toggle([row.id], checked)}
+                      />
+                      {/* 整行不可点：要进详情，把名称写成链接 */}
+                      <a
+                        href="#shipment"
+                        className="font-tech underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                      >
+                        {row.id}
+                      </a>
+                    </span>
+                  </TableCell>
+                  <TableCell>{row.cargo}</TableCell>
+                  <TableCell>{stationLabel(row.station)}</TableCell>
+                  <TableCell>{statusTag(row.status)}</TableCell>
+                  <TableCell>
+                    <Sparkline
+                      data={row.trend}
+                      tone={row.status === "已延误" ? "danger" : "info"}
+                      className="h-6"
                     />
-                    {/* 整行不可点：要进详情，把名称写成链接 */}
-                    <a
-                      href="#shipment"
-                      className="font-tech underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                  </TableCell>
+                  <TableCell numeric>{row.count}</TableCell>
+                  <TableCell numeric>{row.weight.toFixed(1)}</TableCell>
+                  <TableCell className="font-tech tabular-nums">
+                    {row.date.slice(5).replace("-", ".")}
+                  </TableCell>
+                  <TableCell reveal align="end">
+                    <IconButton
+                      size="sm"
+                      aria-label={`复制 ${row.id} 的链接`}
+                      onClick={() => copyLink(row.id)}
                     >
-                      {row.id}
-                    </a>
-                  </span>
-                </TableCell>
-                <TableCell>{row.cargo}</TableCell>
-                <TableCell>{stationLabel(row.station)}</TableCell>
-                <TableCell>{statusTag(row.status)}</TableCell>
-                <TableCell>
-                  <Sparkline
-                    data={row.trend}
-                    tone={row.status === "已延误" ? "danger" : "info"}
-                    className="h-6"
-                  />
-                </TableCell>
-                <TableCell numeric>{row.count}</TableCell>
-                <TableCell numeric>{row.weight.toFixed(1)}</TableCell>
-                <TableCell reveal align="end">
-                  <IconButton
-                    size="sm"
-                    aria-label={`复制 ${row.id} 的链接`}
-                    onClick={() => toast(`已复制 ${row.id} 的链接`)}
-                  >
-                    <LinkIcon />
-                  </IconButton>
-                  <IconButton
-                    size="sm"
-                    aria-label={`打印 ${row.id} 的单据`}
-                    onClick={() => toast(`${row.id} 的单据已送去打印`)}
-                  >
-                    <PrintIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
+                      <LinkIcon />
+                    </IconButton>
+                    <IconButton
+                      size="sm"
+                      aria-label={`打印 ${row.id} 的单据`}
+                      onClick={() => print(row.id)}
+                    >
+                      <PrintIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              </ContextMenu>
             ))}
           </TableBody>
         </Table>
@@ -321,7 +407,7 @@ function Board() {
 function Shell() {
   const [section, setSection] = useState<SectionKey>("dispatch");
   const [collapsed, setCollapsed] = useState(false);
-  const label = sections.find((item) => item.key === section)!.label;
+  const label = fullLabel(sections.find((item) => item.key === section)!);
 
   const railItem = ({
     key,
@@ -337,6 +423,30 @@ function Shell() {
       {text}
     </SideRailItem>
   );
+
+  // 一组里的栏目：挂在二级下面的收成一个 SideRailSub，其余照常
+  const railGroup = (group: string) => {
+    const items = sections.filter((item) => item.group === group);
+    const nested = items.filter((item) => "parent" in item);
+    return (
+      <SideRailGroup key={group} label={group}>
+        {nested.length > 0 && (
+          <SideRailSub icon={<ArchiveIcon />} label={nested[0]!.parent}>
+            {nested.map((item) => (
+              <SideRailSubItem
+                key={item.key}
+                current={item.key === section}
+                onClick={() => setSection(item.key)}
+              >
+                {item.label}
+              </SideRailSubItem>
+            ))}
+          </SideRailSub>
+        )}
+        {items.filter((item) => !("parent" in item)).map(railItem)}
+      </SideRailGroup>
+    );
+  };
 
   const brand = (compact: boolean | "auto") => (
     <a
@@ -385,11 +495,7 @@ function Shell() {
         footer={<span className="font-tech">v0.1</span>}
       >
         {sections.filter((item) => item.group === null).map(railItem)}
-        {["作业", "资料"].map((group) => (
-          <SideRailGroup key={group} label={group}>
-            {sections.filter((item) => item.group === group).map(railItem)}
-          </SideRailGroup>
-        ))}
+        {["作业", "资料"].map(railGroup)}
       </SideRail>
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -451,14 +557,14 @@ function TopBarForNarrow({
           }
           footer={<NavAction href="#console">前往控制台</NavAction>}
         >
-          {sections.map(({ key, label, icon: Icon }) => (
+          {sections.map((item) => (
             <NavMenuItem
-              key={key}
-              icon={<Icon />}
-              current={key === section}
-              onClick={() => onSection(key)}
+              key={item.key}
+              icon={<item.icon />}
+              current={item.key === section}
+              onClick={() => onSection(item.key)}
             >
-              {label}
+              {fullLabel(item)}
             </NavMenuItem>
           ))}
         </NavMenu>

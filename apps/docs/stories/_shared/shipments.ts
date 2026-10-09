@@ -10,6 +10,8 @@ export type Shipment = {
   count: number;
   weight: number;
   status: ShipmentStatus;
+  /** 发车日期，`YYYY-MM-DD` */
+  date: string;
   /** 最近八次的载重，画走势用 */
   trend: readonly number[];
 };
@@ -36,6 +38,8 @@ export const shipments: Shipment[] = Array.from({ length: 16 }, (_, index) => {
     count,
     weight: Math.round(count * (1.4 + (index % 4) * 0.35) * 10) / 10,
     status: statuses[(index + (index % 5 === 0 ? 3 : 0)) % statuses.length]!,
+    // 十月 6 日到 13 日之间
+    date: `2026-10-${String(6 + ((index * 3) % 8)).padStart(2, "0")}`,
     trend: Array.from(
       { length: 8 },
       (_, step) => 40 + ((index * 13 + step * (7 + (index % 3) * 5)) % 55),

@@ -5,10 +5,13 @@ import {
   createContext,
   isValidElement,
   useContext,
+  useEffect,
+  useRef,
   type ComponentProps,
   type MouseEvent,
   type ReactNode,
 } from "react";
+import { useControllableState } from "../../hooks/useControllableState";
 import { usePortalScope } from "../../hooks/usePortalScope";
 import { TriangleRight } from "../../icons/TriangleRight";
 import { cn } from "../../lib/cn";
@@ -34,7 +37,10 @@ type SubOwnProps = {
   label: string;
   /** 展开着吗。只在侧轨展开时有意义；收起的侧轨上是弹出的菜单 */
   open?: boolean;
-  /** 一开始展开着吗。默认：当前项在里面就展开 */
+  /**
+   * 一开始展开着吗。默认：当前项在里面就展开。
+   * 之后当前项换到了里面（从别处导航过来），也会自己展开
+   */
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   /** 直接放 `SideRailSubItem` */
@@ -51,7 +57,7 @@ export type SideRailSubProps = SubOwnProps &
 export function SideRailSub({
   icon,
   label,
-  open,
+  open: openProp,
   defaultOpen,
   onOpenChange,
   children,
@@ -66,6 +72,19 @@ export function SideRailSub({
       isValidElement<{ current?: unknown }>(child) &&
       child.props.current === true,
   );
+
+  const [open, setOpen] = useControllableState({
+    value: openProp,
+    defaultValue: defaultOpen ?? containsCurrent,
+    onChange: onOpenChange,
+  });
+
+  // 当前项换到了里面（从别处导航过来的）：自己展开，否则它藏着，看不出人在哪
+  const contained = useRef(containsCurrent);
+  useEffect(() => {
+    if (containsCurrent && !contained.current) setOpen(true);
+    contained.current = containsCurrent;
+  }, [containsCurrent, setOpen]);
 
   if (collapsed) {
     return (
@@ -114,11 +133,7 @@ export function SideRailSub({
 
   return (
     <li {...props}>
-      <BaseCollapsible.Root
-        open={open}
-        defaultOpen={defaultOpen ?? containsCurrent}
-        onOpenChange={onOpenChange && ((next) => onOpenChange(next))}
-      >
+      <BaseCollapsible.Root open={open} onOpenChange={(next) => setOpen(next)}>
         <BaseCollapsible.Trigger
           className={(state) =>
             cn(

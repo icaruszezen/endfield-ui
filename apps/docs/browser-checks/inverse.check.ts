@@ -63,6 +63,8 @@ test("标题带里的按钮：焦点环按带子取色，不和底融在一起",
     await page.key("Tab");
     await page.key("Tab", { shift: true });
     await page.waitFocused("button:导出");
+    // 轮廓的颜色是过渡过去的：等它到位再读
+    await page.frames();
     const ring = await page.waitFor(async () => {
       const found = await page.evaluate(() => {
         const style = getComputedStyle(document.activeElement!);
@@ -215,6 +217,8 @@ test("完成横幅：底不变，里面的行动按钮焦点环看得见", async
 
     await page.key("Tab");
     await page.waitFocused("button:领取奖励");
+    // 轮廓的颜色是过渡过去的：等它到位再读
+    await page.frames();
     const ring = await page.waitFor(async () => {
       const found = await page.evaluate(() => {
         const style = getComputedStyle(document.activeElement!);

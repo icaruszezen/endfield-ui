@@ -192,15 +192,15 @@ test("条目作链接：Tab 走得到，焦点环画在条目上；点条目的�
   await page.story("控件-schedule-排期--links-and-color");
   await page.key("Tab");
   await page.waitFocused("a:管廊北段");
-  const ring = await page.waitFor(async () => {
+  // 宽度是过渡过去的（从没有轮廓时的默认值 3px 到 2px）：线型一变就读，读到的是起点
+  await page.waitFor(async () => {
     const found = await page.evaluate(() => {
       const item = document.activeElement!.closest("li")!;
       const style = getComputedStyle(item);
       return { style: style.outlineStyle, width: style.outlineWidth };
     });
-    return found.style === "solid" ? found : null;
-  }, "焦点环应该画在整个条目上");
-  assert.equal(ring.width, "2px");
+    return found.style === "solid" && found.width === "2px";
+  }, "焦点环应该画在整个条目上：2px 的实线");
 
   // 点条目的右下角（离名称很远）：也是点了这个链接
   const corner = await page.evaluate(() => {
