@@ -43,6 +43,17 @@ export const WithTag: Story = {
   },
 };
 
+export const Video: Story = {
+  name: "影像（带播放记号）",
+  decorators: [narrow],
+  args: {
+    video: true,
+    tag: <Tag size="sm">PV</Tag>,
+    category: "影像",
+    title: "秋季勘探计划 · 预告",
+  },
+};
+
 export const Static: Story = {
   name: "静态（不可点）",
   decorators: [narrow],

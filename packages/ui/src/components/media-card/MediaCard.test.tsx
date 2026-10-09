@@ -70,6 +70,54 @@ describe("MediaCard", () => {
     );
   });
 
+  it("video：媒体区里多一个播放记号，它不是按钮，也不挡点击", () => {
+    const { container } = render(
+      <MediaCard
+        media={media}
+        title="秋季勘探计划 · 预告"
+        href="/pv/1"
+        video
+      />,
+    );
+    const mark = container
+      .querySelector("img")!
+      .parentElement!.querySelector("span[aria-hidden=true]");
+    expect(mark).toHaveClass("bg-action", "pointer-events-none", "absolute");
+    expect(screen.queryByRole("button")).toBeNull();
+    expect(screen.getAllByRole("link")).toHaveLength(1);
+  });
+
+  it("video：读屏在标题前听到「视频：」；videoLabel 可换", () => {
+    const { rerender } = render(
+      <MediaCard
+        media={media}
+        title="秋季勘探计划 · 预告"
+        href="/pv/1"
+        video
+      />,
+    );
+    expect(screen.getByRole("link")).toHaveAccessibleName(
+      "视频：秋季勘探计划 · 预告",
+    );
+    rerender(
+      <MediaCard
+        media={media}
+        title="航拍"
+        video
+        videoLabel="录像"
+        level={2}
+      />,
+    );
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
+      "录像：航拍",
+    );
+  });
+
+  it("不是 video 时没有播放记号", () => {
+    const { container } = render(<MediaCard media={media} title="标题" />);
+    expect(container.querySelector(".bg-action")).toBeNull();
+  });
+
   it("render：标题里的链接换成路由库的链接组件，整卡仍然可点", () => {
     render(
       <MediaCard

@@ -25,10 +25,12 @@
 | `pagination/` | `Pagination` | [导航](../../../../docs/design/components/navigation.md) |
 | `navigator/` | `Navigator` | [导航](../../../../docs/design/components/navigation.md) |
 | `dash-indicator/` | `DashIndicator` | [导航](../../../../docs/design/components/navigation.md) |
+| `back-to-top/` | `BackToTop`（回到顶部：滚过一段才出现的悬浮钮） | [导航](../../../../docs/design/components/navigation.md) |
 | `panel/` | `Panel`、`PanelHeader`、`PanelBody`、`PanelRows`、`PanelRow` | [卡片](../../../../docs/design/components/card.md) |
 | `accordion/` | `Accordion`、`AccordionItem`（折叠面板） | [卡片](../../../../docs/design/components/card.md) |
 | `list/` | `List`、`ListRow` | [卡片](../../../../docs/design/components/card.md) |
 | `media-card/` | `MediaCard` | [卡片](../../../../docs/design/components/card.md) |
+| `play-button/` | `PlayButton`、`PlayMark`（播放钮与不能点的播放记号） | [卡片](../../../../docs/design/components/card.md) |
 | `carousel/` | `Carousel`、`CarouselSlide`（媒体轮播） | [卡片](../../../../docs/design/components/card.md) |
 | `item-slot/` | `ItemSlot`、`ItemGrid`（方向键导航的矩阵） | [卡片](../../../../docs/design/components/card.md) |
 | `table/` | `Table`、`TableHead`、`TableBody`、`TableRow`、`TableHeaderCell`、`TableCell` | [数据展示](../../../../docs/design/components/data-display.md) |

@@ -1,10 +1,13 @@
 import {
-  useEffect,
-  useState,
+  useCallback,
   type ComponentProps,
   type ReactNode,
   type RefObject,
 } from "react";
+import {
+  useScrollPosition,
+  type ScrollMetrics,
+} from "../../hooks/useScrollPosition";
 import { ChevronDown } from "../../icons/ChevronDown";
 import { cn } from "../../lib/cn";
 
@@ -36,38 +39,13 @@ export function ScrollHint({
   className,
   ...props
 }: ScrollHintProps) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const element = target ? target.current : null;
-    // 指定了容器但它还没挂上：不显示
-    if (target && !element) return;
-
-    const measure = () => {
-      const box = element ?? document.documentElement;
-      const scrolled = element ? element.scrollTop : window.scrollY;
-      const room = box.scrollHeight - box.clientHeight;
-      setVisible(room > threshold && scrolled <= threshold);
-    };
-
-    measure();
-    const source = element ?? window;
-    source.addEventListener("scroll", measure, { passive: true });
-    window.addEventListener("resize", measure);
-
-    // 内容晚到（图片加载完）会让页面变得可以滚动
-    let observer: ResizeObserver | undefined;
-    if (typeof ResizeObserver !== "undefined") {
-      observer = new ResizeObserver(measure);
-      observer.observe(element ?? document.body);
-    }
-
-    return () => {
-      source.removeEventListener("scroll", measure);
-      window.removeEventListener("resize", measure);
-      observer?.disconnect();
-    };
-  }, [target, threshold]);
+  // 确实还能往下滚，并且还没开始滚。指定了容器但它还没挂上时不显示
+  const stillAtTop = useCallback(
+    ({ scrolled, room }: ScrollMetrics) =>
+      room > threshold && scrolled <= threshold,
+    [threshold],
+  );
+  const visible = useScrollPosition(target, stillAtTop, false);
 
   return (
     <div

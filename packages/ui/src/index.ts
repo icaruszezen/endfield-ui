@@ -1,6 +1,7 @@
 export * from "./components/accordion";
 export * from "./components/alert";
 export * from "./components/avatar";
+export * from "./components/back-to-top";
 export * from "./components/badge";
 export * from "./components/bracket-title";
 export * from "./components/breadcrumb";
@@ -39,6 +40,7 @@ export * from "./components/nav-menu";
 export * from "./components/navigator";
 export * from "./components/pagination";
 export * from "./components/panel";
+export * from "./components/play-button";
 export * from "./components/popover";
 export * from "./components/progress";
 export * from "./components/radio";

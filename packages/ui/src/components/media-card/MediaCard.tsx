@@ -2,6 +2,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "../../lib/cn";
 import { focusRingWithin } from "../../lib/focus-ring";
 import { LinkElement, type LinkRender } from "../link-element/LinkElement";
+import { PlayMark } from "../play-button/PlayButton";
 
 export type MediaCardRatio = "16/9" | "4/3" | "1/1" | "3/4";
 
@@ -17,6 +18,10 @@ export type MediaCardProps = Omit<ComponentProps<"article">, "title"> & {
   date?: ReactNode;
   /** 类型标签（如 `PV`），放在图片下方的微标行里，不叠在图上 */
   tag?: ReactNode;
+  /** 这张卡是一段影像：媒体区左下角多一个播放记号。记号不能点，整卡仍然只有一个链接 */
+  video?: boolean;
+  /** `video` 时加在标题前、读屏才听得到的那个词，默认"视频" */
+  videoLabel?: string;
   /** 传了就整卡可点：标题是链接，点击范围铺满整张卡 */
   href?: string;
   target?: string;
@@ -45,6 +50,8 @@ export function MediaCard({
   category,
   date,
   tag,
+  video = false,
+  videoLabel = "视频",
   href,
   target,
   rel,
@@ -58,6 +65,15 @@ export function MediaCard({
   const hasCategory = category !== undefined && category !== null;
   const hasDate = date !== undefined && date !== null;
   const hasMeta = hasCategory || hasDate;
+  // 播放记号是画给眼睛看的；读屏在标题前听到同一件事
+  const heading = video ? (
+    <>
+      <span className="sr-only">{`${videoLabel}：`}</span>
+      {title}
+    </>
+  ) : (
+    title
+  );
 
   return (
     <article
@@ -76,6 +92,10 @@ export function MediaCard({
         )}
       >
         {media}
+        {video && (
+          // 内缩 8px：不贴着圆角，也不挡底边那条悬停线
+          <PlayMark className="pointer-events-none absolute bottom-2 left-2" />
+        )}
         {isLink && (
           // 悬停：一条底边强调线从左充出。不放大、不上浮
           <span
@@ -108,10 +128,10 @@ export function MediaCard({
             // 焦点环画在整张卡上；点击范围用伪元素铺满整张卡
             className="outline-none after:absolute after:inset-0 after:content-['']"
           >
-            {title}
+            {heading}
           </LinkElement>
         ) : (
-          title
+          heading
         )}
       </Heading>
     </article>

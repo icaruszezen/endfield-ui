@@ -10,8 +10,8 @@
 | 表单 | Field、Input、Textarea、Select、Combobox、DatePicker / Calendar、Checkbox、Radio / RadioGroup、Switch、Stepper、Slider、FilterChip |
 | 反馈 | Alert、Toast、Progress / ProgressRing、Spinner、Skeleton、EmptyState、Loader、CompletionBanner、RecIndicator |
 | 浮层 | Tooltip、Popover、Dialog、Drawer、DropdownMenu、ContextMenu、FlyoutBar |
-| 展示 | Table、Stat、Sparkline、DataRowList / DataRow、List / ListRow、Accordion、MediaCard、Carousel、ItemSlot / ItemGrid、Avatar、Timeline、Schedule、Term、ResourceChip、Countdown、Marquee、ScrollHint |
-| 导航 | SideRail（含二级）、TopBar、NavMenu、NavAction、Breadcrumb、Pagination、Navigator、AvatarSwitcher、DashIndicator |
+| 展示 | Table、Stat、Sparkline、DataRowList / DataRow、List / ListRow、Accordion、MediaCard、PlayButton / PlayMark、Carousel、ItemSlot / ItemGrid、Avatar、Timeline、Schedule、Term、ResourceChip、Countdown、Marquee、ScrollHint |
+| 导航 | SideRail（含二级）、TopBar、NavMenu、NavAction、Breadcrumb、Pagination、Navigator、AvatarSwitcher、DashIndicator、BackToTop |
 | 母题 | CornerBrackets、Viewfinder、GhostText、Hatch、Texture、RegistrationStrip、TickRing、HazardStripe |
 
 包还没有发布到 npm，目前只在本仓库的工作区里使用。
@@ -423,8 +423,11 @@ import {
   Avatar,
   AvatarSwitcher,
   AvatarSwitcherItem,
+  BackToTop,
   Carousel,
   CarouselSlide,
+  MediaCard,
+  PlayButton,
   Schedule,
   ScheduleItem,
   ScheduleTrack,
@@ -443,6 +446,10 @@ import {
   <AvatarSwitcherItem value="lin" label="林澈" />
 </AvatarSwitcher>
 
+<MediaCard video media={<img src={cover} alt="" />} title="秋季勘探计划 · 预告" href="/pv/1" />
+
+<PlayButton aria-label="播放：秋季勘探计划 · 预告" onClick={play} />
+
 <Carousel aria-label="玩法介绍">
   <CarouselSlide title="线路测绘" description="沿着管廊布设信标。">
     <img src={shot} alt="" />
@@ -454,13 +461,17 @@ import {
     <ScheduleItem start="2026-10-03" end="2026-10-12" title="管廊北段" type="限时" />
   </ScheduleTrack>
 </Schedule>
+
+<BackToTop />
 ```
 
 - `Accordion` 默认只开一节，`multiple` 可以同时开几节；`value` 总是数组。收起的内容不在页面里。
 - `Avatar` 没有图、图加载失败时显示名字的首字；旁边已经写了名字时传 `alt=""`。
 - `AvatarSwitcher` 是一列头像里选一个，语义是单选组（方向键换人）；放不下时给它一个高度上限。
+- `MediaCard` 的 `video` 在封面左下角加一个播放记号（黄色小方块，`PlayMark`）。记号不能点，整卡仍然只有一个链接；封面要"点了就在原地播放"时用 `PlayButton`，它是真的按钮。
 - `Carousel` 不自动播放。轨道是原生的横向滚动，触屏上直接滑；不在眼前的幻灯片 `Tab` 走不进去。
 - `Schedule` 的条目只写起止日期，位置和错行都是算出来的；放不下时在自己的容器里横向滚动。
+- `BackToTop` 滚过 400px 才出现，默认钉在视口右下角；点了回到顶部，焦点也交还给页面的头上。要看某个滚动容器时传 `target`，并用 `className` 改位置。祖先上有 `transform` 或容器查询（`@container`）时 `fixed` 不再相对视口：把它放在那一栏的最后，加 `className="sticky bottom-4 self-end"`。
 - 本库不带任何图片：头像、轮播和排期里的图都由使用方给。
 
 ### 游戏风格的控件
