@@ -129,8 +129,11 @@ export function OtpInput({
   const groupLabel = ownLabel ?? fieldContext?.labelId;
 
   const slotClass = cn(
-    "min-w-0 shrink text-center font-tech font-medium tabular-nums text-ink caret-ink",
+    // 字色：空格是透明的，填上（基元给的 data-filled）才有颜色。下面那条颜色的过渡
+    // 本来是给边线的，字色跟着它走——所以填进去的那一位是淡入的。光标另有自己的颜色
+    "min-w-0 shrink text-center font-tech font-medium tabular-nums text-transparent caret-ink",
     "transition-colors duration-(--duration-fast) ease-standard",
+    disabled ? "data-filled:text-ink-disabled" : "data-filled:text-ink",
     focusRing,
     slotSize[size],
     slotFrame[variant],
@@ -139,7 +142,7 @@ export function OtpInput({
         "border-transparent bg-transparent"
       : slotFill[variant],
     disabled
-      ? "cursor-not-allowed border-line text-ink-disabled"
+      ? "cursor-not-allowed border-line"
       : invalid
         ? "border-danger"
         : !readOnly &&

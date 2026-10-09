@@ -443,3 +443,44 @@ test("角括号：选中时八段短线从角上伸出来，不往外多占地�
     assert.equal(viewfinder, "none");
   });
 });
+
+test("验证码输入：填上的那一位从透明淡入到墨色", async () => {
+  const { page } = storybook;
+  const FIRST = "#storybook-root [role=group] input:not([aria-hidden])";
+  const look = () =>
+    page.evaluate((css) => {
+      const probe = document.createElement("i");
+      probe.style.color = "var(--ef-ink)";
+      document.querySelector("#storybook-root")!.append(probe);
+      const ink = getComputedStyle(probe).color;
+      probe.remove();
+      const slot = document.querySelector(css)!;
+      return {
+        filled: slot.hasAttribute("data-filled"),
+        color: getComputedStyle(slot).color,
+        ink,
+      };
+    }, FIRST);
+
+  await withMotion(page, async () => {
+    await page.story("控件-otpinput-验证码输入--playground");
+    assert.equal((await transitions(page, FIRST))!.color, 0.2);
+    const empty = await look();
+    assert.equal(empty.filled, false);
+    assert.equal(empty.color, "rgba(0, 0, 0, 0)", "空格的字色应该是透明的");
+
+    await page.click(FIRST);
+    await page.waitFocused(/^input:/);
+    await page.settled(FIRST);
+    await record(page, FIRST);
+    await page.type("2");
+    await page.settled(FIRST);
+    const filled = await look();
+    assert.equal(filled.filled, true);
+    assert.equal(filled.color, filled.ink, "填上之后字色应该是墨色");
+    assert.ok(
+      (await recorded(page)).includes("color"),
+      "字应该是淡入的，不是直接出现",
+    );
+  });
+});

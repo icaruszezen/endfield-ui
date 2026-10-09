@@ -13,6 +13,18 @@ function Code(props: Partial<OtpInputProps>) {
 }
 
 describe("OtpInput", () => {
+  it("填上的那一格带 data-filled：字色靠它从透明变成墨色", async () => {
+    const user = userEvent.setup();
+    render(<OtpInput aria-label="验证码" />);
+    expect(slots()[0]).not.toHaveAttribute("data-filled");
+    expect(slots()[0]).toHaveClass("text-transparent", "data-filled:text-ink");
+
+    await user.click(slots()[0]!);
+    await user.keyboard("2");
+    expect(slots()[0]).toHaveAttribute("data-filled");
+    expect(slots()[1]).not.toHaveAttribute("data-filled");
+  });
+
   it("默认六格；length 改格数", () => {
     const { rerender } = render(<Code />);
     expect(slots()).toHaveLength(6);
