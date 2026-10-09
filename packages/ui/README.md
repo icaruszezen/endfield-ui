@@ -7,7 +7,7 @@
 | 类别 | 控件 |
 | --- | --- |
 | 基础 | Button / ButtonGroup、IconButton、Tag / TagPair、Badge、Kbd、SectionTitle、BracketTitle、Tabs、Panel |
-| 表单 | Field、Input、Textarea、Select、Combobox、DatePicker / Calendar、Checkbox、Radio / RadioGroup、SegmentedControl、Switch、Stepper、Slider、FilterChip |
+| 表单 | Field、Input、Textarea、Select、Combobox、DatePicker / DateRangePicker / Calendar、Checkbox、Radio / RadioGroup、SegmentedControl、Switch、Stepper、Slider、FilterChip |
 | 反馈 | Alert、Toast、Progress / ProgressRing、Spinner、Skeleton、EmptyState、Loader、CompletionBanner、RecIndicator |
 | 浮层 | Tooltip、Popover、Dialog、Drawer、DropdownMenu、ContextMenu、FlyoutBar |
 | 展示 | Table、Stat、Sparkline、DataRowList / DataRow、List / ListRow、Accordion、MediaCard、PlayButton / PlayMark、Carousel、ItemSlot / ItemGrid、Avatar、Timeline、Schedule、Term、ResourceChip、Countdown、Marquee、ScrollHint |
@@ -129,7 +129,7 @@ import { Field, Segment, SegmentedControl } from "@endfield-ui/react";
 滑块和日期选择同样放进 `Field`，带 `name` 时值随表单提交：
 
 ```tsx
-import { DatePicker, Field, Slider } from "@endfield-ui/react";
+import { DatePicker, DateRangePicker, Field, Slider } from "@endfield-ui/react";
 
 <Field label="告警音量">
   <Slider name="volume" value={volume} onValueChange={setVolume} step={5} showValue />
@@ -143,10 +143,17 @@ import { DatePicker, Field, Slider } from "@endfield-ui/react";
 <Field label="发车日期">
   <DatePicker name="depart" value={date} onValueChange={setDate} min="2026-10-01" />
 </Field>
+
+<Field label="检修窗口">
+  {/* 值是 [起, 止]，两头都包含 */}
+  <DateRangePicker startName="from" endName="to" value={range} onValueChange={setRange} />
+</Field>
 ```
 
 - 日期一律是 `YYYY-MM-DD` 的字符串（和原生的 `<input type="date">` 一样），没选是 `null`。
 - `DatePicker` 的触发器是按钮，不能打字；只要月历不要外框，用 `Calendar`。
+- `DateRangePicker` 点两下选一段：第一下定起始日，第二下定结束日，选完面板才关。后点的那天更早会自动排成先后；起止是同一天也行。两端必须是可选的日子，不可选的日子可以被夹在中间。
+- 只要能选一段的月历，用 `<Calendar range>`：值从一个日期变成一对。它只显示一个月，跨月的长区间翻一次月再点第二下。
 - `Slider` 的 `onValueChange` 拖的每一步都触发，要发请求的事放在 `onValueCommitted` 里。
 
 ### 带状态的控件

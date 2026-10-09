@@ -9,6 +9,7 @@ import {
   daysBetween,
   daysInMonth,
   eachDay,
+  orderDates,
   isDate,
   isMonth,
   monthGrid,
@@ -165,6 +166,25 @@ describe("date", () => {
     const february = monthGrid("2026-02", 0);
     expect(february[0]![0]).toBe("2026-02-01");
     expect(february[4]![0]).toBe("2026-03-01");
+  });
+
+  it("orderDates：把两天排成先后，跨月跨年也对", () => {
+    expect(orderDates("2026-10-12", "2026-10-03")).toEqual([
+      "2026-10-03",
+      "2026-10-12",
+    ]);
+    expect(orderDates("2026-10-03", "2026-10-12")).toEqual([
+      "2026-10-03",
+      "2026-10-12",
+    ]);
+    expect(orderDates("2027-01-02", "2026-12-30")).toEqual([
+      "2026-12-30",
+      "2027-01-02",
+    ]);
+    expect(orderDates("2026-10-09", "2026-10-09")).toEqual([
+      "2026-10-09",
+      "2026-10-09",
+    ]);
   });
 
   it("eachDay：两头都包含", () => {

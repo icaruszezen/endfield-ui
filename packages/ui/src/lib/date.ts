@@ -75,6 +75,11 @@ export function clampDate(date: string, min?: string, max?: string): string {
   return date;
 }
 
+/** 把两天排成先后：`[早的, 晚的]`。同一天就是两个一样的 */
+export function orderDates(a: string, b: string): [string, string] {
+  return a <= b ? [a, b] : [b, a];
+}
+
 /** 这个日期所在的月份，`YYYY-MM` */
 export function monthOf(date: string): string {
   return date.slice(0, 7);

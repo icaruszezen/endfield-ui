@@ -66,7 +66,10 @@ export const InField: Story = {
   },
 };
 
-/* 起止日期：并排两个，后一个的 min 是前一个的值 */
+/*
+ * 起止各是一个字段：并排两个，后一个的 min 是前一个的值。
+ * 要在一个字段里选一段，用 DateRangePicker
+ */
 export const StartAndEnd: Story = {
   name: "起止日期",
   parameters: { controls: { disable: true } },

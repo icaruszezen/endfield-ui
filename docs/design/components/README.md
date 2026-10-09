@@ -215,6 +215,7 @@ Select 的面板和 Toast 的容器都是浮层，需要定位与焦点管理，
 | BackToTop（回到顶部） | [导航](navigation.md#回到顶部) | 推断；悬停变信号黄取自分页条方钮的实测 |
 | SegmentedControl（分段选择） | [表单](form.md#分段选择) | 推断：输入框的凹陷底 + 选中的填充反转 |
 | Steps（步骤条） | [导航](navigation.md#步骤条) | 观察：宣传物料里"黑色章头 + 黄色重点"的步骤；三态沿用时间线的节点 |
+| Calendar 的 `range`、DateRangePicker（日期范围） | [表单](form.md#选一段) | 推断：两端是选中格的填充反转，中间是墨色的浅带 |
 
 ## 不做什么
 

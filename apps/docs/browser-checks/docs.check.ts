@@ -24,6 +24,7 @@ const pages = [
   "控件-carousel-媒体轮播--docs",
   "控件-calendar-月历--docs",
   "控件-datepicker-日期选择--docs",
+  "控件-daterangepicker-日期范围--docs",
   "控件-schedule-排期--docs",
   "控件-playbutton-播放钮--docs",
   "控件-mediacard-媒体卡--docs",

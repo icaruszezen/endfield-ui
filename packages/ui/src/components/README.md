@@ -46,8 +46,8 @@
 | `switch/` | `Switch`（含双标签开关） | [表单](../../../../docs/design/components/form.md) |
 | `stepper/` | `Stepper` | [表单](../../../../docs/design/components/form.md) |
 | `slider/` | `Slider`（传两个值是范围滑块） | [表单](../../../../docs/design/components/form.md) |
-| `calendar/` | `Calendar`（月历） | [表单](../../../../docs/design/components/form.md) |
-| `date-picker/` | `DatePicker`（日期选择：外框 + 一块带月历的面板） | [表单](../../../../docs/design/components/form.md) |
+| `calendar/` | `Calendar`（月历；加 `range` 是选一段） | [表单](../../../../docs/design/components/form.md) |
+| `date-picker/` | `DatePicker`、`DateRangePicker`（日期选择与日期范围：外框 + 一块带月历的面板；两个共用内部的 `DateField`） | [表单](../../../../docs/design/components/form.md) |
 | `alert/` | `Alert` | [反馈](../../../../docs/design/components/feedback.md) |
 | `progress/` | `Progress`、`ProgressRing` | [反馈](../../../../docs/design/components/feedback.md) |
 | `skeleton/` | `Skeleton` | [反馈](../../../../docs/design/components/feedback.md) |

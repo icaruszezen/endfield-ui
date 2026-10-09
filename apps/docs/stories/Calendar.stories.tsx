@@ -1,4 +1,4 @@
-import { Calendar, Panel } from "@endfield-ui/react";
+import { Calendar, Panel, type DateRange } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 
@@ -37,6 +37,42 @@ export const SelectedToday: Story = {
 export const Range: Story = {
   name: "只能选一段日子",
   args: { min: "2026-10-05", max: "2026-10-23", defaultValue: "2026-10-12" },
+};
+
+/* 加 range：点两下选一段。两端是实心的块，中间是连着的浅带 */
+export const PickRange: Story = {
+  name: "选一段",
+  parameters: { controls: { disable: true } },
+  render: function Render() {
+    const [value, setValue] = useState<DateRange | null>([
+      "2026-10-07",
+      "2026-10-15",
+    ]);
+    return (
+      <div className="flex flex-col items-start gap-3">
+        <Calendar range today={TODAY} value={value} onValueChange={setValue} />
+        <p role="status" className="font-tech text-sm text-ink-secondary">
+          {value === null ? "// 还没选" : `// ${value[0]} → ${value[1]}`}
+        </p>
+      </div>
+    );
+  },
+};
+
+/* 周末不可选：两端不能落在周末，但一段可以跨过去 */
+export const PickRangeWeekdays: Story = {
+  name: "选一段：跨过不可选的日子",
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <Calendar
+      range
+      today={TODAY}
+      defaultValue={["2026-10-09", "2026-10-13"]}
+      isDateDisabled={(date) =>
+        [0, 6].includes(new Date(`${date}T00:00:00Z`).getUTCDay())
+      }
+    />
+  ),
 };
 
 /* 周末不发车 */
