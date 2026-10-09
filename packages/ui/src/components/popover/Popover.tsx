@@ -2,7 +2,7 @@ import { Popover as BasePopover } from "@base-ui/react/popover";
 import type { ComponentProps, ReactElement, ReactNode } from "react";
 import { usePortalScope } from "../../hooks/usePortalScope";
 import { cn } from "../../lib/cn";
-import { menuPanel } from "../dropdown-menu/menu-style";
+import { popoverDescription, popoverPanel, popoverTitle } from "./panel-style";
 
 export type PopoverSide = "top" | "bottom" | "left" | "right";
 export type PopoverAlign = "start" | "center" | "end";
@@ -63,24 +63,16 @@ export function Popover({
           sideOffset={4}
           className="z-(--z-overlay) outline-none"
         >
-          <BasePopover.Popup
-            {...props}
-            className={cn(
-              menuPanel,
-              // 面板和下拉菜单是同一份画法，只把上下 4px 的内边距换成四周 16px
-              "flex w-max max-w-[min(20rem,var(--available-width))] flex-col gap-3 p-4 text-sm wrap-anywhere",
-              className,
-            )}
-          >
+          <BasePopover.Popup {...props} className={cn(popoverPanel, className)}>
             {(title || description) && (
               <div className="flex flex-col gap-1">
                 {title && (
-                  <BasePopover.Title className="text-base font-bold">
+                  <BasePopover.Title className={popoverTitle}>
                     {title}
                   </BasePopover.Title>
                 )}
                 {description && (
-                  <BasePopover.Description className="text-ink-secondary">
+                  <BasePopover.Description className={popoverDescription}>
                     {description}
                   </BasePopover.Description>
                 )}

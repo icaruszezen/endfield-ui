@@ -15,6 +15,7 @@
 | 字段 | `<Field label help error required>`；一组控件用 `<Field group>` | 已实现 |
 | 输入框 | `<Input variant size start end invalid>` | 已实现 |
 | 多行文本 | `<Textarea variant showCount maxLength>` | 已实现 |
+| 验证码输入 | `<OtpInput length value type groupSize mask name onComplete>` | 已实现 |
 | 复选框 | `<Checkbox indeterminate>` | 已实现（方案 A，可整体切到方案 B） |
 | 单选 | `<RadioGroup>` + `<Radio value>` | 已实现（方案 A，可整体切到方案 B） |
 | 开关 | `<Switch>`；两个值都要显示时加 `offLabel` `onLabel` | 已实现 |
@@ -95,6 +96,46 @@
 同样的底与底边线；最小高度 3 行；字数统计放在右下角，`font-tech text-xs`。
 
 实现：字数统计放在框内、文字区域的下方，不压在文字上；有上限时写成 `29 / 200`。
+
+## 验证码输入
+
+一格一位的短码：短信验证码、交接口令、六位的站点编号。（推断：就是把 [输入框](#输入框) 切成一格一位——同样的凹陷底、同样的 2px 底边线、同样的状态色）
+
+| 项 | 值 |
+| --- | --- |
+| 格子 | 见方，32 / 40 / 56px 三档；`surface-sunken` 底 + 2px 底边线，直角 |
+| 字 | 居中，`font-tech`、等宽数字、`font-medium`；三档是 `text-base` / `text-lg` / `text-2xl` |
+| 间距 | 格子之间 8px（`sm` 是 6px） |
+| 分组 | 可选：每几格之间多一道 8px 宽、2px 高的短横（`line-strong`）。六位的码分成三位一组好念、好对 |
+| 状态 | 和输入框一样只看底边线：默认 `line-strong` → 悬停 `ink-secondary` → 聚焦 `ink` → 错误 `danger`。聚焦的那一格另有焦点环 |
+| 禁用 / 只读 | 同输入框：禁用是 `line` 的底边线和 `ink-disabled` 的字；只读没有底边线、底变透明 |
+| `outline` | 同输入框的 `outline`：四边 1px、`surface` 底，放在凹陷底色的区域里用 |
+
+- **空格子就是空的**，不放占位的圆点或横线：格子自己已经说明了"这里要填一位"，再放一个记号会被看成已经填了。
+- 填没填满不换颜色。填了的那一格里有字，这就够了。
+- **容器窄了格子等比变窄**（高度不变），不换行、不溢出：六格的 `lg` 在 320px 宽的屏上也排得下。
+- 只收数字，或者字母加数字。要收别的（带符号的密码）用输入框。
+
+已实现为 `<OtpInput length value defaultValue onValueChange onComplete type uppercase mask groupSize size variant invalid disabled readOnly required name autoSubmit slotLabel>`：
+
+```tsx
+<Field label="交接口令" help="六位数字，在交接单的右上角。">
+  <OtpInput length={6} groupSize={3} name="code" onComplete={verify} />
+</Field>
+```
+
+- 行为建立在 Base UI 的 OTP Field 上。**每一格是一个真的输入框**：打一位自动跳到下一格；`Backspace` 删掉这一位并退一格；`←` `→` 在格子之间走，`Home` `End` 到两头；整组在 `Tab` 顺序里只停一次。
+- **粘贴一整串会分到各格**，里面的空白去掉；不合规的字符不收（`type="numeric"` 只收数字，是默认；`"alphanumeric"` 收字母和数字）。`uppercase` 把字母统一成大写——值也是大写，不只是看起来。
+- 第一格带 `autocomplete="one-time-code"`：手机收到短信验证码时，键盘上方那一条"来自信息"可以直接填进来。数字的那种会唤出数字键盘。
+- 填满时调 `onComplete(value)`；`autoSubmit` 是填满就提交所在的表单。`mask` 把字遮成圆点。
+- 值是拼起来的一个字符串。带 `name` 时有一个隐藏字段随表单提交。
+- **读屏**：第一格的名称是字段的标签（放进 `Field` 自动关联，或者自己传 `aria-label`）；后面每格是"第 2 位，共 6 位"（`slotLabel` 可换）。分组的短横是装饰，读屏不读。
+- `className` 给外面那一排，`ref` 也是。
+
+没有做的：
+
+- **重发倒计时**。那是页面的事：旁边放一个按钮，上面用现成的 [`Countdown`](data-display.md)。
+- 每一格各自的错误态：对不对是整串码的事，`invalid` 一亮六格一起亮。
 
 ## 下拉选择
 
