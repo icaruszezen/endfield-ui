@@ -71,6 +71,7 @@ export * from "./components/texture";
 export * from "./components/tick-ring";
 export * from "./components/timeline";
 export * from "./components/toast";
+export * from "./components/toc";
 export * from "./components/toolbar";
 export * from "./components/tooltip";
 export * from "./components/top-bar";
