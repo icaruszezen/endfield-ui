@@ -193,6 +193,16 @@ describe("Slider", () => {
     expect(screen.getByText("最大").style.left).toContain("6px + 1 *");
   });
 
+  it("滑块头的位置带着过渡，拖动时关掉", () => {
+    const { container } = render(
+      <Slider aria-label="音量" defaultValue={40} />,
+    );
+    expect(container.querySelector("[data-index]")).toHaveClass(
+      "transition-[inset-inline-start]",
+      "data-dragging:transition-none",
+    );
+  });
+
   it("两档尺寸", () => {
     const { container, rerender } = render(
       <Slider aria-label="音量" defaultValue={40} />,

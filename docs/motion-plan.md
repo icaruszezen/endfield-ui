@@ -56,7 +56,7 @@
   - 要做：记号淡入淡出（`duration-fast`）。菱形方案没有记号，"已选"是方块自己换底色，那个过渡本来就有，不用另做。
   - 改哪里：`checkbox/choice-style.ts` 的 `choiceMark`——勾、短横、圆点都是它，一处生效。
   - 规范：[表单](design/components/form.md) 的"复选与单选"。
-- [ ] **1.2 滑块。**
+- [x] **1.2 滑块。**
   - 现在：整个控件没有任何过渡；按住时滑块头正中那条细线硬切出现。
   - 要做：细线淡入；按键（方向键、`PageUp` / `PageDown`、`Home` / `End`）和外部改值时，滑块头和走过的一段滑过去。**拖动中（`data-dragging`）关掉位置的过渡。**
   - 改哪里：`slider/Slider.tsx`。

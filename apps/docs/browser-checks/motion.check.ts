@@ -228,3 +228,96 @@ test("复选与单选：记号淡入淡出（200ms），走完停在终态", asy
   const reduced = await transitions(page, "#storybook-root input + span");
   assert.ok(reduced!.opacity! < 0.001, "减少动态效果下记号不该有看得见的过渡");
 });
+
+test("滑块：按键跳值时滑过去；拖动时位置贴着指针，没有过渡", async () => {
+  const { page } = storybook;
+  const THUMB = "#storybook-root [data-index]";
+  const box = (selector: string) =>
+    page.evaluate((css) => {
+      const rect = document.querySelector(css)!.getBoundingClientRect();
+      return {
+        left: rect.left,
+        right: rect.right,
+        width: rect.width,
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      };
+    }, selector);
+  /** 记到的里面和位置有关的（逻辑属性在事件里可能报成物理的那个） */
+  const moves = async () =>
+    (await recorded(page)).filter(
+      (name) => name === "left" || name === "inset-inline-start",
+    );
+
+  await withMotion(page, async () => {
+    await page.story("控件-slider-滑块--playground");
+    assert.deepEqual(await transitions(page, THUMB), {
+      "inset-inline-start": 0.2,
+    });
+    // 滑块头的父元素就是轨道
+    const track = await page.evaluate((css) => {
+      const rect = document
+        .querySelector(css)!
+        .parentElement!.getBoundingClientRect();
+      return { left: rect.left, right: rect.right, width: rect.width };
+    }, THUMB);
+
+    await page.key("Tab");
+    await page.waitFocused("input:音量");
+    await record(page, THUMB);
+    await page.key("End");
+    await page.settled(THUMB);
+    assert.ok(
+      Math.abs((await box(THUMB)).x - track.right) < 1,
+      "End 之后滑块的中心应该在轨道右端",
+    );
+    assert.equal((await moves()).length, 1, "按键跳值应该是滑过去的");
+
+    // 按住滑块往左拖到轨道正中，不松手
+    const from = await box(THUMB);
+    const middle = track.left + track.width / 2;
+    const held = { button: "left", buttons: 1 };
+    await page.send("Input.dispatchMouseEvent", {
+      type: "mouseMoved",
+      x: from.x,
+      y: from.y,
+    });
+    await page.send("Input.dispatchMouseEvent", {
+      type: "mousePressed",
+      x: from.x,
+      y: from.y,
+      ...held,
+      clickCount: 1,
+    });
+    try {
+      for (let step = 1; step <= 6; step += 1) {
+        await page.send("Input.dispatchMouseEvent", {
+          type: "mouseMoved",
+          x: from.x + ((middle - from.x) * step) / 6,
+          y: from.y,
+          ...held,
+        });
+      }
+      await page.frames();
+      assert.deepEqual(
+        Object.keys((await transitions(page, THUMB))!),
+        ["none"],
+        "拖动中位置不该有过渡",
+      );
+      // 一步是轨道的百分之一：滑块落在离指针最近的那一步上
+      assert.ok(
+        Math.abs((await box(THUMB)).x - middle) <= track.width / 100,
+        "拖动中滑块应该贴着指针，不是在后面追",
+      );
+      assert.deepEqual(await moves(), [], "拖动中不该跑过位置的过渡");
+    } finally {
+      await page.send("Input.dispatchMouseEvent", {
+        type: "mouseReleased",
+        x: middle,
+        y: from.y,
+        button: "left",
+        clickCount: 1,
+      });
+    }
+  });
+});

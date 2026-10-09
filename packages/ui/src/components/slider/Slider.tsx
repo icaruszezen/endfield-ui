@@ -79,10 +79,13 @@ const markLeft = (ratio: number) =>
 
 const thumb = [
   "relative h-5 w-3 bg-surface-inverse shadow-[0_0_0_2px_var(--ef-surface)]",
+  // 按键、外部改值时滑过去。拖动中位置必须贴着指针，所以那时候关掉——
+  // 点轨道也算：基元在按下的那一刻就开始拖了
+  "transition-[inset-inline-start] duration-(--duration-fast) ease-standard data-dragging:transition-none",
   // 触屏的点击区补到 40 × 40px
   "before:absolute before:-inset-x-3.5 before:-inset-y-2.5 before:content-['']",
   // 按住时正中亮一条强调色细线
-  "after:absolute after:inset-y-1 after:left-1/2 after:w-0.5 after:-translate-x-1/2 after:bg-accent-ink-inverse after:opacity-0 after:content-[''] data-dragging:after:opacity-100",
+  "after:absolute after:inset-y-1 after:left-1/2 after:w-0.5 after:-translate-x-1/2 after:bg-accent-ink-inverse after:opacity-0 after:transition-opacity after:duration-(--duration-fast) after:ease-standard after:content-[''] data-dragging:after:opacity-100",
   // 菱形方案：滑块是一个 14px 的菱形，按住时中间亮一个小方块
   "choice-diamond:size-3.5 choice-diamond:rotate-45 choice-diamond:after:inset-1 choice-diamond:after:w-auto choice-diamond:after:translate-x-0",
   "data-disabled:bg-ink-disabled",
@@ -165,7 +168,8 @@ export function Slider(props: SliderProps) {
           )}
         >
           <BaseSlider.Track className="h-1 w-full bg-line">
-            <BaseSlider.Indicator className="bg-ink data-disabled:bg-ink-disabled" />
+            {/* 走过的一段跟着滑块头走：范围滑块两头都会动 */}
+            <BaseSlider.Indicator className="bg-ink transition-[inset-inline-start,width] duration-(--duration-fast) ease-standard data-disabled:bg-ink-disabled data-dragging:transition-none" />
             {(range ? [0, 1] : [0]).map((index) => (
               <BaseSlider.Thumb
                 key={index}
