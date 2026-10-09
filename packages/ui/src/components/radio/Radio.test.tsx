@@ -170,6 +170,18 @@ describe("Radio", () => {
     expect(screen.getByRole("radio", { name: "甲" })).not.toBeChecked();
   });
 
+  it("圆点是淡入淡出的，不硬切", () => {
+    const { container } = render(
+      <Radio name="precision" value="standard">
+        标准
+      </Radio>,
+    );
+    expect(container.querySelector("input + span")).toHaveClass(
+      "opacity-0",
+      "transition-opacity",
+    );
+  });
+
   it("放进菱形方案的容器里，语义与方向键不变", async () => {
     render(
       <div data-choice="diamond">

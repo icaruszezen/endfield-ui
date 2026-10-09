@@ -82,6 +82,15 @@ describe("Checkbox", () => {
     );
   });
 
+  it("勾和半选的短横是淡入淡出的，不硬切", () => {
+    const { container } = render(<Checkbox>接收站内信</Checkbox>);
+    const marks = container.querySelectorAll("svg");
+    expect(marks).toHaveLength(2);
+    for (const mark of marks) {
+      expect(mark).toHaveClass("opacity-0", "transition-opacity");
+    }
+  });
+
   it("放进菱形方案的容器里，语义与行为不变", async () => {
     render(
       <div data-choice="diamond">

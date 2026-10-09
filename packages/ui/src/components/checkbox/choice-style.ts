@@ -25,6 +25,9 @@ export const choiceBox =
 export const choiceFrame =
   "relative inline-flex size-5 items-center justify-center";
 
-/** 压在方格 / 圆正中的记号，默认透明，由 peer 的状态点亮 */
+/**
+ * 压在方格 / 圆正中的记号，默认透明，由 peer 的状态点亮。
+ * 淡入淡出，和方格换底色的那一下同时走——底色有过渡而记号硬切，看起来是两件事
+ */
 export const choiceMark =
-  "pointer-events-none absolute inset-0 m-auto text-accent-ink-inverse opacity-0 peer-disabled:text-ink-disabled";
+  "pointer-events-none absolute inset-0 m-auto text-accent-ink-inverse opacity-0 transition-opacity duration-(--duration-fast) ease-standard peer-disabled:text-ink-disabled";
