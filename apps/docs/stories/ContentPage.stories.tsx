@@ -1,6 +1,7 @@
 import {
   AvatarSwitcher,
   AvatarSwitcherItem,
+  BackToTop,
   Badge,
   Button,
   Carousel,
@@ -31,7 +32,7 @@ import { crew } from "./_shared/Portraits";
 import { CrateIcon, RouteIcon, SlidersIcon } from "./_shared/ResourceIcons";
 
 /**
- * 搭一个官网气质的内容页：分节标题、页签、面板，加上媒体轮播、头像切换和排期。
+ * 搭一个官网气质的内容页：分节标题、页签、面板，加上媒体轮播、头像切换和排期；滚下去之后右下角有回到顶部。
  * 文案与数据全部虚构；图是原创的占位图和几何剪影。
  */
 const meta = {
@@ -296,6 +297,12 @@ export const Page: Story = {
           </div>
         </div>
       </section>
+
+      {/*
+        这一页在预览里可能并排渲染两份，外层又是容器查询的容器：钉在视口上的 fixed 用不了。
+        放在这一栏的最后，贴着视口的下沿跟着走
+      */}
+      <BackToTop className="sticky bottom-4 self-end" />
     </div>
   ),
 };

@@ -23,8 +23,12 @@ import {
   Select,
   ResourceChip,
   SectionTitle,
+  Segment,
+  SegmentedControl,
   Slider,
   Stat,
+  Step,
+  Steps,
   Switch,
   ToastProvider,
   useToast,
@@ -124,6 +128,13 @@ function Settings() {
       </header>
 
       <section className="flex flex-col gap-6">
+        {/* 这个站走到了哪一步；下面的数字是当前这一步的进度 */}
+        <Steps aria-label="建站流程" current={1}>
+          <Step title="建站" description="选址、供电、通信" />
+          <Step title="测绘" description="布设信标，逐段量测" />
+          <Step title="复核" description="现场和站里各过一遍" />
+          <Step title="归档" description="按站点和月份存放" />
+        </Steps>
         <div className="flex flex-wrap items-end gap-x-12 gap-y-6">
           <Stat size="lg" label="采样点" value="128" unit="处" delta="+12" />
           <Stat label="已完成" value="96" unit="处" />
@@ -248,6 +259,13 @@ function Settings() {
             <Switch>夜间只接收紧急告警</Switch>
             <Switch disabled>向上级站点抄送（需要管理员权限）</Switch>
           </div>
+          {/* 两个短选项，一眼看全：分段选择。值随表单提交 */}
+          <Field label="时间显示" help="只影响这台终端上的告警时间。">
+            <SegmentedControl name="clock" defaultValue="24">
+              <Segment value="24">24 小时</Segment>
+              <Segment value="12">12 小时</Segment>
+            </SegmentedControl>
+          </Field>
           <Field label="告警音量" help="0 是静音。值随表单提交。">
             <Slider
               name="volume"

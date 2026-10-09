@@ -191,6 +191,8 @@ test("列表页：排序用下拉，更多操作是菜单", async () => {
   const before = await firstTitle();
   await page.click("[role=combobox]");
   await page.waitVisible("[role=listbox]");
+  // 面板出现和焦点进面板不是同一刻：机器忙的时候按键会先到，落在触发器上
+  await page.waitFocused(/^option:/, "打开后焦点应该进到选项里");
   await page.key("ArrowDown");
   await page.key("Enter");
   await page.waitFor(
@@ -420,7 +422,7 @@ test("调度台：行上点右键，标记到站；和行尾的按钮是同一�
   );
 });
 
-test("调度台：按发车日期筛选", async () => {
+test("调度台：按发车日期筛选一段", async () => {
   const { page } = storybook;
   await page.story("示例-调度台--page");
   const dates = () =>
@@ -429,19 +431,26 @@ test("调度台：按发车日期筛选", async () => {
         (row) => row.children[7]!.textContent,
       ),
     );
-  assert.ok(new Set(await dates()).size > 1, "一开始各天的批次都有");
+  assert.ok(new Set(await dates()).size > 3, "一开始各天的批次都有");
 
   await page.click("#storybook-root button[aria-haspopup=dialog]");
   await page.waitVisible("[role=dialog]");
+  // 点两下：第一下面板不关
   await page.click('[role=dialog] [data-date="2026-10-06"]');
+  await page.waitVisible("[role=dialog] [data-range-start]");
+  await page.click('[role=dialog] [data-date="2026-10-08"]');
   await page.waitGone("[role=dialog]");
   await page.waitFor(async () => {
     const shown = await dates();
-    return shown.length > 0 && shown.every((date) => date === "10.06");
-  }, "选了 10 月 6 日，剩下的行都应该是这一天发车");
+    return (
+      shown.length === 6 &&
+      shown.every((date) => ["10.06", "10.07", "10.08"].includes(date ?? "")) &&
+      new Set(shown).size === 3
+    );
+  }, "选了 6 日到 8 日：剩下的六行都在这三天里，两头都算");
   assert.match(
     (await page.text("#storybook-root main [role=status]"))[0]!,
-    /10\.06 发车/,
+    /10\.06 至 10\.08 发车/,
   );
 
   // 清除：面板里的"清除"
@@ -670,4 +679,110 @@ test("内容页：轮播翻页换说明，头像切换换人，排期在自己�
   });
   // 内容区最宽 768px，三十一天放不下：排期在自己里面横向滚动
   assert.deepEqual(schedule, { items: 5, scrolls: true, pageScrolls: false });
+});
+
+test("列表页：影像类目的卡片封面上带播放记号，别的不带", async () => {
+  const { page } = storybook;
+  await page.story("示例-列表页--page");
+  const cards = await page.evaluate(() =>
+    [...document.querySelectorAll("#storybook-root main article")].map(
+      (card) => ({
+        video: /影像/.test(card.querySelector("p")?.textContent ?? ""),
+        mark: card.querySelector("span[aria-hidden=true][data-size]") !== null,
+        spoken: card.querySelector("a")!.textContent!.startsWith("视频："),
+        links: card.querySelectorAll("a, button").length,
+      }),
+    ),
+  );
+  assert.ok(cards.length > 0, "网格里应该有卡片");
+  assert.ok(
+    cards.some((card) => card.video),
+    "这一页里应该有影像类目的卡片",
+  );
+  for (const card of cards) {
+    assert.equal(card.mark, card.video, "播放记号只出现在影像的卡片上");
+    assert.equal(card.spoken, card.video, "读屏听到的「视频：」也是");
+    assert.equal(card.links, 1, "整卡仍然只有一个可点击元素");
+  }
+});
+
+test("内容页：滚下去之后右下角出现回到顶部，点了回到顶，下一次 Tab 从头开始", async () => {
+  const { page } = storybook;
+  await page.story("示例-内容页--page");
+  const BUTTON = "#storybook-root button[aria-label=回到顶部]";
+  const state = () =>
+    page.evaluate((css) => {
+      const button = document.querySelector<HTMLElement>(css)!;
+      const style = getComputedStyle(button);
+      const rect = button.getBoundingClientRect();
+      return {
+        shown: style.visibility === "visible" && style.opacity === "1",
+        position: style.position,
+        // 贴着视口的下沿
+        fromBottom: Math.round(innerHeight - rect.bottom),
+        scrollY: Math.round(scrollY),
+      };
+    }, BUTTON);
+
+  assert.equal((await state()).shown, false, "没滚的时候不出现");
+  await page.evaluate(() => window.scrollTo({ top: 700, behavior: "instant" }));
+  const shown = await page.waitFor(async () => {
+    const now = await state();
+    return now.shown ? now : null;
+  }, "滚过 400px 应该出现");
+  assert.equal(shown.position, "sticky");
+  assert.equal(shown.fromBottom, 16, "应该贴着视口的下沿，离边 16px");
+
+  await page.click(BUTTON);
+  await page.waitFor(async () => {
+    const now = await state();
+    return now.scrollY === 0 && !now.shown;
+  }, "点了应该回到顶部，然后消失");
+  assert.equal(await page.focused(), "(body)", "焦点应该交给了页面");
+  await page.key("Tab");
+  await page.waitFor(
+    async () => (await page.focused()) !== "(body)",
+    "下一次 Tab 应该落在页面里的第一个控件上",
+  );
+  assert.equal(
+    await page.evaluate(() => {
+      const first = document.querySelector(
+        "#storybook-root a, #storybook-root button, #storybook-root [tabindex='0']",
+      );
+      return document.activeElement === first;
+    }),
+    true,
+    "落在的是页面里排在最前面的那个控件",
+  );
+});
+
+test("设置页：步骤条说走到了第二步；分段选择的值随表单提交", async () => {
+  const { page } = storybook;
+  await page.story("示例-设置页--page");
+  const steps = await page.evaluate(() =>
+    [
+      ...document.querySelectorAll(
+        "#storybook-root ol[aria-label=建站流程] > li",
+      ),
+    ].map((step) => ({
+      status: step.getAttribute("data-status"),
+      current: step.getAttribute("aria-current"),
+    })),
+  );
+  assert.deepEqual(steps, [
+    { status: "done", current: null },
+    { status: "current", current: "step" },
+    { status: "upcoming", current: null },
+    { status: "upcoming", current: null },
+  ]);
+
+  const clock = () =>
+    page.evaluate(() =>
+      new FormData(document.querySelector("form")!).get("clock"),
+    );
+  assert.equal(await clock(), "24");
+  await page.click("text=12 小时");
+  await page.waitFor(async () => (await clock()) === "12", "点 12 小时");
+  await page.key("ArrowLeft");
+  await page.waitFor(async () => (await clock()) === "24", "← 回到 24 小时");
 });

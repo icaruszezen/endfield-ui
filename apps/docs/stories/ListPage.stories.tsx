@@ -327,6 +327,8 @@ function Archive() {
                   title={record.title}
                   category={record.category}
                   date={record.date}
+                  // 影像：封面左下角多一个播放记号
+                  video={record.category === "影像"}
                   tag={
                     record.category === "影像" ? (
                       <Tag size="sm">PV</Tag>

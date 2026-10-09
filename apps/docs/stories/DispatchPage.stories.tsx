@@ -4,7 +4,7 @@ import {
   Checkbox,
   Combobox,
   ContextMenu,
-  DatePicker,
+  DateRangePicker,
   DropdownMenuItem,
   DropdownMenuSeparator,
   EmptyState,
@@ -35,6 +35,7 @@ import {
   ToastProvider,
   TopBar,
   useToast,
+  type DateRange,
   type TableSortDirection,
 } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
@@ -56,7 +57,7 @@ import { shipments, type Shipment } from "./_shared/shipments";
 import { stationGroups, stationLabel } from "./_shared/stations";
 
 /**
- * 用侧轨、顶栏、全屏菜单、表格、组合框、日期选择、右键菜单搭一个带外壳的工具页。
+ * 用侧轨、顶栏、全屏菜单、表格、组合框、日期范围、右键菜单搭一个带外壳的工具页。
  * 宽屏是侧轨（"档案"带二级）；窄于 1024px 时换成顶栏 + 全屏菜单——是换一套，不是把侧轨缩小。
  * 文案与数据全部虚构，标志和图标是原创的几何图形。
  */
@@ -121,7 +122,7 @@ function Board() {
   const toast = useToast();
   const [rows, setRows] = useState(shipments);
   const [station, setStation] = useState<string | null>(null);
-  const [date, setDate] = useState<string | null>(null);
+  const [dates, setDates] = useState<DateRange | null>(null);
   const [sort, setSort] = useState<{
     key: SortKey;
     direction: TableSortDirection;
@@ -131,20 +132,26 @@ function Board() {
 
   const matched = useMemo(() => {
     const sign = sort.direction === "ascending" ? 1 : -1;
-    return rows
-      .filter((row) => station === null || row.station === station)
-      .filter((row) => date === null || row.date === date)
-      .sort((a, b) => {
-        const left = a[sort.key];
-        const right = b[sort.key];
-        return (
-          sign *
-          (typeof left === "number" && typeof right === "number"
-            ? left - right
-            : String(left).localeCompare(String(right)))
-        );
-      });
-  }, [rows, station, date, sort]);
+    return (
+      rows
+        .filter((row) => station === null || row.station === station)
+        // 同一种写法的日期可以直接按字符串比大小；两头都算
+        .filter(
+          (row) =>
+            dates === null || (row.date >= dates[0] && row.date <= dates[1]),
+        )
+        .sort((a, b) => {
+          const left = a[sort.key];
+          const right = b[sort.key];
+          return (
+            sign *
+            (typeof left === "number" && typeof right === "number"
+              ? left - right
+              : String(left).localeCompare(String(right)))
+          );
+        })
+    );
+  }, [rows, station, dates, sort]);
 
   const pageCount = Math.max(1, Math.ceil(matched.length / PAGE_SIZE));
   const current = Math.min(page, pageCount);
@@ -249,16 +256,16 @@ function Board() {
             }}
           />
         </Field>
-        <Field label="发车日期" className="w-44">
-          <DatePicker
+        <Field label="发车日期" className="w-64">
+          <DateRangePicker
             variant="outline"
             placeholder="哪天都行"
             today={TODAY}
             min="2026-10-01"
             max="2026-10-31"
-            value={date}
+            value={dates}
             onValueChange={(next) => {
-              setDate(next);
+              setDates(next);
               setPage(1);
             }}
           />
@@ -290,7 +297,10 @@ function Board() {
           <p role="status" className="text-sm text-ink-secondary">
             {`共 ${matched.length} 个批次`}
             {station !== null && `，${stationLabel(station)}`}
-            {date !== null && `，${date.slice(5).replace("-", ".")} 发车`}
+            {dates !== null &&
+              `，${[...new Set(dates)]
+                .map((date) => date.slice(5).replace("-", "."))
+                .join(" 至 ")} 发车`}
             {picked.size > 0 && `，已选 ${picked.size}`}
           </p>
         </div>
@@ -327,7 +337,7 @@ function Board() {
                         variant="light"
                         onClick={() => {
                           setStation(null);
-                          setDate(null);
+                          setDates(null);
                         }}
                       >
                         清除筛选

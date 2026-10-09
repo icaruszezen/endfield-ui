@@ -71,7 +71,9 @@ test("媒体卡的 video：记号在媒体区左下角内缩 8px，点它走的�
   await page.story("控件-mediacard-媒体卡--video");
   const found = await page.evaluate(() => {
     const card = document.querySelector("#storybook-root article")!;
-    const mark = card.querySelector<HTMLElement>("span[aria-hidden=true]")!;
+    const mark = card.querySelector<HTMLElement>(
+      "span[aria-hidden=true][data-size]",
+    )!;
     const media = mark.parentElement!.getBoundingClientRect();
     const rect = mark.getBoundingClientRect();
     const hit = document.elementFromPoint(
