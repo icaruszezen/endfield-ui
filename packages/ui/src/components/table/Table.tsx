@@ -1,12 +1,5 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ComponentProps,
-} from "react";
+import { createContext, useContext, useMemo, type ComponentProps } from "react";
+import { useOverflowing } from "../../hooks/useOverflowing";
 import { TriangleRight } from "../../icons/TriangleRight";
 import { cn } from "../../lib/cn";
 import { focusRingInset } from "../../lib/focus-ring";
@@ -59,29 +52,6 @@ export type TableProps = Omit<ComponentProps<"table">, "aria-label"> & {
   /** 给外面那层横向滚动的容器；其余属性给 `<table>` */
   className?: string;
 };
-
-/** 容器里的内容是不是比容器宽、比容器高 */
-function useOverflowing() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [x, setX] = useState(false);
-  const [y, setY] = useState(false);
-
-  useEffect(() => {
-    const node = ref.current;
-    if (!node || typeof ResizeObserver === "undefined") return;
-    const measure = () => {
-      setX(node.scrollWidth > node.clientWidth + 1);
-      setY(node.scrollHeight > node.clientHeight + 1);
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(node);
-    if (node.firstElementChild) observer.observe(node.firstElementChild);
-    return () => observer.disconnect();
-  }, []);
-
-  return [ref, { x, y }] as const;
-}
 
 /**
  * 表格：原生 `<table>` 套样式。里面放 `TableHead`、`TableBody`、`TableRow`、

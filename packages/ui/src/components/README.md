@@ -33,6 +33,7 @@
 | `item-slot/` | `ItemSlot`、`ItemGrid`（方向键导航的矩阵） | [卡片](../../../../docs/design/components/card.md) |
 | `table/` | `Table`、`TableHead`、`TableBody`、`TableRow`、`TableHeaderCell`、`TableCell` | [数据展示](../../../../docs/design/components/data-display.md) |
 | `timeline/` | `Timeline`、`TimelineItem` | [数据展示](../../../../docs/design/components/data-display.md) |
+| `schedule/` | `Schedule`、`ScheduleTrack`、`ScheduleItem`（排期：横向的时间轨图） | [数据展示](../../../../docs/design/components/data-display.md) |
 | `field/` | `Field`、`useFieldControl`、`useFieldContext` | [表单](../../../../docs/design/components/form.md) |
 | `input/` | `Input` | [表单](../../../../docs/design/components/form.md) |
 | `textarea/` | `Textarea` | [表单](../../../../docs/design/components/form.md) |

@@ -44,6 +44,7 @@ export * from "./components/progress";
 export * from "./components/radio";
 export * from "./components/rec-indicator";
 export * from "./components/registration-strip";
+export * from "./components/schedule";
 export * from "./components/scroll-hint";
 export * from "./components/section-title";
 export * from "./components/select";
