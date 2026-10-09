@@ -35,6 +35,8 @@ const pages = [
   "控件-segmentedcontrol-分段选择--docs",
   "控件-steps-步骤条--docs",
   "控件-toc-页内目录--docs",
+  "控件-pageheader-页头--docs",
+  "控件-scrollarea-滚动区--docs",
   "控件-panel-面板--docs",
   "控件-tooltip-文字提示--docs",
   "控件-popover-气泡卡片--docs",
