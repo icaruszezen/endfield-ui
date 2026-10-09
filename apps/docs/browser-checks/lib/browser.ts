@@ -249,6 +249,13 @@ export async function launch({
       for (const listener of listeners) listener(message);
     }
   });
+  // 连接断了，还在等回话的命令永远等不到：让它们立刻失败，别一直挂到检查的时限
+  socket.addEventListener("close", () => {
+    for (const waiting of pending.values()) {
+      waiting.reject(new Error("和浏览器的连接断了"));
+    }
+    pending.clear();
+  });
 
   const send = (method: string, params: object = {}): Promise<Message> =>
     new Promise((resolve, reject) => {
@@ -733,11 +740,15 @@ export async function launch({
     },
 
     async close() {
-      try {
-        await send("Browser.close");
-      } catch {
-        // 已经关了
-      }
+      // 浏览器不一定回这一句：它可能先把连接断了，也可能已经不动了。
+      // 所以有回话、连接断了、等了两秒，哪个先到都算数，不干等
+      // （CI 上有过一次：一个文件跑完收尾，在这里挂到了两分钟的时限）
+      await Promise.race([
+        send("Browser.close").catch(() => {
+          // 已经关了
+        }),
+        sleep(2000),
+      ]);
       socket.close();
       await dispose();
     },
