@@ -283,18 +283,16 @@ test("禁用：拖进来不收，也不出拖入态", async () => {
   assert.deepEqual(await names(page), ["交接单-1009.pdf"]);
 });
 
-test("文件行：上传中有进度条和百分比，失败有说明和重试，名字太长截断", async () => {
+test("文件行：上传中有进度条和百分比，失败有说明和重试", async () => {
   const { page } = storybook;
   await page.story("控件-fileupload-文件上传--items");
   const rows = await page.evaluate(() =>
     [...document.querySelectorAll("#storybook-root li > div")].map((row) => {
-      const name = row.querySelector<HTMLElement>("[title]")!;
       const bar = row.querySelector("[role=progressbar]");
       return {
         status: row.getAttribute("data-status"),
         meta: row.querySelector("[data-meta]")?.textContent ?? null,
         bar: bar ? bar.getAttribute("aria-valuenow") : "none",
-        truncated: name.scrollWidth > name.clientWidth,
         buttons: [...row.querySelectorAll("button")].map(
           (button) => button.getAttribute("aria-label") ?? button.textContent,
         ),
@@ -307,7 +305,6 @@ test("文件行：上传中有进度条和百分比，失败有说明和重试�
       status: null,
       meta: "1.2 MB",
       bar: "none",
-      truncated: false,
       buttons: [],
       link: true,
     },
@@ -315,7 +312,6 @@ test("文件行：上传中有进度条和百分比，失败有说明和重试�
       status: "uploading",
       meta: "42%",
       bar: "42",
-      truncated: false,
       buttons: ["移除交接单-1009.pdf"],
       link: false,
     },
@@ -323,7 +319,6 @@ test("文件行：上传中有进度条和百分比，失败有说明和重试�
       status: "uploading",
       meta: null,
       bar: null,
-      truncated: false,
       buttons: ["移除设备日志"],
       link: false,
     },
@@ -331,7 +326,6 @@ test("文件行：上传中有进度条和百分比，失败有说明和重试�
       status: "done",
       meta: "320 KB",
       bar: "none",
-      truncated: false,
       buttons: ["移除北段管廊-现场.png"],
       link: false,
     },
@@ -339,7 +333,6 @@ test("文件行：上传中有进度条和百分比，失败有说明和重试�
       status: "error",
       meta: "86 MB",
       bar: "none",
-      truncated: true,
       buttons: ["重试", "移除第七勘探区的首批测绘数据-全景拼接-未压缩.tiff"],
       link: false,
     },
@@ -347,11 +340,38 @@ test("文件行：上传中有进度条和百分比，失败有说明和重试�
       status: null,
       meta: "2.1 MB",
       bar: "none",
-      truncated: false,
       buttons: ["移除旧版平面图.png"],
       link: false,
     },
   ]);
+});
+
+test("文件名太长：在行里截断，完整的名字在 title 里，行不撑破容器", async () => {
+  const { page } = storybook;
+  // 用窄容器的那个 story：留给名字的只有几十像素，什么字体下都放不下。
+  // （宽容器里放不放得下看字宽，CI 上没有中文字体，字比本机窄）
+  await page.story("控件-fileupload-文件上传--narrow");
+  const found = await page.evaluate(() => {
+    const row = document.querySelector<HTMLElement>(
+      "#storybook-root li > div",
+    )!;
+    const name = row.querySelector<HTMLElement>("[title]")!;
+    const box = row.parentElement!.getBoundingClientRect();
+    return {
+      truncated: name.scrollWidth > name.clientWidth,
+      title: name.title,
+      height: row.offsetHeight,
+      inside: [...row.children].every(
+        (child) => child.getBoundingClientRect().right <= box.right + 0.5,
+      ),
+    };
+  });
+  assert.deepEqual(found, {
+    truncated: true,
+    title: "第七勘探区的首批测绘数据-全景拼接.pdf",
+    height: 40,
+    inside: true,
+  });
 });
 
 test("两档尺寸：sm 是矮的那一档，至少 40px 高", async () => {

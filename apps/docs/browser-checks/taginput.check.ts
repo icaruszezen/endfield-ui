@@ -272,6 +272,9 @@ test("外框和输入框同一个样子：最小高度三档，小块多了换�
     const box = document.querySelector<HTMLElement>(
       "#storybook-root [data-variant]",
     )!;
+    // 换不换行、截不截断看字宽，而 CI 上没有中文字体、字比本机窄：
+    // 把外框再压到 140px，什么字体下这几个标签都得换行、最长的那个都得截断
+    box.style.width = "140px";
     const chips = [...box.querySelectorAll<HTMLElement>("[data-tag]")];
     const long = chips.at(-1)!.querySelector("span")!;
     const count = box.querySelector<HTMLElement>("[data-count]")!;
