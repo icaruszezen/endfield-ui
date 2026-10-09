@@ -6,6 +6,9 @@ node_modules/
 dist/
 build/
 storybook-static/
+# 打包时从仓库根复制进来的（packages/ui 的 prepack），只有根目录那一份进版本库
+packages/ui/LICENSE
+packages/ui/NOTICE.md
 # 浏览器实测没过时存下来的截图
 .artifacts/
 .turbo/

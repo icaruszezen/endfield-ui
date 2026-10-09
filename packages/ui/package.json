@@ -2,7 +2,27 @@
   "name": "@endfield-ui/react",
   "version": "0.1.0",
   "description": "终末地风格的 React 基础控件库（非官方）",
+  "keywords": [
+    "react",
+    "components",
+    "ui",
+    "tailwindcss",
+    "base-ui",
+    "endfield",
+    "arknights"
+  ],
   "license": "MIT",
+  "author": "球球 (https://github.com/icaruszezen)",
+  "homepage": "https://icaruszezen.github.io/endfield-ui/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/icaruszezen/endfield-ui.git",
+    "directory": "packages/ui"
+  },
+  "bugs": "https://github.com/icaruszezen/endfield-ui/issues",
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "sideEffects": [
     "**/*.css"
@@ -11,7 +31,8 @@
     "dist",
     "src",
     "!src/**/*.test.*",
-    "!src/test"
+    "!src/test",
+    "NOTICE.md"
   ],
   "exports": {
     ".": {
@@ -21,14 +42,17 @@
     "./tailwind.css": "./src/styles/index.css",
     "./styles.css": "./dist/styles.css",
     "./theme.css": "./src/styles/theme.css",
-    "./utilities.css": "./src/styles/utilities.css"
+    "./utilities.css": "./src/styles/utilities.css",
+    "./package.json": "./package.json"
   },
   "scripts": {
     "build": "tsdown && pnpm build:css",
     "build:css": "tailwindcss -i src/styles/index.css -o dist/styles.css --minify",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepack": "node -e \"for (const f of ['LICENSE', 'NOTICE.md']) fs.copyFileSync('../../' + f, f)\"",
+    "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build"
   },
   "peerDependencies": {
     "react": "^19.0.0",

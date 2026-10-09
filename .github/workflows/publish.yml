@@ -1,0 +1,64 @@
+name: 发布到 npm
+
+# 推送 v 开头的标签（v0.2.0）后：把 @endfield-ui/react 发布到 npm。
+# 认证用的是 npm 的 Trusted Publishing：npm 凭 GitHub 签发的身份令牌认这个工作流，
+# 仓库里不存 token，发出去的包自带来源证明。
+# 前提是在 npmjs.com 上这个包的设置里登记过本仓库和这个文件名（publish.yml）——
+# 文件改名、仓库改名都要去那边同步改，否则发布会被拒。
+on:
+  push:
+    tags: ["v*"]
+
+# 自己一个并发组，不和 deploy.yml 共用：发布不该排在 Pages 部署后面等
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: 发布
+    # 和 deploy.yml 一样固定到具体版本，升级时一起改
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      # 向 GitHub 要身份令牌，Trusted Publishing 靠它
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+
+      # pnpm 的版本取自根 package.json 的 packageManager 字段
+      - uses: pnpm/action-setup@v6
+
+      # Trusted Publishing 要求 npm 11.5.1 以上，Node 24 自带的已经够
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+
+      - name: 核对标签与版本号
+        id: version
+        working-directory: packages/ui
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::标签 $GITHUB_REF_NAME 和 package.json 里的版本 $version 对不上"
+            exit 1
+          fi
+          # 首版是在本机手动发的（那时 npm 上还没有这个包，没法登记信任关系）。
+          # 给已经发过的版本补打标签时，这里跳过发布而不是报错
+          if npm view "@endfield-ui/react@$version" version > /dev/null 2>&1; then
+            echo "published=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::$version 已经在 npm 上，跳过发布"
+          fi
+
+      - name: 发布
+        if: steps.version.outputs.published != 'true'
+        working-directory: packages/ui
+        # 标签检出的是游离的提交，pnpm 默认只肯在 main 上发，所以关掉这项检查。
+        # 发布前的类型检查、测试与构建由 packages/ui 的 prepublishOnly 负责
+        run: pnpm publish --no-git-checks

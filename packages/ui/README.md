@@ -1,6 +1,6 @@
 # @endfield-ui/react
 
-终末地风格的 React 基础控件库。非官方，详见 [NOTICE](../../NOTICE.md)。
+终末地风格的 React 基础控件库。非官方，详见 [NOTICE](https://github.com/icaruszezen/endfield-ui/blob/main/NOTICE.md)。
 
 已实现的控件，全部适配亮 / 暗主题与主题色接管：
 
@@ -14,7 +14,15 @@
 | 导航 | SideRail（含二级）、TopBar、NavMenu、NavAction、Breadcrumb、Pagination、Navigator、AvatarSwitcher、DashIndicator、Steps、Toc、BackToTop |
 | 母题 | CornerBrackets、Viewfinder、GhostText、Hatch、Texture、RegistrationStrip、TickRing、HazardStripe |
 
-包还没有发布到 npm，目前只在本仓库的工作区里使用。
+每个控件的变体与状态见[在线预览](https://icaruszezen.github.io/endfield-ui/)。
+
+## 安装
+
+```bash
+pnpm add @endfield-ui/react
+```
+
+需要 React 19。走 `tailwind.css` 入口的项目还要有 Tailwind CSS v4，用预编译的 `styles.css` 则不需要。包只出 ESM。
 
 ## 技术栈
 
@@ -45,7 +53,7 @@ import "@endfield-ui/react/styles.css";
 
 只想要令牌：`@endfield-ui/react/theme.css`（用法见 [styles/README.md](src/styles/README.md)）。
 
-两个入口都会清掉 Tailwind 的默认色板、圆角、阴影与字阶，并给 `body` 设上主题的底色与字色。字体只声明字体栈、不负责加载，见 [字体规范](../../docs/design/foundations/typography.md)。
+两个入口都会清掉 Tailwind 的默认色板、圆角、阴影与字阶，并给 `body` 设上主题的底色与字色。字体只声明字体栈、不负责加载，见 [字体规范](https://github.com/icaruszezen/endfield-ui/blob/main/docs/design/foundations/typography.md)。
 
 ### 组件
 
@@ -689,7 +697,7 @@ import { GhostText, TickRing, Viewfinder } from "@endfield-ui/react";
 
 叠在画面上的东西（取景角、刻度圆环、录制指示）颜色跟的是**画面**，不是页面：画面是深色的就在它上面加 `data-theme="dark"`。
 
-用 Tailwind 的项目也可以直接用工具类（`cut-tr`、`wedge-r`、`corner-brackets`、`ghost-hatch`、`hatch`、`hazard`、`dot-grid`、`blueprint-grid`、`contour`），见 [styles/README.md](src/styles/README.md)。这些母题最容易用过头，什么时候该用见 [母题文档](../../docs/design/elements/corner-and-wedge.md)。
+用 Tailwind 的项目也可以直接用工具类（`cut-tr`、`wedge-r`、`corner-brackets`、`ghost-hatch`、`hatch`、`hazard`、`dot-grid`、`blueprint-grid`、`contour`），见 [styles/README.md](src/styles/README.md)。这些母题最容易用过头，什么时候该用见 [母题文档](https://github.com/icaruszezen/endfield-ui/blob/main/docs/design/elements/corner-and-wedge.md)。
 
 ### 主题
 
@@ -710,7 +718,7 @@ function ThemeToggle() {
 
 `useTheme` 读写 `<html data-theme>`，支持 `"light"`、`"dark"`、`"system"`，选择记在 `localStorage` 的 `ef-theme` 里。要避免首屏闪一下亮色，在 `<head>` 里用一小段内联脚本提前把 `data-theme` 写好。
 
-把强调色换成自己的主题色，见 [色彩](../../docs/design/foundations/color.md) 的"主题色接管"。
+把强调色换成自己的主题色，见 [色彩](https://github.com/icaruszezen/endfield-ui/blob/main/docs/design/foundations/color.md) 的"主题色接管"。
 
 还有第三个取值 `data-theme="inverse"`：和所在的主题相反。面板的标题带、表格的表头带、完成横幅用的就是它，所以放进去的按钮、复选框、焦点环不用另外处理。自己做一块"和页面相反"、里面还要放控件的区域时，写 `data-theme="inverse"` 加 `bg-surface text-ink`——取到的就是 `surface-inverse` / `ink-inverse`。反转块里不要再嵌反转块。
 
@@ -735,7 +743,7 @@ packages/ui/
 | --- | --- |
 | `pnpm dev` | 启动 Storybook（`http://localhost:6106`），直接读本包源码，改了即热更新 |
 | `pnpm test` | 跑单元测试 |
-| `pnpm test:browser` | 在真的浏览器里测键盘、焦点与布局（先 `pnpm build:docs`），见 [apps/docs](../../apps/docs/README.md#浏览器实测) |
+| `pnpm test:browser` | 在真的浏览器里测键盘、焦点与布局（先 `pnpm build:docs`），见 [apps/docs](https://github.com/icaruszezen/endfield-ui/blob/main/apps/docs/README.md#浏览器实测) |
 | `pnpm typecheck` | 类型检查全部工作区包 |
 | `pnpm build` | 生成 `dist/index.js`、`dist/index.d.ts`、`dist/styles.css` |
 | `pnpm format` | 用 Prettier 格式化全仓库；`pnpm format:check` 只检查不改，CI 跑的是它 |
@@ -744,8 +752,18 @@ packages/ui/
 
 TypeScript 用的是 7.0。tsdown 在这个版本下生成类型声明时会提示"API 尚不稳定"，目前产物正常；如果以后出问题，退路是 `tsc --emitDeclarationOnly`。
 
+### 发布
+
+1. 改本目录 `package.json` 里的 `version`，提交并推到 `main`，等 CI 跑完。
+2. 打一个和版本号对应的标签推上去：`git tag v0.2.0`，`git push origin v0.2.0`。
+3. [publish.yml](https://github.com/icaruszezen/endfield-ui/blob/main/.github/workflows/publish.yml) 核对标签与版本号，跑类型检查、测试与构建（`prepublishOnly`），然后发布到 npm。
+
+认证用的是 npm 的 Trusted Publishing，仓库里不存 token：npm 上这个包的设置里登记了本仓库和 `publish.yml` 这个文件名，两边任何一个改名都要同步。
+
+`LICENSE` 和 `NOTICE.md` 只在仓库根目录有一份，打包时由 `prepack` 复制到本目录（所以它们在这里是被 git 忽略的）。想看包里到底会有什么：`pnpm pack`。
+
 ## 与设计文档的关系
 
-- 所有视觉决策以 [docs/design](../../docs/design/overview.md) 为准；代码里出现文档没有的颜色或尺寸时，先改文档再改代码。
-- 组件的状态、尺寸与形状规范在 [docs/design/components](../../docs/design/components/README.md)，那里同时给出了各期的清单与顺序。
+- 所有视觉决策以 [docs/design](https://github.com/icaruszezen/endfield-ui/blob/main/docs/design/overview.md) 为准；代码里出现文档没有的颜色或尺寸时，先改文档再改代码。
+- 组件的状态、尺寸与形状规范在 [docs/design/components](https://github.com/icaruszezen/endfield-ui/blob/main/docs/design/components/README.md)，那里同时给出了各期的清单与顺序。
 - 令牌的唯一来源是 [src/styles/theme.css](src/styles/theme.css)，文档中的令牌表与它逐项对应。

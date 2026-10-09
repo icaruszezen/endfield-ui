@@ -125,7 +125,11 @@ endfield-ui/
 
 ### 使用组件
 
-包还没有发布到 npm，目前在本仓库的工作区里使用。样式入口一行，然后直接用组件：
+```bash
+pnpm add @endfield-ui/react
+```
+
+样式入口一行，然后直接用组件：
 
 ```css
 @import "@endfield-ui/react/tailwind.css";
