@@ -23,6 +23,7 @@
 | `nav-menu/` | `NavMenu`、`NavMenuItem`（全屏菜单） | [导航](../../../../docs/design/components/navigation.md) |
 | `nav-action/` | `NavAction`（主行动块） | [导航](../../../../docs/design/components/navigation.md) |
 | `breadcrumb/` | `Breadcrumb`、`BreadcrumbItem` | [导航](../../../../docs/design/components/navigation.md) |
+| `page-header/` | `PageHeader`、`PageHeaderBack`（页头：标题、返回、右边的行动区） | [导航](../../../../docs/design/components/navigation.md) |
 | `pagination/` | `Pagination` | [导航](../../../../docs/design/components/navigation.md) |
 | `navigator/` | `Navigator` | [导航](../../../../docs/design/components/navigation.md) |
 | `dash-indicator/` | `DashIndicator` | [导航](../../../../docs/design/components/navigation.md) |
@@ -31,16 +32,19 @@
 | `back-to-top/` | `BackToTop`（回到顶部：滚过一段才出现的悬浮钮） | [导航](../../../../docs/design/components/navigation.md) |
 | `panel/` | `Panel`、`PanelHeader`、`PanelBody`、`PanelRows`、`PanelRow` | [卡片](../../../../docs/design/components/card.md) |
 | `accordion/` | `Accordion`、`AccordionItem`（折叠面板） | [卡片](../../../../docs/design/components/card.md) |
+| `scroll-area/` | `ScrollArea`（滚动区：限高、自己滚，滚动条是画出来的） | [卡片](../../../../docs/design/components/card.md) |
 | `list/` | `List`、`ListRow` | [卡片](../../../../docs/design/components/card.md) |
 | `media-card/` | `MediaCard` | [卡片](../../../../docs/design/components/card.md) |
 | `play-button/` | `PlayButton`、`PlayMark`（播放钮与不能点的播放记号） | [卡片](../../../../docs/design/components/card.md) |
 | `carousel/` | `Carousel`、`CarouselSlide`（媒体轮播） | [卡片](../../../../docs/design/components/card.md) |
+| `image-viewer/` | `ImageViewer`、`ImageViewerItem`（图片查看：缩略图点开看大图） | [卡片](../../../../docs/design/components/card.md) |
 | `item-slot/` | `ItemSlot`、`ItemGrid`（方向键导航的矩阵） | [卡片](../../../../docs/design/components/card.md) |
 | `table/` | `Table`、`TableHead`、`TableBody`、`TableRow`、`TableHeaderCell`、`TableCell`、`TableExpander`（行展开的钮） | [数据展示](../../../../docs/design/components/data-display.md) |
 | `timeline/` | `Timeline`、`TimelineItem` | [数据展示](../../../../docs/design/components/data-display.md) |
 | `schedule/` | `Schedule`、`ScheduleTrack`、`ScheduleItem`（排期：横向的时间轨图） | [数据展示](../../../../docs/design/components/data-display.md) |
 | `field/` | `Field`、`useFieldControl`、`useFieldContext` | [表单](../../../../docs/design/components/form.md) |
 | `input/` | `Input` | [表单](../../../../docs/design/components/form.md) |
+| `otp-input/` | `OtpInput`（验证码输入：一格一位） | [表单](../../../../docs/design/components/form.md) |
 | `textarea/` | `Textarea` | [表单](../../../../docs/design/components/form.md) |
 | `checkbox/` | `Checkbox`（可整体换成菱形符号） | [表单](../../../../docs/design/components/form.md) |
 | `radio/` | `RadioGroup`、`Radio`（同上） | [表单](../../../../docs/design/components/form.md) |
@@ -64,6 +68,7 @@
 | `context-menu/` | `ContextMenu`（右键菜单；选项用 `DropdownMenuItem` 那一组） | [浮层](../../../../docs/design/components/overlay.md) |
 | `flyout-bar/` | `FlyoutBar`、`FlyoutBarItem` | [浮层](../../../../docs/design/components/overlay.md) |
 | `popover/` | `Popover`、`PopoverClose` | [浮层](../../../../docs/design/components/overlay.md) |
+| `hover-card/` | `HoverCard`（悬浮卡：链接悬停时预览它的去处） | [浮层](../../../../docs/design/components/overlay.md) |
 | `select/` | `Select`、`SelectItem`、`SelectGroup`、`SelectSeparator` | [表单](../../../../docs/design/components/form.md) |
 | `combobox/` | `Combobox`（可搜索的下拉，含多选、分组与远程检索） | [表单](../../../../docs/design/components/form.md) |
 | `tag-input/` | `TagInput`（标签输入：自己打出来的一串短词） | [表单](../../../../docs/design/components/form.md) |
@@ -89,7 +94,9 @@
 | `input/control-box.ts` | `Input`、`Textarea` 的外框（凹陷与描边两种），`Select`、`DatePicker` 的触发器和 `Combobox`、`TagInput` 的外框也用它 |
 | `input/value-chip.ts` | 框里排着的直角小块（已经定下来的值）：`Combobox` 的多选、`TagInput` |
 | `checkbox/choice-style.ts` | `Checkbox`、`Radio`、`Switch` 的行与方格（含菱形方案的写法） |
-| `dialog/overlay-style.ts` | `Dialog`、`Drawer` 的遮罩、深色标题带、关闭按钮 |
+| `dialog/overlay-style.ts` | `Dialog`、`Drawer` 的遮罩、深色标题带、关闭按钮；`ImageViewer` 的大图层用它的标题带和关闭按钮 |
+| `popover/panel-style.ts` | `Popover`、`HoverCard` 的面板，和里面的标题、说明 |
+| `carousel/snap-track.ts` | 横向滚动加吸附的轨道，下标和滚动位置互相跟：`Carousel`、`ImageViewer` |
 | `dialog/initial-focus.ts` | `Dialog`、`Drawer` 打开时焦点落在哪 |
 | `dropdown-menu/menu-style.ts` | `DropdownMenu`、`ContextMenu`、`Select`、`Combobox`、`Popover` 的面板，前四者的选项（跟随主题与固定深色两种） |
 | `dropdown-menu/MenuCheck.tsx` | 菜单复选项和多选选项（`Select`、`Combobox`）行首的小方格（复选框的画法缩到 16px） |

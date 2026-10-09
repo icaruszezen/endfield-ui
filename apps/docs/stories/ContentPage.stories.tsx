@@ -9,6 +9,8 @@ import {
   ChevronLeft,
   ChevronRight,
   IconButton,
+  ImageViewer,
+  ImageViewerItem,
   Panel,
   PanelHeader,
   PanelRow,
@@ -29,12 +31,12 @@ import {
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useId, useState } from "react";
 import { IsoCube } from "./_shared/IsoCube";
-import { ScenePlaceholder } from "./_shared/Placeholders";
+import { photo, ScenePlaceholder } from "./_shared/Placeholders";
 import { crew } from "./_shared/Portraits";
 import { CrateIcon, RouteIcon, SlidersIcon } from "./_shared/ResourceIcons";
 
 /**
- * 搭一个官网气质的内容页：分节标题、页签、面板，加上媒体轮播、头像切换和排期；够宽时右边一列页内目录，滚下去之后右下角有回到顶部。
+ * 搭一个官网气质的内容页：分节标题、页签、面板，加上媒体轮播、头像切换和排期，最后一组能点开看大图的现场照片；够宽时右边一列页内目录，滚下去之后右下角有回到顶部。
  * 文案与数据全部虚构；图是原创的占位图和几何剪影。
  */
 const meta = {
@@ -44,6 +46,31 @@ const meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+/* 虚构的现场照片：横幅、竖幅、宽幅都有，大图层里各按原比例整张显示 */
+const sitePhotos = [
+  {
+    title: "三号管廊入口",
+    description: "北段复测当天拍的。闸门左侧的信标是这次新装的。",
+    frame: "landscape",
+  },
+  {
+    title: "信标 B-12",
+    description: "信标装在管壁的高处，要仰着看。",
+    frame: "portrait",
+  },
+  {
+    title: "第三岩层营地全景",
+    description: "从东线补给点望过去。",
+    frame: "wide",
+  },
+  { title: "滤芯入库", description: "十二件，分两箱。", frame: "landscape" },
+  {
+    title: "夜班交接",
+    description: "没做完的事写在交接单最下面一栏。",
+    frame: "portrait",
+  },
+] as const;
 
 const entries = {
   news: [
@@ -333,6 +360,23 @@ function Content({
               <Button size="lg">更多情报</Button>
             </div>
           </div>
+        </div>
+        {/* 一组现场照片：点一张放大到整屏看，前后翻 */}
+        <div className="flex flex-col gap-3">
+          <p className="font-tech text-xs text-ink-secondary">
+            {`// 现场照片　共 ${sitePhotos.length} 张`}
+          </p>
+          <ImageViewer aria-label="现场照片">
+            {sitePhotos.map((shot, index) => (
+              <ImageViewerItem
+                key={shot.title}
+                title={shot.title}
+                description={shot.description}
+              >
+                <img src={photo(index, shot.frame)} alt="" />
+              </ImageViewerItem>
+            ))}
+          </ImageViewer>
         </div>
       </section>
 

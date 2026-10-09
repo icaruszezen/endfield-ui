@@ -7,11 +7,11 @@
 | 类别 | 控件 |
 | --- | --- |
 | 基础 | Button / ButtonGroup、IconButton、Toolbar、Tag / TagPair、Badge、Kbd、SectionTitle、BracketTitle、Tabs、Panel |
-| 表单 | Field、Input、Textarea、Select、Combobox、TagInput、DatePicker / DateRangePicker / Calendar、FileUpload / FileItem、Checkbox、Radio / RadioGroup、SegmentedControl、Switch、Stepper、Slider、FilterChip |
+| 表单 | Field、Input、OtpInput、Textarea、Select、Combobox、TagInput、DatePicker / DateRangePicker / Calendar、FileUpload / FileItem、Checkbox、Radio / RadioGroup、SegmentedControl、Switch、Stepper、Slider、FilterChip |
 | 反馈 | Alert、Toast、Progress / ProgressRing、Spinner、Skeleton、EmptyState、Loader、CompletionBanner、RecIndicator |
-| 浮层 | Tooltip、Popover、Dialog、Drawer、DropdownMenu、ContextMenu、FlyoutBar |
-| 展示 | Table（行能展开）、Stat、Sparkline、DataRowList / DataRow、List / ListRow、Accordion、MediaCard、PlayButton / PlayMark、Carousel、ItemSlot / ItemGrid、Avatar、Timeline、Schedule、Term、ResourceChip、Countdown、Marquee、ScrollHint |
-| 导航 | SideRail（含二级）、TopBar、NavMenu、NavAction、Breadcrumb、Pagination、Navigator、AvatarSwitcher、DashIndicator、Steps、Toc、BackToTop |
+| 浮层 | Tooltip、Popover、HoverCard、Dialog、Drawer、DropdownMenu、ContextMenu、FlyoutBar |
+| 展示 | Table（行能展开）、Stat、Sparkline、DataRowList / DataRow、List / ListRow、Accordion、ScrollArea、MediaCard、PlayButton / PlayMark、Carousel、ImageViewer、ItemSlot / ItemGrid、Avatar、Timeline、Schedule、Term、ResourceChip、Countdown、Marquee、ScrollHint |
+| 导航 | SideRail（含二级）、TopBar、NavMenu、NavAction、PageHeader、Breadcrumb、Pagination、Navigator、AvatarSwitcher、DashIndicator、Steps、Toc、BackToTop |
 | 母题 | CornerBrackets、Viewfinder、GhostText、Hatch、Texture、RegistrationStrip、TickRing、HazardStripe |
 
 每个控件的变体与状态见[在线预览](https://icaruszezen.github.io/endfield-ui/)。
@@ -189,6 +189,20 @@ import { Field, FileItem, FileUpload, TagInput } from "@endfield-ui/react";
 - `FileUpload` 只管选和列，不发请求。里面是一个真的 `<input type="file">`：带 `name` 时列表里的文件随表单提交。不合 `accept` / `maxSize` / `maxFiles` 的不收，并在下面说明原因。
 - 选了就要传、要显示进度时，用 `renderFile` 自己返回带状态的那一行：`<FileItem name size status="uploading" progress={40} onRemove={remove} />`。
 
+一格一位的短码用验证码输入：
+
+```tsx
+import { Field, OtpInput } from "@endfield-ui/react";
+
+<Field label="交接口令" help="六位数字，在交接单的右上角。">
+  <OtpInput length={6} groupSize={3} name="code" onComplete={verify} />
+</Field>
+```
+
+- 每一格是一个真的输入框：打一位跳一格，粘贴一整串会分到各格，整组只占一个 Tab 停靠点。值是拼起来的一个字符串，带 `name` 时随表单提交。
+- `type="alphanumeric"` 收字母和数字，`uppercase` 把值统一成大写；`mask` 遮成圆点；`groupSize` 每几格加一道短横。容器窄了格子等比变窄。
+- 不在 `Field` 里时自己传 `aria-label`。
+
 ### 带状态的控件
 
 步进器、分页条、胶囊导航器都有受控与非受控两种用法：传 `value` / `page` / `index` 就由外面决定，只传 `default…` 就由控件自己记。
@@ -267,7 +281,7 @@ import { Loader } from "@endfield-ui/react";
 
 ### 浮层
 
-文字提示、气泡卡片、弹窗、抽屉、下拉菜单、展开条、下拉选择、轻提示。焦点的进出与锁定、键盘、定位与翻转都交给 Base UI，这里只管长相；用的时候不用自己拼部件。触发元素作为一个 React 元素传进去：
+文字提示、气泡卡片、悬浮卡、弹窗、抽屉、下拉菜单、展开条、下拉选择、轻提示。焦点的进出与锁定、键盘、定位与翻转都交给 Base UI，这里只管长相；用的时候不用自己拼部件。触发元素作为一个 React 元素传进去：
 
 ```tsx
 import {
@@ -324,6 +338,7 @@ import {
 - `ContextMenu` 是右键菜单：`<ContextMenu menu={…}>` 包住被右键的那个元素，`menu` 里放的就是上面这些 `DropdownMenuItem`。它只是捷径——里面的操作在页面上要另有入口。
 - `FlyoutBar` 是从一个图标按钮旁边拉开的一条横排操作（分享的几个去处），键盘上是一个横向的菜单。里面放 `FlyoutBarItem`：子元素是图标，只有图标时必须给 `aria-label`。触发按钮用 `<IconButton variant="inverse">`，它的 `aria-label` 同时是这一条的名称。
 - `Popover` 是点击触发、里面可以操作的一小块面板（`trigger`、`title`、`description` + 子元素），不打断页面。一句说明用 `Tooltip`，必须做完才能继续的用 `Dialog`。
+- `HoverCard` 是指针停在一个**链接**上时出来的预览，写法比照 `Popover`（`trigger` 是那个链接），面板也是同一块。触屏上不出现、读屏也不读，所以里面只放点进去也看得到的东西。竖排的一列链接让它出在侧面（`side="right"`），出在下面会盖住下一行的链接。
 - 触发元素要是一个按钮，并且把收到的属性和 `ref` 交给原生元素。本库的 `Button`、`IconButton` 都可以直接用。
 
 下拉选择的触发器和输入框长得一样，放进 `Field` 自动关联标签与错误说明：
@@ -536,11 +551,14 @@ import {
   BackToTop,
   Carousel,
   CarouselSlide,
+  ImageViewer,
+  ImageViewerItem,
   MediaCard,
   PlayButton,
   Schedule,
   ScheduleItem,
   ScheduleTrack,
+  ScrollArea,
 } from "@endfield-ui/react";
 
 <Accordion defaultValue={["route"]}>
@@ -566,6 +584,16 @@ import {
   </CarouselSlide>
 </Carousel>
 
+<ImageViewer aria-label="现场照片">
+  <ImageViewerItem title="三号管廊入口" description="北段复测当天拍的。">
+    <img src={photo} alt="" />
+  </ImageViewerItem>
+</ImageViewer>
+
+<ScrollArea aria-label="值守日志" className="max-h-64">
+  {log}
+</ScrollArea>
+
 <Schedule label="十月排期" start="2026-10-01" end="2026-10-31" today={today}>
   <ScheduleTrack label="测绘" icon={<RouteIcon />}>
     <ScheduleItem start="2026-10-03" end="2026-10-12" title="管廊北段" type="限时" />
@@ -580,9 +608,28 @@ import {
 - `AvatarSwitcher` 是一列头像里选一个，语义是单选组（方向键换人）；放不下时给它一个高度上限。
 - `MediaCard` 的 `video` 在封面左下角加一个播放记号（黄色小方块，`PlayMark`）。记号不能点，整卡仍然只有一个链接；封面要"点了就在原地播放"时用 `PlayButton`，它是真的按钮。
 - `Carousel` 不自动播放。轨道是原生的横向滚动，触屏上直接滑；不在眼前的幻灯片 `Tab` 走不进去。
+- `ImageViewer` 原地是一组缩略图，点一张放大到整屏看：方向键、触屏左右滑翻页，`Esc` 或点图以外的空处关，焦点回到当前那一张的缩略图。大图那一层在两个主题下都是深色。图用 `<img>`，按原比例整张显示；`thumbnail` 可以另给一张小图。
+- `ScrollArea` 是一块限高、自己滚的区域，滚动条是画出来的；高度（或上限）用 `className` 给。只有真的溢出才有滚动条，也才是一个能聚焦的区域，所以 `aria-label` 必填。整页的滚动留给浏览器，不要包。`viewportRef` 交出真正在滚的元素，给 `Toc`、`BackToTop` 的 `target`。
 - `Schedule` 的条目只写起止日期，位置和错行都是算出来的；放不下时在自己的容器里横向滚动。
 - `BackToTop` 滚过 400px 才出现，默认钉在视口右下角；点了回到顶部，焦点也交还给页面的头上。要看某个滚动容器时传 `target`，并用 `className` 改位置。祖先上有 `transform` 或容器查询（`@container`）时 `fixed` 不再相对视口：把它放在那一栏的最后，加 `className="sticky bottom-4 self-end"`。
 - 本库不带任何图片：头像、轮播和排期里的图都由使用方给。
+
+每一页顶上放一个页头：
+
+```tsx
+import { Button, PageHeader, PageHeaderBack } from "@endfield-ui/react";
+
+<PageHeader
+  back={<PageHeaderBack href="/archive" aria-label="返回档案" />}
+  meta="// TR-2041　2026.10.08"
+  title="十月第二批"
+  description="北区仓储站发出，三号管廊转运。"
+  actions={<Button variant="action">签收</Button>}
+/>
+```
+
+- 各格都是可选的：`breadcrumb`（放一个 `Breadcrumb`）、`back`、`meta`、`description`、`actions`，以及标题下面的子元素（页签、几个统计块）。标题默认是 `<h1>`，用 `level` 改。
+- 按自身的宽度响应：`actions` 放不下就整块折到标题下面。`sticky` 吸顶并带实底，上面还有顶栏时用 `className` 改 `top`。
 
 长页面旁边放一列页内目录：
 

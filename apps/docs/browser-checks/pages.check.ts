@@ -1002,3 +1002,212 @@ test("内容页：够宽时右边有页内目录，滚到哪亮到哪；并排�
     ["none", "none"],
   );
 });
+
+test("设置页：页头里是一级标题和面包屑；交接口令打六位，随表单走", async () => {
+  const { page } = storybook;
+  await page.story("示例-设置页--page");
+  const header = await page.evaluate(() => {
+    const element = document.querySelector("#storybook-root header")!;
+    return {
+      heading: element.querySelector("h1")?.textContent,
+      breadcrumb: element.querySelector("nav")?.getAttribute("aria-label"),
+      // 右边那几样读数在标题的同一行
+      sameRow:
+        Math.abs(
+          element.querySelector("[data-actions]")!.getBoundingClientRect().top -
+            element.querySelector("h1")!.getBoundingClientRect().top,
+        ) < 1,
+    };
+  });
+  assert.deepEqual(header, {
+    heading: "站点设置",
+    breadcrumb: "面包屑",
+    sameRow: true,
+  });
+
+  const code = () =>
+    page.evaluate(() =>
+      new FormData(document.querySelector("form")!).get("handover"),
+    );
+  assert.equal(await code(), "", "一开始口令是空的");
+  // 点标签，焦点落在第一格
+  await page.evaluate(() =>
+    [...document.querySelectorAll<HTMLElement>("#storybook-root label")]
+      .find((label) => label.textContent === "交接口令")!
+      .scrollIntoView({ block: "center" }),
+  );
+  await page.click(
+    await page.evaluate(() => {
+      const rect = [
+        ...document.querySelectorAll<HTMLElement>("#storybook-root label"),
+      ]
+        .find((label) => label.textContent === "交接口令")!
+        .getBoundingClientRect();
+      return { x: rect.left + 8, y: rect.top + rect.height / 2 };
+    }),
+  );
+  await page.waitFocused(/^input:/, "点标签焦点应该落在第一格");
+  await page.type("204157");
+  await page.waitFor(
+    async () => (await code()) === "204157",
+    "六位口令应该随表单提交",
+  );
+});
+
+test("列表页：页头报出共多少条；右栏的日程限高，在自己的滚动区里滚", async () => {
+  const { page } = storybook;
+  await page.story("示例-列表页--page");
+  const header = await page.evaluate(() => {
+    const element = document.querySelector("#storybook-root header")!;
+    return [
+      element.querySelector("h1")?.textContent,
+      element.querySelector("p")?.textContent,
+    ];
+  });
+  assert.deepEqual(header, ["档案", "// ARCHIVE　共 28 条"]);
+
+  const AREA = "#storybook-root [data-scroll-area]";
+  const read = () =>
+    page.evaluate((css) => {
+      const root = document.querySelector<HTMLElement>(css)!;
+      const viewport = root.firstElementChild as HTMLElement;
+      return {
+        role: viewport.getAttribute("role"),
+        name: viewport.getAttribute("aria-label"),
+        height: root.getBoundingClientRect().height,
+        overflows: viewport.scrollHeight > viewport.clientHeight + 1,
+        bars: root.querySelectorAll(":scope > [aria-hidden][data-orientation]")
+          .length,
+        scrollTop: viewport.scrollTop,
+        // 八条日程都在里面
+        items: viewport.querySelectorAll("li").length,
+      };
+    }, AREA);
+  // 八条日程每条至少两行字，怎么都比 224px 高（和字体无关）
+  await page.waitFor(
+    async () => (await read()).bars === 1,
+    "日程比给它的高度长，应该有一条滚动条",
+  );
+  const found = await read();
+  assert.deepEqual(
+    {
+      role: found.role,
+      name: found.name,
+      overflows: found.overflows,
+      items: found.items,
+    },
+    { role: "region", name: "日程", overflows: true, items: 8 },
+  );
+  assert.ok(Math.abs(found.height - 224) < 1, "滚动区顶到 224px 的上限");
+
+  await page.evaluate((css) => {
+    document.querySelector(css)!.firstElementChild!.scrollTop = 120;
+  }, AREA);
+  await page.waitFor(
+    async () => (await read()).scrollTop === 120,
+    "日程应该能在自己里面滚",
+  );
+});
+
+test("调度台：目的站是链接，悬停出一张站点的悬浮卡，出在右边不盖住下面几行", async () => {
+  const { page } = storybook;
+  await page.story("示例-调度台--page");
+  // 第三列是目的站；第一列的批次号也是链接，不是它
+  const LINK = "#storybook-root tbody tr:not([data-detail]) td:nth-child(3) a";
+  const first = await page.evaluate((css) => {
+    const link = document.querySelector<HTMLAnchorElement>(css)!;
+    link.scrollIntoView({ block: "center" });
+    const rect = link.getBoundingClientRect();
+    return {
+      text: link.textContent ?? "",
+      hash: link.getAttribute("href"),
+      point: { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 },
+      right: rect.right,
+    };
+  }, LINK);
+  assert.match(first.hash ?? "", /^#[NSEW]-\d\d$/, "链接指向这个站的编号");
+
+  await page.moveTo(first.point);
+  await page.waitFor(
+    () =>
+      page.evaluate(
+        (name) =>
+          [...document.querySelectorAll("[data-hover-card]")].some((card) =>
+            (card.textContent ?? "").includes(name),
+          ),
+        first.text,
+      ),
+    "悬停在目的站上应该出一张写着站名的卡片",
+  );
+  const card = await page.evaluate((css) => {
+    const element = document.querySelector("[data-hover-card]")!;
+    const rect = element.getBoundingClientRect();
+    // 这一列里别的链接有没有被卡片盖住
+    const covered = [...document.querySelectorAll(css)].filter((link) => {
+      const box = link.getBoundingClientRect();
+      const hit = document.elementFromPoint(
+        box.left + box.width / 2,
+        box.top + box.height / 2,
+      );
+      return hit !== null && element.contains(hit);
+    }).length;
+    return {
+      left: rect.left,
+      covered,
+      progress: element.querySelector("[role=progressbar]") !== null,
+      text: element.textContent ?? "",
+    };
+  }, LINK);
+  assert.ok(card.left >= first.right, "卡片应该出在链接的右边");
+  assert.equal(card.covered, 0, "卡片不应该盖住这一列里的链接");
+  assert.equal(card.progress, true, "卡片里有仓容的进度条");
+  assert.match(card.text, /编号 [NSEW]-\d\d/);
+
+  await page.moveTo({ x: 5, y: 5 });
+  await page.waitFor(
+    async () => (await count(page, "[data-hover-card]")) === 0,
+    "指针移开之后卡片应该关",
+  );
+});
+
+test("内容页：站点档案里的现场照片，点一张放大，翻一张，关了回到那张缩略图", async () => {
+  const { page } = storybook;
+  await page.story("示例-内容页--page");
+  const THUMBS = '#storybook-root ul[aria-label="现场照片"] button';
+  const VIEWER = "[data-image-viewer]";
+  assert.equal(await count(page, THUMBS), 5);
+
+  await page.click(
+    await page.evaluate((css) => {
+      const button = document.querySelectorAll<HTMLElement>(css)[1]!;
+      button.scrollIntoView({ block: "center" });
+      const rect = button.getBoundingClientRect();
+      return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    }, THUMBS),
+  );
+  await page.waitVisible(VIEWER, "点缩略图应该打开大图层");
+  const counter = () =>
+    page.evaluate(
+      (css) => document.querySelector(`${css} [data-count]`)?.textContent,
+      VIEWER,
+    );
+  await page.waitFor(async () => (await counter()) === "2 / 5", "开在第二张");
+  // 按键之前等焦点进到这一层
+  await page.waitFor(
+    () =>
+      page.evaluate(
+        (css) => document.activeElement === document.querySelector(css),
+        VIEWER,
+      ),
+    "打开时焦点应该在大图层上",
+  );
+  await page.key("ArrowRight");
+  await page.waitFor(async () => (await counter()) === "3 / 5", "→ 到第三张");
+
+  await page.key("Escape");
+  await page.waitGone(VIEWER, "Esc 应该关");
+  await page.waitFocused(
+    "button:查看大图：第三岩层营地全景",
+    "焦点应该回到第三张的缩略图",
+  );
+});

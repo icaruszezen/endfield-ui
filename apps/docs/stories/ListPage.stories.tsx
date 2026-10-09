@@ -20,9 +20,10 @@ import {
   ListRow,
   MediaCard,
   Navigator,
+  PageHeader,
   Pagination,
   ProgressRing,
-  SectionTitle,
+  ScrollArea,
   Select,
   Stepper,
   Switch,
@@ -39,7 +40,7 @@ import { MoreIcon } from "./_shared/ResourceIcons";
 
 /**
  * 用分页、媒体卡、时间线这一批控件搭一个列表页。文案与数据全部虚构。
- * 排序是下拉选择，"更多"是下拉菜单；页面窄的时候类别筛选收进抽屉。
+ * 顶上是页头；排序是下拉选择，"更多"是下拉菜单；页面窄的时候类别筛选收进抽屉；侧栏里的日程限了高，在滚动区里滚。
  */
 const meta = {
   title: "示例/列表页",
@@ -162,16 +163,18 @@ function Archive() {
 
   return (
     <div className="@container mx-auto flex max-w-5xl flex-col gap-10">
-      <header className="flex flex-col gap-6">
-        <Breadcrumb>
-          <BreadcrumbItem href="#station">站点</BreadcrumbItem>
-          <BreadcrumbItem href="#seventh">第七勘探队</BreadcrumbItem>
-          <BreadcrumbItem current>档案</BreadcrumbItem>
-        </Breadcrumb>
-        <SectionTitle latin="Archive" level={1}>
-          档案
-        </SectionTitle>
-      </header>
+      <PageHeader
+        breadcrumb={
+          <Breadcrumb>
+            <BreadcrumbItem href="#station">站点</BreadcrumbItem>
+            <BreadcrumbItem href="#seventh">第七勘探队</BreadcrumbItem>
+            <BreadcrumbItem current>档案</BreadcrumbItem>
+          </Breadcrumb>
+        }
+        meta={`// ARCHIVE　共 ${records.length} 条`}
+        title="档案"
+        description="按站点和月份归档的现场记录。"
+      />
 
       {/* 凹陷底色的工具条里，输入框换成四边描边 */}
       <div className="flex flex-wrap items-end gap-x-6 gap-y-4 bg-surface-sunken p-4">
@@ -400,17 +403,37 @@ function Archive() {
 
           <section>
             <Label>日程</Label>
-            <Timeline aria-label="日程">
-              <TimelineItem date="10.02" title="首批测绘数据归档" />
-              <TimelineItem status="current" date="10.08" title="补给站扩建">
-                第二阶段施工中。
-              </TimelineItem>
-              <TimelineItem
-                status="upcoming"
-                date="10.21"
-                title="终端停机维护"
-              />
-            </Timeline>
+            {/* 日程越排越长：限高，里面自己滚。滚动条是画出来的那一种 */}
+            <ScrollArea aria-label="日程" className="max-h-56">
+              <Timeline aria-label="日程">
+                <TimelineItem date="09.24" title="第七勘探区立项" />
+                <TimelineItem date="09.28" title="信标到货，共四十枚" />
+                <TimelineItem date="10.02" title="首批测绘数据归档" />
+                <TimelineItem status="current" date="10.08" title="补给站扩建">
+                  第二阶段施工中。
+                </TimelineItem>
+                <TimelineItem
+                  status="upcoming"
+                  date="10.14"
+                  title="管廊北段复测"
+                />
+                <TimelineItem
+                  status="upcoming"
+                  date="10.21"
+                  title="终端停机维护"
+                />
+                <TimelineItem
+                  status="upcoming"
+                  date="10.26"
+                  title="第三岩层采样"
+                />
+                <TimelineItem
+                  status="upcoming"
+                  date="10.31"
+                  title="月度归档截止"
+                />
+              </Timeline>
+            </ScrollArea>
           </section>
         </aside>
       </div>

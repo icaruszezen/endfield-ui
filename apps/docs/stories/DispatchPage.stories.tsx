@@ -12,12 +12,14 @@ import {
   Field,
   FlyoutBar,
   FlyoutBarItem,
+  HoverCard,
   IconButton,
   Menu,
   NavAction,
   NavMenu,
   NavMenuItem,
   Pagination,
+  Progress,
   RegistrationStrip,
   SideRail,
   SideRailGroup,
@@ -68,7 +70,7 @@ import {
 } from "./_shared/ResourceIcons";
 import { ShipmentDetail } from "./_shared/ShipmentDetail";
 import { shipments, type Shipment } from "./_shared/shipments";
-import { stationGroups, stationLabel } from "./_shared/stations";
+import { stationGroups, stationLabel, stations } from "./_shared/stations";
 
 /**
  * 用侧轨、顶栏、全屏菜单、表格（行能展开）、工具栏、组合框、日期范围、右键菜单搭一个带外壳的工具页。
@@ -131,6 +133,35 @@ const statusTag = (status: Shipment["status"]) =>
       {status}
     </Tag>
   );
+
+/*
+ * 目的站是一个链接：悬停（或键盘聚焦）时预览这个站的概况。
+ * 卡片出在右边——出在下面会盖住下面几行的链接。里面只放点进去也看得到的东西
+ */
+function StationLink({ value, batches }: { value: string; batches: number }) {
+  const code =
+    stations.find((station) => station.value === value)?.keywords[0] ?? value;
+  const label = stationLabel(value);
+  // 虚构的仓容：由编号算出来，每次打开都一样
+  const load = 30 + ((code.charCodeAt(0) + Number(code.slice(-2)) * 17) % 60);
+  return (
+    <HoverCard
+      side="right"
+      trigger={
+        <a
+          href={`#${code}`}
+          className="underline decoration-line-strong underline-offset-4 hover:decoration-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        >
+          {label}
+        </a>
+      }
+      title={label}
+      description={`编号 ${code}，这一页有 ${batches} 批发往这里。`}
+    >
+      <Progress value={load} showValue aria-label="仓容" />
+    </HoverCard>
+  );
+}
 
 function Board() {
   const toast = useToast();
@@ -469,7 +500,15 @@ function Board() {
                     </span>
                   </TableCell>
                   <TableCell>{row.cargo}</TableCell>
-                  <TableCell>{stationLabel(row.station)}</TableCell>
+                  <TableCell>
+                    <StationLink
+                      value={row.station}
+                      batches={
+                        rows.filter((other) => other.station === row.station)
+                          .length
+                      }
+                    />
+                  </TableCell>
                   <TableCell>{statusTag(row.status)}</TableCell>
                   <TableCell>
                     <Sparkline

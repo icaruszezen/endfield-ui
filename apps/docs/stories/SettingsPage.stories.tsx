@@ -15,6 +15,8 @@ import {
   Input,
   List,
   ListRow,
+  OtpInput,
+  PageHeader,
   Panel,
   PanelBody,
   PanelHeader,
@@ -107,17 +109,19 @@ function Settings() {
 
   return (
     <div className="@container mx-auto flex max-w-3xl flex-col gap-10">
-      <header className="flex flex-col gap-6">
-        <Breadcrumb>
-          <BreadcrumbItem href="#station">站点</BreadcrumbItem>
-          <BreadcrumbItem href="#seventh">第七勘探队</BreadcrumbItem>
-          <BreadcrumbItem current>设置</BreadcrumbItem>
-        </Breadcrumb>
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <SectionTitle latin="Settings" level={1}>
-            站点设置
-          </SectionTitle>
-          <div className="flex flex-wrap items-center gap-2">
+      {/* 页头：面包屑、标题，右边是这个站现在的几样读数。窄了读数折到标题下面 */}
+      <PageHeader
+        breadcrumb={
+          <Breadcrumb>
+            <BreadcrumbItem href="#station">站点</BreadcrumbItem>
+            <BreadcrumbItem href="#seventh">第七勘探队</BreadcrumbItem>
+            <BreadcrumbItem current>设置</BreadcrumbItem>
+          </Breadcrumb>
+        }
+        meta="// SETTINGS"
+        title="站点设置"
+        actions={
+          <>
             <ResourceChip icon={<FuelIcon />} label="燃料 1,280">
               1,280
             </ResourceChip>
@@ -125,9 +129,9 @@ function Settings() {
               64
             </ResourceChip>
             <Countdown to={opened + 3 * DAY + 4 * 3_600_000} />
-          </div>
-        </div>
-      </header>
+          </>
+        }
+      />
 
       <section className="flex flex-col gap-6">
         {/* 这个站走到了哪一步；下面的数字是当前这一步的进度 */}
@@ -372,6 +376,13 @@ function Settings() {
               </PanelBody>
             </Panel>
           </div>
+          {/* 一格一位的短码：打一位跳一格，粘贴一整串会分到各格 */}
+          <Field
+            label="交接口令"
+            help="六位数字，交接时由上一班报给下一班。这次不交接就空着。"
+          >
+            <OtpInput name="handover" groupSize={3} />
+          </Field>
         </section>
 
         {/* 不常用的收进折叠面板。收起的内容不在页面里，所以这里面不放要提交的字段 */}
