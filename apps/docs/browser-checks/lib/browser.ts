@@ -381,6 +381,17 @@ export async function launch({
   }
 
   async function goto(url: string, ready: () => boolean | Promise<boolean>) {
+    // 页面上的字体还在取的时候跳走，下一页的字体请求会卡住二十来秒才回来（本机量到的：
+    // 一条检查的最后一步让等宽字第一次出现，紧接着下一条就跳去别的 story）。
+    // 跳之前等这一页的字体取完；最多等三秒，取不完也照跳
+    await evaluate(() =>
+      Promise.race([
+        document.fonts.ready.then(() => true),
+        new Promise<boolean>((resolve) =>
+          setTimeout(() => resolve(false), 3000),
+        ),
+      ]),
+    ).catch(() => false);
     errors.length = 0;
     const loaded = new Promise<void>((resolve) => {
       const listener = (message: Message) => {

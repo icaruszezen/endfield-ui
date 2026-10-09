@@ -18,3 +18,4 @@ export { StatusInfo } from "./StatusInfo";
 export { StatusSuccess } from "./StatusSuccess";
 export { StatusWarning } from "./StatusWarning";
 export { TriangleRight } from "./TriangleRight";
+export { Upload } from "./Upload";

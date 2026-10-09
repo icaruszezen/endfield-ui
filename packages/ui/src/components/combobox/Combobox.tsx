@@ -23,6 +23,13 @@ import {
   type ControlSize,
   type ControlVariant,
 } from "../input/control-box";
+import {
+  multiValueBox,
+  valueChip,
+  valueChipRemove,
+  valueChipSize,
+  valueInputHeight,
+} from "../input/value-chip";
 
 export type ComboboxSize = ControlSize;
 export type ComboboxVariant = ControlVariant;
@@ -128,17 +135,11 @@ const isGrouped = (
 ): items is readonly ComboboxOptionGroup[] =>
   items.length > 0 && "items" in items[0]!;
 
-/** 单行时是固定高度；多选会换行，所以只定最小高度 */
-const boxSize: Record<ComboboxSize, { single: string; multiple: string }> = {
-  sm: { single: "h-8 text-sm", multiple: "min-h-8 text-sm" },
-  md: { single: "h-10 text-base", multiple: "min-h-10 text-base" },
-  lg: { single: "h-14 text-lg", multiple: "min-h-14 text-lg" },
-};
-
-const chipSize: Record<ComboboxSize, string> = {
-  sm: "h-5 text-xs",
-  md: "h-6 text-sm",
-  lg: "h-8 text-base",
+/** 单行时是固定高度；多选会换行，所以只定最小高度（`multiValueBox`） */
+const boxSize: Record<ComboboxSize, string> = {
+  sm: "h-8 text-sm",
+  md: "h-10 text-base",
+  lg: "h-14 text-lg",
 };
 
 /*
@@ -267,7 +268,9 @@ export function Combobox(props: ComboboxProps) {
       aria-describedby={field["aria-describedby"]}
       className={cn(
         controlElement,
-        multiple ? "h-6 min-w-12 px-1" : "h-full pr-2 pl-3",
+        multiple
+          ? ["min-w-12 px-1", valueInputHeight[size]]
+          : "h-full pr-2 pl-3",
       )}
     />
   );
@@ -285,7 +288,7 @@ export function Combobox(props: ComboboxProps) {
         className={cn(
           controlBox({ variant, invalid, disabled, readOnly: false }),
           "items-center",
-          boxSize[size][multiple ? "multiple" : "single"],
+          multiple ? multiValueBox[size] : boxSize[size],
           className,
         )}
       >
@@ -300,10 +303,10 @@ export function Combobox(props: ComboboxProps) {
                       aria-label={option.label}
                       className={cn(
                         // 直角的小块：它是已经定下来的值，不是会自己变的状态
-                        "flex max-w-full min-w-0 cursor-default items-center bg-surface-muted pl-2 text-ink",
+                        valueChip,
                         "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus",
                         "data-disabled:text-ink-disabled",
-                        chipSize[size],
+                        valueChipSize[size],
                       )}
                     >
                       <span className="min-w-0 truncate">{option.label}</span>
@@ -311,7 +314,7 @@ export function Combobox(props: ComboboxProps) {
                         aria-label={(
                           props.removeLabel ?? ((label) => `移除${label}`)
                         )(option.label)}
-                        className="flex aspect-square h-full shrink-0 items-center justify-center text-ink-secondary hover:bg-line hover:text-ink"
+                        className={valueChipRemove}
                       >
                         <Close size={12} />
                       </BaseCombobox.ChipRemove>

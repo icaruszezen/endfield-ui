@@ -206,14 +206,20 @@ test("完成横幅：底不变，里面的行动按钮焦点环看得见", async
   for (const theme of ["light", "dark"] as const) {
     await page.story("控件-completionbanner-完成横幅--with-action", theme);
     const tokens = await pageTokens(page);
-    const banner = await page.evaluate(() => {
-      const element = document.querySelector("#storybook-root [role=status]")!;
-      return {
-        theme: element.getAttribute("data-theme"),
-        fill: getComputedStyle(element).backgroundColor,
-      };
-    });
-    assert.deepEqual(banner, { theme: "inverse", fill: tokens.surfaceInverse });
+    // 横幅的底是跟着主题过渡过去的：刚载入就读，机器慢的时候读到的还是亮色那一档。等它到位
+    const banner = await page.waitFor(async () => {
+      const found = await page.evaluate(() => {
+        const element = document.querySelector(
+          "#storybook-root [role=status]",
+        )!;
+        return {
+          theme: element.getAttribute("data-theme"),
+          fill: getComputedStyle(element).backgroundColor,
+        };
+      });
+      return found.fill === tokens.surfaceInverse ? found : null;
+    }, `${theme}：横幅的底应该是反转的表面色`);
+    assert.equal(banner.theme, "inverse");
 
     await page.key("Tab");
     await page.waitFocused("button:领取奖励");

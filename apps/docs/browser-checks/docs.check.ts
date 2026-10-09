@@ -11,6 +11,8 @@ const pages = [
   "控件-toast-轻提示--docs",
   "控件-select-下拉选择--docs",
   "控件-combobox-组合框--docs",
+  "控件-taginput-标签输入--docs",
+  "控件-fileupload-文件上传--docs",
   "控件-itemslot-物品格--docs",
   "控件-table-表格--docs",
   "控件-toolbar-工具栏--docs",
