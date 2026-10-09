@@ -7,7 +7,7 @@ describe("CornerBrackets", () => {
     render(<CornerBrackets data-testid="box">内容</CornerBrackets>);
     const box = screen.getByTestId("box");
     expect(box).toHaveTextContent("内容");
-    expect(box).toHaveClass("corner-brackets");
+    expect(box).toHaveClass("corner-brackets", "after:animate-bracket-in");
     expect(box).toHaveAttribute("data-visible");
   });
 
@@ -19,6 +19,7 @@ describe("CornerBrackets", () => {
     );
     const box = screen.getByTestId("box");
     expect(box).not.toHaveClass("corner-brackets");
+    expect(box).not.toHaveClass("after:animate-bracket-in");
     expect(box).not.toHaveAttribute("data-visible");
     expect(box).toHaveTextContent("内容");
   });

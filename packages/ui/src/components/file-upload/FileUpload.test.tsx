@@ -111,6 +111,7 @@ describe("FileUpload", () => {
     expect(zone()).not.toHaveClass("border-dashed");
     expect(zone().querySelector("[data-brackets]")).toHaveClass(
       "corner-brackets",
+      "after:animate-bracket-in",
     );
     expect(zone()).toHaveTextContent("松开，放进来");
 

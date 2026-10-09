@@ -20,6 +20,7 @@ const sizeClass: Record<CornerBracketsSize, string> = {
  * 用于矩阵里的单选（物品格、名册卡、图鉴）；列表行用左缘色条，页签用底色，都不用它。
  *
  * 括号画在盒子之外 4px：它所在的容器不能贴着盒子裁切。
+ * 出现时八段短线从角的顶点伸到满长（200ms），消失是直接消失。
  * 括号只是给眼睛看的，选中态另外要有 `aria-selected` / `aria-pressed`。
  */
 export function CornerBrackets({
@@ -34,7 +35,7 @@ export function CornerBrackets({
       data-visible={visible ? "" : undefined}
       className={cn(
         "relative",
-        visible && "corner-brackets",
+        visible && "corner-brackets after:animate-bracket-in",
         sizeClass[size],
         className,
       )}

@@ -368,6 +368,7 @@
   --animate-fade-in: ef-fade-in 300ms ease-out both;
   --animate-indeterminate: ef-indeterminate 1.2s linear infinite alternate;
   --animate-pulse: ef-pulse 2s ease-in-out infinite;
+  --animate-bracket-in: ef-bracket-in 200ms ease-out both;
 
   /* 三次短促闪烁后点亮（官网实测的关键帧节奏） */
   @keyframes ef-flicker {
@@ -505,6 +506,25 @@
     }
     50% {
       opacity: 0.6;
+    }
+  }
+
+  /*
+   * 角括号落位：八段短线各自从角的顶点伸到满长。写成 after:animate-bracket-in，
+   * 和 corner-brackets 一起用——八层的顺序（横、竖交替）跟着 utilities.css 里那八层背景走。
+   * 只写起点：终点就是括号自己的尺寸。只动背景的尺寸，括号不会比平时多占一点地方
+   */
+  @keyframes ef-bracket-in {
+    from {
+      background-size:
+        0 var(--_w),
+        var(--_w) 0,
+        0 var(--_w),
+        var(--_w) 0,
+        0 var(--_w),
+        var(--_w) 0,
+        0 var(--_w),
+        var(--_w) 0;
     }
   }
 }

@@ -274,7 +274,8 @@ export function ItemSlot({
       className={cn(
         "relative",
         ratioClass[ratio],
-        selected && "corner-brackets",
+        // 选中的那一刻括号从角上伸出来；取消时直接消失
+        selected && "corner-brackets after:animate-bracket-in",
         className,
       )}
     >

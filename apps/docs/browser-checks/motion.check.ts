@@ -386,3 +386,60 @@ test("步骤条：走完一步，连线的墨色从起点充到头；往回走�
     );
   });
 });
+
+test("角括号：选中时八段短线从角上伸出来，不往外多占地方；取景角不动", async () => {
+  const { page } = storybook;
+  await withMotion(page, async () => {
+    await page.story("控件-itemslot-物品格--selectable");
+    await record(page, "#storybook-root");
+    // 点一个原来没选的：选中的换成它
+    await page.click("#storybook-root button[aria-pressed=false]");
+    await page.waitVisible("#storybook-root [data-selected]");
+    await page.settled("#storybook-root");
+    assert.ok(
+      (await recorded(page)).includes("ef-bracket-in::after"),
+      "括号应该是伸出来的，不是直接出现",
+    );
+
+    // 动画走完还留着（它带 fill）：拨回起点和终点各看一眼
+    const frames = await page.evaluate(() => {
+      const host = document.querySelector("#storybook-root [data-selected]")!;
+      const animation = host
+        .getAnimations({ subtree: true })
+        .find(
+          (found) => (found as CSSAnimation).animationName === "ef-bracket-in",
+        )!;
+      const read = () => {
+        const style = getComputedStyle(host, "::after");
+        return {
+          // 八层里的头两层：左上角的一横一竖
+          arms: style.backgroundSize
+            .split(",")
+            .slice(0, 2)
+            .map((value) => value.trim()),
+          box: [style.top, style.right, style.bottom, style.left].join(" "),
+        };
+      };
+      animation.pause();
+      animation.currentTime = 0;
+      const start = read();
+      animation.finish();
+      return { start, end: read() };
+    });
+    assert.deepEqual(frames, {
+      // 起点两段都是 0 长；括号的盒子从头到尾在宿主之外 4px，没有再往外
+      start: { arms: ["0px 2px", "2px 0px"], box: "-4px -4px -4px -4px" },
+      end: { arms: ["12px 2px", "2px 12px"], box: "-4px -4px -4px -4px" },
+    });
+
+    // 取景角用的是同一个工具类，但它是静态的装饰：不带这个动画
+    await page.story("母题-viewfinder-取景角--playground");
+    const viewfinder = await page.evaluate(() => {
+      const brackets = document.querySelector(
+        "#storybook-root .corner-brackets",
+      );
+      return brackets && getComputedStyle(brackets, "::after").animationName;
+    });
+    assert.equal(viewfinder, "none");
+  });
+});

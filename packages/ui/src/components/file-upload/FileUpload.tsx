@@ -348,7 +348,7 @@ export function FileUpload({
             data-brackets=""
             className={cn(
               decor,
-              "corner-brackets absolute inset-1.5 [--bracket-offset:0px]",
+              "corner-brackets absolute inset-1.5 [--bracket-offset:0px] after:animate-bracket-in",
             )}
           />
         )}

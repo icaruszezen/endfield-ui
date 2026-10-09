@@ -67,7 +67,7 @@
   - 要做：连线从左（竖排是从上）充填，和进度条的充填是同一个画法；节点换色也加过渡。
   - 改哪里：`steps/Steps.tsx`。墨色画在线的 `::before` 上，从左上角按两个方向一起放大，所以横排、竖排、容器变窄自动改竖排三种情况用同一组类。墨色那一层比线多出去 16px、由线自己裁掉：不这样的话线是一边变长一边变粗的，半路上比别的线细（逐帧截图看出来的）。
   - 规范：[导航](design/components/navigation.md#步骤条)。
-- [ ] **1.4 角括号落位。**
+- [x] **1.4 角括号落位。**
   - 现在：`corner-brackets` 这个工具类一加上，四个角就硬切出现。
   - 要做：八段短线各自从角的顶点伸到满长（`animate-bracket-in`，200ms）。只做出现；取消选中时直接消失。
   - 改哪里：关键帧和令牌在 [theme.css](../packages/ui/src/styles/theme.css)（`lib/cn.ts` 里的名单同步）；物品格的选中、文件上传拖入时的那一层、`CornerBrackets` 组件各自加上 `after:animate-bracket-in`。

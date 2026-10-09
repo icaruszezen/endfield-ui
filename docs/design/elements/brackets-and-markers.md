@@ -53,12 +53,20 @@
 | `--bracket-offset` | 4px | 画在宿主之外多远；取景角设成 0 |
 
 ```html
-<li class="relative aria-selected:corner-brackets" aria-selected="true">…</li>
+<li
+  class="relative aria-selected:corner-brackets aria-selected:after:animate-bracket-in"
+  aria-selected="true"
+>
+  …
+</li>
 ```
 
 - 括号画在 `::after` 上，**宿主要自己定位**（`relative` 或 `absolute`）。工具类不替它设 `position`：宿主本来是绝对定位的时候会被改掉。
 - 括号在宿主之外 4px：宿主和它的裁切祖先（`overflow: clip` 的卡面、滚动容器）之间要留出这段空隙，否则被切掉。
 - 选中的格子同时被键盘聚焦时，焦点环外移到括号之外（偏移 6px），两圈不重叠。
+- **出现时落位**（推断）：再加一个 `after:animate-bracket-in`，八段短线各自从角的顶点伸到满长，200ms。取消选中时直接消失——视线已经跟着新选中的那一格走了。
+  - 只动背景的尺寸，括号不会比平时多占一点地方。没有做成"从外面收进来"：括号本来就画在宿主之外 4px，再往外就伸出了留给它的空隙，放在滚动容器里会闪一下滚动条。
+  - 这个类是另加的，不在 `corner-brackets` 里：[取景角](#取景角) 用的是同一个工具类，它是静态的装饰，不该一挂载就动一下。物品格、`<CornerBrackets>`、文件上传拖入时的那一层已经带上了。
 
 不用 Tailwind 的项目用 `<CornerBrackets visible size>`：它包住内容并画括号，`size` 两档臂长（12 / 16px），`visible` 传选中状态。括号只是给眼睛看的，选中态另外要有 `aria-selected` 或 `aria-pressed`。
 

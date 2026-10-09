@@ -37,11 +37,18 @@ describe("ItemSlot", () => {
       <ItemSlot name="合金锭" onClick={() => {}} data-testid="slot" />,
     );
     expect(screen.getByTestId("slot")).not.toHaveClass("corner-brackets");
+    expect(screen.getByTestId("slot")).not.toHaveClass(
+      "after:animate-bracket-in",
+    );
 
     rerender(
       <ItemSlot name="合金锭" onClick={() => {}} selected data-testid="slot" />,
     );
-    expect(screen.getByTestId("slot")).toHaveClass("corner-brackets");
+    // 括号是"落位"的：选中的那一刻从角上伸出来
+    expect(screen.getByTestId("slot")).toHaveClass(
+      "corner-brackets",
+      "after:animate-bracket-in",
+    );
     expect(screen.getByTestId("slot")).toHaveAttribute("data-selected");
     expect(screen.getByRole("button")).toHaveClass(
       "focus-visible:outline-offset-[6px]",
