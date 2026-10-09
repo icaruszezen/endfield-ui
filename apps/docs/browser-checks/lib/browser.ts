@@ -321,7 +321,9 @@ export async function launch({
     }
   }
 
-  function locate(target: string): Promise<Point | null> {
+  function locate(
+    target: string,
+  ): Promise<(Point & { hittable: boolean }) | null> {
     return evaluate((selector) => {
       const shown = (node: Element) => {
         const rect = node.getBoundingClientRect();
@@ -343,14 +345,27 @@ export async function launch({
       if (!element) return null;
       element.scrollIntoView({ block: "nearest" });
       const rect = element.getBoundingClientRect();
-      return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      // 这一点上最上面的是不是它（或者它里面、包着它的东西）
+      const top = document.elementFromPoint(x, y);
+      const hittable =
+        top !== null && (element.contains(top) || top.contains(element));
+      return { x, y, hittable };
     }, target);
   }
 
-  /** 元素的中心点。等它出现，并且连续两次量到同一个位置——布局还在动的时候点不中 */
+  /**
+   * 元素的中心点。等它出现，并且连续两次量到同一个位置——布局还在动的时候点不中。
+   *
+   * 还要等到真的点得到它：一个正在展开的容器里，元素的位置早就定了，
+   * 但还被裁在外面，这时候点下去点到的是它下面的东西（本机快碰不上，CI 上碰得上）。
+   * 等上一秒还是点不到就照点——有的检查点的就是被盖住的地方。
+   */
   async function point(target: Target): Promise<Point> {
     if (typeof target !== "string") return target;
     let previous: Point | null = null;
+    const started = Date.now();
     return waitFor(async () => {
       const current = await locate(target);
       const settled =
@@ -359,7 +374,9 @@ export async function launch({
         Math.abs(current.x - previous.x) < 0.5 &&
         Math.abs(current.y - previous.y) < 0.5;
       previous = current;
-      return settled ? current : null;
+      if (!settled) return null;
+      if (!current.hittable && Date.now() - started < 1000) return null;
+      return { x: current.x, y: current.y };
     }, `找不到 ${target}`);
   }
 
