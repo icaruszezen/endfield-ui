@@ -370,6 +370,9 @@ export async function launch({
     await send("Page.navigate", { url });
     await loaded;
     await waitFor(() => evaluate(ready), `页面没有渲染出来：${url}`, 20000);
+    // 预览外壳是挂载之后才把主题写到 <html> 上的，颜色从亮色过渡到目标主题：
+    // 多等两帧让这一轮过渡结束，否则紧跟着读颜色读到的是起点（见 frames）
+    await page.frames();
   }
 
   const page = {
@@ -379,6 +382,25 @@ export async function launch({
     waitFor,
     /** 干等。只用在"过了这么久它仍然没变"这类反面的断言上 */
     pause: sleep,
+
+    /**
+     * 等几帧。状态刚变、马上要读一个**会过渡的样式**（颜色、位置）当基准时用：
+     * "减少动态效果"把过渡压到了 0.01ms，但它要到下一帧才走完，
+     * 紧跟着读到的是过渡的起点——本机碰巧读得到终点，CI 上不一定
+     */
+    frames(count = 2) {
+      return evaluate(
+        (frames) =>
+          new Promise<void>((resolve) => {
+            const next = (left: number) =>
+              left === 0
+                ? resolve()
+                : requestAnimationFrame(() => next(left - 1));
+            next(frames);
+          }),
+        count,
+      );
+    },
 
     /** 打开一个 story 的画布，等它渲染完 */
     story(id: string, theme: Theme = "light") {

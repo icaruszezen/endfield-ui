@@ -65,6 +65,8 @@ const stories = [
   "控件-contextmenu-右键菜单--rows",
   "控件-combobox-组合框--remote",
   "控件-siderail-侧轨--playground",
+  "控件-siderail-侧轨--sub-tree",
+  "控件-panel-面板--band-controls",
   "控件-topbar-顶栏与全屏菜单--playground",
   "控件-navaction-主行动块--layouts",
   "控件-accordion-折叠面板--extra",

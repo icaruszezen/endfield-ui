@@ -12,6 +12,22 @@ describe("CompletionBanner", () => {
     ).toBeInTheDocument();
   });
 
+  it("整块是一个反转主题：行动按钮按这块底色取值", () => {
+    render(
+      <CompletionBanner
+        title="全部完成"
+        action={<button type="button">领取</button>}
+      />,
+    );
+    const banner = screen.getByRole("status");
+    expect(banner).toHaveAttribute("data-theme", "inverse");
+    expect(banner).toHaveClass("bg-surface", "text-ink");
+    expect(screen.getByRole("heading")).toHaveClass("text-accent-ink");
+    expect(
+      screen.getByRole("button", { name: "领取" }).closest("[data-theme]"),
+    ).toBe(banner);
+  });
+
   it("标题层级可以换", () => {
     render(<CompletionBanner title="全部完成" level={2} />);
     expect(screen.getByRole("heading", { level: 2 })).toBeInTheDocument();

@@ -305,6 +305,9 @@ test("两个主题：键盘移到当前项上，它的底色会变", async () =>
     // 把高亮从当前项上挪开，再挪回来
     await page.key("ArrowDown");
     await page.waitFor(async () => !(await selected()), "高亮应该离开当前项");
+    // 底色是过渡回去的：等它到位再量，否则量到的还是"被移到"时的那个颜色，
+    // 后面就永远等不到"不一样"了
+    await page.frames();
     const resting = await page.waitFor(color, "量不到当前项的底色");
     await page.key("ArrowUp");
     await page.waitFor(

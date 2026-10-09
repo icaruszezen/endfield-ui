@@ -1,5 +1,9 @@
 import {
   Button,
+  Checkbox,
+  DropdownMenu,
+  DropdownMenuItem,
+  IconButton,
   Panel,
   PanelBody,
   PanelHeader,
@@ -8,6 +12,7 @@ import {
   Tag,
 } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { MoreIcon } from "./_shared/ResourceIcons";
 
 const meta = {
   title: "控件/Panel 面板",
@@ -65,6 +70,51 @@ export const Line: Story = {
         </Button>
         <Button size="sm">保存</Button>
       </PanelBody>
+    </Panel>
+  ),
+};
+
+/*
+ * 标题带是一个反转主题：放进去的控件按这条带子的底色取值，不用另外处理。
+ * 用 Tab 走一遍——焦点环在亮、暗两个主题下都看得见
+ */
+export const BandControls: Story = {
+  name: "标题带里的控件",
+  render: () => (
+    <Panel className="max-w-md">
+      <PanelHeader
+        extra={
+          <>
+            <Checkbox defaultChecked>只看未完成</Checkbox>
+            <Tag size="sm" variant="outline">
+              草稿
+            </Tag>
+            <Button size="sm" variant="text">
+              导出
+            </Button>
+            <DropdownMenu
+              align="end"
+              trigger={
+                <IconButton size="sm" aria-label="更多操作">
+                  <MoreIcon />
+                </IconButton>
+              }
+            >
+              <DropdownMenuItem>重新测绘</DropdownMenuItem>
+              <DropdownMenuItem>归档</DropdownMenuItem>
+            </DropdownMenu>
+          </>
+        }
+      >
+        测绘进度
+      </PanelHeader>
+      <PanelRows>
+        {rows.map(([label, value]) => (
+          <PanelRow key={label} label={label}>
+            {value}
+          </PanelRow>
+        ))}
+      </PanelRows>
     </Panel>
   ),
 };

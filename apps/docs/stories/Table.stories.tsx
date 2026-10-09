@@ -153,8 +153,8 @@ function SelectableTable() {
 
   return (
     <div className="flex flex-col gap-3">
-      {/* 表头里放复选框时用浅表头：反转的标题带上，已选的方格和底是同一个颜色 */}
-      <Table label="运输批次" headerVariant="muted">
+      {/* 反转的表头是一个反转主题：里面的复选框按带子的底色取值 */}
+      <Table label="运输批次">
         <TableHead>
           <TableRow>
             <TableHeaderCell className="w-10">

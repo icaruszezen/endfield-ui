@@ -24,7 +24,8 @@ export type PanelHeaderVariant = "band" | "line";
 
 export type PanelHeaderProps = Omit<ComponentProps<"div">, "title"> & {
   /**
-   * - `band` 深色横带 + 左端短竖条，默认；
+   * - `band` 反转的横带 + 左端短竖条，默认。它是一个 `data-theme="inverse"` 的
+   *   局部主题：里面的按钮、标签、焦点环都按这条带子的底色取值；
    * - `line` 只有一条细线和小标题，更轻。同一个界面选一种。
    */
   variant?: PanelHeaderVariant;
@@ -46,20 +47,22 @@ export function PanelHeader({
 
   return (
     <div
+      // 标题带和页面相反：整条换成反转主题，下面照常用 surface / ink
+      data-theme={variant === "band" ? "inverse" : undefined}
       {...props}
       className={cn(
-        "relative flex items-center justify-between gap-3 px-4 text-sm font-medium",
+        "relative flex items-center justify-between gap-3 px-4 text-sm font-medium text-ink",
         variant === "band"
-          ? "min-h-8 bg-surface-inverse text-ink-inverse"
-          : "min-h-10 border-b border-line text-ink",
+          ? "min-h-8 bg-surface"
+          : "min-h-10 border-b border-line",
         className,
       )}
     >
       {variant === "band" && (
-        // 标题带是反转块，竖条用反转块上的强调色才能在暗色主题下看得见
+        // 亮色页面上是黄条压墨底，暗色页面上是深黄条压近白底
         <span
           aria-hidden="true"
-          className="absolute top-1/2 left-0 h-4 w-1 -translate-y-1/2 bg-accent-ink-inverse"
+          className="absolute top-1/2 left-0 h-4 w-1 -translate-y-1/2 bg-accent-ink"
         />
       )}
       <Heading className="min-w-0 truncate">{children}</Heading>

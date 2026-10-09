@@ -31,6 +31,31 @@ describe("Panel", () => {
     expect(screen.getByText("4 项")).toBeInTheDocument();
   });
 
+  it("band 标题带是一个反转主题，里面用普通的 surface / ink；line 不是", () => {
+    const { rerender } = render(
+      <Panel>
+        <PanelHeader data-testid="header">基础属性</PanelHeader>
+      </Panel>,
+    );
+    const header = () => screen.getByTestId("header");
+    expect(header()).toHaveAttribute("data-theme", "inverse");
+    expect(header()).toHaveClass("bg-surface", "text-ink");
+    // 左端的竖条跟着这块底取强调色
+    expect(header().querySelector("[aria-hidden]")).toHaveClass(
+      "bg-accent-ink",
+    );
+
+    rerender(
+      <Panel>
+        <PanelHeader variant="line" data-testid="header">
+          基础属性
+        </PanelHeader>
+      </Panel>,
+    );
+    expect(header()).not.toHaveAttribute("data-theme");
+    expect(header().querySelector("[aria-hidden]")).toBeNull();
+  });
+
   it("bordered=false 去掉描边", () => {
     render(
       <Panel bordered={false} data-testid="panel">

@@ -100,13 +100,17 @@ describe("Table", () => {
 
   it("两种表头、两档行高", () => {
     const { rerender } = render(<Shipments />);
+    const head = () => screen.getAllByRole("rowgroup")[0]!;
+    // 反转的标题带是一个反转主题：里面用的就是普通的 surface / ink
+    expect(head()).toHaveAttribute("data-theme", "inverse");
     expect(screen.getByRole("columnheader", { name: "批次" })).toHaveClass(
-      "bg-surface-inverse",
-      "text-ink-inverse",
+      "bg-surface",
+      "text-ink",
     );
     expect(screen.getByRole("cell", { name: "12" })).toHaveClass("h-11");
 
     rerender(<Shipments headerVariant="muted" size="sm" />);
+    expect(head()).not.toHaveAttribute("data-theme");
     expect(screen.getByRole("columnheader", { name: "批次" })).toHaveClass(
       "bg-surface-muted",
       "text-ink",
@@ -198,7 +202,7 @@ describe("Table", () => {
     );
     expect(screen.getByRole("columnheader", { name: "批次" })).toHaveClass(
       "first:sticky",
-      "bg-surface-inverse",
+      "bg-surface",
     );
   });
 

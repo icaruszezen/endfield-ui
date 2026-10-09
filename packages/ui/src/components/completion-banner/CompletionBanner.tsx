@@ -20,6 +20,7 @@ export type CompletionBannerProps = Omit<ComponentProps<"div">, "title"> & {
  * 只在真正的里程碑上用；日常的"保存成功"用提示条就够了。
  *
  * 底是反转块：亮色主题下是深底黄字，暗色主题下是浅底深字。
+ * 整块是一个 `data-theme="inverse"` 的局部主题，`action` 里的按钮按这块底色取值。
  */
 export function CompletionBanner({
   title,
@@ -36,30 +37,31 @@ export function CompletionBanner({
   return (
     <div
       role="status"
+      data-theme="inverse"
       {...props}
       className={cn(
-        "@container relative isolate overflow-clip bg-surface-inverse text-ink-inverse",
+        "@container relative isolate overflow-clip bg-surface text-ink",
         className,
       )}
     >
       {word !== null && (
         <GhostText
           variant="outline"
-          // 描边取反转块上的文字色，默认的墨色在这块底上看不见。
+          // 描边比默认的重一些，在这块底上才看得出来。
           // 贴右下角、向左淡出，不从标题和说明后面穿过；容器窄到放不下时去掉
-          className="absolute -right-2 -bottom-3 -z-10 hidden text-5xl [--ghost-ink:color-mix(in_srgb,var(--ef-ink-inverse)_28%,transparent)] [mask-image:linear-gradient(to_left,black_45%,transparent)] @md:block"
+          className="absolute -right-2 -bottom-3 -z-10 hidden text-5xl [--ghost-ink:color-mix(in_srgb,var(--ef-ink)_28%,transparent)] [mask-image:linear-gradient(to_left,black_45%,transparent)] @md:block"
         >
           {word}
         </GhostText>
       )}
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-4 @md:px-6 @md:py-5">
-        {/* 压在反转块上的强调色用 accent-ink-inverse，暗色主题下黄字压白底看不见 */}
-        <div className="min-w-0 border-l-4 border-accent-ink-inverse pl-3">
-          <Heading className="text-lg font-bold wrap-anywhere text-accent-ink-inverse @md:text-xl">
+        {/* 强调色跟着这块底走：亮色页面上是黄字压墨底，暗色页面上是深黄字压近白底 */}
+        <div className="min-w-0 border-l-4 border-accent-ink pl-3">
+          <Heading className="text-lg font-bold wrap-anywhere text-accent-ink @md:text-xl">
             {title}
           </Heading>
           {description && (
-            <p className="mt-1 text-sm text-ink-inverse/70">{description}</p>
+            <p className="mt-1 text-sm text-ink/70">{description}</p>
           )}
           {children}
         </div>

@@ -17,7 +17,7 @@
 | `term/` | `Term` | [数据展示](../../../../docs/design/components/data-display.md) |
 | `kbd/` | `Kbd` | [测绘叠层](../../../../docs/design/elements/hud-overlays.md) |
 | `tabs/` | `Tabs`、`TabList`、`Tab`、`TabPanel`（格子、胶囊、楔形三种） | [导航](../../../../docs/design/components/navigation.md) |
-| `side-rail/` | `SideRail`、`SideRailItem`、`SideRailGroup` | [导航](../../../../docs/design/components/navigation.md) |
+| `side-rail/` | `SideRail`、`SideRailItem`、`SideRailGroup`、`SideRailSub`、`SideRailSubItem`（二级） | [导航](../../../../docs/design/components/navigation.md) |
 | `top-bar/` | `TopBar` | [导航](../../../../docs/design/components/navigation.md) |
 | `nav-menu/` | `NavMenu`、`NavMenuItem`（全屏菜单） | [导航](../../../../docs/design/components/navigation.md) |
 | `nav-action/` | `NavAction`（主行动块） | [导航](../../../../docs/design/components/navigation.md) |
@@ -132,7 +132,8 @@ components/
 - 触发元素作为一个 React 元素传入（`trigger={<Button>…</Button>}`，文字提示是 `children`），内部交给基元的 `render`。它得把收到的属性和 `ref` 交给原生元素。
 - **所有浮层用同一个 `z-(--z-overlay)`**，靠打开的先后叠：弹窗里的下拉才能盖住弹窗。不要给某个浮层单独加高。
 - **浮层挂在 `<body>` 下，拿不到局部主题。** 用 [`usePortalScope`](../hooks/usePortalScope.ts)：`anchorRef` 给触发元素，`portalRef` 给基元的 `Portal`，它把最近的 `data-theme` / `data-choice` 抄过去。
-- **一块固定深色（或和页面相反）的区域里还要放别的控件时，把它做成局部主题**（`data-theme="dark"`），里面照常用语义令牌；不要逐个写 `neutral-*`。弹窗的标题带、文字提示都是这样。
+- **一块固定深色的区域里还要放别的控件时，把它做成局部主题**（`data-theme="dark"`），里面照常用语义令牌；不要逐个写 `neutral-*`。弹窗的标题带、行带都是这样。
+- **一块跟着主题翻、但总和页面相反的区域（反转块）里要放别的控件时，用 `data-theme="inverse"`**，里面照常用 `bg-surface text-ink`——取到的就是原来的 `surface-inverse` / `ink-inverse`，颜色不变。面板的标题带、表格的表头带、完成横幅都是这样。反转块里不要再嵌反转块。
 - 进出场用基元给的 `data-starting-style` / `data-ending-style` 写 CSS 过渡（`data-starting-style:opacity-0`），不写关键帧。基元等过渡结束才卸载浮层。
 - 没有边线、全靠底色和页面分开的浮层（文字提示）加一圈透明的边线：高对比模式下底色被系统覆盖，边线会自己显形。
 - **要画焦点环的元素不要写 `outline-none`。** Tailwind v4 里它把轮廓的线型定成 `none`，后面的 `focus-visible:outline-2` 也跟着画不出来（菜单的选项踩过）。`outline-none` 只留给"焦点环画在别处"的元素：输入框里的 `<input>`、下拉的触发按钮（环在外框上）、弹窗的面。

@@ -40,7 +40,8 @@ export type TableProps = Omit<ComponentProps<"table">, "aria-label"> & {
   label: string;
   /**
    * 表头的画法：
-   * - `band` 反转的标题带（亮色下墨底白字），默认，和面板的标题带是同一个样子；
+   * - `band` 反转的标题带（亮色下墨底白字），默认，和面板的标题带是同一个样子。
+   *   表头是一个 `data-theme="inverse"` 的局部主题，里面可以照常放复选框；
    * - `muted` 浅灰底墨字，页面上已经有很多深色块时用。
    */
   headerVariant?: TableHeaderVariant;
@@ -148,9 +149,15 @@ export function Table({
 export type TableHeadProps = ComponentProps<"thead">;
 
 export function TableHead(props: TableHeadProps) {
+  const { headerVariant } = useContext(TableContext);
   return (
     <SectionContext value="head">
-      <thead {...props} />
+      <thead
+        // 反转的标题带整个换成反转主题：列头的焦点环、排序的三角、
+        // 放在里面的复选框都按这条带子的底色取值
+        data-theme={headerVariant === "band" ? "inverse" : undefined}
+        {...props}
+      />
     </SectionContext>
   );
 }
@@ -228,23 +235,10 @@ const stickyCell = "first:sticky first:left-0 first:z-1";
 const stickyHead = "sticky top-0 z-1";
 const stickyCorner = "first:z-2";
 
+/* `band` 的 surface 是反转主题里的 surface，也就是页面的反转色 */
 const headerFill: Record<TableHeaderVariant, string> = {
-  band: "bg-surface-inverse text-ink-inverse",
+  band: "bg-surface text-ink",
   muted: "bg-surface-muted text-ink",
-};
-
-/*
- * 表头是反转块时，焦点环和"当前排序"的三角都用反转块上的强调色：
- * 亮色下是黄（压在墨底上），暗色下是深档（压在近白上）。普通的焦点色在这上面看不见。
- */
-const headerRing: Record<TableHeaderVariant, string> = {
-  band: "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent-ink-inverse",
-  muted: focusRingInset,
-};
-
-const sortedMark: Record<TableHeaderVariant, string> = {
-  band: "text-accent-ink-inverse",
-  muted: "text-accent-ink",
 };
 
 export type TableHeaderCellProps = Omit<ComponentProps<"th">, "align"> & {
@@ -302,7 +296,7 @@ export function TableHeaderCell({
             align === "center" && "justify-center",
             // th 的 first: / last: 落不到按钮上，这里照着单元格的内边距再写一遍
             "px-3 [th:first-child>&]:pl-4 [th:last-child>&]:pr-4",
-            headerRing[headerVariant],
+            focusRingInset,
           )}
         >
           {children}
@@ -312,7 +306,7 @@ export function TableHeaderCell({
               "shrink-0 transition-[opacity,rotate] duration-(--duration-fast) ease-standard",
               sort === "ascending" ? "-rotate-90" : "rotate-90",
               sort
-                ? sortedMark[headerVariant]
+                ? "text-accent-ink"
                 : "opacity-40 group-hover/sort:opacity-100",
             )}
           />

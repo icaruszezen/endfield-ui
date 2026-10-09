@@ -7,7 +7,8 @@
  *
  * 结构：
  *   1. 语义变量      随主题变化；亮色在 :root 与 [data-theme="light"]，
- *                    暗色在 [data-theme="dark"]。两种都可以加在局部容器上
+ *                    暗色在 [data-theme="dark"]。两种都可以加在局部容器上。
+ *                    [data-theme="inverse"] 是"和所在主题相反"，给反转块用
  *   2. @theme        不随主题变化的原始令牌
  *   3. @theme inline 把语义变量映射成 Tailwind 颜色工具类
  *
@@ -68,6 +69,27 @@
   --ef-success: #007f43;
   --ef-warning: #b74e00;
   --ef-info: #25759f;
+
+  /*
+   * 相反主题的取值，给 [data-theme="inverse"] 用：和暗色那一块逐项相同
+   * （有一条测试核对）。两个主题下取值相同的令牌不用列；
+   * 底、字、强调色不在这里，由反转块的父元素现抄，见下面
+   */
+  --ef-x-scheme: dark;
+  --ef-x-surface-raised: #1f1f1f;
+  --ef-x-surface-sunken: #000000;
+  --ef-x-surface-muted: #282828;
+  --ef-x-ink-secondary: #b3b3b3;
+  --ef-x-ink-disabled: #626262;
+  --ef-x-line: #383838;
+  --ef-x-line-strong: #626262;
+  --ef-x-disabled: #282828;
+  --ef-x-focus: #fffa00;
+  --ef-x-scrim: rgb(0 0 0 / 0.7);
+  --ef-x-danger: #f74040;
+  --ef-x-success: #00d872;
+  --ef-x-warning: #fc6c00;
+  --ef-x-info: #2d8fc2;
 }
 
 [data-theme="dark"] {
@@ -111,6 +133,81 @@
   --ef-success: #00d872;
   --ef-warning: #fc6c00;
   --ef-info: #2d8fc2;
+
+  /* 相反主题的取值：和亮色那一块逐项相同 */
+  --ef-x-scheme: light;
+  --ef-x-surface-raised: #fafafa;
+  --ef-x-surface-sunken: #f2f2f2;
+  --ef-x-surface-muted: #e6e6e6;
+  --ef-x-ink-secondary: #626262;
+  --ef-x-ink-disabled: #b3b3b3;
+  --ef-x-line: #d9d9d9;
+  --ef-x-line-strong: #b3b3b3;
+  --ef-x-disabled: #b3b3b3;
+  --ef-x-focus: #191919;
+  --ef-x-scrim: rgb(0 0 0 / 0.5);
+  --ef-x-danger: #de0909;
+  --ef-x-success: #007f43;
+  --ef-x-warning: #b74e00;
+  --ef-x-info: #25759f;
+}
+
+/*
+ * 反转块：标题带这类"和页面相反"的区域。把它做成一个局部主题，里面的控件、
+ * 焦点环就按这块底色取值，不用逐个改写法。
+ *
+ * 它的底、字、强调色就是所在处的 surface-inverse / ink-inverse / accent-ink-inverse
+ * ——反转块换成这个写法之后颜色不变，局部改过的强调色（主题色接管）也带得进来。
+ * 但一个元素读不到自己正在改写的变量在父级是什么值，所以由**父元素**把这三对
+ * 对调着抄一份（--ef-x-*），反转块再从继承来的那份里取。
+ *
+ * 反转块里面不再抄：反转块里再嵌一层反转块不会翻回去，和外面那层相同。
+ */
+:has(> [data-theme="inverse"]):not(
+  [data-theme="inverse"],
+  [data-theme="inverse"] *
+) {
+  --ef-x-surface: var(--ef-surface-inverse);
+  --ef-x-surface-inverse: var(--ef-surface);
+  --ef-x-ink: var(--ef-ink-inverse);
+  --ef-x-ink-inverse: var(--ef-ink);
+  --ef-x-accent-ink: var(--ef-accent-ink-inverse);
+  --ef-x-accent-ink-inverse: var(--ef-accent-ink);
+}
+
+/*
+ * 其余的令牌取相反主题的值：亮、暗两块里各备了一份。走的是继承，
+ * 取到的一定是最近那个主题的反面——亮、暗两个容器同时在页面上时（并排预览）也不会取错
+ */
+[data-theme="inverse"] {
+  color-scheme: var(--ef-x-scheme);
+
+  --ef-surface: var(--ef-x-surface);
+  --ef-surface-raised: var(--ef-x-surface-raised);
+  --ef-surface-sunken: var(--ef-x-surface-sunken);
+  --ef-surface-muted: var(--ef-x-surface-muted);
+  --ef-surface-inverse: var(--ef-x-surface-inverse);
+
+  --ef-ink: var(--ef-x-ink);
+  --ef-ink-secondary: var(--ef-x-ink-secondary);
+  --ef-ink-disabled: var(--ef-x-ink-disabled);
+  --ef-ink-inverse: var(--ef-x-ink-inverse);
+
+  --ef-line: var(--ef-x-line);
+  --ef-line-strong: var(--ef-x-line-strong);
+
+  --ef-accent-ink: var(--ef-x-accent-ink);
+  --ef-accent-ink-inverse: var(--ef-x-accent-ink-inverse);
+
+  --ef-disabled: var(--ef-x-disabled);
+
+  --ef-focus: var(--ef-x-focus);
+  --ef-scrim: var(--ef-x-scrim);
+
+  --ef-danger: var(--ef-x-danger);
+  --ef-success: var(--ef-x-success);
+  --ef-warning: var(--ef-x-warning);
+  --ef-info: var(--ef-x-info);
 }
 
 /* ------------------------------------------------------------------ */
