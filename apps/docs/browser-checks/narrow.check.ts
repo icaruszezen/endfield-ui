@@ -81,6 +81,10 @@ const stories = [
   "控件-mediacard-媒体卡--video",
   "控件-backtotop-回到顶部--in-container",
   "控件-backtotop-回到顶部--page",
+  "控件-segmentedcontrol-分段选择--in-field",
+  "控件-segmentedcontrol-分段选择--narrow",
+  "控件-steps-步骤条--playground",
+  "控件-steps-步骤条--clickable",
   "控件-brackettitle-方括号标题--sizes",
   "母题-texture-底纹--variants",
 ];

@@ -28,6 +28,8 @@ const pages = [
   "控件-playbutton-播放钮--docs",
   "控件-mediacard-媒体卡--docs",
   "控件-backtotop-回到顶部--docs",
+  "控件-segmentedcontrol-分段选择--docs",
+  "控件-steps-步骤条--docs",
   "控件-panel-面板--docs",
   "控件-tooltip-文字提示--docs",
   "控件-popover-气泡卡片--docs",

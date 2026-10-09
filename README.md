@@ -18,11 +18,11 @@
 | 类别 | 控件 |
 | --- | --- |
 | 基础 | Button / ButtonGroup、IconButton、Tag / TagPair、Badge、Kbd、SectionTitle、BracketTitle、Tabs、Panel |
-| 表单 | Field、Input、Textarea、Select、Combobox、DatePicker / Calendar、Checkbox、Radio / RadioGroup、Switch、Stepper、Slider、FilterChip |
+| 表单 | Field、Input、Textarea、Select、Combobox、DatePicker / Calendar、Checkbox、Radio / RadioGroup、SegmentedControl、Switch、Stepper、Slider、FilterChip |
 | 反馈 | Alert、Toast、Progress / ProgressRing、Spinner、Skeleton、EmptyState、Loader、CompletionBanner、RecIndicator |
 | 浮层 | Tooltip、Popover、Dialog、Drawer、DropdownMenu、ContextMenu、FlyoutBar |
 | 展示 | Table、Stat、Sparkline、DataRowList / DataRow、List / ListRow、Accordion、MediaCard、PlayButton / PlayMark、Carousel、ItemSlot / ItemGrid、Avatar、Timeline、Schedule、Term、ResourceChip、Countdown、Marquee、ScrollHint |
-| 导航 | SideRail（含二级）、TopBar、NavMenu、NavAction、Breadcrumb、Pagination、Navigator、AvatarSwitcher、DashIndicator、BackToTop |
+| 导航 | SideRail（含二级）、TopBar、NavMenu、NavAction、Breadcrumb、Pagination、Navigator、AvatarSwitcher、DashIndicator、Steps、BackToTop |
 | 母题 | CornerBrackets、Viewfinder、GhostText、Hatch、Texture、RegistrationStrip、TickRing、HazardStripe |
 
 切角、斜楔、角括号、镂空字、斜纹、底纹这些母题同时是 Tailwind 工具类（`cut-tr`、`wedge-r`、`corner-brackets`、`dot-grid`…），见 [styles/README.md](packages/ui/src/styles/README.md)。

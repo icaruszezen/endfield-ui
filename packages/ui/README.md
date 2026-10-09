@@ -7,11 +7,11 @@
 | 类别 | 控件 |
 | --- | --- |
 | 基础 | Button / ButtonGroup、IconButton、Tag / TagPair、Badge、Kbd、SectionTitle、BracketTitle、Tabs、Panel |
-| 表单 | Field、Input、Textarea、Select、Combobox、DatePicker / Calendar、Checkbox、Radio / RadioGroup、Switch、Stepper、Slider、FilterChip |
+| 表单 | Field、Input、Textarea、Select、Combobox、DatePicker / Calendar、Checkbox、Radio / RadioGroup、SegmentedControl、Switch、Stepper、Slider、FilterChip |
 | 反馈 | Alert、Toast、Progress / ProgressRing、Spinner、Skeleton、EmptyState、Loader、CompletionBanner、RecIndicator |
 | 浮层 | Tooltip、Popover、Dialog、Drawer、DropdownMenu、ContextMenu、FlyoutBar |
 | 展示 | Table、Stat、Sparkline、DataRowList / DataRow、List / ListRow、Accordion、MediaCard、PlayButton / PlayMark、Carousel、ItemSlot / ItemGrid、Avatar、Timeline、Schedule、Term、ResourceChip、Countdown、Marquee、ScrollHint |
-| 导航 | SideRail（含二级）、TopBar、NavMenu、NavAction、Breadcrumb、Pagination、Navigator、AvatarSwitcher、DashIndicator、BackToTop |
+| 导航 | SideRail（含二级）、TopBar、NavMenu、NavAction、Breadcrumb、Pagination、Navigator、AvatarSwitcher、DashIndicator、Steps、BackToTop |
 | 母题 | CornerBrackets、Viewfinder、GhostText、Hatch、Texture、RegistrationStrip、TickRing、HazardStripe |
 
 包还没有发布到 npm，目前只在本仓库的工作区里使用。
@@ -109,6 +109,23 @@ import { Checkbox, Field, Input, Radio, RadioGroup, Switch } from "@endfield-ui/
 
 表单控件都是原生 `<input>` / `<textarea>` 套样式：`name`、`value`、`required`、`ref` 这些属性直接落在原生元素上，可以照常放进 `<form>` 提交。`className` 给的是外层（输入框的外框、复选框的整行）。
 
+几个短选项要一眼看全时用分段选择。它的语义也是单选组（方向键换值、带 `name` 随表单提交），只是并排摆在一条轨道里：
+
+```tsx
+import { Field, Segment, SegmentedControl } from "@endfield-ui/react";
+
+<Field label="时间显示">
+  <SegmentedControl name="clock" value={clock} onValueChange={setClock}>
+    <Segment value="24">24 小时</Segment>
+    <Segment value="12">12 小时</Segment>
+  </SegmentedControl>
+</Field>
+```
+
+- 高度和输入框同三档，并排时对得齐；放在凹陷底色的工具条里用 `variant="outline"`。
+- 各段等宽；要撑满一栏加 `className="w-full"`。放不下时文字截断，所以每段两到四个字为好。
+- 切换的是下面显示哪一块内容时用 `Tabs`，不是它。
+
 滑块和日期选择同样放进 `Field`，带 `name` 时值随表单提交：
 
 ```tsx
@@ -152,6 +169,23 @@ import { Navigator, Pagination, Stepper } from "@endfield-ui/react";
 ```
 
 页码从 1 起，`index` 从 0 起。
+
+步骤条只收一个 `current`（从 0 起），每一步是已完成、当前还是未到由位置算出来：
+
+```tsx
+import { Step, Steps } from "@endfield-ui/react";
+
+<Steps aria-label="建站流程" current={step}>
+  <Step title="建站" description="选址、供电、通信" onClick={() => setStep(0)} />
+  <Step title="测绘" />
+  <Step title="复核" invalid={hasError} />
+  <Step title="归档" />
+</Steps>
+```
+
+- 横排在所在的容器窄于 28rem 时自动改成竖排；`orientation="vertical"` 是一直竖排。它靠容器查询量宽度，所以要放在有确定宽度的地方（默认撑满一栏）。
+- 传了 `href`、`render` 或 `onClick` 的那一步可以点，用来回到做过的步骤；没传就是纯文字。
+- `Steps` 是步骤条，`Stepper` 是加减数字的步进器，别拿错。
 
 ### 加载页
 

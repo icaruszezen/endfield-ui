@@ -25,6 +25,7 @@
 | `pagination/` | `Pagination` | [导航](../../../../docs/design/components/navigation.md) |
 | `navigator/` | `Navigator` | [导航](../../../../docs/design/components/navigation.md) |
 | `dash-indicator/` | `DashIndicator` | [导航](../../../../docs/design/components/navigation.md) |
+| `steps/` | `Steps`、`Step`（步骤条；`Stepper` 是数字步进器，不是它） | [导航](../../../../docs/design/components/navigation.md) |
 | `back-to-top/` | `BackToTop`（回到顶部：滚过一段才出现的悬浮钮） | [导航](../../../../docs/design/components/navigation.md) |
 | `panel/` | `Panel`、`PanelHeader`、`PanelBody`、`PanelRows`、`PanelRow` | [卡片](../../../../docs/design/components/card.md) |
 | `accordion/` | `Accordion`、`AccordionItem`（折叠面板） | [卡片](../../../../docs/design/components/card.md) |
@@ -41,6 +42,7 @@
 | `textarea/` | `Textarea` | [表单](../../../../docs/design/components/form.md) |
 | `checkbox/` | `Checkbox`（可整体换成菱形符号） | [表单](../../../../docs/design/components/form.md) |
 | `radio/` | `RadioGroup`、`Radio`（同上） | [表单](../../../../docs/design/components/form.md) |
+| `segmented-control/` | `SegmentedControl`、`Segment`（分段选择：并排的单选） | [表单](../../../../docs/design/components/form.md) |
 | `switch/` | `Switch`（含双标签开关） | [表单](../../../../docs/design/components/form.md) |
 | `stepper/` | `Stepper` | [表单](../../../../docs/design/components/form.md) |
 | `slider/` | `Slider`（传两个值是范围滑块） | [表单](../../../../docs/design/components/form.md) |

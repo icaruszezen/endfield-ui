@@ -22,6 +22,7 @@
 | 下拉选择 | `<Select items value placeholder variant size panelVariant invalid>`；分组用 `SelectGroup` / `SelectItem` / `SelectSeparator` | 已实现 |
 | 组合框 | `<Combobox items value multiple loading filter>`，属性比照下拉选择 | 已实现 |
 | 步进器 | `<Stepper value min max step size>` | 已实现 |
+| 分段选择 | `<SegmentedControl value name size variant>` + `<Segment value>` | 已实现 |
 | 滑块 | `<Slider value min max step showValue marks>`；`value` 传两个数是范围滑块 | 已实现 |
 | 日期选择 | `<DatePicker value min max format>`；只要月历用 `<Calendar>` | 已实现 |
 | 菱形符号（方案 B） | `<html data-choice="diamond">` | 已实现 |
@@ -245,6 +246,43 @@
 - 标签换行时，控件对齐第一行，不居中。
 - 错误态描边换成 `danger`，同时必须有文字说明。
 - 一组单选都没选时，浏览器会让它们全部命中 `:indeterminate`，所以半选的样式只写在复选框上。
+
+## 分段选择
+
+两到五个值里选一个，选项并排摆在一条轨道里，一眼看得全。（推断：官网和游戏界面里没有这个控件。轨道是输入框的"凹陷的底 + 一条底边线"，选中的那一段是这套语言里的"填充反转"——和选中的胶囊、月历的选中格是同一个做法。）
+
+| 项 | 值 |
+| --- | --- |
+| 轨道 | `surface-sunken` 底 + 2px 的底边线，直角，四周 2px 内边距 |
+| 高度 | 32 / 40 / 56px，和输入框同三档：并排时对得齐 |
+| 段 | 等宽，按最宽的那一段定；水平内边距 12 / 16 / 24px |
+| 未选 | `ink-secondary`；悬停 `ink` + 墨色 5% 的底 |
+| 选中 | `surface-inverse` 底、`ink-inverse` 字 |
+| 禁用 | `ink-disabled`；选中又禁用的那一段是 `disabled` 底、`on-disabled` 字 |
+| 底边线 | 默认 `line-strong`，里面有焦点时 `ink`，错误 `danger`——和输入框一样靠这条线说状态 |
+
+- `variant="outline"` 把轨道换成四边 1px 的描边加页面底色，放在凹陷底色的工具条里用，和输入框的两种变体一一对应。
+- **选中不加粗。** 加粗会让那一段变宽，整条跟着跳。选中靠的是填充反转，不只是换个字色。
+- **各段等宽。** 选中的块从一段换到另一段时大小不变，看上去是同一个块在挪。
+- 默认按内容定宽；要撑满所在的一栏加 `className="w-full"`。放不下时每一段的文字截断成省略号，不换行、不撑破——所以每段两到四个字为好。
+
+用哪个：
+
+| 情况 | 用 |
+| --- | --- |
+| 两到五个短选项，要一眼看全 | 分段选择 |
+| 选项要带说明、要竖排、或者多于五个 | [单选](#复选与单选) 或 [下拉选择](#下拉选择) |
+| 切换的是下面显示哪一块内容 | [页签](navigation.md)：它切的是内容，不是一个表单值 |
+| 可以同时选几个 | 筛选胶囊 |
+| 只有开和关 | [开关](#开关)；两个值都要写出来时用双标签开关 |
+
+已实现为 `<SegmentedControl value defaultValue onValueChange name size variant disabled required>` + `<Segment value icon disabled>`：
+
+- **语义是单选组**：每一段里是一个真的单选按钮。方向键换值（到头绕回去）、`Tab` 只停一次、带 `name` 时值随表单提交，都是浏览器原生的行为。
+- 焦点环画在有焦点的那一段上，并提到相邻段之上。
+- 放进 `Field` 后标签、帮助文字、错误说明、禁用、必填自动关联；不在 `Field` 里时自己传 `aria-label`。
+- 只有图标的段要给 `aria-label`。
+- 只做了单选。能同时按下几个的那种（加粗、斜体）是工具栏里的开关按钮，不是表单值，这里没有做。
 
 ## 开关
 
