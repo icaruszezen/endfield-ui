@@ -1,4 +1,6 @@
+export * from "./components/accordion";
 export * from "./components/alert";
+export * from "./components/avatar";
 export * from "./components/badge";
 export * from "./components/bracket-title";
 export * from "./components/breadcrumb";
@@ -44,6 +46,7 @@ export * from "./components/section-title";
 export * from "./components/select";
 export * from "./components/side-rail";
 export * from "./components/skeleton";
+export * from "./components/slider";
 export * from "./components/sparkline";
 export * from "./components/spinner";
 export * from "./components/stat";

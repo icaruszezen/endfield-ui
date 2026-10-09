@@ -11,6 +11,7 @@
 | `stat/` | `Stat` | [数据展示](../../../../docs/design/components/data-display.md) |
 | `sparkline/` | `Sparkline` | [数据展示](../../../../docs/design/components/data-display.md) |
 | `data-row/` | `DataRowList`、`DataRow` | [数据展示](../../../../docs/design/components/data-display.md) |
+| `avatar/` | `Avatar`、`AvatarSwitcher`、`AvatarSwitcherItem`（头像切换：一列头像里选一个） | [数据展示](../../../../docs/design/components/data-display.md)、[导航](../../../../docs/design/components/navigation.md) |
 | `section-title/` | `SectionTitle` | [分节标题](../../../../docs/design/elements/section-title.md) |
 | `bracket-title/` | `BracketTitle` | [括号与标记](../../../../docs/design/elements/brackets-and-markers.md) |
 | `term/` | `Term` | [数据展示](../../../../docs/design/components/data-display.md) |
@@ -25,6 +26,7 @@
 | `navigator/` | `Navigator` | [导航](../../../../docs/design/components/navigation.md) |
 | `dash-indicator/` | `DashIndicator` | [导航](../../../../docs/design/components/navigation.md) |
 | `panel/` | `Panel`、`PanelHeader`、`PanelBody`、`PanelRows`、`PanelRow` | [卡片](../../../../docs/design/components/card.md) |
+| `accordion/` | `Accordion`、`AccordionItem`（折叠面板） | [卡片](../../../../docs/design/components/card.md) |
 | `list/` | `List`、`ListRow` | [卡片](../../../../docs/design/components/card.md) |
 | `media-card/` | `MediaCard` | [卡片](../../../../docs/design/components/card.md) |
 | `item-slot/` | `ItemSlot`、`ItemGrid`（方向键导航的矩阵） | [卡片](../../../../docs/design/components/card.md) |
@@ -37,6 +39,7 @@
 | `radio/` | `RadioGroup`、`Radio`（同上） | [表单](../../../../docs/design/components/form.md) |
 | `switch/` | `Switch`（含双标签开关） | [表单](../../../../docs/design/components/form.md) |
 | `stepper/` | `Stepper` | [表单](../../../../docs/design/components/form.md) |
+| `slider/` | `Slider`（传两个值是范围滑块） | [表单](../../../../docs/design/components/form.md) |
 | `alert/` | `Alert` | [反馈](../../../../docs/design/components/feedback.md) |
 | `progress/` | `Progress`、`ProgressRing` | [反馈](../../../../docs/design/components/feedback.md) |
 | `skeleton/` | `Skeleton` | [反馈](../../../../docs/design/components/feedback.md) |

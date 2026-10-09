@@ -20,7 +20,9 @@
 | 开关 | `<Switch>`；两个值都要显示时加 `offLabel` `onLabel` | 已实现 |
 | 筛选胶囊 | `<FilterChip>`，见 [数据展示](data-display.md) | 已实现 |
 | 下拉选择 | `<Select items value placeholder variant size panelVariant invalid>`；分组用 `SelectGroup` / `SelectItem` / `SelectSeparator` | 已实现 |
+| 组合框 | `<Combobox items value multiple loading filter>`，属性比照下拉选择 | 已实现 |
 | 步进器 | `<Stepper value min max step size>` | 已实现 |
+| 滑块 | `<Slider value min max step showValue marks>`；`value` 传两个数是范围滑块 | 已实现 |
 | 菱形符号（方案 B） | `<html data-choice="diamond">` | 已实现 |
 
 实现时对下文规格做的调整都写在各节里，并标了"实现"。
@@ -307,6 +309,43 @@
 - 小数步长（`step={0.1}`）按步长的小数位数取整，不会出现 `0.30000000000000004`。
 - 颜色：两端 `control` / `on-control`（两个主题下相同），禁用时 `disabled` / `on-disabled`；错误态在数字下方出现一条 2px 的 `danger` 线，同时必须有文字说明。
 - 放进 `Field` 后标签、帮助文字、错误说明自动关联；焦点环画在整个步进器的外框上。
+
+## 滑块
+
+在一个范围里拖着选一个数：音量、缩放、透明度。（推断。）
+
+|  | 步进器 | 滑块 |
+| --- | --- | --- |
+| 要的是 | 一个确切的数 | 一个大概的位置 |
+| 改的时候 | 一步一步地加减，或者直接输入 | 边拖边看效果 |
+| 范围 | 可以没有上下限 | 必须有上下限 |
+
+| 项 | 值 |
+| --- | --- |
+| 轨道 | 高 4px，`line`，直角 |
+| 走过的一段 | `ink`。不用进度条的黄色：滑块的位置要看得清，黄色在浅灰轨道上看不清 |
+| 滑块 | 12 × 20px 的直角墨块（`surface-inverse`），和按钮里的竖条是一家；四周一圈 2px 的 `surface` 色，把它和轨道分开 |
+| 按住 | 墨块正中亮一条 2px 的强调色细线（`accent-ink-inverse`） |
+| 聚焦 | 滑块外 2px 的 `focus` 色环 |
+| 数值 | 可选，在轨道右侧，`font-tech`、等宽、加粗 |
+| 刻度 | 可选，轨道下方：1px × 6px 的短线（`line-strong`）+ `text-xs` 的标注 |
+| 高度 | 整个控件占 32 / 40px（`sm` / `md`），和同一行的其他控件对齐；轨道居中 |
+| 禁用 | 走过的一段和滑块变 `ink-disabled` |
+
+- 切到菱形方案（`data-choice="diamond"`）时，滑块换成一个 14px 的菱形。
+- 触屏上滑块的点击区补到 40 × 40px。
+- 点轨道的任意位置，滑块跳过去并且可以接着拖。
+
+### 实现
+
+- `<Slider value defaultValue onValueChange onValueCommitted min max step largeStep size showValue format marks name disabled>`。默认范围 0 – 100、步长 1。
+- **`value` 传两个数就是范围滑块**：两个滑块，走过的一段在它们之间；`minStepsBetweenValues` 规定两者至少隔几步，两个滑块互相推不过去。
+- `onValueChange` 在拖动的每一步都触发；`onValueCommitted` 只在松手（或一次按键）之后触发——要发请求的事放在后者里。
+- `showValue` 在右侧显示当前值；`format` 是 `Intl.NumberFormat` 的选项（百分比、单位、小数位）。范围滑块显示成 `20 – 60`。数值区按最宽的那个值留宽，拖动时轨道不会跟着伸缩。
+- `marks` 是 `{ value, label? }` 的数组。刻度只是标注，不改变步长；要"只能停在刻度上"，把 `step` 设成刻度的间距。
+- **键盘**：`←` `↓` 减一步，`→` `↑` 加一步；`PageUp` `PageDown`（或 `Shift` + 方向键）走 `largeStep`（默认 10）；`Home` `End` 到两端。
+- 语义是原生的范围输入：每个滑块里有一个真的 `<input type="range">`，读屏读到的是"滑块，40，最小 0，最大 100"。带 `name` 时值随表单提交（范围滑块提交两个同名的值）。
+- 放进 `Field` 后标签自动关联。范围滑块是一个以标签命名的分组，两个滑块各叫"最小值""最大值"（`thumbLabels` 可换）。不在 `Field` 里时自己传 `aria-label`。
 
 ## 表单布局
 

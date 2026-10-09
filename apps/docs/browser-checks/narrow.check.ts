@@ -67,6 +67,10 @@ const stories = [
   "控件-siderail-侧轨--playground",
   "控件-topbar-顶栏与全屏菜单--playground",
   "控件-navaction-主行动块--layouts",
+  "控件-accordion-折叠面板--extra",
+  "控件-slider-滑块--marks",
+  "控件-slider-滑块--range",
+  "控件-avatar-头像与头像切换--switcher-horizontal",
   "控件-brackettitle-方括号标题--sizes",
   "母题-texture-底纹--variants",
 ];
