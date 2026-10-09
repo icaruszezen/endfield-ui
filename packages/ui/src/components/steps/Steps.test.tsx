@@ -97,12 +97,14 @@ describe("Steps", () => {
     expect(screen.getByText("复核")).toHaveClass("text-ink-secondary");
   });
 
-  it("连接线：走过的一段是墨色，没到的是浅线；最后一步后面没有线", () => {
+  it("连接线：走过的一段充满墨色，没到的是空的；最后一步后面没有线", () => {
     render(<Example current={1} />);
     const line = (item: HTMLElement) =>
       item.querySelector("[aria-hidden=true] > span:last-child")!;
-    expect(line(items()[0]!)).toHaveClass("bg-ink");
-    expect(line(items()[1]!)).toHaveClass("bg-line-strong");
+    // 线自己一直是浅色，墨色在 ::before 上：充满还是收起由它的缩放决定
+    expect(line(items()[0]!)).toHaveClass("bg-line-strong", "before:scale-100");
+    expect(line(items()[1]!)).toHaveClass("bg-line-strong", "before:scale-0");
+    expect(line(items()[0]!)).toHaveClass("before:transition-[scale]");
     expect(line(items()[3]!)).toHaveClass("group-last/step:hidden");
   });
 

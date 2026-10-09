@@ -321,3 +321,68 @@ test("滑块：按键跳值时滑过去；拖动时位置贴着指针，没有�
     }
   });
 });
+
+test("步骤条：走完一步，连线的墨色从起点充到头；往回走收回去", async () => {
+  const { page } = storybook;
+  const LIST = "#storybook-root ol";
+  /** 每一步通向下一步的那条线：墨色充了几成（1 是满的，0 是空的），以及墨色那一层是不是墨色 */
+  const lines = () =>
+    page.evaluate((css) => {
+      const probe = document.createElement("i");
+      probe.style.color = "var(--ef-ink)";
+      document.querySelector(css)!.append(probe);
+      const ink = getComputedStyle(probe).color;
+      probe.remove();
+      return [...document.querySelectorAll(`${css} > li`)].map((item) => {
+        const line = item.querySelector(
+          "[aria-hidden=true] > span:last-child",
+        )!;
+        const style = getComputedStyle(line, "::before");
+        const scale =
+          style.scale === "none" ? [1] : style.scale.split(" ").map(Number);
+        return {
+          filled: Math.min(...scale),
+          ink: style.backgroundColor === ink,
+          origin: style.transformOrigin,
+        };
+      });
+    }, LIST);
+
+  await withMotion(page, async () => {
+    await page.story("控件-steps-步骤条--clickable");
+    const line = `${LIST} > li:nth-child(3) [aria-hidden=true] > span:last-child`;
+    assert.deepEqual(await transitions(page, line, "::before"), { scale: 0.3 });
+
+    // 一开始在第三步：前两条线是满的，第三条是空的
+    const before = await lines();
+    assert.deepEqual(
+      before.map((found) => found.filled),
+      [1, 1, 0, 0],
+    );
+    assert.ok(
+      before.every((found) => found.ink && found.origin === "0px 0px"),
+      "墨色那一层应该是墨色的，从左上角放大",
+    );
+
+    await record(page, LIST);
+    await page.click("text=下一步");
+    await page.settled(LIST);
+    assert.deepEqual(
+      (await lines()).map((found) => found.filled),
+      [1, 1, 1, 0],
+      "走到第四步，第三条线应该充满",
+    );
+    assert.ok(
+      (await recorded(page)).includes("scale::before"),
+      "线应该是充进去的，不是直接换色",
+    );
+
+    await page.click("text=上一步");
+    await page.settled(LIST);
+    assert.deepEqual(
+      (await lines()).map((found) => found.filled),
+      [1, 1, 0, 0],
+      "退回第三步，第三条线应该收回去",
+    );
+  });
+});

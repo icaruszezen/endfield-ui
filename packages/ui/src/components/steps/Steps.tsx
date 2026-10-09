@@ -243,6 +243,8 @@ export function Step({
         <span
           className={cn(
             "flex shrink-0 items-center justify-center font-tech leading-none tabular-nums",
+            // 未到 → 当前 → 已完成，换色不硬切
+            "transition-colors duration-(--duration-fast) ease-standard",
             nodeSize[size],
             invalid ? "border border-danger text-danger" : nodeClass[status],
           )}
@@ -255,12 +257,19 @@ export function Step({
             String(index + 1).padStart(2, "0")
           )}
         </span>
-        {/* 这一步走完了，通向下一步的线才是实的 */}
+        {/*
+          这一步走完了，通向下一步的线才是实的。线自己一直是"没到"的颜色，
+          墨色画在 ::before 上，走完时从起点一端充到头，往回走时收回去。
+          从左上角两个方向一起放大，所以横排、竖排、容器变窄自动改竖排用的是同一组类。
+          墨色那一层比线多出去 16px、由线自己裁掉：这样粗的那个方向一开始就是满的
+          （不多出去的话，线是一边变长一边从 0 变粗的，半路上看着比别的线细）
+        */}
         <span
           className={cn(
-            "flex-1 group-last/step:hidden",
+            "relative flex-1 overflow-clip bg-line-strong group-last/step:hidden",
+            "before:absolute before:top-0 before:-right-4 before:-bottom-4 before:left-0 before:origin-top-left before:bg-ink before:transition-[scale] before:duration-(--duration-base) before:ease-exit before:content-['']",
             lineLayout[orientation],
-            status === "done" ? "bg-ink" : "bg-line-strong",
+            status === "done" ? "before:scale-100" : "before:scale-0",
           )}
         />
       </span>
