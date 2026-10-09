@@ -13,6 +13,7 @@ const pages = [
   "控件-combobox-组合框--docs",
   "控件-itemslot-物品格--docs",
   "控件-table-表格--docs",
+  "控件-toolbar-工具栏--docs",
   "控件-siderail-侧轨--docs",
   "控件-topbar-顶栏与全屏菜单--docs",
   "控件-navaction-主行动块--docs",

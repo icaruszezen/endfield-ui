@@ -248,11 +248,12 @@
 | --- | --- |
 | `Table` | `label`（名称，必填）、`headerVariant`、`size`、`stickyFirstColumn`、`stickyHeader`、`ruled` |
 | `TableHeaderCell` | `numeric`、`align`、`sort`、`onSort` |
-| `TableRow` | `selected` |
+| `TableRow` | `selected`；能展开的行另有 `detail`、`expanded` / `defaultExpanded` / `onExpandedChange` |
 | `TableCell` | `numeric`、`align`、`rowHeader`、`reveal` |
+| `TableExpander` | `aria-label`（默认"明细"） |
 
 - **表头** 32px 高。`headerVariant="band"`（默认）是反转的标题带，和面板的标题带是同一个样子；`"muted"` 是上面说的浅表头。反转的表头是一个 [反转主题](../foundations/color.md#反转块里的局部主题)（`data-theme="inverse"`）：列头的焦点环、排序的三角、放在表头里的复选框都按带子的底色取值。
-- **行高**两档：`sm` 36px、`md` 44px（默认）。行间 1px `line`，最后一行下面不画；`ruled` 打开后每隔五行换成 `line-strong`。
+- **行高**两档：`sm` 36px、`md` 44px（默认）。行间 1px `line`，最后一行下面不画；`ruled` 打开后每隔五行换成 `line-strong`（只数主行，展开的明细不算；第五行展开着的时候，加重的那条线画在它的明细下面）。
 - **单元格默认不折行。** 放不下的时候表格在自己的容器里横向滚动，不把字挤成两行，也不撑破页面。确实要折行的长文字列，自己加 `whitespace-normal` 并给一个最小宽度。
 - **只有真的溢出时**（横向或纵向），滚动的那一层才是一个能聚焦的区域（`role="region"`，名称同表格）：键盘得能滚它，但不溢出的时候不该白占一个 Tab 停靠点。
 - **`stickyFirstColumn` 冻结首列**，溢出时它的右缘多一条线。冻结的那一格必须不透明，否则滚过去的内容会从它下面透出来——所以它的底不是透明的：平时是表格所在的底色，悬停时是"`ink` 5% 混进这个底色"算出来的实色（看上去和其余单元格上那层半透明的悬停底一样），选中时是 `surface-muted`。表格默认认为自己压在 `surface` 上；压在别的底色上（比如面板里）时，给 `Table` 加 `className="[--table-surface:var(--ef-surface-raised)]"`。
@@ -268,6 +269,40 @@
 - **行内操作**放在加了 `reveal` 的单元格里：有鼠标的设备上平时藏着，悬停这一行、或者键盘焦点进了这一行就显示；触屏上没有悬停，所以常显。藏着的时候它们仍然在 Tab 序列里。
 - 没有数据时，放一行通栏的单元格（`colSpan`），里面是 [空状态](feedback.md)。
 - 窄屏的另一种做法——每行改成一张属性卡——没有做成表格的属性：那是另一种布局，不是同一张表换个样子。需要时用 [面板](card.md) 的属性行另搭，按断点切换。
+
+### 行展开
+
+（推断：从表格自己的画法延伸。小三角是列头排序用的那一个，转 90° 的做法同 [侧轨的二级](navigation.md#二级)；明细区是凹陷的底——"里面的一层"）
+
+一行下面还压着一层明细（装车清单、几行属性、一段说明）时用。先问两句：每一行的明细都要看的，直接多加几列；明细多到是另一页的事，把名称写成链接。
+
+```tsx
+<TableRow detail={<Manifest id="TR-2041" />}>
+  <TableCell rowHeader>
+    <span className="flex items-center gap-2">
+      <TableExpander aria-label="TR-2041 的明细" />
+      TR-2041
+    </span>
+  </TableCell>
+  <TableCell numeric>12</TableCell>
+</TableRow>
+```
+
+| 项 | 值 |
+| --- | --- |
+| 展开钮 | 24px 的方钮，里面一个 8px 的实心三角：收起朝右，展开朝下 |
+| 钮的颜色 | `ink-secondary`；悬停 `ink` + `ink` 叠 5% 的底 |
+| 点击区 | 用伪元素向外补到 40px |
+| 明细区 | `surface-sunken` 底，内边距 12px 16px，下面一条 1px `line` |
+| 展开着的主行 | 自己的下边线去掉：它和明细是一块 |
+
+- **`TableRow` 传了 `detail` 才能展开。** 展开时在这一行后面多出一行，里面是一个通栏的单元格（`colSpan` 自己算：按这一行各格的 `colSpan` 加起来）；收起时明细不在页面里。
+- **展开钮 `TableExpander` 由使用方放进某一格**，通常是第一格、名称前面——和"要勾选就在第一列放 `Checkbox`"是同一个思路，表格不替你加一列。它是一个按钮：`aria-expanded` 说开没开，展开时 `aria-controls` 指向明细那一行。名称默认是"明细"，一张表里有很多个，写成"TR-2041 的明细"读屏才分得清。放在不能展开的行里它不渲染。
+- 状态默认各行自己记着（`defaultExpanded`）；要"全部展开""同时只开一行"，用 `expanded` + `onExpandedChange` 自己拿着。
+- **没有高度动画**，只有三角转过去（`duration-fast`）。表格行的高度过渡在各浏览器里不可靠，一次展开好几行时也乱。
+- **横向滚动时明细不跟着滚走**：明细的内容钉在容器的左缘，宽度是容器看得见的那一段，不是整张表的宽度。
+- 明细区没有悬停底，也不算"这一行"：行内操作的 `reveal`、选中的色条都只管主行。
+- 明细里放什么都行（[面板](card.md) 的属性行、一张小表、一段文字），但不要再放一层能展开的表格。树形表格（子行和父行共用列）是另一种东西，没有做。
 
 ## 时间线
 

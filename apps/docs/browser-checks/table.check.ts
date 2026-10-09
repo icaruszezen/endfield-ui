@@ -1,4 +1,4 @@
-// 表格：排序、行内操作在键盘聚焦时可见、窄屏横向滚动并冻结首列、勾选
+// 表格：排序、行内操作在键盘聚焦时可见、窄屏横向滚动并冻结首列、勾选、行展开
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { useStorybook, type Page } from "./lib/harness.ts";
@@ -361,4 +361,232 @@ test("表头吸顶并冻结首列：两个方向都滚过去，左上角那一�
   assert.deepEqual(found.scrolled, [true, true], "两个方向都应该能滚");
   assert.ok(found.pinned, "左上角那一格应该留在容器的左上角");
   assert.ok(found.onTop, "左上角那一格应该压在冻结的列和吸顶的行之上");
+});
+
+/** 明细行各自的文字（取开头一段），按文档顺序 */
+const details = (page: Page) =>
+  page.evaluate(() =>
+    [...document.querySelectorAll("#storybook-root tr[data-detail]")].map(
+      (row) => row.previousElementSibling!.querySelector("th")!.textContent,
+    ),
+  );
+
+test("行展开：键盘展开收起；明细是紧跟着的一行通栏，展开着的主行不画下边线", async () => {
+  const { page } = storybook;
+  await page.story("控件-table-表格--expandable");
+  assert.deepEqual(await details(page), ["TR-2044"], "第二行一开始是展开的");
+
+  await page.key("Tab");
+  await page.waitFocused("button:TR-2041 的明细");
+  await page.key("Enter");
+  await page.waitFor(
+    async () => (await details(page)).join() === "TR-2041,TR-2044",
+    "回车应该展开第一行",
+  );
+  await page.frames();
+
+  const found = await page.evaluate(() => {
+    const toggle = document.activeElement as HTMLElement;
+    const row = toggle.closest("tr")!;
+    const detail = row.nextElementSibling as HTMLTableRowElement;
+    const table = row.closest("table")!;
+    const cell = detail.cells[0]!;
+    return {
+      expanded: toggle.getAttribute("aria-expanded"),
+      controls: toggle.getAttribute("aria-controls") === detail.id,
+      cells: detail.cells.length,
+      colSpan: cell.colSpan,
+      columns: table.querySelectorAll("thead th").length,
+      fullWidth:
+        Math.abs(
+          cell.getBoundingClientRect().width -
+            table.getBoundingClientRect().width,
+        ) < 1,
+      // 主行和明细之间没有线；线在明细下面
+      rowLine: getComputedStyle(row.cells[0]!).borderBottomColor,
+      detailLine: getComputedStyle(cell).borderBottomWidth,
+      sameFill:
+        getComputedStyle(cell).backgroundColor ===
+        getComputedStyle(row).backgroundColor,
+    };
+  });
+  assert.deepEqual(found, {
+    expanded: "true",
+    controls: true,
+    cells: 1,
+    colSpan: 5,
+    columns: 5,
+    fullWidth: true,
+    rowLine: "rgba(0, 0, 0, 0)",
+    detailLine: "1px",
+    sameFill: false,
+  });
+
+  // 三角转了过去
+  await page.waitFor(
+    () =>
+      page.evaluate(
+        () =>
+          getComputedStyle(document.activeElement!.querySelector("svg")!)
+            .rotate === "90deg",
+      ),
+    "展开时三角应该朝下",
+  );
+
+  // 空格收起：明细不在页面里了，焦点还在钮上
+  await page.key(" ");
+  await page.waitFor(
+    async () => (await details(page)).join() === "TR-2044",
+    "空格应该收起第一行",
+  );
+  await page.waitFocused("button:TR-2041 的明细");
+  assert.equal(
+    await page.evaluate(() =>
+      document.activeElement!.getAttribute("aria-controls"),
+    ),
+    null,
+    "收起之后不该还指着一个不存在的明细",
+  );
+});
+
+test("行展开：点击区比 24px 的钮大；点明细里面不会收起", async () => {
+  const { page } = storybook;
+  await page.story("控件-table-表格--expandable");
+  const point = await page.evaluate(() => {
+    const toggle = document.querySelector<HTMLElement>(
+      "#storybook-root tbody tr:nth-child(1) button",
+    )!;
+    const rect = toggle.getBoundingClientRect();
+    return {
+      size: [rect.width, rect.height],
+      // 钮左边之外 6px
+      x: rect.left - 6,
+      y: rect.top + rect.height / 2,
+    };
+  });
+  assert.deepEqual(point.size, [24, 24]);
+  await page.click({ x: point.x, y: point.y });
+  await page.waitFor(
+    async () => (await details(page)).join() === "TR-2041,TR-2044",
+    "钮外 6px 的地方也应该点得到它",
+  );
+
+  await page.click("#storybook-root tr[data-detail] dd");
+  await page.pause(300);
+  assert.deepEqual(await details(page), ["TR-2041", "TR-2044"]);
+});
+
+test("行展开：横向滚动后明细还贴着容器的左缘，宽度是容器看得见的那一段", async () => {
+  const { page } = storybook;
+  await page.story("控件-table-表格--expandable-sticky");
+  const measure = () =>
+    page.evaluate(() => {
+      const scroller = document.querySelector<HTMLElement>(
+        "#storybook-root [data-overflowing]",
+      )!;
+      const inner = scroller.querySelector<HTMLElement>(
+        "tr[data-detail] td > div",
+      )!;
+      const box = scroller.getBoundingClientRect();
+      const rect = inner.getBoundingClientRect();
+      return {
+        scrolled: scroller.scrollLeft,
+        left: Math.round(rect.left - box.left),
+        width: Math.round(rect.width),
+        viewport: scroller.clientWidth,
+        table: scroller.querySelector("table")!.offsetWidth,
+      };
+    });
+
+  await page.waitVisible("#storybook-root [data-overflowing]");
+  const before = await measure();
+  assert.ok(before.table > before.viewport, "这个 story 里表格应该比容器宽");
+  assert.deepEqual(
+    [before.left, before.width],
+    [0, before.viewport],
+    "没滚的时候明细应该正好占满容器",
+  );
+
+  // 滚到头
+  await page.evaluate(() => {
+    document.querySelector("#storybook-root [data-overflowing]")!.scrollLeft =
+      9999;
+  });
+  await page.frames();
+  const after = await measure();
+  assert.equal(after.scrolled, after.table - after.viewport);
+  assert.deepEqual(
+    [after.left, after.width],
+    [0, after.viewport],
+    "滚过去之后明细不应该跟着滚走",
+  );
+});
+
+test("行展开：每隔五行的加重线只数主行；第五行展开着时画在它的明细下面", async () => {
+  const { page } = storybook;
+  await page.story("控件-table-表格--expand-all");
+  await page.frames();
+  const lines = () =>
+    page.evaluate(() => {
+      const color = (variable: string) => {
+        const probe = document.createElement("i");
+        probe.style.color = `var(${variable})`;
+        document.querySelector("#storybook-root > *")!.append(probe);
+        const value = getComputedStyle(probe).color;
+        probe.remove();
+        return value;
+      };
+      const strong = color("--ef-line-strong");
+      const rows = [
+        ...document.querySelectorAll<HTMLTableRowElement>(
+          "#storybook-root tbody tr",
+        ),
+      ];
+      const main = rows.filter((row) => !row.hasAttribute("data-detail"));
+      const under = (row: HTMLTableRowElement) => {
+        const line = getComputedStyle(row.cells[0]!).borderBottomColor;
+        if (line === strong) return "strong";
+        return line === "rgba(0, 0, 0, 0)" ? "none" : "line";
+      };
+      return {
+        // 主行第 4、5、10 行的下边线
+        main: [3, 4, 9].map((index) => under(main[index]!)),
+        details: rows
+          .filter((row) => row.hasAttribute("data-detail"))
+          .map(under),
+      };
+    });
+
+  // 第五行一开始开着：它自己没有下边线，加重的线在明细下面
+  assert.deepEqual(await lines(), {
+    main: ["line", "none", "strong"],
+    details: ["strong"],
+  });
+
+  await page.click("text=全部收起");
+  await page.waitFor(
+    async () => (await details(page)).length === 0,
+    "全部收起之后不该还有明细",
+  );
+  await page.frames();
+  assert.deepEqual(await lines(), {
+    main: ["line", "strong", "strong"],
+    details: [],
+  });
+
+  // 全部展开：十二行都开着，加重的线只在第五、第十行的明细下面
+  await page.click("text=全部展开");
+  await page.waitFor(
+    async () => (await details(page)).length === 12,
+    "全部展开应该有十二行明细",
+  );
+  await page.frames();
+  const all = await lines();
+  assert.deepEqual(all.main, ["none", "none", "none"]);
+  assert.deepEqual(
+    all.details
+      .map((line, index) => (line === "strong" ? index + 1 : 0))
+      .filter(Boolean),
+    [5, 10],
+  );
 });

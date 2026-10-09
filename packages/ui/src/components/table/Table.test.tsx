@@ -5,12 +5,60 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableExpander,
   TableHead,
   TableHeaderCell,
   TableRow,
   type TableProps,
+  type TableRowProps,
   type TableSortDirection,
 } from "./Table";
+
+/* 两行都能展开；第二行的名称占两列，看通栏的列数是不是照实数的 */
+function Expandable({
+  first,
+  ruled,
+}: {
+  first?: Partial<TableRowProps>;
+  ruled?: boolean;
+}) {
+  return (
+    <Table label="运输批次" ruled={ruled}>
+      <TableHead>
+        <TableRow>
+          <TableHeaderCell>批次</TableHeaderCell>
+          <TableHeaderCell>物资</TableHeaderCell>
+          <TableHeaderCell numeric>件数</TableHeaderCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        <TableRow detail={<p>滤芯 12 件，分两箱</p>} {...first}>
+          <TableCell rowHeader>
+            <TableExpander aria-label="TR-2041 的明细" />
+            TR-2041
+          </TableCell>
+          <TableCell>滤芯</TableCell>
+          <TableCell numeric>12</TableCell>
+        </TableRow>
+        <TableRow detail={<p>信标 49 件</p>}>
+          <TableCell rowHeader colSpan={2}>
+            <TableExpander />
+            TR-2044
+          </TableCell>
+          <TableCell numeric>49</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell rowHeader>
+            <TableExpander aria-label="不该出现" />
+            TR-2050
+          </TableCell>
+          <TableCell>电池</TableCell>
+          <TableCell numeric>8</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+  );
+}
 
 function Shipments({
   sort,
@@ -187,9 +235,16 @@ describe("Table", () => {
   it("ruled：每隔五行加重一条线", () => {
     const { rerender } = render(<Shipments />);
     const body = screen.getAllByRole("rowgroup")[1]!;
-    expect(body).not.toHaveClass("[&>tr:nth-child(5n)>*]:border-line-strong");
+    // 只数主行：展开的明细也是一个 <tr>，不能把它算进去
+    const everyFifth =
+      "[&>tr:nth-child(5n_of_:not([data-detail])):not([data-expanded])>*]:border-line-strong";
+    expect(body).not.toHaveClass(everyFifth);
     rerender(<Shipments ruled />);
-    expect(body).toHaveClass("[&>tr:nth-child(5n)>*]:border-line-strong");
+    expect(body).toHaveClass(everyFifth);
+    // 第五行展开着：加重的线画在它的明细下面
+    expect(body).toHaveClass(
+      "[&>tr:nth-child(5n_of_:not([data-detail]))+tr[data-detail]>*]:border-line-strong",
+    );
   });
 
   it("stickyFirstColumn：每一行的第一格冻结，底不透明", () => {
@@ -218,6 +273,120 @@ describe("Table", () => {
 
     rerender(<Shipments stickyHeader stickyFirstColumn />);
     expect(first()).toHaveClass("sticky", "top-0", "first:left-0", "first:z-2");
+  });
+
+  it("行展开：展开钮说得清开没开；展开时多出一行通栏的明细，收起时它不在页面里", async () => {
+    const user = userEvent.setup();
+    render(<Expandable />);
+    const toggle = screen.getByRole("button", { name: "TR-2041 的明细" });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(toggle).not.toHaveAttribute("aria-controls");
+    expect(screen.queryByText("滤芯 12 件，分两箱")).not.toBeInTheDocument();
+    expect(screen.getAllByRole("row")).toHaveLength(4);
+
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    const detail = screen.getByText("滤芯 12 件，分两箱").closest("tr")!;
+    expect(detail).toHaveAttribute("data-detail");
+    expect(toggle).toHaveAttribute("aria-controls", detail.id);
+    // 明细紧跟在它的主行后面，一个通栏的单元格
+    const row = toggle.closest("tr")!;
+    expect(row).toHaveAttribute("data-expanded");
+    expect(row.nextElementSibling).toBe(detail);
+    expect(detail.cells).toHaveLength(1);
+    expect(detail.cells[0]).toHaveAttribute("colspan", "3");
+
+    // 键盘也能收起来
+    toggle.focus();
+    await user.keyboard("{Enter}");
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText("滤芯 12 件，分两箱")).not.toBeInTheDocument();
+    expect(row).not.toHaveAttribute("data-expanded");
+  });
+
+  it("行展开：通栏的列数按主行各格的 colSpan 加起来", async () => {
+    const user = userEvent.setup();
+    render(<Expandable />);
+    await user.click(screen.getByRole("button", { name: "明细" }));
+    const detail = screen.getByText("信标 49 件").closest("tr")!;
+    expect(detail.cells[0]).toHaveAttribute("colspan", "3");
+  });
+
+  it("行展开：没传 detail 的行里，展开钮不渲染", () => {
+    render(<Expandable />);
+    expect(
+      screen.queryByRole("button", { name: "不该出现" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("rowheader", { name: "TR-2050" }),
+    ).toBeInTheDocument();
+  });
+
+  it("行展开：defaultExpanded 一开始就开着；各行各记各的", async () => {
+    const user = userEvent.setup();
+    render(<Expandable first={{ defaultExpanded: true }} />);
+    expect(screen.getByText("滤芯 12 件，分两箱")).toBeInTheDocument();
+    expect(screen.queryByText("信标 49 件")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "明细" }));
+    expect(screen.getByText("滤芯 12 件，分两箱")).toBeInTheDocument();
+    expect(screen.getByText("信标 49 件")).toBeInTheDocument();
+  });
+
+  it("行展开：受控时只报告，开不开看传进来的值", async () => {
+    const user = userEvent.setup();
+    const onExpandedChange = vi.fn();
+    const { rerender } = render(
+      <Expandable first={{ expanded: false, onExpandedChange }} />,
+    );
+    const toggle = screen.getByRole("button", { name: "TR-2041 的明细" });
+    await user.click(toggle);
+    expect(onExpandedChange).toHaveBeenLastCalledWith(true);
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+
+    rerender(<Expandable first={{ expanded: true, onExpandedChange }} />);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await user.click(toggle);
+    expect(onExpandedChange).toHaveBeenLastCalledWith(false);
+  });
+
+  it("行展开：其余属性和 ref 仍然给主行；展开着的主行不画下边线", () => {
+    const ref = { current: null as HTMLTableRowElement | null };
+    render(
+      <Expandable
+        first={{ defaultExpanded: true, ref, id: "row-2041", selected: true }}
+      />,
+    );
+    const row = screen.getByRole("rowheader", {
+      name: /TR-2041/,
+    }).parentElement!;
+    expect(ref.current).toBe(row);
+    expect(row).toHaveAttribute("id", "row-2041");
+    expect(row).toHaveAttribute("aria-selected", "true");
+    expect(row).toHaveClass("[&[data-expanded]>*]:border-b-transparent");
+    // 明细那一行不算选中，也没有悬停底
+    const detail = row.nextElementSibling!;
+    expect(detail).not.toHaveAttribute("aria-selected");
+    expect(detail).not.toHaveClass("group/row");
+  });
+
+  it("展开钮的三角是装饰；点击可以被拦下", async () => {
+    const user = userEvent.setup();
+    render(
+      <Table label="运输批次">
+        <TableBody>
+          <TableRow detail="明细内容">
+            <TableCell>
+              <TableExpander onClick={(event) => event.preventDefault()} />
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>,
+    );
+    const toggle = screen.getByRole("button", { name: "明细" });
+    expect(toggle.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
   });
 
   it("纵向溢出时滚动容器同样是一个能聚焦的区域，但不算横向溢出", () => {

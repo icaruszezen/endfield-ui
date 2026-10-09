@@ -1,8 +1,25 @@
-import { createContext, useContext, useMemo, type ComponentProps } from "react";
+import {
+  Children,
+  createContext,
+  isValidElement,
+  useContext,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ComponentProps,
+  type MouseEvent,
+  type ReactNode,
+  type RefObject,
+} from "react";
+import { useControllableState } from "../../hooks/useControllableState";
 import { useOverflowing } from "../../hooks/useOverflowing";
 import { TriangleRight } from "../../icons/TriangleRight";
 import { cn } from "../../lib/cn";
-import { focusRingInset } from "../../lib/focus-ring";
+import { focusRing, focusRingInset } from "../../lib/focus-ring";
+import { mergeRefs } from "../../lib/merge-refs";
 
 export type TableHeaderVariant = "band" | "muted";
 export type TableSize = "sm" | "md";
@@ -27,6 +44,13 @@ const TableContext = createContext<TableContextValue>({
 
 /** 单元格要知道自己在表头里还是表身里 */
 const SectionContext = createContext<"head" | "body">("body");
+
+/** 能展开的行交给里面的展开钮 */
+const RowContext = createContext<{
+  expanded: boolean;
+  toggle: () => void;
+  detailId: string;
+} | null>(null);
 
 export type TableProps = Omit<ComponentProps<"table">, "aria-label"> & {
   /** 表格的名称。横向能滚动时，滚动的那一块也用它 */
@@ -58,7 +82,8 @@ export type TableProps = Omit<ComponentProps<"table">, "aria-label"> & {
  * `TableHeaderCell`、`TableCell`。
  *
  * 放不下时在自己的容器里横向滚动，不撑破页面；给容器一个高度上限，它也能纵向滚动。整行不可点：
- * 要进详情把名称写成链接，要勾选在第一列放 `Checkbox`。
+ * 要进详情把名称写成链接，要勾选在第一列放 `Checkbox`，要展开明细给行传 `detail`、
+ * 在格子里放 `TableExpander`。
  */
 export function Table({
   label,
@@ -72,6 +97,18 @@ export function Table({
 }: TableProps) {
   const [scrollerRef, overflowing] = useOverflowing();
   const scrollable = overflowing.x || overflowing.y;
+
+  // 展开的明细要钉在容器看得见的那一段里，它得知道这一段有多宽
+  useEffect(() => {
+    const node = scrollerRef.current;
+    if (!node || typeof ResizeObserver === "undefined") return;
+    const write = () =>
+      node.style.setProperty("--table-viewport", `${node.clientWidth}px`);
+    write();
+    const observer = new ResizeObserver(write);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [scrollerRef]);
   const context = useMemo(
     () => ({
       headerVariant,
@@ -134,17 +171,20 @@ export function TableHead(props: TableHeadProps) {
 
 export type TableBodyProps = ComponentProps<"tbody">;
 
+/*
+ * 每隔五行加重一条线。只数主行：展开的明细也是一个 <tr>，不能让它把数数错。
+ * 第五行自己展开着的时候，它的下边线没有了，加重的那条画在它的明细下面
+ */
+const ruledLines = [
+  "[&>tr:nth-child(5n_of_:not([data-detail])):not([data-expanded])>*]:border-line-strong",
+  "[&>tr:nth-child(5n_of_:not([data-detail]))+tr[data-detail]>*]:border-line-strong",
+].join(" ");
+
 export function TableBody({ className, ...props }: TableBodyProps) {
   const { ruled } = useContext(TableContext);
   return (
     <SectionContext value="body">
-      <tbody
-        {...props}
-        className={cn(
-          ruled && "[&>tr:nth-child(5n)>*]:border-line-strong",
-          className,
-        )}
-      />
+      <tbody {...props} className={cn(ruled && ruledLines, className)} />
     </SectionContext>
   );
 }
@@ -152,6 +192,16 @@ export function TableBody({ className, ...props }: TableBodyProps) {
 export type TableRowProps = ComponentProps<"tr"> & {
   /** 选中：浅灰底 + 左缘黄条，输出 `aria-selected`。只用在表身的行上 */
   selected?: boolean;
+  /**
+   * 这一行的明细。传了这一行就能展开：展开时它出现在这一行下面，通栏。
+   * 展开钮自己放：在某一格里放一个 `TableExpander`
+   */
+  detail?: ReactNode;
+  /** 受控的展开状态 */
+  expanded?: boolean;
+  /** 非受控时一开始是不是展开的 */
+  defaultExpanded?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
 };
 
 /*
@@ -169,21 +219,171 @@ const rowSelected = [
   "[&>*:first-child]:shadow-[inset_4px_0_0_var(--ef-action)]",
 ].join(" ");
 
-export function TableRow({ selected, className, ...props }: TableRowProps) {
+export function TableRow({
+  selected,
+  detail,
+  expanded: expandedProp,
+  defaultExpanded = false,
+  onExpandedChange,
+  className,
+  ref,
+  children,
+  ...props
+}: TableRowProps) {
   const section = useContext(SectionContext);
-  if (section === "head") return <tr {...props} className={className} />;
+  const rowRef = useRef<HTMLTableRowElement>(null);
+  const detailId = useId();
+  const [expanded, setExpanded] = useControllableState({
+    value: expandedProp,
+    defaultValue: defaultExpanded,
+    onChange: onExpandedChange,
+  });
+  const expandable =
+    detail !== undefined && detail !== null && detail !== false;
+  const open = expandable && expanded;
+
+  const context = useMemo(
+    () =>
+      expandable
+        ? { expanded: open, toggle: () => setExpanded(!open), detailId }
+        : null,
+    [expandable, open, setExpanded, detailId],
+  );
+
+  if (section === "head") {
+    return (
+      <tr {...props} ref={ref} className={className}>
+        {children}
+      </tr>
+    );
+  }
 
   return (
-    <tr
+    <>
+      <tr
+        {...props}
+        ref={mergeRefs(rowRef, ref)}
+        aria-selected={selected}
+        data-selected={selected ? "" : undefined}
+        data-expanded={open ? "" : undefined}
+        className={cn(
+          "group/row transition-colors duration-(--duration-fast) ease-standard",
+          selected ? rowSelected : rowIdle,
+          // 展开着：它和下面的明细是一块，中间不画线
+          "[&[data-expanded]>*]:border-b-transparent",
+          className,
+        )}
+      >
+        <RowContext value={context}>{children}</RowContext>
+      </tr>
+      {open && (
+        <DetailRow
+          id={detailId}
+          rowRef={rowRef}
+          estimate={countCells(children)}
+        >
+          {detail}
+        </DetailRow>
+      )}
+    </>
+  );
+}
+
+/** 这一行占了几列：按子元素估。包了一层的、条件渲染的估不准，挂上之后再按 DOM 校正 */
+function countCells(children: ReactNode) {
+  let total = 0;
+  for (const child of Children.toArray(children)) {
+    if (!isValidElement<{ colSpan?: number }>(child)) continue;
+    total += Number(child.props.colSpan ?? 1);
+  }
+  return Math.max(total, 1);
+}
+
+function DetailRow({
+  id,
+  rowRef,
+  estimate,
+  children,
+}: {
+  id: string;
+  rowRef: RefObject<HTMLTableRowElement | null>;
+  estimate: number;
+  children: ReactNode;
+}) {
+  const [measured, setMeasured] = useState<number | null>(null);
+
+  // 每次渲染都重新数：列是使用方的，随时可能多一列少一列
+  useLayoutEffect(() => {
+    const row = rowRef.current;
+    if (!row) return;
+    let total = 0;
+    for (const cell of row.cells) total += cell.colSpan;
+    if (total > 0) setMeasured(total);
+  });
+
+  return (
+    <tr id={id} data-detail="">
+      <td
+        colSpan={measured ?? estimate}
+        className="border-b border-line bg-surface-sunken p-0 [tr:last-child>&]:border-b-0"
+      >
+        {/* 表格横向滚动时明细不跟着滚走：钉在容器的左缘，宽度是容器看得见的那一段 */}
+        <div className="sticky left-0 w-[var(--table-viewport,100%)] px-4 py-3 text-sm whitespace-normal">
+          {children}
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+export type TableExpanderProps = Omit<
+  ComponentProps<"button">,
+  "aria-expanded" | "aria-controls" | "children"
+>;
+
+/**
+ * 展开钮：放在能展开的行（传了 `detail` 的 `TableRow`）的某一格里，通常在名称前面。
+ * 一张表里有很多个，名称写成"TR-2041 的明细"读屏才分得清。放在不能展开的行里不渲染。
+ */
+export function TableExpander({
+  "aria-label": label = "明细",
+  type = "button",
+  className,
+  onClick,
+  ...props
+}: TableExpanderProps) {
+  const row = useContext(RowContext);
+  if (!row) return null;
+
+  return (
+    <button
       {...props}
-      aria-selected={selected}
-      data-selected={selected ? "" : undefined}
+      type={type}
+      aria-label={label}
+      aria-expanded={row.expanded}
+      aria-controls={row.expanded ? row.detailId : undefined}
+      onClick={(event: MouseEvent<HTMLButtonElement>) => {
+        onClick?.(event);
+        if (!event.defaultPrevented) row.toggle();
+      }}
       className={cn(
-        "group/row transition-colors duration-(--duration-fast) ease-standard",
-        selected ? rowSelected : rowIdle,
+        "relative inline-flex size-6 shrink-0 items-center justify-center align-middle text-ink-secondary",
+        // 24px 小于触屏的最小点击区，用伪元素向外补到 40px
+        "after:absolute after:-inset-2 after:content-['']",
+        "transition-colors duration-(--duration-fast) ease-standard",
+        "hover:bg-ink/5 hover:text-ink",
+        focusRing,
         className,
       )}
-    />
+    >
+      <TriangleRight
+        size={8}
+        className={cn(
+          "transition-transform duration-(--duration-fast) ease-standard",
+          row.expanded && "rotate-90",
+        )}
+      />
+    </button>
   );
 }
 

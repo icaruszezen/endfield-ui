@@ -7,6 +7,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableExpander,
   TableHead,
   TableHeaderCell,
   TableRow,
@@ -16,6 +17,7 @@ import {
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useMemo, useState } from "react";
 import { LinkIcon, PrintIcon } from "./_shared/ResourceIcons";
+import { ShipmentDetail } from "./_shared/ShipmentDetail";
 import { shipments, type Shipment } from "./_shared/shipments";
 import { stationLabel } from "./_shared/stations";
 
@@ -363,5 +365,122 @@ export const Empty: Story = {
         </TableRow>
       </TableBody>
     </Table>
+  ),
+};
+
+/* 能展开的行：名称前面一个展开钮 */
+const expandableCells = (row: Shipment) => (
+  <>
+    <TableCell rowHeader className="font-tech">
+      <span className="flex items-center gap-2">
+        <TableExpander aria-label={`${row.id} 的明细`} />
+        {row.id}
+      </span>
+    </TableCell>
+    <TableCell>{row.cargo}</TableCell>
+    <TableCell>{stationLabel(row.station)}</TableCell>
+    <TableCell numeric>{row.count}</TableCell>
+    <TableCell numeric>{row.weight.toFixed(1)}</TableCell>
+  </>
+);
+
+/* 一行下面还压着一层明细：给行传 detail，在某一格里放一个 TableExpander */
+export const Expandable: Story = {
+  name: "行展开",
+  render: (args) => (
+    <Table {...args}>
+      {head}
+      <TableBody>
+        {rows.map((row, index) => (
+          <TableRow
+            key={row.id}
+            detail={<ShipmentDetail row={row} />}
+            defaultExpanded={index === 1}
+          >
+            {expandableCells(row)}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  ),
+};
+
+function ExpandAllTable() {
+  const list = shipments.slice(0, 12);
+  // 第五行一开始开着：加重的那条线画在它的明细下面
+  const [open, setOpen] = useState<ReadonlySet<string>>(
+    () => new Set([list[4]!.id]),
+  );
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <Button
+          size="sm"
+          variant="light"
+          onClick={() => setOpen(new Set(list.map((row) => row.id)))}
+        >
+          全部展开
+        </Button>
+        <Button size="sm" variant="light" onClick={() => setOpen(new Set())}>
+          全部收起
+        </Button>
+        <p role="status" className="text-sm text-ink-secondary">
+          {`展开了 ${open.size} 行`}
+        </p>
+      </div>
+      <Table label="运输批次" ruled size="sm">
+        {head}
+        <TableBody>
+          {list.map((row) => (
+            <TableRow
+              key={row.id}
+              detail={<ShipmentDetail row={row} />}
+              expanded={open.has(row.id)}
+              onExpandedChange={(expanded) =>
+                setOpen((current) => {
+                  const next = new Set(current);
+                  if (expanded) next.add(row.id);
+                  else next.delete(row.id);
+                  return next;
+                })
+              }
+            >
+              {expandableCells(row)}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+/* 展开的状态自己拿着，就能"全部展开"；每隔五行的线只数主行 */
+export const ExpandAll: Story = {
+  name: "行展开：状态自己拿着",
+  render: () => <ExpandAllTable />,
+};
+
+/* 表格横向滚动时明细不跟着滚走：它钉在容器的左缘，宽度是容器看得见的那一段 */
+export const ExpandableSticky: Story = {
+  name: "行展开：横向滚动时明细留在原地",
+  args: { stickyFirstColumn: true },
+  render: (args) => (
+    <div className="max-w-80">
+      <Table {...args}>
+        {head}
+        <TableBody>
+          {rows.map((row, index) => (
+            <TableRow
+              key={row.id}
+              detail={<ShipmentDetail row={row} />}
+              defaultExpanded={index === 0}
+            >
+              {expandableCells(row)}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   ),
 };

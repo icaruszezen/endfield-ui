@@ -112,7 +112,7 @@
 | 项 | `sm` | `md` | `lg` |
 | --- | --- | --- | --- |
 | 尺寸 | 32px | 40px | 48px |
-| 图标 | 16px | 20px | 24px |
+| 图标（只有图标时；旁边有字时都是 16px） | 16px | 20px | 24px |
 
 - 圆形按钮成对出现（上一个 / 下一个）时，可以包在一个浅灰或近黑的胶囊里。
 - 关闭按钮在悬停时旋转 90°（实测）。
@@ -134,6 +134,73 @@
 - 放不下时整组换行，不挤压按钮——按钮宁可掉到下一行，也不把文字挤到贴边；
 - 语义是一个分组（`role="group"`），用 `aria-label` 说明这组按钮管的是什么；
 - "一组里最多一个 `action`"组件不拦，靠使用方自己守。
+
+## 工具栏
+
+（推断：从上面的图标按钮延伸。方形图标钮本来就是"工具栏、顶栏"用的，"开关类工具"激活时是墨底黄图标——这两条是实测；把一排收进一条带子、Tab 只停一次，是这里加的）
+
+一排作用于同一个对象的小工具：表格上面的密度、展开、导出；编辑器上面的对齐、加粗。
+
+| 项 | `sm` | `md`（默认） |
+| --- | --- | --- |
+| 带子的高 | 32px | 40px |
+| 里面的钮 | 28px | 36px |
+| 图标 | 16px | 20px |
+| 钮之间 | 2px | 2px |
+
+带子和输入框、[分段选择](form.md#分段选择) 同高，并排时对得齐。
+
+| 状态 | 画法 |
+| --- | --- |
+| 带子 | `surface-sunken` 底，直角，四周 2px 内边距。`variant="outline"` 换成 1px `line-strong` 描边 + `surface` 底，放在凹陷底色的区域里用 |
+| 钮，平时 | 透明底，`ink-secondary` |
+| 悬停 | `ink` + `ink` 叠 5% 的底；按下叠 10% |
+| 开关钮按下、菜单还开着 | `surface-inverse` 底；图标是 `accent-ink-inverse`（墨底黄记号，和 `inverse` 图标钮同一个样子），字是 `ink-inverse`（和分段选择选中的那一段一样——黄色留给记号，不拿来写字） |
+| 禁用 | `ink-disabled`；按下又禁用是 `disabled` 底 + `on-disabled` |
+| 分隔 | 1px `line-strong`、高 16px 的竖线，两边各留 4px |
+
+已实现为 `Toolbar` 和它的几个部件：
+
+```tsx
+<Toolbar aria-label="表格工具">
+  <ToolbarToggleGroup aria-label="行高" value={density} onValueChange={setDensity}>
+    <ToolbarToggle value="md">标准</ToolbarToggle>
+    <ToolbarToggle value="sm">紧凑</ToolbarToggle>
+  </ToolbarToggleGroup>
+  <ToolbarSeparator />
+  <ToolbarToggle icon={<RuleIcon />} aria-label="每五行加重" pressed={ruled} onPressedChange={setRuled} />
+  <ToolbarButton icon={<PrintIcon />} onClick={print}>
+    打印
+  </ToolbarButton>
+</Toolbar>
+```
+
+| 部件 | 属性 |
+| --- | --- |
+| `Toolbar` | `aria-label`（必填）、`size`、`variant`、`orientation`、`disabled` |
+| `ToolbarButton` | `icon`、`disabled`；传 `href` / `render` 就是链接。只有图标时必须有 `aria-label` |
+| `ToolbarToggle` | `pressed` / `defaultPressed` / `onPressedChange`；在开关组里用 `value` |
+| `ToolbarToggleGroup` | `value` / `defaultValue` / `onValueChange`（数组）、`multiple`、`aria-label` |
+| `ToolbarGroup` | `aria-label`：几个钮在读屏里算一组 |
+| `ToolbarSeparator` | — |
+
+- **整条工具栏只占一个 Tab 停靠点**（`role="toolbar"`）：Tab 进来落在上次停的那一个上，`←` `→` 在各项之间走，`Home` / `End` 到两头，走到头绕回去。竖排（`orientation="vertical"`）时换成 `↑` `↓`。
+- **禁用的钮仍然走得到**：读屏读得出它在那儿、现在不可用。它不响应点击。
+- **开关组默认同时只能按下一个，而且可以一个都不按**；`multiple` 可以同时按下几个。值都是数组。要"必须选一个"的，是表单里的 [分段选择](form.md#分段选择)，不是这个。
+- **和浮层一起用**：把 `ToolbarButton` 交给 `Menu` / `Popover` 的 `trigger`，或者用 `Tooltip` 包住它。打开着的时候那个钮保持按下的样子。
+- 放不下时换行，不出横向滚动条。
+- 32px 那一档的钮只有 28px 宽，是给有鼠标的密集界面用的；触屏上用 `md`（点击区补到了 40 × 40px）。
+- **不在工具栏里放输入框**：`←` `→` 在输入框里是移光标，和工具栏的走法冲突。搜索框放在工具栏外面。
+
+### 用哪个
+
+| 要的是 | 用 |
+| --- | --- |
+| 两三个有主次的行动（取消 / 确认） | 按钮组 |
+| 一排对同一个对象的小工具，有的是开关 | 工具栏 |
+| 表单里从几项选一个值，要随表单提交 | [分段选择](form.md#分段选择) |
+| 几个能各自开关的筛选条件 | [筛选胶囊](data-display.md) |
+| 切换下面显示的内容 | [页签](navigation.md#页签) |
 
 ## 内容
 

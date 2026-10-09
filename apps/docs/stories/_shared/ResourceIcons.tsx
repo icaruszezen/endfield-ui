@@ -86,3 +86,42 @@ export const CollapseIcon = createIcon(
   "CollapseIcon",
   <path d="M4 4v16M20 12H9M13 7l-5 5 5 5" />,
 );
+
+/* 工具栏里用的几个：行高、加重线、展开与收起、导出、放大缩小 */
+export const RowsIcon = createIcon(
+  "RowsIcon",
+  <path d="M4 6h16M4 12h16M4 18h16" />,
+);
+
+export const DenseRowsIcon = createIcon(
+  "DenseRowsIcon",
+  <path d="M4 5h16M4 9.5h16M4 14h16M4 18.5h16" />,
+);
+
+export const RuleIcon = createIcon(
+  "RuleIcon",
+  <>
+    <path d="M4 5h16M4 9h16M4 19h16" strokeWidth={1.5} />
+    <path d="M4 14h16" strokeWidth={3.5} />
+  </>,
+);
+
+export const ExpandIcon = createIcon(
+  "ExpandIcon",
+  <path d="M4 5h16M4 19h16M12 8v8M8.5 12.5L12 16l3.5-3.5" />,
+);
+
+export const DownloadIcon = createIcon(
+  "DownloadIcon",
+  <path d="M12 4v11M7 10l5 5 5-5M4 20h16" />,
+);
+
+export const LayersIcon = createIcon(
+  "LayersIcon",
+  <path d="M12 4l8 4-8 4-8-4zM4 12l8 4 8-4M4 16l8 4 8-4" />,
+);
+
+export const BeaconIcon = createIcon(
+  "BeaconIcon",
+  <path d="M12 3l5 6-5 6-5-6zM12 15v6M8 21h8" />,
+);
