@@ -23,6 +23,7 @@
 | 组合框 | `<Combobox items value multiple loading filter>`，属性比照下拉选择 | 已实现 |
 | 步进器 | `<Stepper value min max step size>` | 已实现 |
 | 滑块 | `<Slider value min max step showValue marks>`；`value` 传两个数是范围滑块 | 已实现 |
+| 日期选择 | `<DatePicker value min max format>`；只要月历用 `<Calendar>` | 已实现 |
 | 菱形符号（方案 B） | `<html data-choice="diamond">` | 已实现 |
 
 实现时对下文规格做的调整都写在各节里，并标了"实现"。
@@ -346,6 +347,54 @@
 - **键盘**：`←` `↓` 减一步，`→` `↑` 加一步；`PageUp` `PageDown`（或 `Shift` + 方向键）走 `largeStep`（默认 10）；`Home` `End` 到两端。
 - 语义是原生的范围输入：每个滑块里有一个真的 `<input type="range">`，读屏读到的是"滑块，40，最小 0，最大 100"。带 `name` 时值随表单提交（范围滑块提交两个同名的值）。
 - 放进 `Field` 后标签自动关联。范围滑块是一个以标签命名的分组，两个滑块各叫"最小值""最大值"（`thumbLabels` 可换）。不在 `Field` 里时自己传 `aria-label`。
+
+## 日期选择
+
+选一天。（推断：官网和游戏界面里没有日期控件；月历的画法取自这套语言里"格子"的做法——直角、等宽数字、选中是填充反转。）
+
+值是 `YYYY-MM-DD` 的字符串，和原生的 `<input type="date">` 一样：没有时间，也没有时区，存取和比较都不会差出一天。
+
+### 月历
+
+| 项 | 值 |
+| --- | --- |
+| 结构 | 一行月份标题和一对翻月的钮；一行星期；六行日期 |
+| 月份标题 | `2026年10月`，`text-sm`、加粗；居中 |
+| 翻月钮 | 32px 的方形 [图标按钮](button.md)，在标题两侧 |
+| 星期行 | `text-xs`，`ink-tertiary`，一个字（一、二、三…） |
+| 日期格 | 40px 见方，直角，没有间距；数字 `font-tech`、等宽、`text-sm` |
+| 悬停 | `ink` 5% |
+| 选中 | 填充反转：`surface-inverse` 底、`ink-inverse` 字，加粗 |
+| 今天 | 数字下面一条 12 × 2px 的强调色短线（`accent-ink`；压在选中格上时是 `accent-ink-inverse`） |
+| 不在本月 | `ink-tertiary`；仍然可以点，点了翻到那个月 |
+| 不可选 | `ink-disabled` 加删除线 |
+| 行数 | 永远六行：翻月时高度不跳 |
+
+- **"今天"不只靠颜色**：它是一条线，不是换个字色。选中和今天可以是同一天，两个记号各管各的。
+- 一周从星期一开始（`weekStartsOn={0}` 改成星期日）。
+- 月份标题、星期、读屏听到的日期名称按 `locale` 走（默认 `zh-CN`），用的是浏览器的 `Intl`。
+
+已实现为 `<Calendar value onValueChange month onMonthChange min max isDateDisabled weekStartsOn locale today>`：
+
+- **键盘**（ARIA 实践指南的日期网格）：方向键走一天 / 一周；`Home` `End` 到这一周的头尾；`PageUp` `PageDown` 换月，加 `Shift` 换年；回车或空格选中。走出当前这个月时月历跟着翻。
+- **整个网格只占一个 `Tab` 停靠点**：停在选中的那一天，没选时是今天。
+- `min` `max` 之外的日子、`isDateDisabled` 返回真的日子不可选。键盘走到范围外会被夹回边界；不可选的日子仍然走得到（读屏要能读到它为什么不能选），只是选不了。整个月都在范围外时，对应的翻月钮禁用。
+- 语义是一张 `role="grid"` 的表，以月份标题命名；每个日子是一个按钮，名称是完整的日期（"2026年10月9日星期五"），选中的那一格带 `aria-selected`，今天带 `aria-current="date"`。翻月时标题会播报。
+- `today` 默认取本地时间的今天；要在服务端渲染、或者要一个固定的"今天"时自己传。
+
+### 日期选择
+
+一个字段：点开是一块面板，里面是月历。
+
+- **外框就是输入框的外框**（两种变体、三档尺寸、各状态的边线），里面是日期和一个日历图标。日期写成 `2026.10.09`——和日期块、微标行是同一种写法；`format` 可换。
+- **触发器是一个按钮，不能打字。** 生日这类离今天很远、使用者又记得住的日期，直接打字比翻月历快——那种字段用原生的 `<Input type="date">`。
+- 面板是 [气泡卡片](overlay.md) 的那一块：`surface-raised` + 1px `line` + 顶部半宽的强调条，在外框下方、左对齐。底下一行两个文字钮："今天"和"清除"（必填的字段没有"清除"）。
+- 打开时焦点落在月历里选中的那一天（没选时是今天）；选了就关，焦点回到触发按钮；`Esc`、点外面也会关。
+- 带 `name` 时值随表单提交；放进 `Field` 后标签、帮助文字、错误说明自动关联。
+
+已实现为 `<DatePicker value onValueChange placeholder name variant size min max isDateDisabled format invalid disabled required>`。
+
+只做了选一天。选一段（起止日期）现在的做法是并排放两个，后一个的 `min` 设成前一个的值。
 
 ## 表单布局
 

@@ -2,6 +2,7 @@ export { createIcon, type IconProps } from "./createIcon";
 export { ArrowCorner } from "./ArrowCorner";
 export { ArrowLeft } from "./ArrowLeft";
 export { ArrowRight } from "./ArrowRight";
+export { CalendarIcon } from "./CalendarIcon";
 export { Check } from "./Check";
 export { ChevronDown } from "./ChevronDown";
 export { ChevronLeft } from "./ChevronLeft";

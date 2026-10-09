@@ -41,6 +41,8 @@
 | `switch/` | `Switch`（含双标签开关） | [表单](../../../../docs/design/components/form.md) |
 | `stepper/` | `Stepper` | [表单](../../../../docs/design/components/form.md) |
 | `slider/` | `Slider`（传两个值是范围滑块） | [表单](../../../../docs/design/components/form.md) |
+| `calendar/` | `Calendar`（月历） | [表单](../../../../docs/design/components/form.md) |
+| `date-picker/` | `DatePicker`（日期选择：外框 + 一块带月历的面板） | [表单](../../../../docs/design/components/form.md) |
 | `alert/` | `Alert` | [反馈](../../../../docs/design/components/feedback.md) |
 | `progress/` | `Progress`、`ProgressRing` | [反馈](../../../../docs/design/components/feedback.md) |
 | `skeleton/` | `Skeleton` | [反馈](../../../../docs/design/components/feedback.md) |
@@ -75,7 +77,7 @@
 | 文件 | 谁在用 |
 | --- | --- |
 | `chip/capsule-style.ts` | `FilterChip`、`Tabs` 的 `capsule` 变体 |
-| `input/control-box.ts` | `Input`、`Textarea` 的外框（凹陷与描边两种），`Select` 的触发器和 `Combobox` 的外框也用它 |
+| `input/control-box.ts` | `Input`、`Textarea` 的外框（凹陷与描边两种），`Select`、`DatePicker` 的触发器和 `Combobox` 的外框也用它 |
 | `checkbox/choice-style.ts` | `Checkbox`、`Radio`、`Switch` 的行与方格（含菱形方案的写法） |
 | `dialog/overlay-style.ts` | `Dialog`、`Drawer` 的遮罩、深色标题带、关闭按钮 |
 | `dialog/initial-focus.ts` | `Dialog`、`Drawer` 打开时焦点落在哪 |

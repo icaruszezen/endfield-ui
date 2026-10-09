@@ -74,6 +74,8 @@ const stories = [
   "控件-slider-滑块--range",
   "控件-avatar-头像与头像切换--switcher-horizontal",
   "控件-carousel-媒体轮播--with-links",
+  "控件-calendar-月历--playground",
+  "控件-datepicker-日期选择--start-and-end",
   "控件-brackettitle-方括号标题--sizes",
   "母题-texture-底纹--variants",
 ];

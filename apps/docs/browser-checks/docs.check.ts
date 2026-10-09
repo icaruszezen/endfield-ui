@@ -22,6 +22,8 @@ const pages = [
   "控件-slider-滑块--docs",
   "控件-avatar-头像与头像切换--docs",
   "控件-carousel-媒体轮播--docs",
+  "控件-calendar-月历--docs",
+  "控件-datepicker-日期选择--docs",
   "控件-panel-面板--docs",
   "控件-tooltip-文字提示--docs",
   "控件-popover-气泡卡片--docs",
