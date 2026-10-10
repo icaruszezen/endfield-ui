@@ -10,11 +10,13 @@ import {
   type KeyboardEvent,
   type MouseEvent,
 } from "react";
+import { useAddedKeys } from "../../hooks/useAddedKeys";
 import { useControllableState } from "../../hooks/useControllableState";
 import { Close } from "../../icons/Close";
 import { StatusDanger } from "../../icons/StatusDanger";
 import { cn } from "../../lib/cn";
 import { mergeRefs } from "../../lib/merge-refs";
+import { fadeInFast } from "../../lib/motion";
 import { useFieldControl } from "../field/Field";
 import {
   controlBox,
@@ -182,6 +184,8 @@ export function TagInput({
   const [flash, setFlash] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const full = max !== undefined && tags.length >= max;
+  // 后来加的那几个淡入；一开始就有的是静止的
+  const added = useAddedKeys(tags);
 
   useEffect(() => {
     if (flash === null) return;
@@ -379,6 +383,7 @@ export function TagInput({
               "transition-colors duration-(--duration-fast) ease-standard",
               // 重复时闪一下：填充反转。不用黄色——这不是"选中"
               "data-flash:bg-surface-inverse data-flash:text-ink-inverse",
+              added.has(tag) && fadeInFast,
               disabled && "text-ink-disabled",
               !editable && "pr-2",
             )}

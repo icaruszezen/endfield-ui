@@ -251,6 +251,36 @@ describe("FileUpload", () => {
     expect(names()).toEqual(["交接单.pdf"]);
   });
 
+  it("新加进来的那一行淡入；一开始就有的不动", async () => {
+    const user = userEvent.setup();
+    render(<Example multiple defaultValue={[pdf]} />);
+    const rows = () => screen.getAllByRole("listitem");
+    expect(rows()[0]).not.toHaveClass("animate-fade-in");
+
+    await user.upload(input(), png);
+    expect(rows()[0]).not.toHaveClass("animate-fade-in");
+    expect(rows()[1]).toHaveClass(
+      "animate-fade-in",
+      "[animation-duration:var(--duration-fast)]",
+    );
+  });
+
+  it("只收一个：替上来的那一个也是新来的；自己画的行同样淡入", async () => {
+    const user = userEvent.setup();
+    render(
+      <Example
+        defaultValue={[pdf]}
+        renderFile={(item) => <FileItem name={item.name} />}
+      />,
+    );
+    expect(screen.getByRole("listitem")).not.toHaveClass("animate-fade-in");
+
+    await user.upload(input(), png);
+    expect(names()).toEqual(["现场.png"]);
+    // 淡入写在列表的那一层上，不在使用方画的那一行里
+    expect(screen.getByRole("listitem")).toHaveClass("animate-fade-in");
+  });
+
   it("renderFile：自己画那一行，带上进度；remove 仍然管用", async () => {
     const user = userEvent.setup();
     render(

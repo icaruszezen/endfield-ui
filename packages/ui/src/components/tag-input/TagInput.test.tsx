@@ -20,6 +20,37 @@ afterEach(() => {
 });
 
 describe("TagInput", () => {
+  it("新加的小块淡入；一开始就有的不动，粘贴的几个一起，删了再加回来的也算", async () => {
+    const user = userEvent.setup();
+    render(<TagInput aria-label="标签" defaultValue={["北岭", "管廊"]} />);
+    const chip = (name: string) => screen.getByText(name).closest("[data-tag]");
+    const fading = (name: string) =>
+      chip(name)!.classList.contains("animate-fade-in");
+    const input = screen.getByRole("textbox", { name: "标签" });
+    expect([fading("北岭"), fading("管廊")]).toEqual([false, false]);
+
+    await user.type(input, "泵站{Enter}");
+    expect(chip("泵站")).toHaveClass(
+      "animate-fade-in",
+      "[animation-duration:var(--duration-fast)]",
+    );
+    // 别的没有跟着重播
+    expect([fading("北岭"), fading("管廊")]).toEqual([false, false]);
+
+    await user.click(input);
+    await user.paste("闸门,水塔");
+    expect([fading("闸门"), fading("水塔"), fading("泵站")]).toEqual([
+      true,
+      true,
+      true,
+    ]);
+
+    await user.click(screen.getByRole("button", { name: "移除北岭" }));
+    await user.type(input, "北岭{Enter}");
+    expect(fading("北岭")).toBe(true);
+    expect(fading("管廊")).toBe(false);
+  });
+
   it("回车加一个：前后的空白去掉，框清空；空的不加", async () => {
     const user = userEvent.setup();
     const onValueChange = vi.fn();

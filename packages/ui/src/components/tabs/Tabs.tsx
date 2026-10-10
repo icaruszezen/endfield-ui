@@ -12,6 +12,7 @@ import { useControllableState } from "../../hooks/useControllableState";
 import { TriangleRight } from "../../icons/TriangleRight";
 import { cn } from "../../lib/cn";
 import { focusRing, focusRingInset } from "../../lib/focus-ring";
+import { fadeInFast } from "../../lib/motion";
 import { capsuleBase, capsuleSize, capsuleState } from "../chip/capsule-style";
 
 export type TabsVariant = "block" | "capsule" | "wedge";
@@ -318,9 +319,7 @@ export function TabPanel({
       className={cn(
         focusRing,
         // 只淡入、不位移：页签本身已经有"让位"的动作
-        selected &&
-          context.switched &&
-          "animate-fade-in [animation-duration:var(--duration-fast)]",
+        selected && context.switched && fadeInFast,
         className,
       )}
     >

@@ -2020,3 +2020,99 @@ test("提示条的关闭：高度收到 0 并淡出（200ms），连间距一起
   await page.click("[aria-label=关闭]");
   await page.waitFor(absent, "减少动态效果下点关闭也应该卸载");
 });
+
+test("标签输入、文件列表的新项：新加的那一项淡入（200ms），一开始就有的不动", async () => {
+  const { page } = storybook;
+  /** 每一项的文字（取开头）和它身上的动画 */
+  const items = (selector: string) =>
+    page.evaluate(
+      (css) =>
+        [...document.querySelectorAll(css)].map((item) => {
+          const style = getComputedStyle(item);
+          return [style.animationName, style.animationDuration].join(" ");
+        }),
+      selector,
+    );
+
+  await withMotion(page, async () => {
+    // 标签输入
+    const CHIP = "#storybook-root [data-tag]";
+    await page.story("控件-taginput-标签输入--playground");
+    assert.deepEqual(await items(CHIP), ["none 0s", "none 0s"]);
+    await record(page, "#storybook-root", "[data-tag]");
+    await page.key("Tab");
+    await page.type("泵站");
+    await page.key("Enter");
+    await page.waitFor(
+      async () => (await items(CHIP)).length === 3,
+      "回车应该加一个标签",
+    );
+    assert.deepEqual(
+      await items(CHIP),
+      ["none 0s", "none 0s", "ef-fade-in 0.2s"],
+      "只有新加的那一块带着淡入",
+    );
+    await page.settled("#storybook-root");
+    assert.deepEqual(await recorded(page), ["ef-fade-in"]);
+    assert.equal(await opacity(page, `${CHIP}:nth-of-type(3)`), 1);
+
+    // 再加一个：前一个不重播
+    await page.type("闸门");
+    await page.key("Enter");
+    await page.waitFor(
+      async () => (await items(CHIP)).length === 4,
+      "回车应该再加一个标签",
+    );
+    await page.settled("#storybook-root");
+    assert.deepEqual(await recorded(page), ["ef-fade-in"]);
+
+    // 文件列表
+    const ROW = "#storybook-root ul[aria-label] > li";
+    await page.story("控件-fileupload-文件上传--with-files");
+    assert.deepEqual(await items(ROW), ["none 0s", "none 0s"]);
+    await record(page, "#storybook-root", "ul[aria-label] > li");
+    await page.evaluate(() => {
+      const data = new DataTransfer();
+      data.items.add(
+        new File([new Uint8Array(2048)], "巡检记录.pdf", {
+          type: "application/pdf",
+          lastModified: 1,
+        }),
+      );
+      document.querySelector("#storybook-root [data-dropzone]")!.dispatchEvent(
+        new DragEvent("drop", {
+          dataTransfer: data,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+    });
+    await page.waitFor(
+      async () => (await items(ROW)).length === 3,
+      "放下一个文件应该多一行",
+    );
+    assert.deepEqual(
+      await items(ROW),
+      ["none 0s", "none 0s", "ef-fade-in 0.2s"],
+      "只有新加的那一行带着淡入",
+    );
+    await page.settled("#storybook-root");
+    assert.deepEqual(await recorded(page), ["ef-fade-in"]);
+    assert.equal(await opacity(page, `${ROW}:nth-child(3)`), 1);
+  });
+
+  // 减少动态效果：加了就在
+  await page.story("控件-taginput-标签输入--playground");
+  await page.key("Tab");
+  await page.type("泵站");
+  await page.key("Enter");
+  await page.waitFor(
+    async () => (await items("#storybook-root [data-tag]")).length === 3,
+    "回车应该加一个标签",
+  );
+  await page.settled("#storybook-root");
+  assert.equal(
+    await opacity(page, "#storybook-root [data-tag]:nth-of-type(3)"),
+    1,
+  );
+});

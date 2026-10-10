@@ -36,3 +36,7 @@ export const collapseEnter = "starting:grid-rows-[0fr]";
 
 /** 只裁纵向：横向照旧，里面的东西该多宽还是多宽 */
 export const collapseInner = "min-h-0 min-w-0 overflow-y-clip";
+
+/** 小件的淡入，200ms：切过来的页签面板、新加的标签、新选的文件 */
+export const fadeInFast =
+  "animate-fade-in [animation-duration:var(--duration-fast)]";

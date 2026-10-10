@@ -7,6 +7,7 @@ import {
   type ReactNode,
   type Ref,
 } from "react";
+import { useAddedKeys } from "../../hooks/useAddedKeys";
 import { useControllableState } from "../../hooks/useControllableState";
 import { StatusDanger } from "../../icons/StatusDanger";
 import { Upload } from "../../icons/Upload";
@@ -15,6 +16,7 @@ import { decor } from "../../lib/decor";
 import { formatFileSize, matchesAccept, sameFile } from "../../lib/file";
 import { focusRingWithin } from "../../lib/focus-ring";
 import { mergeRefs } from "../../lib/merge-refs";
+import { fadeInFast } from "../../lib/motion";
 import { useFieldControl } from "../field/Field";
 import { FileItem } from "./FileItem";
 
@@ -104,6 +106,10 @@ const zoneSize: Record<FileUploadSize, string> = {
   md: "gap-3 px-4 py-4",
 };
 
+/** 列表里认一个文件靠的那串字 */
+const fileKey = (file: File) =>
+  `${file.name}-${file.size}-${file.lastModified}`;
+
 /** 拖进来的东西里的文件；文件夹不收 */
 function droppedFiles(transfer: DataTransfer): File[] {
   const items = [...(transfer.items ?? [])];
@@ -164,6 +170,8 @@ export function FileUpload({
     defaultValue: defaultValue ?? [],
     onChange: onValueChange,
   });
+  // 后来加进来的那几行淡入；一开始就有的是静止的
+  const added = useAddedKeys(files.map(fileKey));
   const [rejections, setRejections] = useState<FileRejection[]>([]);
   const [dragging, setDragging] = useState(false);
   // dragenter / dragleave 在每个子元素上都会来一次：数着，归零才算真的离开
@@ -399,8 +407,10 @@ export function FileUpload({
         >
           {files.map((file, index) => {
             const actions = { remove: () => remove(index), index };
+            const key = fileKey(file);
             return (
-              <li key={`${file.name}-${file.size}-${file.lastModified}`}>
+              // 淡入写在这一层：里面那一行可能是使用方自己画的（renderFile）
+              <li key={key} className={added.has(key) ? fadeInFast : undefined}>
                 {renderFile ? (
                   renderFile(file, actions)
                 ) : (
