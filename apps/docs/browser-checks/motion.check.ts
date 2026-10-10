@@ -2467,3 +2467,118 @@ test("页内目录：粗条沿引线滑到新的一项（200ms），长度跟着
   await page.settled(LIST);
   assert.equal((await at()).opacity, 1);
 });
+
+test("页签的胶囊：选中的墨底滑到新的那一个（200ms），宽度跟着变；横向滚动时跟着内容走；另外两种没有", async () => {
+  const { page } = storybook;
+  const LIST = "#storybook-root [role=tablist]";
+  const at = () => indicatorAt(page, LIST, "[role=tab]");
+  const pick = (index: number, holdAt?: number) =>
+    pickItem(page, LIST, "[role=tab]", index, holdAt);
+
+  await withMotion(page, async () => {
+    await page.story("控件-tabs-页签--capsule-wide");
+    await page.settled(LIST);
+    const first = await at();
+    assert.deepEqual(
+      [first.state, first.opacity, first.on],
+      ["on", 1, 0],
+      "载入时墨底就在选中的那一个上",
+    );
+    const look = await page.evaluate((css) => {
+      const list = document.querySelector<HTMLElement>(css)!;
+      const base = getComputedStyle(list, "::after");
+      return {
+        own: getComputedStyle(list.querySelector("[aria-selected=true]")!)
+          .backgroundColor,
+        round:
+          Number.parseFloat(base.borderTopLeftRadius) >=
+          Number.parseFloat(base.height) / 2,
+        scrolls: list.scrollWidth > list.clientWidth + 1,
+      };
+    }, LIST);
+    assert.deepEqual(
+      look,
+      { own: "rgba(0, 0, 0, 0)", round: true, scrolls: true },
+      "选中的胶囊自己不画底；墨底两端是圆的；这个 story 里页签栏放不下",
+    );
+
+    // 换一个：位置和宽度一起走
+    await record(page, "#storybook-root");
+    const slide = await pick(1);
+    assert.deepEqual(slide.properties, ["translate", "width"]);
+    assert.deepEqual(slide.from, [first.x, first.y], "从原来那一个出发");
+    assert.equal(
+      await page.evaluate(
+        (css) =>
+          document
+            .querySelectorAll(`${css} [role=tab]`)[1]!
+            .getAttribute("aria-selected"),
+        LIST,
+      ),
+      "true",
+      "状态不等墨底滑到",
+    );
+    await page.settled(LIST);
+    assert.deepEqual(onIndicator(await recorded(page)), [
+      "translate::after",
+      "width::after",
+    ]);
+    const second = await at();
+    assert.equal(second.on, 1, "走完应该和第二个重合");
+    assert.ok(second.width > first.width + 20, "第二个更宽，墨底跟着变宽");
+
+    // 中途改道
+    const [midway] = (await pick(3, 100)).held;
+    assert.ok(midway > second.x, `停下的地方应该在半路（${midway}）`);
+    const turned = await pick(0);
+    assert.ok(turned.from, "改道之后应该有新的过渡");
+    assert.ok(
+      Math.abs(turned.from[0] - midway) < 0.5,
+      `改道应该从半路出发（${turned.from[0]}，停在 ${midway}）`,
+    );
+    await page.settled(LIST);
+    assert.equal((await at()).on, 0, "最后停在第一个");
+
+    // 横向滚动：墨底在滚动的内容里。放一个同样定位的真元素进去，量它在屏幕上的位置
+    await pick(5);
+    await page.settled(LIST);
+    assert.equal((await at()).on, 5);
+    const drift = await page.evaluate((css) => {
+      const list = document.querySelector<HTMLElement>(css)!;
+      const twin = document.createElement("i");
+      twin.style.cssText =
+        "position:absolute;top:0;left:0;width:var(--indicator-w);height:var(--indicator-h);translate:var(--indicator-x) var(--indicator-y)";
+      list.append(twin);
+      const selected = list.querySelector("[aria-selected=true]")!;
+      const gap = () =>
+        Math.abs(
+          twin.getBoundingClientRect().left -
+            selected.getBoundingClientRect().left,
+        );
+      const before = gap();
+      list.scrollLeft = list.scrollWidth;
+      const after = gap();
+      const scrolled = list.scrollLeft;
+      twin.remove();
+      return { before, after, scrolled: scrolled > 0 };
+    }, LIST);
+    assert.ok(drift.scrolled, "页签栏应该滚得动");
+    assert.ok(
+      drift.before < 0.6 && drift.after < 0.6,
+      `滚动前后墨底都该压在选中的那一个上（差 ${drift.before} / ${drift.after}）`,
+    );
+
+    // 格子式、楔形没有滑动的底
+    for (const story of ["block", "wedge"]) {
+      await page.story(`控件-tabs-页签--${story}`);
+      await page.settled(LIST);
+      assert.equal((await at()).state, null, `${story} 不该有指示`);
+    }
+  });
+
+  // 减少动态效果：直接到位
+  await page.story("控件-tabs-页签--capsule-wide");
+  await pick(2);
+  await page.settled(LIST);
+  assert.equal((await at()).on, 2);
+});

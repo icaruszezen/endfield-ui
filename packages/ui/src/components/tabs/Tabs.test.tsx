@@ -193,6 +193,95 @@ describe("Tabs", () => {
     spy.mockRestore();
   });
 
+  const variants = (
+    variant: "block" | "capsule" | "wedge",
+    ref?: {
+      current: HTMLDivElement | null;
+    },
+  ) => (
+    <Tabs defaultValue="b" variant={variant}>
+      <TabList aria-label="物品类目" ref={ref}>
+        <Tab value="a">全部</Tab>
+        <Tab value="b">消耗品与补给</Tab>
+      </TabList>
+    </Tabs>
+  );
+
+  /* jsdom 不排版：给页签栏和两个页签各一个假的矩形 */
+  const layout = () =>
+    vi
+      .spyOn(Element.prototype, "getBoundingClientRect")
+      .mockImplementation(function (this: Element) {
+        const rect = (
+          left: number,
+          top: number,
+          width: number,
+          height: number,
+        ) => ({
+          left,
+          top,
+          width,
+          height,
+          right: left + width,
+          bottom: top + height,
+          x: left,
+          y: top,
+          toJSON: () => ({}),
+        });
+        if (this.getAttribute("role") === "tablist")
+          return rect(20, 10, 400, 40);
+        if (this.textContent === "全部") return rect(24, 14, 60, 32);
+        if (this.textContent === "消耗品与补给") return rect(92, 14, 116, 32);
+        return rect(0, 0, 0, 0);
+      });
+
+  it("capsule：页签栏上备着滑动的那块底；量不到位置时选中的胶囊照旧自己画", () => {
+    render(variants("capsule"));
+    const list = screen.getByRole("tablist");
+    expect(list).toHaveClass(
+      "after:rounded-full",
+      "after:bg-surface-inverse",
+      "after:w-(--indicator-w)",
+      "data-indicator:after:block",
+    );
+    expect(list).not.toHaveAttribute("data-indicator");
+    expect(screen.getByRole("tab", { name: "消耗品与补给" })).toHaveClass(
+      "bg-surface-inverse",
+      "in-data-indicator:bg-transparent",
+    );
+    expect(screen.getByRole("tab", { name: "全部" })).not.toHaveClass(
+      "in-data-indicator:bg-transparent",
+    );
+  });
+
+  it("capsule：量得到时写下选中那一个的位置和宽度，换一个跟着换；ref 照样给页签栏", async () => {
+    const spy = layout();
+    const ref = { current: null as HTMLDivElement | null };
+    render(variants("capsule", ref));
+    const list = screen.getByRole("tablist");
+    expect(ref.current).toBe(list);
+    expect(list).toHaveAttribute("data-indicator", "on");
+    expect(list.style.getPropertyValue("--indicator-x")).toBe("72px");
+    expect(list.style.getPropertyValue("--indicator-w")).toBe("116px");
+
+    await userEvent.click(screen.getByRole("tab", { name: "全部" }));
+    expect(list.style.getPropertyValue("--indicator-x")).toBe("4px");
+    expect(list.style.getPropertyValue("--indicator-w")).toBe("60px");
+    spy.mockRestore();
+  });
+
+  it("block、wedge 没有滑动的底：量得到也不标", () => {
+    const spy = layout();
+    for (const variant of ["block", "wedge"] as const) {
+      const { unmount } = render(variants(variant));
+      const list = screen.getByRole("tablist");
+      expect(list).not.toHaveAttribute("data-indicator");
+      expect(list).not.toHaveClass("after:bg-surface-inverse");
+      unmount();
+    }
+    spy.mockRestore();
+  });
+
   it("wedge 变体：语义与键盘不变，选中项是楔形", async () => {
     render(
       <Tabs defaultValue="depot" variant="wedge">

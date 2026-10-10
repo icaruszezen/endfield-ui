@@ -75,6 +75,26 @@ export const Capsule: Story = {
   ),
 };
 
+/* 胶囊各有各的宽：选中的底滑过去的时候宽度跟着变；放不下时这一栏横向滚动，底跟着内容走 */
+export const CapsuleWide: Story = {
+  name: "胶囊：宽窄不一、横向滚动",
+  args: { defaultValue: "all", variant: "capsule" },
+  render: (args) => (
+    <div className="max-w-sm">
+      <Tabs {...args}>
+        <TabList aria-label="物资类目">
+          <Tab value="all">全部</Tab>
+          <Tab value="consumable">消耗品与补给</Tab>
+          <Tab value="part">部件</Tab>
+          <Tab value="blueprint">图纸与测绘记录</Tab>
+          <Tab value="archive">归档</Tab>
+          <Tab value="pending">待清点的物资</Tab>
+        </TabList>
+      </Tabs>
+    </div>
+  ),
+};
+
 export const Sizes: Story = {
   name: "尺寸与禁用",
   args: { defaultValue: "a" },

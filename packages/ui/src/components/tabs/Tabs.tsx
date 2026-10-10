@@ -9,10 +9,12 @@ import {
   type MouseEvent,
 } from "react";
 import { useControllableState } from "../../hooks/useControllableState";
+import { useIndicator } from "../../hooks/useIndicator";
 import { TriangleRight } from "../../icons/TriangleRight";
 import { cn } from "../../lib/cn";
 import { focusRing, focusRingInset } from "../../lib/focus-ring";
-import { fadeInFast } from "../../lib/motion";
+import { mergeRefs } from "../../lib/merge-refs";
+import { fadeInFast, indicator, indicatorBox } from "../../lib/motion";
 import { capsuleBase, capsuleSize, capsuleState } from "../chip/capsule-style";
 
 export type TabsVariant = "block" | "capsule" | "wedge";
@@ -93,8 +95,12 @@ export function Tabs({
 
 export type TabListProps = ComponentProps<"div">;
 
-export function TabList({ className, onKeyDown, ...props }: TabListProps) {
+export function TabList({ className, onKeyDown, ref, ...props }: TabListProps) {
   const { variant } = useTabsContext("TabList");
+  // 胶囊：选中的底画在这一栏上，换一个时是同一块滑过去。另外两种的"让位"是实测的，不动
+  const listRef = useIndicator<HTMLDivElement>(
+    variant === "capsule" ? '[role="tab"][aria-selected="true"]' : null,
+  );
 
   // 漫游 tabindex：方向键在页签之间移动焦点并直接切换
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -136,13 +142,20 @@ export function TabList({ className, onKeyDown, ...props }: TabListProps) {
   return (
     <div
       {...props}
+      ref={mergeRefs(listRef, ref)}
       role="tablist"
       aria-orientation="horizontal"
       onKeyDown={handleKeyDown}
       className={cn(
         // 页签很多时横向滚动，不换行
         "flex overflow-x-auto [scrollbar-width:thin]",
-        variant === "capsule" && "gap-2 p-1",
+        variant === "capsule" && [
+          "gap-2 p-1",
+          // 胶囊各有各的宽：底滑过去的时候宽度跟着变。它在滚动的内容里，跟着内容走
+          indicator,
+          indicatorBox,
+          "after:rounded-full after:bg-surface-inverse",
+        ],
         // 楔形坐在一条墨线上：亮色页面上黄色对白底的明度差很小，靠这条线托住
         variant === "wedge" && "border-b-2 border-ink",
         className,
@@ -213,7 +226,8 @@ export function Tab({
           focusRing,
           capsuleSize[size],
           selected
-            ? capsuleState.selected
+            ? // 这一栏量到了位置，底就由栏上滑动的那一块来画
+              [capsuleState.selected, "in-data-indicator:bg-transparent"]
             : disabled
               ? capsuleState.disabled
               : capsuleState.rest,
