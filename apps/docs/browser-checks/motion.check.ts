@@ -1526,3 +1526,58 @@ test("滚动数字：进视口才滚，从 0 到终值；滚的时候宽度不�
   await page.frames();
   assert.equal((await read()).rolling, false, "减少动态效果下重新挂上也不滚");
 });
+
+// —— 展开与增删：退场后再卸载 ——
+
+test("加载页：就绪后向上滑出（600ms），滑完才卸载；减少动态效果下不等", async () => {
+  const { page } = storybook;
+  const LOADER = "#storybook-root [data-state]";
+  const gone = () =>
+    page.evaluate((css) => document.querySelector(css) === null, LOADER);
+  /** 从"开始退出"到"不在页面里"隔了多久（毫秒） */
+  const watch = () =>
+    page.evaluate((css) => {
+      const node = document.querySelector(css)!;
+      const times: { closing?: number; gone?: number } = {};
+      Object.assign(window, { loaderTimes: times });
+      new MutationObserver(() => {
+        if (node.getAttribute("data-state") === "closing") {
+          times.closing ??= performance.now();
+        }
+        if (!node.isConnected) times.gone ??= performance.now();
+      }).observe(document.querySelector("#storybook-root")!, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ["data-state"],
+      });
+    }, LOADER);
+  const took = () =>
+    page.evaluate(() => {
+      const times = (
+        window as unknown as { loaderTimes: { closing: number; gone: number } }
+      ).loaderTimes;
+      return times.gone - times.closing;
+    });
+
+  await withMotion(page, async () => {
+    await page.story("控件-loader-加载页--reveal");
+    await record(page, "#storybook-root", "[data-state]");
+    await watch();
+    assert.deepEqual(
+      await transitions(page, LOADER),
+      { translate: 0.6 },
+      "滑出是位移的过渡，600ms",
+    );
+    await page.waitFor(gone, "进度到头之后加载页应该滑出并卸载", 10_000);
+    assert.deepEqual(await recorded(page), ["translate"], "卸载之前先滑出去");
+    const waited = await took();
+    assert.ok(waited >= 550, `应该等滑出走完再卸载，实际只等了 ${waited}ms`);
+  });
+
+  // 减少动态效果：过渡压到了接近零，照样卸载
+  await page.story("控件-loader-加载页--reveal");
+  const seconds = (await transitions(page, LOADER))!.translate!;
+  assert.ok(seconds < 0.001, `过渡时长应该接近零，实际是 ${seconds}s`);
+  await page.waitFor(gone, "减少动态效果下加载页也应该卸载", 10_000);
+});

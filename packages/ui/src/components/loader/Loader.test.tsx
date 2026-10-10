@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { createRef } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { stubAnimations } from "../../test/animations";
 import { Loader } from "./Loader";
 
 const bar = () => screen.getByRole("progressbar");
@@ -71,7 +72,8 @@ describe("Loader", () => {
     expect(fireEvent.keyDown(loader, { key: "Tab" })).toBe(true);
   });
 
-  it("open 变成 false：先滑出，过渡结束后卸载并触发 onExited", () => {
+  it("open 变成 false：先滑出，过渡走完后卸载并触发 onExited", async () => {
+    const finish = stubAnimations();
     const onExited = vi.fn();
     const { rerender } = render(
       <Loader value={100} data-testid="loader" onExited={onExited} />,
@@ -92,33 +94,29 @@ describe("Loader", () => {
     expect(document.documentElement.style.overflow).toBe("");
     expect(onExited).not.toHaveBeenCalled();
 
-    fireEvent.transitionEnd(loader);
+    await finish();
+    expect(screen.queryByTestId("loader")).toBeNull();
+    expect(onExited).toHaveBeenCalledTimes(1);
+  });
+
+  it("没有过渡可等的环境里直接卸载", () => {
+    const onExited = vi.fn();
+    const { rerender } = render(
+      <Loader data-testid="loader" onExited={onExited} />,
+    );
+    rerender(<Loader open={false} data-testid="loader" onExited={onExited} />);
     expect(screen.queryByTestId("loader")).toBeNull();
     expect(onExited).toHaveBeenCalledTimes(1);
 
-    // 兜底的定时器不会再触发一次
+    // 之后也不会再来一次
     act(() => {
       vi.advanceTimersByTime(2000);
     });
     expect(onExited).toHaveBeenCalledTimes(1);
   });
 
-  it("没有过渡事件时由定时器兜底卸载", () => {
-    const onExited = vi.fn();
-    const { rerender } = render(
-      <Loader data-testid="loader" onExited={onExited} />,
-    );
-    rerender(<Loader open={false} data-testid="loader" onExited={onExited} />);
-    expect(screen.getByTestId("loader")).toBeInTheDocument();
-
-    act(() => {
-      vi.advanceTimersByTime(700);
-    });
-    expect(screen.queryByTestId("loader")).toBeNull();
-    expect(onExited).toHaveBeenCalledTimes(1);
-  });
-
-  it("使用方传了 ref：照样收焦点，滑出结束后照样卸载", () => {
+  it("使用方传了 ref：照样收焦点，照样等滑出", async () => {
+    const finish = stubAnimations();
     const ref = createRef<HTMLDivElement>();
     const { rerender } = render(<Loader ref={ref} data-testid="loader" />);
     const loader = screen.getByTestId("loader");
@@ -126,7 +124,11 @@ describe("Loader", () => {
     expect(loader).toHaveFocus();
 
     rerender(<Loader ref={ref} open={false} data-testid="loader" />);
-    fireEvent.transitionEnd(screen.getByTestId("loader"));
+    expect(screen.getByTestId("loader")).toHaveAttribute(
+      "data-state",
+      "closing",
+    );
+    await finish();
     expect(screen.queryByTestId("loader")).toBeNull();
   });
 

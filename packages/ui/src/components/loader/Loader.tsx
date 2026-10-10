@@ -1,12 +1,10 @@
 import {
   useEffect,
-  useRef,
-  useState,
   type ComponentProps,
   type KeyboardEvent,
   type ReactNode,
-  type TransitionEvent,
 } from "react";
+import { usePresence } from "../../hooks/usePresence";
 import { cn } from "../../lib/cn";
 import { mergeRefs } from "../../lib/merge-refs";
 
@@ -25,9 +23,6 @@ export type LoaderProps = Omit<ComponentProps<"div">, "children"> & {
   onExited?: () => void;
 };
 
-/** 滑出的时长，与 `--duration-slower` 一致；过渡事件没来时靠它兜底 */
-const EXIT_MS = 600;
-
 /**
  * 加载页：近黑底、大号等宽百分比、一行标语、黄色进度条。只用于整页的首次加载。
  * 不伪造进度；内容就绪后立刻把 `open` 置为 `false`，不要为了播完动画而等待。
@@ -40,32 +35,14 @@ export function Loader({
   label = "加载中",
   onExited,
   onKeyDown,
-  onTransitionEnd,
   className,
   ref,
   ...props
 }: LoaderProps) {
-  const rootRef = useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = useState(open);
-  // 重新打开：立刻挂回来
-  if (open && !mounted) setMounted(true);
-
-  const onExitedRef = useRef(onExited);
-  useEffect(() => {
-    onExitedRef.current = onExited;
+  // 退出：滑出的过渡走完后卸载；重新打开立刻挂回来
+  const { ref: rootRef, mounted } = usePresence<HTMLDivElement>(open, {
+    onExited,
   });
-
-  const leaving = !open && mounted;
-
-  // 退出：滑出的过渡结束后卸载。没有过渡的环境里事件不会来，由定时器兜底
-  useEffect(() => {
-    if (!leaving) return;
-    const timer = window.setTimeout(() => {
-      setMounted(false);
-      onExitedRef.current?.();
-    }, EXIT_MS + 100);
-    return () => window.clearTimeout(timer);
-  }, [leaving]);
 
   // 整页模式：加载期间锁住页面滚动，把焦点收进来；开始退出时就放开
   useEffect(() => {
@@ -81,17 +58,9 @@ export function Loader({
         previousFocus.focus({ preventScroll: true });
       }
     };
-  }, [fullscreen, open]);
+  }, [fullscreen, open, rootRef]);
 
   if (!mounted) return null;
-
-  const handleTransitionEnd = (event: TransitionEvent<HTMLDivElement>) => {
-    onTransitionEnd?.(event);
-    if (leaving && event.target === event.currentTarget) {
-      setMounted(false);
-      onExitedRef.current?.();
-    }
-  };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     onKeyDown?.(event);
@@ -109,7 +78,6 @@ export function Loader({
       ref={mergeRefs(rootRef, ref)}
       data-state={open ? "open" : "closing"}
       onKeyDown={handleKeyDown}
-      onTransitionEnd={handleTransitionEnd}
       className={cn(
         // 有意不随主题变：加载页是固定的近黑底
         "@container flex flex-col justify-end bg-neutral-950 text-neutral-0 outline-none",
