@@ -20,6 +20,16 @@ const CONTENT_TYPES: Record<string, string> = {
   ".txt": "text/plain; charset=utf-8",
 };
 
+/*
+ * 浏览器不肯连的端口：Fetch 规范的"坏端口"里 1024 以上的那些。系统的随机端口从 1024
+ * 起分的机器上（有的 Windows 是这样）会分到它们——页面报 ERR_UNSAFE_PORT，
+ * 这个文件里每一条检查都成了"页面没有渲染出来"
+ */
+const UNSAFE_PORTS = new Set([
+  1719, 1720, 1723, 2049, 3659, 4045, 4190, 5060, 5061, 6000, 6566, 6665, 6666,
+  6667, 6668, 6669, 6679, 6697, 10080,
+]);
+
 export async function serve(root: string) {
   const server = createServer((request, response) => {
     const pathname = decodeURIComponent(
@@ -46,8 +56,16 @@ export async function serve(root: string) {
     createReadStream(file).pipe(response);
   });
 
-  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
-  const { port } = server.address() as AddressInfo;
+  // 分到了浏览器不肯连的端口就放掉、再要一个
+  let port: number;
+  for (;;) {
+    await new Promise<void>((resolve) =>
+      server.listen(0, "127.0.0.1", resolve),
+    );
+    ({ port } = server.address() as AddressInfo);
+    if (!UNSAFE_PORTS.has(port)) break;
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+  }
 
   return {
     url: `http://127.0.0.1:${port}`,
