@@ -154,7 +154,9 @@ export function TabList({ className, onKeyDown, ref, ...props }: TabListProps) {
           // 胶囊各有各的宽：底滑过去的时候宽度跟着变。它在滚动的内容里，跟着内容走
           indicator,
           indicatorBox,
-          "after:rounded-full after:bg-surface-inverse",
+          // 墨底提到各个胶囊的轮廓线之上：滑过去的时候是一块干净的实心胶囊，
+          // 不被相邻胶囊的轮廓切开。胶囊里的字另提一层，留在它上面
+          "after:z-0 after:rounded-full after:bg-surface-inverse",
         ],
         // 楔形坐在一条墨线上：亮色页面上黄色对白底的明度差很小，靠这条线托住
         variant === "wedge" && "border-b-2 border-ink",
@@ -234,7 +236,10 @@ export function Tab({
           className,
         )}
       >
-        {children}
+        {/* 字在滑动的墨底之上；间距跟按钮自己的走，里面照旧是一行居中的弹性排布 */}
+        <span className="relative z-1 inline-flex items-center gap-[inherit]">
+          {children}
+        </span>
       </button>
     );
   }

@@ -249,6 +249,13 @@ describe("Tabs", () => {
       "bg-surface-inverse",
       "in-data-indicator:bg-transparent",
     );
+    // 墨底在胶囊的轮廓线之上，字再在墨底之上
+    expect(list).toHaveClass("after:z-0");
+    expect(list).not.toHaveClass("after:-z-1");
+    expect(screen.getByText("消耗品与补给")).toHaveClass("relative", "z-1");
+    expect(screen.getByText("消耗品与补给").parentElement).toBe(
+      screen.getByRole("tab", { name: "消耗品与补给" }),
+    );
     expect(screen.getByRole("tab", { name: "全部" })).not.toHaveClass(
       "in-data-indicator:bg-transparent",
     );

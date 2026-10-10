@@ -2503,6 +2503,24 @@ test("页签的胶囊：选中的墨底滑到新的那一个（200ms），宽度
       { own: "rgba(0, 0, 0, 0)", round: true, scrolls: true },
       "选中的胶囊自己不画底；墨底两端是圆的；这个 story 里页签栏放不下",
     );
+    // 层次：墨底在各个胶囊的轮廓线之上（胶囊自己不是定位的），字在墨底之上
+    const layers = await page.evaluate((css) => {
+      const list = document.querySelector<HTMLElement>(css)!;
+      const tab = list.querySelector<HTMLElement>("[role=tab]")!;
+      const label = getComputedStyle(tab.firstElementChild!);
+      return {
+        list: getComputedStyle(list).isolation,
+        pill: getComputedStyle(list, "::after").zIndex,
+        tab: getComputedStyle(tab).position,
+        label: [label.position, label.zIndex],
+      };
+    }, LIST);
+    assert.deepEqual(layers, {
+      list: "isolate",
+      pill: "0",
+      tab: "static",
+      label: ["relative", "1"],
+    });
 
     // 换一个：位置和宽度一起走
     await record(page, "#storybook-root");
