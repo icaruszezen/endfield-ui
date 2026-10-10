@@ -1410,3 +1410,119 @@ test("空状态：挂上时淡入（300ms），不位移；减少动态效果下
   await page.settled(EMPTY);
   assert.equal((await read()).opacity, "1");
 });
+
+test("滚动数字：进视口才滚，从 0 到终值；滚的时候宽度不变、读屏读的是终值；减少动态效果下不滚", async () => {
+  const { page } = storybook;
+  const STORY = "控件-rollingnumber-滚动数字--entrance";
+  const read = () =>
+    page.evaluate(() => {
+      // 统计块的数字那一格里面就是滚动数字的根元素
+      const stat = document.querySelector("#storybook-root [data-size]")!;
+      const root = stat.querySelector("p:nth-of-type(2) > span > span")!;
+      const [final, moving] = root.children;
+      const box = stat.getBoundingClientRect();
+      return {
+        rolling: root.hasAttribute("data-rolling"),
+        final: final!.textContent,
+        finalOpacity: getComputedStyle(final!).opacity,
+        moving: moving ? moving.textContent : null,
+        movingHidden: moving ? moving.getAttribute("aria-hidden") : null,
+        width: root.getBoundingClientRect().width,
+        // 整个统计块的大小：单位、增量签有没有被挤动
+        stat: [box.width, box.height],
+      };
+    });
+
+  await withMotion(page, async () => {
+    await page.story(STORY);
+    await replayOffscreen(page);
+    // 反面的断言：等上一会儿，没进视口它还停在 0
+    await page.pause(300);
+    const waiting = await read();
+    assert.deepEqual(
+      [waiting.rolling, waiting.moving, waiting.final, waiting.finalOpacity],
+      [true, "0", "1,280", "0"],
+      "没进视口时停在 0，终值在但看不见",
+    );
+    assert.equal(waiting.movingHidden, "true", "滚动的那一份对读屏隐藏");
+
+    // 从现在起，滚动的那一份每换一次数就记一笔（连同当时的宽度）：
+    // 不去赌"正好读到滚到一半"，滚完之后看它一路显示过什么
+    await page.evaluate(() => {
+      const stat = document.querySelector("#storybook-root [data-size]")!;
+      const root = stat.querySelector("p:nth-of-type(2) > span > span")!;
+      const seen: { shown: number; width: number; stat: number }[] = [];
+      Object.assign(window, { rollLog: seen });
+      new MutationObserver(() => {
+        const moving = root.children[1];
+        if (!moving) return;
+        seen.push({
+          shown: Number(moving.textContent.replace(/,/g, "")),
+          width: root.getBoundingClientRect().width,
+          stat: stat.getBoundingClientRect().width,
+        });
+      }).observe(root, { subtree: true, childList: true, characterData: true });
+    });
+    await scrollIntoView(page, "#storybook-root [data-size]");
+    const done = await page.waitFor(async () => {
+      const found = await read();
+      return found.rolling ? null : found;
+    }, "进视口之后数字应该滚起来，并且滚完");
+    const log = await page.evaluate(
+      () =>
+        (
+          window as unknown as {
+            rollLog: { shown: number; width: number; stat: number }[];
+          }
+        ).rollLog,
+    );
+    const shown = log.map((entry) => entry.shown);
+    assert.ok(shown.length >= 3, "应该滚过好几帧，不是一下跳到终值");
+    assert.ok(
+      shown.every((value) => value >= 0 && value <= 1280),
+      "滚的过程一直在 0 和终值之间",
+    );
+    assert.ok(
+      shown.some((value) => value > 0 && value < 1280),
+      "中间应该显示过没到终值的数",
+    );
+    assert.deepEqual(
+      shown,
+      [...shown].sort((a, b) => a - b),
+      "只往上滚，不回头",
+    );
+    assert.ok(
+      log.every((entry) => entry.width === waiting.width),
+      "滚的时候宽度由终值占着",
+    );
+    assert.ok(
+      log.every((entry) => entry.stat === waiting.stat[0]),
+      "滚的时候旁边的单位和增量签不动",
+    );
+    assert.deepEqual(
+      [done.final, done.finalOpacity, done.moving],
+      ["1,280", "1", null],
+      "滚完只剩终值",
+    );
+    assert.equal(done.width, waiting.width, "滚完宽度不变");
+    assert.deepEqual(done.stat, waiting.stat, "滚完统计块的大小不变");
+
+    // 滚走再滚回来：不重滚
+    await page.evaluate(() => scrollTo(0, 0));
+    await page.frames(4);
+    await scrollIntoView(page, "#storybook-root [data-size]");
+    await page.frames(4);
+    assert.equal((await read()).rolling, false, "滚回来不应该重滚");
+  });
+
+  // 开回"减少动态效果"：从头到尾没有滚动的那一份
+  await page.story(STORY);
+  const reduced = await read();
+  assert.deepEqual(
+    [reduced.rolling, reduced.final, reduced.finalOpacity, reduced.moving],
+    [false, "1,280", "1", null],
+  );
+  await page.click("text=重播");
+  await page.frames();
+  assert.equal((await read()).rolling, false, "减少动态效果下重新挂上也不滚");
+});

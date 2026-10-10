@@ -1,4 +1,4 @@
-import { Stat } from "@endfield-ui/react";
+import { RollingNumber, Stat } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 const meta = {
@@ -34,6 +34,24 @@ export const Emphasis: Story = {
       <Stat size="lg" label="采样点" value="128" unit="处" delta="+12" />
       <Stat label="已完成" value="96" unit="处" />
       <Stat label="待复核" value="7" unit="处" delta="−3" trend="down" />
+    </div>
+  ),
+};
+
+/* 数字要滚上来，就把一个 RollingNumber 放进 value；重播见"滚动数字"的"入场动画" */
+export const Rolling: Story = {
+  name: "数字滚上来",
+  render: () => (
+    <div className="flex flex-wrap items-end gap-x-12 gap-y-8">
+      <Stat
+        size="lg"
+        label="采样点"
+        value={<RollingNumber value={128} />}
+        unit="处"
+        delta="+12"
+      />
+      <Stat label="已完成" value={<RollingNumber value={96} />} unit="处" />
+      <Stat label="深度" value={<RollingNumber value={42.5} />} unit="m" />
     </div>
   ),
 };

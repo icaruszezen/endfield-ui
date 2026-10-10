@@ -166,6 +166,7 @@ Select 的面板和 Toast 的容器都是浮层，需要定位与焦点管理，
 | DataRow | [数据展示](data-display.md) | 已实现（`DataRowList` + `DataRow`） |
 | Sparkline（行内的小型面积图） | [数据展示](data-display.md) | 已实现 |
 | Stat | [数据展示](data-display.md) | 已实现 |
+| RollingNumber（滚动数字） | [数据展示](data-display.md#滚动数字) | 已实现 |
 | ResourceChip / Countdown | [数据展示](data-display.md) | 已实现 |
 | List / ListRow | [卡片](card.md) | 已实现（含深色行带 `band`） |
 | Timeline | [数据展示](data-display.md) | 已实现 |

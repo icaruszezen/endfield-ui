@@ -10,6 +10,7 @@
 | `chip/` | `FilterChip`、`ResourceChip` | [数据展示](../../../../docs/design/components/data-display.md) |
 | `countdown/` | `Countdown` | [数据展示](../../../../docs/design/components/data-display.md) |
 | `stat/` | `Stat` | [数据展示](../../../../docs/design/components/data-display.md) |
+| `rolling-number/` | `RollingNumber`（从 0 滚到终值的数字，放进 `Stat` 的 `value`） | [数据展示](../../../../docs/design/components/data-display.md#滚动数字) |
 | `sparkline/` | `Sparkline` | [数据展示](../../../../docs/design/components/data-display.md) |
 | `data-row/` | `DataRowList`、`DataRow` | [数据展示](../../../../docs/design/components/data-display.md) |
 | `avatar/` | `Avatar`、`AvatarSwitcher`、`AvatarSwitcherItem`（头像切换：一列头像里选一个） | [数据展示](../../../../docs/design/components/data-display.md)、[导航](../../../../docs/design/components/navigation.md) |

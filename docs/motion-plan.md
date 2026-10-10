@@ -146,7 +146,7 @@ Base UI 的浮层自带 `data-starting-style` / `data-ending-style` 和 `data-si
   - 现在：没有。
   - 要做：淡入。只是为了不"啪"地一下出现，不加位移。
   - 改哪里：`empty-state/EmptyState.tsx`。
-- [ ] **3.5 统计块的数字。**
+- [x] **3.5 统计块的数字。**
   - 现在：静止。
   - 要做：数字从 0 滚到值，一次。
   - 改哪里：单出一个小组件 `rolling-number/RollingNumber.tsx`，放进 `Stat` 的 `value` 里用；`Stat` 的接口不动（用户定的）。它是库里第一个脚本驱动的动效，要加 `hooks/useReducedMotion.ts`。
