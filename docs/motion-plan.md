@@ -212,7 +212,7 @@ Base UI 的浮层自带 `data-starting-style` / `data-ending-style` 和 `data-si
   - 改哪里：`segmented-control/SegmentedControl.tsx`。
   - 留意：轨道是 `<div {...props} />`，里面不能多一个子元素——实测和使用方都在用 `label:nth-child(n)` 数段；`ref` 混在 `props` 里，要拆出来和钩子的合上。选中又禁用的那一段，块是禁用色。
   - 规范：[表单](design/components/form.md#分段选择)。
-- [ ] **5.3 页内目录。**
+- [x] **5.3 页内目录。**
   - 现在：当前项那一段 3px 的粗条在项间跳。规范里还写着"没有滑动的指示条"。
   - 要做：粗条沿引线滑到新的一项；折行的项更高，粗条的长度跟着变。从一项都不亮到亮起来是原地淡入，反过来是原地淡出。
   - 改哪里：`toc/Toc.tsx`。

@@ -13,6 +13,7 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
+import { useIndicator } from "../../hooks/useIndicator";
 import {
   useScrollPosition,
   type ScrollMetrics,
@@ -20,6 +21,7 @@ import {
 import { cn } from "../../lib/cn";
 import { focusRingInset } from "../../lib/focus-ring";
 import { mergeRefs } from "../../lib/merge-refs";
+import { indicator } from "../../lib/motion";
 import { LinkElement, type LinkRender } from "../link-element/LinkElement";
 
 export type TocLevel = 1 | 2 | 3;
@@ -69,6 +71,8 @@ export function Toc({
   ...props
 }: TocProps) {
   const navRef = useRef<HTMLElement>(null);
+  // 当前项的粗条画在列表上：换一项时是同一段沿引线滑过去
+  const listRef = useIndicator<HTMLUListElement>("[aria-current]");
   const titleId = useId();
   // 目录的项数变了（内容是后来才到的）要重新算一次，不等下一次滚动
   const count = Children.count(children);
@@ -179,8 +183,17 @@ export function Toc({
           {title}
         </p>
       )}
-      {/* 引线：从头贯到尾的一条细线，当前项那一段由那一项自己换成粗条 */}
-      <ul className="relative before:absolute before:inset-y-0 before:left-0 before:w-px before:bg-line before:content-['']">
+      {/* 引线：从头贯到尾的一条细线；当前项那一段是压在它上面的粗条 */}
+      <ul
+        ref={listRef}
+        className={cn(
+          // 和粗条同一层：它在前、粗条在后，粗条压着它；两样都在各项之下
+          "before:absolute before:inset-y-0 before:left-0 before:-z-1 before:w-px before:bg-line before:content-['']",
+          indicator,
+          // 3px 宽，比当前项上下各短 4px；长度跟着那一项的高度走
+          "after:top-1 after:h-[calc(var(--indicator-h)-0.5rem)] after:w-[3px] after:translate-y-(--indicator-y) after:bg-ink",
+        )}
+      >
         <TocContext value={context}>{children}</TocContext>
       </ul>
     </nav>
@@ -251,8 +264,9 @@ export function TocItem({
           focusRingInset,
           levelPadding[level],
           current
-            ? // 不加粗：加粗会让折行变掉，整列目录跟着跳。靠的是引线上的这一段粗条
-              "text-ink before:absolute before:inset-y-1 before:left-0 before:w-[3px] before:bg-ink before:content-['']"
+            ? // 不加粗：加粗会让折行变掉，整列目录跟着跳。靠的是引线上的这一段粗条——
+              // 列表量到了位置就由列表上滑动的那一段来画，这里的让出来
+              "text-ink before:absolute before:inset-y-1 before:left-0 before:w-[3px] before:bg-ink before:content-[''] in-data-indicator:before:hidden"
             : "text-ink-secondary hover:text-ink",
         )}
       >

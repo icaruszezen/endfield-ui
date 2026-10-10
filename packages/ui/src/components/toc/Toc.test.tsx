@@ -155,6 +155,63 @@ describe("Toc", () => {
     expect(other).toHaveClass("text-ink-secondary");
   });
 
+  it("粗条：列表上备着滑动的那一段；量不到位置时当前项照旧自己画", () => {
+    render(<Page />);
+    scrollTo(900);
+    const list = screen.getByRole("list");
+    expect(list).toHaveClass(
+      "after:w-[3px]",
+      "after:bg-ink",
+      "after:translate-y-(--indicator-y)",
+      "data-indicator:after:block",
+    );
+    // 这个文件里的假矩形宽度是 0：量不到，不标
+    expect(list).not.toHaveAttribute("data-indicator");
+    expect(screen.getByRole("link", { name: "日常作业" })).toHaveClass(
+      "before:bg-ink",
+      "in-data-indicator:before:hidden",
+    );
+  });
+
+  it("粗条：量得到时写下当前项在列表里的位置和高度；一项都不亮是 off", () => {
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
+      function (this: HTMLElement) {
+        const box = (top: number, height: number) => ({
+          top,
+          bottom: top + height,
+          left: 0,
+          right: 200,
+          width: 200,
+          height,
+          x: 0,
+          y: top,
+          toJSON: () => ({}),
+        });
+        if (this.id in tops) return box(tops[this.id]! - scrollY, 40);
+        if (this.tagName === "UL") return box(300, 200);
+        // 每项 36px 高，第三项折了行
+        const index = [...document.querySelectorAll("nav a")].indexOf(this);
+        if (index >= 0) return box(300 + index * 36, index === 2 ? 56 : 36);
+        return box(0, 0);
+      },
+    );
+    render(<Page />);
+    const list = screen.getByRole("list");
+    expect(list).toHaveAttribute("data-indicator", "off");
+
+    scrollTo(900);
+    expect(list).toHaveAttribute("data-indicator", "on");
+    expect(list.style.getPropertyValue("--indicator-y")).toBe("36px");
+    expect(list.style.getPropertyValue("--indicator-h")).toBe("36px");
+
+    scrollTo(1700);
+    expect(list.style.getPropertyValue("--indicator-y")).toBe("72px");
+    expect(list.style.getPropertyValue("--indicator-h")).toBe("56px");
+
+    scrollTo(0);
+    expect(list).toHaveAttribute("data-indicator", "off");
+  });
+
   it("滚到底时是最后一节——哪怕它的顶边到不了上沿；页面上没有的小节不算", () => {
     render(<Page />);
     // 最多能滚 2400，最后一节的顶边在 2300：差一点才到

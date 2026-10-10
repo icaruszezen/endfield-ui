@@ -20,6 +20,30 @@ const current = (page: Page) =>
 const waitCurrent = (page: Page, expected: string | null, message: string) =>
   page.waitFor(async () => (await current(page)) === expected, message);
 
+/**
+ * 粗条画在列表的 ::after 上：它压在哪一项上（那一项的文字），上下各比那一项短 4px。
+ * 哪一项都对不上是 undefined，没画出来（或者淡掉了）是 null
+ */
+const barOn = (page: Page) =>
+  page.evaluate((css) => {
+    const list = document.querySelector<HTMLElement>(`${css} ul`)!;
+    const style = getComputedStyle(list, "::after");
+    if (style.display === "none" || style.opacity === "0") return null;
+    const [, y = 0] = style.translate
+      .split(" ")
+      .map((part) => Number.parseFloat(part) || 0);
+    const top = Number.parseFloat(style.top) + y;
+    const box = list.getBoundingClientRect();
+    const near = (a: number, b: number) => Math.abs(a - b) < 0.6;
+    return [...list.querySelectorAll("a")].find((link) => {
+      const rect = link.getBoundingClientRect();
+      return (
+        near(rect.top - box.top + 4, top) &&
+        near(rect.height - 8, Number.parseFloat(style.height))
+      );
+    })?.textContent;
+  }, NAV);
+
 /** 把正文那个滚动容器滚到某一节的顶边贴着容器上沿（差几像素） */
 const scrollToSection = (page: Page, title: string, delta = 0) =>
   page.evaluate(
@@ -99,8 +123,10 @@ test("当前项：引线上一段 3px 的粗条，字是墨色，不加粗；整
         const line = color("--ef-line");
         const links = [...nav.querySelectorAll("a")];
         const active = nav.querySelector("a[aria-current]");
-        const bar = active ? getComputedStyle(active, "::before") : null;
-        const guide = getComputedStyle(nav.querySelector("ul")!, "::before");
+        const list = nav.querySelector("ul")!;
+        // 粗条画在列表上（::after）；当前项自己那一段让出来了
+        const bar = active ? getComputedStyle(list, "::after") : null;
+        const guide = getComputedStyle(list, "::before");
         return {
           height: nav.offsetHeight,
           weights: [
@@ -108,6 +134,7 @@ test("当前项：引线上一段 3px 的粗条，字是墨色，不加粗；整
           ],
           activeInk: active ? getComputedStyle(active).color === ink : null,
           bar: bar ? [bar.width, bar.backgroundColor === ink] : null,
+          own: active ? getComputedStyle(active, "::before").display : null,
           guide: [guide.width, guide.backgroundColor === line],
           restInk: links
             .filter((a) => a !== active)
@@ -131,8 +158,19 @@ test("当前项：引线上一段 3px 的粗条，字是墨色，不加粗；整
       async () => (await measure()).activeInk === true,
       `${theme}：当前项的字应该是墨色`,
     );
+    await page.settled(NAV);
     const after = await measure();
     assert.deepEqual(after.bar, ["3px", true], `${theme}：粗条`);
+    assert.equal(
+      await barOn(page),
+      "日常作业",
+      `${theme}：粗条应该压在当前项上，上下各短 4px`,
+    );
+    assert.equal(
+      after.own,
+      "none",
+      `${theme}：量到位置之后，当前项自己那一段不该再画`,
+    );
     assert.equal(after.weights.length, 1, `${theme}：当前项不该换字重`);
     assert.equal(after.height, before.height, `${theme}：整列的高度变了`);
     assert.equal(after.restInk, false);
@@ -251,6 +289,9 @@ test("目录自己能滚：当前项保持在看得见的范围里，页面不�
   }, "当前项应该被带进目录看得见的范围");
   assert.ok(down.navScroll > 0, "目录自己应该滚下去了");
   assert.equal(down.pageScroll, 0, "页面不该跟着动");
+  // 目录滚了，粗条跟着内容走
+  await page.settled(NAV);
+  assert.equal(await barOn(page), "第 9 天的记录");
 
   await scrollToSection(page, "第 2 天的记录");
   await waitCurrent(page, "第 2 天的记录", "第二节到了上沿应该亮");

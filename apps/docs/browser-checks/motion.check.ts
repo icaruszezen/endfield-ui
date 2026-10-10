@@ -2336,3 +2336,134 @@ test("分段选择：选中的墨块滑到新的一段（200ms）；一开始就
   await page.settled(GROUP);
   assert.equal((await at()).on, 2);
 });
+
+test("页内目录：粗条沿引线滑到新的一项（200ms），长度跟着那一项变；第一次亮是原地淡入，滚回头上淡出", async () => {
+  const { page } = storybook;
+  const LIST = "#storybook-root nav ul";
+  const SCROLLER = "#storybook-root [role=region]";
+  const at = () => indicatorAt(page, LIST, "a", 4);
+  /** 把正文滚到某一节的顶边贴着上沿；不给就是滚回头上 */
+  const scrollTo = (title?: string) =>
+    page.evaluate(
+      (css, text) => {
+        const scroller = document.querySelector<HTMLElement>(css)!;
+        if (text === null) {
+          scroller.scrollTop = 0;
+          return;
+        }
+        const heading = [...scroller.querySelectorAll("header")].find(
+          (node) => node.textContent === text,
+        )!;
+        scroller.scrollTop +=
+          heading.getBoundingClientRect().top -
+          scroller.getBoundingClientRect().top;
+      },
+      SCROLLER,
+      title ?? null,
+    );
+  const waitOn = (index: number, message: string) =>
+    page.waitFor(async () => {
+      const found = await at();
+      return found.state === "on" && found.on === index;
+    }, message);
+
+  await withMotion(page, async () => {
+    await page.story("控件-toc-页内目录--playground");
+    await page.settled("#storybook-root");
+    const empty = await at();
+    assert.deepEqual(
+      [empty.state, empty.opacity],
+      ["off", 0],
+      "一开始一项都不亮：粗条在，但是透明的",
+    );
+    assert.deepEqual(
+      await transitions(page, LIST, "::after"),
+      { opacity: 0.2 },
+      "一项都不亮的时候只留淡入淡出",
+    );
+
+    // 第一次亮：位置直接到，原地淡入
+    await record(page, "#storybook-root");
+    await scrollTo("最新情报");
+    await waitOn(0, "第一节到了上沿，粗条应该在第一项上");
+    await page.settled(LIST);
+    assert.deepEqual(onIndicator(await recorded(page)), ["opacity::after"]);
+    assert.equal((await at()).opacity, 1);
+    assert.deepEqual(await transitions(page, LIST, "::after"), {
+      translate: 0.2,
+      width: 0.2,
+      height: 0.2,
+      opacity: 0.2,
+    });
+
+    // 同一项变了大小（目录收窄，四个字的标题折成两行）：直接到位
+    const oneLine = (await at()).height;
+    await page.evaluate(() => {
+      document.querySelector<HTMLElement>("#storybook-root nav")!.style.width =
+        "70px";
+    });
+    await page.waitFor(
+      async () => (await at()).height > oneLine + 10,
+      "标题折了行，粗条应该跟着变长",
+    );
+    await page.settled(LIST);
+    assert.equal((await at()).on, 0);
+    assert.deepEqual(
+      onIndicator(await recorded(page)),
+      [],
+      "变了大小不是换了一项：不该有过渡",
+    );
+
+    // 换到下一项（一样高）：只走位置
+    await scrollTo("日常作业");
+    await waitOn(1, "第二节到了上沿，粗条应该到第二项上");
+    await page.settled(LIST);
+    assert.deepEqual(onIndicator(await recorded(page)), ["translate::after"]);
+
+    // 换到只有一行的那一项：长度跟着变
+    await scrollTo("队员");
+    await waitOn(2, "第三节到了上沿，粗条应该到第三项上");
+    await page.settled(LIST);
+    assert.deepEqual(onIndicator(await recorded(page)), [
+      "height::after",
+      "translate::after",
+    ]);
+    const third = await at();
+
+    // 中途改道：点第一项，停在半路，再点第二项——从半路出发
+    const [, midway] = (await pickItem(page, LIST, "a", 0, 100)).held;
+    assert.ok(
+      midway < third.y && midway > 0,
+      `停下的地方应该在半路（${midway}）`,
+    );
+    const turned = await pickItem(page, LIST, "a", 1);
+    assert.ok(turned.from, "改道之后应该有新的过渡");
+    assert.ok(
+      Math.abs(turned.from[1] - midway) < 0.5,
+      `改道应该从半路出发（${turned.from[1]}，停在 ${midway}）`,
+    );
+    await page.settled(LIST);
+    assert.equal((await at()).on, 1, "最后停在第二项");
+
+    // 点过的那一项要等这次滚动停下才放开；之后滚回头上：粗条原地淡出
+    await page.pause(500);
+    await recorded(page);
+    const before = await at();
+    await scrollTo();
+    await page.waitFor(
+      async () => (await at()).state === "off",
+      "滚回头上，一项都不亮",
+    );
+    await page.settled(LIST);
+    assert.deepEqual(onIndicator(await recorded(page)), ["opacity::after"]);
+    const gone = await at();
+    assert.deepEqual([gone.opacity, gone.y], [0, before.y], "淡出，留在原地");
+  });
+
+  // 减少动态效果：直接到位
+  await page.story("控件-toc-页内目录--playground");
+  await scrollTo("日常作业");
+  await waitOn(1, "第二节到了上沿，粗条应该在第二项上");
+  await page.settled(LIST);
+  assert.equal((await at()).opacity, 1);
+});
