@@ -261,6 +261,8 @@ test("日期范围：点开落在外框下方左对齐，焦点在起始日；�
     async () => (await focusedDate(page)) === "2026-10-12",
     "打开后焦点应该在起始日",
   );
+  // 面板进场时从外框那一侧挪过来 4px：等它落稳再量
+  await page.settled(PANEL);
   const placed = await page.evaluate(() => {
     const box = document
       .querySelector("#storybook-root [data-variant]")!

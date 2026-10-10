@@ -162,6 +162,8 @@ test("日期选择：点开是一块面板，落在外框下方左对齐；焦�
   await page.waitVisible(PANEL);
   await waitDate(page, "2026-10-12", "打开后焦点应该在选中的那一天");
 
+  // 面板进场时从外框那一侧挪过来 4px：等它落稳再量
+  await page.settled(PANEL);
   const placed = await page.evaluate(() => {
     const box = document
       .querySelector("#storybook-root [data-variant]")!

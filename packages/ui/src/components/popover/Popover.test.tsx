@@ -35,6 +35,18 @@ describe("Popover", () => {
     expect(trigger).toHaveAttribute("aria-expanded", "true");
   });
 
+  it("面板是菜单的那一块：一样从触发按钮那一侧来", async () => {
+    const user = userEvent.setup();
+    render(<Basic side="top" />);
+    await user.click(screen.getByRole("button", { name: "显示设置" }));
+    const panel = await screen.findByRole("dialog", { name: "显示" });
+    expect(panel).toHaveAttribute("data-side");
+    expect(panel).toHaveClass(
+      "transition-[opacity,translate]",
+      "data-starting-style:data-[side=top]:translate-y-(--motion-shift)",
+    );
+  });
+
   it("不是模态：打开后页面其余部分没有被隐藏", async () => {
     const user = userEvent.setup();
     render(

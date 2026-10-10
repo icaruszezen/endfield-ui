@@ -44,31 +44,75 @@ const transitions = (page: Page, selector: string, pseudo?: string) =>
     pseudo ?? null,
   );
 
+type MotionLog = { motionLog: string[]; motionFrom: [number, number][] };
+
 /**
  * 从现在起记下这个范围里（含后代和伪元素）跑起来的过渡与动画。
  * 记的是浏览器自己发的事件，过渡再短也漏不掉；写成 `属性名` 或 `动画名`，
- * 伪元素上的带后缀（`scale::before`）。换一页之后要重新开始记
+ * 伪元素上的带后缀（`scale::before`）。换一页之后要重新开始记。
+ *
+ * 浮层挂在 <body> 下：范围给 `body`，再用 `only` 只留下要看的那几个元素。
+ * 位移（`translate`）的过渡另记一样——它从哪儿出发：事件到的这一刻过渡刚建出来，
+ * 它的第一帧就是起点。所以"从哪一侧来"也不用去量跑到一半的位置
  */
-const record = (page: Page, selector: string) =>
-  page.evaluate((css) => {
-    const seen: string[] = [];
-    (window as unknown as { motionLog: string[] }).motionLog = seen;
-    const root = document.querySelector(css)!;
-    root.addEventListener("transitionrun", (event) => {
-      const { propertyName, pseudoElement } = event as TransitionEvent;
-      seen.push(`${propertyName}${pseudoElement}`);
-    });
-    root.addEventListener("animationstart", (event) => {
-      const { animationName, pseudoElement } = event as AnimationEvent;
-      seen.push(`${animationName}${pseudoElement}`);
-    });
-  }, selector);
+const record = (page: Page, selector: string, only?: string) =>
+  page.evaluate(
+    (css, filter) => {
+      const seen: string[] = [];
+      const from: [number, number][] = [];
+      Object.assign(window, { motionLog: seen, motionFrom: from });
+      const root = document.querySelector(css)!;
+      const wanted = (event: Event) =>
+        !filter ||
+        (event.target instanceof Element && event.target.matches(filter));
+      root.addEventListener("transitionrun", (event) => {
+        if (!wanted(event)) return;
+        const { propertyName, pseudoElement, target } =
+          event as TransitionEvent;
+        seen.push(`${propertyName}${pseudoElement}`);
+        if (propertyName !== "translate" || pseudoElement) return;
+        const transition = (target as Element)
+          .getAnimations()
+          .find(
+            (found) =>
+              found instanceof CSSTransition &&
+              found.transitionProperty === "translate",
+          );
+        const start = (
+          transition?.effect as KeyframeEffect | null
+        )?.getKeyframes()[0]?.translate;
+        // "none"、"4px"、"0px -4px" 都见得到：没写的那一个方向是 0
+        const [x = 0, y = 0] = String(start)
+          .split(" ")
+          .map((part) => Number.parseFloat(part) || 0);
+        from.push([x, y]);
+      });
+      root.addEventListener("animationstart", (event) => {
+        if (!wanted(event)) return;
+        const { animationName, pseudoElement } = event as AnimationEvent;
+        seen.push(`${animationName}${pseudoElement}`);
+      });
+    },
+    selector,
+    only ?? null,
+  );
 
 /** 读出记到的，并清空 */
 const recorded = (page: Page) =>
-  page.evaluate(() =>
-    (window as unknown as { motionLog: string[] }).motionLog.splice(0),
-  );
+  page.evaluate(() => (window as unknown as MotionLog).motionLog.splice(0));
+
+/** 读出记到的位移各自的起点 [x, y]（像素），并清空 */
+const startedFrom = (page: Page) =>
+  page.evaluate(() => (window as unknown as MotionLog).motionFrom.splice(0));
+
+/** 这个元素现在偏了多少 [x, y]；没有位移是 [0, 0] */
+const shift = (page: Page, selector: string) =>
+  page.evaluate((css) => {
+    const [x = 0, y = 0] = getComputedStyle(document.querySelector(css)!)
+      .translate.split(" ")
+      .map((part) => Number.parseFloat(part) || 0);
+    return [x, y];
+  }, selector);
 
 /** 关掉"减少动态效果"跑一段；跑完不管成没成都开回去 */
 async function withMotion(page: Page, run: () => Promise<void>) {
@@ -483,4 +527,102 @@ test("验证码输入：填上的那一位从透明淡入到墨色", async () =>
       "字应该是淡入的，不是直接出现",
     );
   });
+});
+
+test("菜单面板一族：从触发处那一侧来（4px），走完归位；退场只淡出", async () => {
+  const { page } = storybook;
+  const MENU = "[role=menu]";
+  const CARD = "[data-hover-card]";
+  const open = (selector: string) =>
+    page.evaluate(
+      (css) =>
+        [...document.querySelectorAll(css)].filter(
+          (panel) => panel.getBoundingClientRect().height > 0,
+        ).length,
+      selector,
+    );
+
+  await withMotion(page, async () => {
+    // 下拉菜单在按钮下方：从上面（按钮那一侧）来
+    await page.story("控件-dropdownmenu-下拉菜单--view-options");
+    await record(page, "body", MENU);
+    await page.click("button[aria-haspopup]");
+    await page.waitVisible(MENU);
+    // 透明度和位移各走各的时长：200ms 淡入，300ms 归位（和顶上那条强调条同一拍）
+    assert.deepEqual(await transitions(page, MENU), {
+      opacity: 0.2,
+      translate: 0.3,
+    });
+    await page.settled(MENU);
+    assert.deepEqual(await startedFrom(page), [[0, -4]]);
+    assert.deepEqual(await shift(page, MENU), [0, 0], "走完应该归位");
+    const entering = await recorded(page);
+    assert.ok(
+      entering.includes("opacity") && entering.includes("translate"),
+      `进场应该既淡入又挪过来，实际跑的是 ${entering.join("、")}`,
+    );
+
+    // 子菜单在这一行的右边：从左边（这一行那一侧）来
+    await page.moveTo("text=导出为");
+    await page.waitFor(async () => (await open(MENU)) === 2, "子菜单没有打开");
+    await page.settled();
+    assert.deepEqual(await startedFrom(page), [[-4, 0]]);
+    await recorded(page);
+
+    // Esc 一次收一层：先是子菜单，再是主菜单
+    await page.key("Escape");
+    await page.waitFor(async () => (await open(MENU)) < 2, "子菜单没有收起");
+    if ((await open(MENU)) > 0) await page.key("Escape");
+    await page.waitGone(MENU);
+    const leaving = await recorded(page);
+    assert.ok(leaving.includes("opacity"), "退场应该淡出");
+    assert.ok(!leaving.includes("translate"), "退场不该再走位移");
+
+    // 悬浮卡用的是同一块面板：四个方向各从自己的那一侧来
+    await page.story("控件-hovercard-悬浮卡--sides");
+    await record(page, "body", CARD);
+    const expected = {
+      top: [0, 4],
+      bottom: [0, -4],
+      left: [4, 0],
+      right: [-4, 0],
+    };
+    for (const [index, side] of Object.keys(expected).entries()) {
+      const point = await page.evaluate((nth) => {
+        const rect = document
+          .querySelectorAll("#storybook-root a")
+          [nth]!.getBoundingClientRect();
+        return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+      }, index);
+      await page.moveTo(point);
+      await page.waitFor(async () => (await open(CARD)) === 1, `${side}：没开`);
+      await page.settled(CARD);
+      assert.deepEqual(
+        await startedFrom(page),
+        [expected[side as keyof typeof expected]],
+        `${side}：卡片应该从链接那一侧来`,
+      );
+      await page.moveTo({ x: 5, y: 5 });
+      await page.waitFor(async () => (await open(CARD)) === 0, `${side}：没关`);
+    }
+
+    // 下拉选择是另一个基元，面板是同一块（列表在面板里面，面板自己带着 data-variant）
+    await page.story("控件-select-下拉选择--playground");
+    await record(page, "body", "[data-variant]");
+    await page.click("#storybook-root [role=combobox]");
+    await page.waitVisible("[role=listbox]");
+    await page.settled();
+    assert.deepEqual(await startedFrom(page), [[0, -4]]);
+    await page.key("Escape");
+    await page.waitGone("[role=listbox]");
+  });
+
+  // 开回"减少动态效果"：位移还在声明里，时长被压到接近零——不会停在偏着 4px 的地方
+  await page.story("控件-dropdownmenu-下拉菜单--view-options");
+  await page.click("button[aria-haspopup]");
+  await page.waitVisible(MENU);
+  await page.settled(MENU);
+  assert.deepEqual(await shift(page, MENU), [0, 0]);
+  const reduced = await transitions(page, MENU);
+  assert.ok(reduced!.translate! < 0.001 && reduced!.opacity! < 0.001);
 });

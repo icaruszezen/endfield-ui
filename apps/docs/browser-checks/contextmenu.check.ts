@@ -25,6 +25,8 @@ test("右键：菜单的左上角落在指针处；Esc 关闭", async () => {
   const at = await page.point(AREA);
   await page.click(at, { button: "right" });
   await page.waitVisible(MENU, "右键之后应该出现菜单");
+  // 面板进场时从指针那一侧挪过来 4px：等它落稳再量
+  await page.settled(MENU);
   const box = await menuBox(page);
   assert.ok(
     Math.abs(box.left - at.x) <= NEAR && Math.abs(box.top - at.y) <= NEAR,
@@ -54,6 +56,7 @@ test("换个地方再点右键：菜单跟到新的位置", async () => {
   const corner = { x: center.x - 120, y: center.y - 40 };
   await page.click(corner, { button: "right" });
   await page.waitVisible(MENU);
+  await page.settled(MENU);
   const box = await menuBox(page);
   assert.ok(
     Math.abs(box.left - corner.x) <= NEAR &&

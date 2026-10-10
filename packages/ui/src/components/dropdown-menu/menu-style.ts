@@ -1,5 +1,6 @@
 import { createContext } from "react";
 import { focusRingInset } from "../../lib/focus-ring";
+import { enterFromSide } from "../../lib/motion";
 
 /*
  * 下拉菜单与下拉选择共用的面板和选项。
@@ -12,11 +13,17 @@ export type MenuVariant = "plain" | "strong";
 /** 选项要知道自己在哪种面板里，才知道"当前项"怎么画 */
 export const MenuVariantContext = createContext<MenuVariant>("plain");
 
-/** 面板：直角、1px 线、环境阴影；顶部一条半宽的行动色细条，展开时从 0 伸到一半宽 */
+/**
+ * 面板：直角、1px 线、环境阴影；顶部一条半宽的行动色细条，展开时从 0 伸到一半宽。
+ *
+ * 进场：淡入（200ms），同时从触发处那一侧挪过来 4px（300ms，和细条同一拍）。
+ * 退场只淡出——位移只写在起点上。两个时长、两条缓动按属性一一对应
+ */
 export const menuPanel = [
   "relative min-w-40 border border-line bg-surface-raised py-1 text-ink shadow-sm outline-none",
-  "origin-(--transform-origin) transition-opacity duration-(--duration-fast) ease-standard",
+  "origin-(--transform-origin) transition-[opacity,translate] duration-[var(--duration-fast),var(--duration-base)] ease-[var(--ease-standard),var(--ease-exit)]",
   "data-ending-style:opacity-0 data-starting-style:opacity-0",
+  enterFromSide,
   "before:pointer-events-none before:absolute before:-top-px before:-left-px before:h-[3px] before:w-1/2 before:origin-left before:bg-action before:content-['']",
   "before:transition-transform before:duration-(--duration-base) before:ease-exit data-starting-style:before:scale-x-0",
   "forced-colors:before:hidden",

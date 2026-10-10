@@ -52,6 +52,22 @@ describe("DropdownMenu", () => {
     expect(screen.getByRole("group", { name: "条目" })).toBeInTheDocument();
   });
 
+  it("面板带着方向：基元报告它在触发按钮的哪一侧，进场的位移按这一侧给", async () => {
+    const user = userEvent.setup();
+    render(<Basic />);
+    await user.click(screen.getByRole("button", { name: "更多" }));
+    const menu = await screen.findByRole("menu");
+    // 我们依赖的基元约定：面板自己带着 data-side
+    expect(menu).toHaveAttribute("data-side", "bottom");
+    expect(menu).toHaveClass(
+      "transition-[opacity,translate]",
+      "data-starting-style:data-[side=bottom]:-translate-y-(--motion-shift)",
+      "data-starting-style:data-[side=inline-end]:-translate-x-(--motion-shift)",
+    );
+    // 退场不走位移：结束的样子只有透明
+    expect(menu.className).not.toMatch(/data-ending-style:[^ ]*translate/);
+  });
+
   it("点一项：执行并关掉菜单，焦点回到触发按钮", async () => {
     const user = userEvent.setup();
     const onRename = vi.fn();

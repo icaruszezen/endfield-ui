@@ -160,6 +160,8 @@ test("子菜单：方向键右打开并进到第一项，左收起并回到这�
   await page.waitFor(async () => (await menus(page)) === 2, "子菜单没有打开");
   await page.waitFocused("menuitem:表格（CSV）", "焦点应该进到子菜单的第一项");
 
+  // 子面板进场时从这一行那一侧挪过来 4px：等它落稳再量
+  await page.settled();
   const layout = await page.evaluate(() => {
     const [main, sub] = [...document.querySelectorAll("[role=menu]")].map(
       (menu) => menu.getBoundingClientRect(),

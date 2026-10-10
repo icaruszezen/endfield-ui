@@ -336,6 +336,13 @@
   --duration-slow: 400ms;
   --duration-slower: 600ms;
 
+  /*
+   * 进场的方向位移：浮层从触发它的那一侧来。只是提示方向，不是滑行。
+   * 大的那一档给大面积的和贴着视口边缘出来的（全屏菜单的栏目、轻提示）
+   */
+  --motion-shift: 4px;
+  --motion-shift-lg: 8px;
+
   /* —— 母题尺寸 —— */
   --cut-sm: 6px;
   --cut-md: 10px;

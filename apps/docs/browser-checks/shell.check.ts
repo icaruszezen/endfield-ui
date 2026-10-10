@@ -481,6 +481,8 @@ test("收起的侧轨上的二级：点父项向右弹出菜单，键盘能走�
     "调度",
   ]);
 
+  // 面板进场时从侧轨那一侧挪过来 4px：等它落稳再量
+  await page.settled(MENU);
   const placed = await page.evaluate(() => {
     const menu = document.querySelector("[role=menu]")!.getBoundingClientRect();
     const rail = document
