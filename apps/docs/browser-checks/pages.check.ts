@@ -1140,6 +1140,8 @@ test("调度台：目的站是链接，悬停出一张站点的悬浮卡，出�
       ),
     "悬停在目的站上应该出一张写着站名的卡片",
   );
+  // 卡片进场时从链接那一侧挪过来 4px：等它落稳再量
+  await page.settled("[data-hover-card]");
   const card = await page.evaluate((css) => {
     const element = document.querySelector("[data-hover-card]")!;
     const rect = element.getBoundingClientRect();
