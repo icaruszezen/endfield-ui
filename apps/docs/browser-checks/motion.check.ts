@@ -2396,15 +2396,17 @@ test("页内目录：粗条沿引线滑到新的一项（200ms），长度跟着
       opacity: 0.2,
     });
 
-    // 同一项变了大小（目录收窄，四个字的标题折成两行）：直接到位
+    // 同一项变了大小：直接到位。标题折了行就是这样——这里把前两项直接撑高 20px，
+    // 不靠"压窄了让它折行"：折不折看字宽，CI 上没有中文字体，字比本机窄
     const oneLine = (await at()).height;
-    await page.evaluate(() => {
-      document.querySelector<HTMLElement>("#storybook-root nav")!.style.width =
-        "70px";
-    });
+    await page.evaluate((css) => {
+      const links = document.querySelectorAll<HTMLElement>(`${css} a`);
+      links[0]!.style.paddingBottom = "28px";
+      links[1]!.style.paddingBottom = "28px";
+    }, LIST);
     await page.waitFor(
       async () => (await at()).height > oneLine + 10,
-      "标题折了行，粗条应该跟着变长",
+      "第一项变高了，粗条应该跟着变长",
     );
     await page.settled(LIST);
     assert.equal((await at()).on, 0);
@@ -2420,7 +2422,7 @@ test("页内目录：粗条沿引线滑到新的一项（200ms），长度跟着
     await page.settled(LIST);
     assert.deepEqual(onIndicator(await recorded(page)), ["translate::after"]);
 
-    // 换到只有一行的那一项：长度跟着变
+    // 换到没撑高的那一项：长度跟着变
     await scrollTo("队员");
     await waitOn(2, "第三节到了上沿，粗条应该到第三项上");
     await page.settled(LIST);
@@ -2525,7 +2527,8 @@ test("页签的胶囊：选中的墨底滑到新的那一个（200ms），宽度
     ]);
     const second = await at();
     assert.equal(second.on, 1, "走完应该和第二个重合");
-    assert.ok(second.width > first.width + 20, "第二个更宽，墨底跟着变宽");
+    // 宽多少看字宽（CI 上没有中文字体），只断言"更宽"
+    assert.ok(second.width > first.width + 1, "第二个更宽，墨底跟着变宽");
 
     // 中途改道
     const [midway] = (await pick(3, 100)).held;
