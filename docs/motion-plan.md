@@ -137,7 +137,7 @@ Base UI 的浮层自带 `data-starting-style` / `data-ending-style` 和 `data-si
   - 要做：沿用分节标题错开的节奏，换成各自的部件（括号先到、字后到；页头是微文字行 → 标题 → 说明）。
   - 改哪里：`bracket-title/BracketTitle.tsx`、`page-header/PageHeader.tsx`。
   - 留意：页头吸顶（`sticky`）时不播；页头里能点的（面包屑、返回、行动区）不参加入场。方括号标题只淡入、不位移：括号和名称是排在同一行里的字，行内的字做不了位移；改成行内块，右括号会在换行时单独掉到下一行。
-- [ ] **3.3 小型面积图。**
+- [x] **3.3 小型面积图。**
   - 现在：静止。
   - 要做：线和面从左画出一次。
   - 改哪里：`sparkline/Sparkline.tsx`。

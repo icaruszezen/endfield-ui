@@ -1269,3 +1269,85 @@ test("页头：挂上就播——微文字行、标题、说明依次从左淡�
     Array.from({ length: 3 }, () => ["1", 0]),
   );
 });
+
+test("小型面积图：进视口才画——整张从左擦出来（600ms），几张一起画；盒子外面那一圈不裁", async () => {
+  const { page } = storybook;
+  const STORY = "控件-sparkline-小型面积图--entrance";
+  const CHART = "#storybook-root svg[data-variant]";
+  const charts = (rewind = false) =>
+    page.evaluate(
+      (css, toStart) =>
+        [...document.querySelectorAll(css)].map((chart) => {
+          const animations = chart.getAnimations();
+          if (toStart) {
+            for (const animation of animations) {
+              animation.pause();
+              animation.currentTime = 0;
+            }
+          }
+          const style = getComputedStyle(chart);
+          const found = {
+            name: style.animationName,
+            delay: style.animationDelay,
+            duration: style.animationDuration,
+            clip: style.clipPath,
+          };
+          if (toStart) for (const animation of animations) animation.finish();
+          return found;
+        }),
+      CHART,
+      rewind,
+    );
+  const each = async (key: "name" | "delay" | "duration" | "clip") =>
+    (await charts()).map((chart) => chart[key]);
+
+  await withMotion(page, async () => {
+    await page.story(STORY);
+    await replayOffscreen(page);
+    await page.pause(300);
+    assert.deepEqual(await each("name"), ["none", "none"]);
+    assert.deepEqual(
+      await each("clip"),
+      ["inset(0px 100% 0px 0px)", "inset(0px 100% 0px 0px)"],
+      "没进视口时整张是裁掉的",
+    );
+
+    await record(page, "body", CHART);
+    await scrollIntoView(page, CHART);
+    await page.waitFor(
+      async () => (await each("name"))[0] === "ef-wipe-in",
+      "滚进视口之后应该开始画",
+    );
+    assert.deepEqual(await each("name"), ["ef-wipe-in", "ef-wipe-in"]);
+    assert.deepEqual(await each("duration"), ["0.6s", "0.6s"]);
+    // 一起画，不逐张错开
+    assert.deepEqual(await each("delay"), ["0s", "0s"]);
+
+    await page.settled("#storybook-root");
+    assert.deepEqual(await recorded(page), ["ef-wipe-in", "ef-wipe-in"]);
+    // 走完：四边都往外让 4px——折线有半个线宽画在盒子外面。
+    // 右边是从 100% 插值过来的，浏览器把它写成 calc(0% - 4px)
+    for (const clip of await each("clip")) {
+      assert.match(
+        clip,
+        /^inset\(-4px( (calc\(0% - 4px\)|-4px) -4px -4px)?\)$/,
+        "走完整张图都在，盒子外面那一圈不裁",
+      );
+    }
+    for (const chart of await charts(true)) {
+      assert.equal(chart.clip, "inset(-4px 100% -4px -4px)", "从左边擦过来");
+    }
+
+    await page.evaluate(() => scrollTo(0, 0));
+    await page.frames(4);
+    await scrollIntoView(page, CHART);
+    await page.frames(4);
+    assert.deepEqual(await recorded(page), [], "滚回来不应该重画");
+  });
+
+  await page.story(STORY);
+  await page.settled("#storybook-root");
+  for (const clip of await each("clip")) {
+    assert.doesNotMatch(clip, /100%/, "减少动态效果下直接是画完的样子");
+  }
+});

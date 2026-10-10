@@ -1,5 +1,6 @@
-import { Sparkline, Stat } from "@endfield-ui/react";
+import { Button, Sparkline, Stat } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useState } from "react";
 
 const rising = [42, 58, 51, 77, 69, 88, 80, 96];
 const falling = [64, 60, 71, 55, 62, 48, 57, 44];
@@ -46,6 +47,27 @@ export const Variants: Story = {
       ))}
     </div>
   ),
+};
+
+export const Entrance: Story = {
+  name: "入场动画",
+  render: function EntranceStory() {
+    const [run, setRun] = useState(0);
+    return (
+      <div className="flex flex-col items-start gap-6">
+        <div key={run} className="grid w-full grid-cols-2 gap-6">
+          <Sparkline data={rising} />
+          <Sparkline data={falling} variant="line" tone="danger" />
+        </div>
+        <Button size="sm" onClick={() => setRun((value) => value + 1)}>
+          重播
+        </Button>
+        <p className="text-sm text-ink-secondary">
+          面积和折线都从左画出一次；同一屏的几张一起画，不逐张错开。
+        </p>
+      </div>
+    );
+  },
 };
 
 export const Range: Story = {

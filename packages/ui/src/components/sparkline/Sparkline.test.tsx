@@ -1,6 +1,11 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { stubInView } from "../../test/in-view";
 import { Sparkline, sparklinePath } from "./Sparkline";
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe("sparklinePath", () => {
   it("少于两个点时不画", () => {
@@ -71,5 +76,46 @@ describe("Sparkline", () => {
     expect(svg).toHaveClass("h-full", "w-full");
     expect(svg).not.toHaveClass("h-8");
     expect(svg).toHaveAttribute("data-testid", "chart");
+  });
+
+  it("入场：进视口前整张裁掉；进了之后从左擦出来，600ms，盒子外面那一圈留着", () => {
+    const enter = stubInView();
+    const { container } = render(<Sparkline data={[1, 3, 2]} variant="line" />);
+    const svg = container.querySelector("svg")!;
+    expect(svg).toHaveClass("[clip-path:inset(0_100%_0_0)]");
+    expect(svg).not.toHaveClass("animate-wipe-in");
+
+    enter();
+    expect(svg).toHaveClass(
+      "animate-wipe-in",
+      "[animation-duration:var(--duration-slower)]",
+      "[--wipe-bleed:4px]",
+      // 线宽的一半画在盒子外面：这个不能丢
+      "overflow-visible",
+    );
+    expect(svg).not.toHaveClass("[clip-path:inset(0_100%_0_0)]");
+  });
+
+  it("animate=false 时不裁、不播；animate 不落到 DOM 上", () => {
+    stubInView();
+    const { container } = render(
+      <Sparkline data={[1, 3, 2]} animate={false} />,
+    );
+    const svg = container.querySelector("svg")!;
+    expect(svg.getAttribute("class")).not.toMatch(/clip-path|animate-/);
+    expect(svg).not.toHaveAttribute("animate");
+  });
+
+  it("转发 ref", () => {
+    let node: SVGSVGElement | null = null;
+    const { container } = render(
+      <Sparkline
+        data={[1, 3, 2]}
+        ref={(element) => {
+          node = element;
+        }}
+      />,
+    );
+    expect(node).toBe(container.querySelector("svg"));
   });
 });

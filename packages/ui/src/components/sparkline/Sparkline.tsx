@@ -1,5 +1,7 @@
 import type { ComponentProps } from "react";
+import { useInView } from "../../hooks/useInView";
 import { cn } from "../../lib/cn";
+import { mergeRefs } from "../../lib/merge-refs";
 
 export type SparklineVariant = "area" | "line";
 export type SparklineTone = "info" | "danger" | "accent" | "neutral";
@@ -22,6 +24,8 @@ export type SparklineProps = Omit<ComponentProps<"svg">, "children"> & {
   max?: number;
   /** 传了它就是一张有名称的图；不传是纯装饰，对读屏隐藏 */
   label?: string;
+  /** 进入视口时从左画出一次。默认开启 */
+  animate?: boolean;
 };
 
 /* 画在一个 100 × 100 的格子里，再由 SVG 拉伸到实际的盒子 */
@@ -84,10 +88,16 @@ export function Sparkline({
   min,
   max,
   label,
+  animate = true,
   className,
+  ref,
   ...props
 }: SparklineProps) {
   const path = sparklinePath(data, { min, max });
+  const [inViewRef, inView] = useInView<SVGSVGElement>({ disabled: !animate });
+  // 入场：整张图从左擦出来，面积和折线是同一个写法。一屏里的几张各看各的视口，同时到的一起画
+  const pending = animate && !inView;
+  const playing = animate && inView;
 
   return (
     <svg
@@ -100,8 +110,16 @@ export function Sparkline({
       data-variant={variant}
       data-tone={tone}
       {...props}
-      // 折线贴着上下边缘时，线宽的一半会落在盒子外面
-      className={cn("block h-8 w-full overflow-visible", className)}
+      ref={mergeRefs(inViewRef, ref)}
+      className={cn(
+        // 折线贴着上下边缘时，线宽的一半会落在盒子外面
+        "block h-8 w-full overflow-visible",
+        pending && "[clip-path:inset(0_100%_0_0)]",
+        // 擦的时候把盒子外面那一圈也留出来（线宽的一半，尖角还要多一点）
+        playing &&
+          "animate-wipe-in [animation-duration:var(--duration-slower)] [--wipe-bleed:4px]",
+        className,
+      )}
     >
       {path &&
         (variant === "area" ? (
