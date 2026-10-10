@@ -66,6 +66,16 @@ test("面板落在触发器下方、左对齐、不比它窄；开着的时候�
   await page.story("控件-select-下拉选择--playground");
   await page.click(TRIGGER);
   await page.waitVisible(PANEL);
+  // 锁滚动比面板出现晚一拍（基元把它排在一个零毫秒的定时器里）：等它锁上，不赌刚好读到
+  await page.waitFor(
+    () =>
+      page.evaluate(() =>
+        [document.documentElement, document.body].some(
+          (element) => getComputedStyle(element).overflow === "hidden",
+        ),
+      ),
+    "面板开着的时候页面应该不能滚动",
+  );
 
   const layout = await page.evaluate(() => {
     const box = document
@@ -79,16 +89,12 @@ test("面板落在触发器下方、左对齐、不比它窄；开着的时候�
       below: panel.top >= box.bottom,
       aligned: Math.abs(panel.left - box.left) < 2,
       wideEnough: panel.width >= box.width - 1,
-      scrollLocked: [document.documentElement, document.body].some(
-        (element) => getComputedStyle(element).overflow === "hidden",
-      ),
     };
   });
   assert.deepEqual(layout, {
     below: true,
     aligned: true,
     wideEnough: true,
-    scrollLocked: true,
   });
 
   await page.click({ x: 700, y: 500 });
