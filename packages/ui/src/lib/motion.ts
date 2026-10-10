@@ -40,3 +40,29 @@ export const collapseInner = "min-h-0 min-w-0 overflow-y-clip";
 /** 小件的淡入，200ms：切过来的页签面板、新加的标签、新选的文件 */
 export const fadeInFast =
   "animate-fade-in [animation-duration:var(--duration-fast)]";
+
+/**
+ * 选中指示：画在容器的 `::after` 上的一块东西，压在容器的底色之上、各项之下。
+ * 位置和尺寸来自 `useIndicator` 写在容器上的变量；换了一项时滑过去（200ms，
+ * 和各项换字色同一拍），没有当前项时原地淡出。
+ *
+ * 容器上没有 `data-indicator`（量不到）时不画——各项照旧自己画选中态，
+ * 所以给各项的选中底加一个 `in-data-indicator:` 的变体把它让出来。
+ * 这里只管定位和过渡：颜色、圆角由用的地方给，几何用 `indicatorBox` 或者自己写。
+ */
+export const indicator = [
+  "relative isolate",
+  "after:pointer-events-none after:absolute after:top-0 after:left-0 after:-z-1",
+  "after:hidden data-indicator:after:block",
+  "after:opacity-0 data-[indicator=on]:after:opacity-100",
+  "after:transition-[translate,width,height,opacity] after:duration-(--duration-fast) after:ease-standard",
+  // 没有当前项的时候只留淡入淡出：下一次亮起来是原地出现，不是从上一个位置滑来
+  "data-[indicator=off]:after:transition-[opacity]",
+  "data-indicator-instant:after:transition-none",
+].join(" ");
+
+/** 指示盖住当前项的整个盒子：分段选择的墨块、胶囊页签的底 */
+export const indicatorBox = [
+  "after:h-(--indicator-h) after:w-(--indicator-w)",
+  "after:translate-x-(--indicator-x) after:translate-y-(--indicator-y)",
+].join(" ");
