@@ -2161,50 +2161,66 @@ const indicatorAt = (page: Page, container: string, items: string, inset = 0) =>
     inset,
   );
 
-/** 把指示身上正在跑的过渡都停在第 `at` 毫秒；返回停了几条、停下那一刻的位移 */
-const holdIndicator = (page: Page, container: string, at: number) =>
+/**
+ * 在页面里点一下 `items` 里的第几个，并在同一步里看指示身上跑起来的过渡：哪几个属性、
+ * 位移从哪儿出发；给了 `holdAt` 就把它们停在那一毫秒，`held` 是停下那一刻的位移。
+ * 点、读、停放在同一步：分成几次往返的话，页面慢的时候 200ms 的过渡可能已经走完了
+ */
+const pickItem = (
+  page: Page,
+  container: string,
+  items: string,
+  index: number,
+  holdAt?: number,
+) =>
   page.evaluate(
-    (css, time) => {
+    async (css, itemCss, nth, time) => {
       const node = document.querySelector<HTMLElement>(css)!;
+      // 上一次停住的先放开：目标没变的那几条不会被新的过渡换掉，一直停着就走不完了
+      for (const animation of node.getAnimations({ subtree: true })) {
+        if (animation.playState === "paused") animation.play();
+      }
+      node.querySelectorAll<HTMLElement>(itemCss)[nth]!.click();
+      // 状态是在这一拍的微任务里落到页面上的
+      await Promise.resolve();
+      const point = (value: unknown) => {
+        const [x = 0, y = 0] = String(value)
+          .split(" ")
+          .map((part) => Number.parseFloat(part) || 0);
+        return [x, y] as [number, number];
+      };
       const moving = node
         .getAnimations({ subtree: true })
         .filter(
-          (animation) =>
+          (animation): animation is CSSTransition =>
+            animation instanceof CSSTransition &&
             (animation.effect as KeyframeEffect).pseudoElement === "::after",
         );
-      for (const animation of moving) {
-        animation.pause();
-        animation.currentTime = time;
+      const slide = moving.find(
+        (animation) => animation.transitionProperty === "translate",
+      );
+      const from = slide
+        ? point((slide.effect as KeyframeEffect).getKeyframes()[0]?.translate)
+        : null;
+      if (time !== null) {
+        for (const animation of moving) {
+          animation.pause();
+          animation.currentTime = time;
+        }
       }
-      const [x = 0, y = 0] = getComputedStyle(node, "::after")
-        .translate.split(" ")
-        .map((part) => Number.parseFloat(part) || 0);
-      return { count: moving.length, x, y };
+      return {
+        properties: moving
+          .map((animation) => animation.transitionProperty)
+          .sort(),
+        from,
+        held: point(getComputedStyle(node, "::after").translate),
+      };
     },
     container,
-    at,
+    items,
+    index,
+    holdAt ?? null,
   );
-
-/** 指示身上那条位移的过渡是从哪儿出发的 [x, y]；没有在跑是 null */
-const indicatorFrom = (page: Page, container: string) =>
-  page.evaluate((css) => {
-    const node = document.querySelector<HTMLElement>(css)!;
-    const moving = node
-      .getAnimations({ subtree: true })
-      .find(
-        (animation) =>
-          animation instanceof CSSTransition &&
-          animation.transitionProperty === "translate" &&
-          (animation.effect as KeyframeEffect).pseudoElement === "::after",
-      );
-    if (!moving) return null;
-    const start = (moving.effect as KeyframeEffect).getKeyframes()[0]
-      ?.translate;
-    const [x = 0, y = 0] = String(start)
-      .split(" ")
-      .map((part) => Number.parseFloat(part) || 0);
-    return [x, y];
-  }, container);
 
 /** 记到的里面，落在指示（::after）上的那几条 */
 const onIndicator = (log: string[]) =>
@@ -2214,15 +2230,8 @@ test("分段选择：选中的墨块滑到新的一段（200ms）；一开始就
   const { page } = storybook;
   const GROUP = "#storybook-root [role=radiogroup]";
   const at = () => indicatorAt(page, GROUP, "label");
-  const pick = (index: number) =>
-    page.evaluate(
-      (css, nth) =>
-        document
-          .querySelectorAll<HTMLInputElement>(`${css} input`)
-          [nth]!.click(),
-      GROUP,
-      index,
-    );
+  const pick = (index: number, holdAt?: number) =>
+    pickItem(page, GROUP, "input", index, holdAt);
 
   await withMotion(page, async () => {
     await page.story("控件-segmentedcontrol-分段选择--playground");
@@ -2264,35 +2273,25 @@ test("分段选择：选中的墨块滑到新的一段（200ms）；一开始就
     assert.equal((await at()).on, 0);
 
     // 换一段：滑过去。各段等宽，只走位置
-    await pick(1);
-    await page.waitFor(
-      async () => (await indicatorFrom(page, GROUP)) !== null,
-      "换了一段，墨块应该有一条位移的过渡在跑",
-    );
-    assert.deepEqual(
-      await indicatorFrom(page, GROUP),
-      [first.x, first.y],
-      "从原来那一段出发",
-    );
+    const slide = await pick(1);
+    assert.deepEqual(slide.properties, ["translate"], "只有位移在过渡");
+    assert.deepEqual(slide.from, [first.x, first.y], "从原来那一段出发");
     await page.settled(GROUP);
     assert.deepEqual(onIndicator(await recorded(page)), ["translate::after"]);
     const second = await at();
     assert.equal(second.on, 1, "走完应该和第二段重合");
 
     // 中途改道：把它停在半路，再换一段——新的过渡从半路出发，不是从第三段
-    await pick(2);
-    const held = await holdIndicator(page, GROUP, 100);
-    assert.equal(held.count, 1);
+    const [midway] = (await pick(2, 100)).held;
     assert.ok(
-      held.x > second.x && held.x < second.x + second.width,
-      `停下的地方应该在半路（${held.x}）`,
+      midway > second.x && midway < second.x + second.width,
+      `停下的地方应该在半路（${midway}）`,
     );
-    await pick(0);
-    const from = await indicatorFrom(page, GROUP);
-    assert.ok(from, "改道之后应该有新的过渡");
+    const turned = await pick(0);
+    assert.ok(turned.from, "改道之后应该有新的过渡");
     assert.ok(
-      Math.abs(from[0]! - held.x) < 0.5,
-      `改道应该从半路出发（${from[0]}，停在 ${held.x}）`,
+      Math.abs(turned.from[0] - midway) < 0.5,
+      `改道应该从半路出发（${turned.from[0]}，停在 ${midway}）`,
     );
     await page.settled(GROUP);
     assert.equal((await at()).on, 0, "最后停在第一段");
@@ -2320,10 +2319,10 @@ test("分段选择：选中的墨块滑到新的一段（200ms）；一开始就
     const empty = await at();
     assert.deepEqual([empty.state, empty.opacity], ["off", 0]);
     await record(page, "#storybook-root");
-    await pick(2);
-    await page.waitFor(
-      async () => (await at()).state === "on",
-      "选了一段，墨块应该出现",
+    assert.deepEqual(
+      (await pick(2)).properties,
+      ["opacity"],
+      "从没有到有：只有透明度在过渡",
     );
     await page.settled(GROUP);
     assert.deepEqual(onIndicator(await recorded(page)), ["opacity::after"]);
