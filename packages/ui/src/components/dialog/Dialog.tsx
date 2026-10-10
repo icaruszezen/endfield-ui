@@ -116,8 +116,10 @@ export function Dialog({
             className={cn(
               overlaySurface,
               "relative flex max-h-full min-h-0 w-full flex-col",
-              "transition-[scale,opacity] duration-(--duration-base) ease-exit",
-              "data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0",
+              // 进场：淡入（200ms），同时从下面升上来 8px（300ms）。退场只淡出——位移只写在起点上。
+              // 不放大：这套语言里没有东西是"变大着出来"的
+              "transition-[opacity,translate] duration-[var(--duration-fast),var(--duration-base)] ease-[var(--ease-standard),var(--ease-exit)]",
+              "data-ending-style:opacity-0 data-starting-style:translate-y-(--motion-shift-lg) data-starting-style:opacity-0",
               sizeClass[size],
               className,
             )}

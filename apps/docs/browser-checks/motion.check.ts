@@ -926,3 +926,43 @@ test("图片查看：整层淡入完了取景角才落位；大图取到了才�
     await page.waitGone(LAYER);
   });
 });
+
+test("弹窗：从下面升上来（8px）并淡入，不放大；退场只淡出。确认弹窗一样", async () => {
+  const { page } = storybook;
+
+  await withMotion(page, async () => {
+    for (const [story, trigger, role] of [
+      ["控件-dialog-弹窗--playground", "text=归档", "dialog"],
+      [
+        "控件-dialog-弹窗--danger-confirm",
+        "#storybook-root button",
+        "alertdialog",
+      ],
+    ] as const) {
+      const PANEL = `[role=${role}]`;
+      await page.story(story);
+      await record(page, "body", PANEL);
+      await page.click(trigger);
+      await page.waitVisible(PANEL);
+      await page.settled(PANEL);
+      assert.deepEqual(
+        await transitions(page, PANEL),
+        { opacity: 0.2, translate: 0.3 },
+        `${role}：淡入 200ms，位移 300ms`,
+      );
+      assert.deepEqual(await startedFrom(page), [[0, 8]], `${role}：从下面来`);
+      assert.deepEqual(await shift(page, PANEL), [0, 0], "走完应该归位");
+      const entering = await recorded(page);
+      assert.ok(
+        !entering.includes("scale") && !entering.includes("transform"),
+        "不该再有放大",
+      );
+
+      await page.key("Escape");
+      await page.waitGone(PANEL);
+      const leaving = await recorded(page);
+      assert.ok(leaving.includes("opacity"), "退场应该淡出");
+      assert.ok(!leaving.includes("translate"), "退场不该再走位移");
+    }
+  });
+});

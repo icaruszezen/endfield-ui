@@ -44,6 +44,27 @@ describe("Dialog", () => {
     expect(dialog).toHaveTextContent("正文");
   });
 
+  it("入场是从下面升上来并淡入，不放大；退场只淡出。确认弹窗是同一个面板", async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(<Basic />);
+    await user.click(screen.getByRole("button", { name: "打开" }));
+    const dialog = await screen.findByRole("dialog");
+    const enter = [
+      "transition-[opacity,translate]",
+      "data-starting-style:translate-y-(--motion-shift-lg)",
+      "data-starting-style:opacity-0",
+      "data-ending-style:opacity-0",
+    ];
+    expect(dialog).toHaveClass(...enter);
+    expect(dialog.className).not.toMatch(/scale-/);
+    expect(dialog.className).not.toMatch(/data-ending-style:[^ ]*translate/);
+    unmount();
+
+    render(<Basic alert />);
+    await user.click(screen.getByRole("button", { name: "打开" }));
+    expect(await screen.findByRole("alertdialog")).toHaveClass(...enter);
+  });
+
   it("打开时焦点进入弹窗，Esc 关闭后回到触发按钮", async () => {
     const user = userEvent.setup();
     render(<Basic />);
