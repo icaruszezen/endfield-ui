@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
+import { createRef } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Loader } from "./Loader";
 
@@ -115,6 +116,18 @@ describe("Loader", () => {
     });
     expect(screen.queryByTestId("loader")).toBeNull();
     expect(onExited).toHaveBeenCalledTimes(1);
+  });
+
+  it("使用方传了 ref：照样收焦点，滑出结束后照样卸载", () => {
+    const ref = createRef<HTMLDivElement>();
+    const { rerender } = render(<Loader ref={ref} data-testid="loader" />);
+    const loader = screen.getByTestId("loader");
+    expect(ref.current).toBe(loader);
+    expect(loader).toHaveFocus();
+
+    rerender(<Loader ref={ref} open={false} data-testid="loader" />);
+    fireEvent.transitionEnd(screen.getByTestId("loader"));
+    expect(screen.queryByTestId("loader")).toBeNull();
   });
 
   it("退出后把焦点还给原来的元素", () => {

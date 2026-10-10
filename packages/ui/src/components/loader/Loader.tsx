@@ -8,6 +8,7 @@ import {
   type TransitionEvent,
 } from "react";
 import { cn } from "../../lib/cn";
+import { mergeRefs } from "../../lib/merge-refs";
 
 export type LoaderProps = Omit<ComponentProps<"div">, "children"> & {
   /** 真实进度，0 – 100。不知道就不传：显示不确定进度，不显示数字 */
@@ -41,6 +42,7 @@ export function Loader({
   onKeyDown,
   onTransitionEnd,
   className,
+  ref,
   ...props
 }: LoaderProps) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -102,9 +104,9 @@ export function Loader({
 
   return (
     <div
-      ref={rootRef}
       tabIndex={-1}
       {...props}
+      ref={mergeRefs(rootRef, ref)}
       data-state={open ? "open" : "closing"}
       onKeyDown={handleKeyDown}
       onTransitionEnd={handleTransitionEnd}
