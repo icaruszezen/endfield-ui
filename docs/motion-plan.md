@@ -132,7 +132,7 @@ Base UI 的浮层自带 `data-starting-style` / `data-ending-style` 和 `data-si
   - 改哪里：`completion-banner/CompletionBanner.tsx`；`theme.css` 加 `animate-wipe-in`（3.3 也用）。
   - 规范：[反馈](design/components/feedback.md)。
   - 留意：擦的是整块（`clip-path`），不是只擦底色——底色和反转主题都写在根元素上。字和按钮用延迟（200ms）等色带过去；背后的描边词跟着色带露出来，不另加动画。
-- [ ] **3.2 方括号标题、页头。**
+- [x] **3.2 方括号标题、页头。**
   - 现在：没有。
   - 要做：沿用分节标题错开的节奏，换成各自的部件（括号先到、字后到；页头是微文字行 → 标题 → 说明）。
   - 改哪里：`bracket-title/BracketTitle.tsx`、`page-header/PageHeader.tsx`。

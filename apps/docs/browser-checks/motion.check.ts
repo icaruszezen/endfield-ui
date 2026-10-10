@@ -1097,3 +1097,175 @@ test("完成横幅：进视口才播——色带从左擦入，字和按钮晚 2
   assert.equal(reduced.banner.clip, "inset(0px 0% 0px 0px)");
   assert.deepEqual([reduced.text.opacity, reduced.action.opacity], ["1", "1"]);
 });
+
+test("方括号标题：进视口才播——括号先淡入，名称晚 100ms；只淡入不位移", async () => {
+  const { page } = storybook;
+  const STORY = "控件-brackettitle-方括号标题--entrance";
+  const HEADING = "#storybook-root h3";
+  const parts = (rewind = false) =>
+    page.evaluate(
+      (css, toStart) => {
+        const heading = document.querySelector(css)!;
+        const animations = heading.getAnimations({ subtree: true });
+        if (toStart) {
+          for (const animation of animations) {
+            animation.pause();
+            animation.currentTime = 0;
+          }
+        }
+        const found = [...heading.children].map((part) => {
+          const style = getComputedStyle(part);
+          return {
+            name: style.animationName,
+            delay: style.animationDelay,
+            opacity: style.opacity,
+            translate: style.translate,
+          };
+        });
+        if (toStart) for (const animation of animations) animation.finish();
+        return found;
+      },
+      HEADING,
+      rewind,
+    );
+  const each = async (key: "name" | "delay" | "opacity" | "translate") =>
+    (await parts()).map((part) => part[key]);
+
+  await withMotion(page, async () => {
+    await page.story(STORY);
+    await replayOffscreen(page);
+    await page.pause(300);
+    assert.deepEqual(await each("name"), ["none", "none", "none"]);
+    assert.deepEqual(await each("opacity"), ["0", "0", "0"], "没进视口时透明");
+
+    await record(page, "body");
+    await scrollIntoView(page, HEADING);
+    await page.waitFor(
+      async () => (await each("name"))[0] === "ef-fade-in",
+      "滚进视口之后应该开始淡入",
+    );
+    // 左括号、名称、右括号
+    assert.deepEqual(await each("delay"), ["0s", "0.1s", "0s"]);
+
+    await page.settled(HEADING);
+    assert.deepEqual(await recorded(page), [
+      "ef-fade-in",
+      "ef-fade-in",
+      "ef-fade-in",
+    ]);
+    assert.deepEqual(await each("opacity"), ["1", "1", "1"]);
+    const start = await parts(true);
+    assert.deepEqual(
+      start.map((part) => [part.opacity, part.translate]),
+      Array.from({ length: 3 }, () => ["0", "none"]),
+      "从透明淡入，不位移",
+    );
+
+    await page.evaluate(() => scrollTo(0, 0));
+    await page.frames(4);
+    await scrollIntoView(page, HEADING);
+    await page.frames(4);
+    assert.deepEqual(await recorded(page), [], "滚回来不应该重播");
+  });
+
+  await page.story(STORY);
+  await page.settled(HEADING);
+  assert.deepEqual(await each("opacity"), ["1", "1", "1"]);
+});
+
+test("页头：挂上就播——微文字行、标题、说明依次从左淡入归位；能点的不动；吸顶的不播", async () => {
+  const { page } = storybook;
+  const STORY = "控件-pageheader-页头--entrance";
+  const HEADER = "#storybook-root header";
+  const parts = (rewind = false) =>
+    page.evaluate(
+      (css, toStart) => {
+        const header = document.querySelector(css)!;
+        const animations = header.getAnimations({ subtree: true });
+        if (toStart) {
+          for (const animation of animations) {
+            animation.pause();
+            animation.currentTime = 0;
+          }
+        }
+        const read = (element: Element | null | undefined) => {
+          if (!element) return null;
+          const style = getComputedStyle(element);
+          return {
+            name: style.animationName,
+            delay: style.animationDelay,
+            opacity: style.opacity,
+            shift: Number.parseFloat(style.translate) || 0,
+          };
+        };
+        const heading = header.querySelector("h1")!;
+        const found = {
+          // 微文字行、标题、说明
+          lines: [
+            read(header.querySelector("p")),
+            read(heading),
+            read(heading.nextElementSibling),
+          ],
+          back: read(
+            header.querySelector("[data-page-header-back]")?.parentElement,
+          ),
+          actions: read(header.querySelector("[data-actions]")),
+        };
+        if (toStart) for (const animation of animations) animation.finish();
+        return found;
+      },
+      HEADER,
+      rewind,
+    );
+  const lines = async (rewind = false) =>
+    (await parts(rewind)).lines.map((line) => [line?.opacity, line?.shift]);
+
+  await withMotion(page, async () => {
+    await page.story(STORY);
+    await page.settled(HEADER);
+    // 只记页头里面的："重播"按钮自己被点的时候也有过渡
+    await record(page, "body", `${HEADER} *`);
+    await page.click("text=重播");
+    await page.waitFor(
+      async () => (await parts()).lines[0]?.opacity !== "1",
+      "重新挂上的页头应该在入场",
+    );
+    const playing = await parts();
+    assert.deepEqual(
+      playing.lines.map((line) => [line?.name, line?.delay]),
+      [
+        ["ef-shift-in", "0s"],
+        ["ef-shift-in", "0.1s"],
+        ["ef-shift-in", "0.2s"],
+      ],
+    );
+    assert.equal(playing.back?.name, "none", "返回方块不参加入场");
+    assert.equal(playing.actions?.name, "none", "行动区不参加入场");
+
+    await page.settled(HEADER);
+    assert.deepEqual(await recorded(page), [
+      "ef-shift-in",
+      "ef-shift-in",
+      "ef-shift-in",
+    ]);
+    const settled = Array.from({ length: 3 }, () => ["1", 0]);
+    assert.deepEqual(await lines(), settled);
+    assert.deepEqual(
+      await lines(true),
+      Array.from({ length: 3 }, () => ["0", -8]),
+      "三行字都是从左边 8px 淡入",
+    );
+
+    // 吸顶的页头是一直贴在那儿的：不播
+    await page.story("控件-pageheader-页头--sticky");
+    const names = (await parts()).lines.map((line) => line?.name ?? "none");
+    assert.deepEqual(names, ["none", "none", "none"], "吸顶的页头不播入场");
+  });
+
+  await page.story(STORY);
+  await page.settled(HEADER);
+  assert.deepEqual(
+    await lines(),
+    Array.from({ length: 3 }, () => ["1", 0]),
+  );
+});

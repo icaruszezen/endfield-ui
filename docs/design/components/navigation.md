@@ -395,7 +395,7 @@
 - 返回方块里是直箭头，不是尖角：尖角在这套语言里是"翻页"（轮播和分页的圆钮）。
 - 行动区里黄色的按钮仍然只能有一个（见 [按钮](button.md#关于主要行动)）。
 
-已实现为 `<PageHeader title level meta description breadcrumb back actions divider sticky>` + `<PageHeaderBack href render>`：
+已实现为 `<PageHeader title level meta description breadcrumb back actions divider sticky animate>` + `<PageHeaderBack href render>`：
 
 ```tsx
 <PageHeader
@@ -412,6 +412,7 @@
 - `PageHeaderBack` 默认的可访问名称是"返回"，建议用 `aria-label` 写成"返回某某"。传了 `href` 或 `render` 就是链接，否则是按钮（`onClick` 里自己 `history.back()`）。`back` 这一格也可以直接放一个带字的 `<Button variant="back" size="sm">`。
 - `children` 是标题下面的那一行，放什么由使用方定。
 - `sticky`：吸在滚动容器的顶上，带 `surface` 的实底和底下那条线，在 `--z-float` 这一层（内容之上、常驻导航和浮层之下）。上面还有吸顶的顶栏时用 `className` 把 `top` 改成顶栏的高度。[页内目录](#页内目录) 的 `offset` 让的就是它。
+- **入场**（推断）：挂上的时候播一次。微文字行 → 标题 → 说明，各自从左 8px 淡入归位（300ms），依次晚 100ms；没有微文字行时从标题起。不等进视口——页头在页面最上面，挂上的那一刻就在眼前。面包屑、返回方块、行动区和下面那一行不动：位置在动的东西不好点。`sticky` 时不播（它是一直贴在那儿的，不是"刚出现"）；`animate={false}` 关掉。
 - **没有做**：标题滚出视口之后收成一条窄的；页头自带的页签（放进 `children`）。
 
 ## 步骤条

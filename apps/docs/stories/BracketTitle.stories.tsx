@@ -1,5 +1,11 @@
-import { BracketTitle, RegistrationStrip, Tag } from "@endfield-ui/react";
+import {
+  BracketTitle,
+  Button,
+  RegistrationStrip,
+  Tag,
+} from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useState } from "react";
 
 const meta = {
   title: "控件/BracketTitle 方括号标题",
@@ -25,6 +31,24 @@ export const Sizes: Story = {
       <BracketTitle className="text-lg">行内 lg</BracketTitle>
     </div>
   ),
+};
+
+export const Entrance: Story = {
+  name: "入场动画",
+  render: function EntranceStory(args) {
+    const [run, setRun] = useState(0);
+    return (
+      <div className="flex flex-col items-start gap-6">
+        <BracketTitle key={run} {...args} />
+        <Button size="sm" onClick={() => setRun((value) => value + 1)}>
+          重播
+        </Button>
+        <p className="text-sm text-ink-secondary">
+          括号先淡入 → 名称随后，进入视口时只播一次。
+        </p>
+      </div>
+    );
+  },
 };
 
 export const WithCompanions: Story = {

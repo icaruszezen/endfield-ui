@@ -26,9 +26,22 @@ export type PageHeaderProps = Omit<ComponentProps<"header">, "title"> & {
    * 上面还有吸顶的顶栏时用 `className` 改 `top`
    */
   sticky?: boolean;
+  /** 挂上时播放一次入场：微文字行 → 标题 → 说明。默认开启；`sticky` 时不播 */
+  animate?: boolean;
   /** 标题下面的一行：页签、几个统计块 */
   children?: ReactNode;
 };
+
+/*
+ * 入场的三拍：各自从左 8px 淡入归位，依次晚 100ms。
+ * 挂上就播（纯 CSS）：页头在页面最上面，不用等它进视口
+ */
+const enter = "animate-shift-in [--shift-x:calc(var(--motion-shift-lg)*-1)]";
+const enterStep = [
+  enter,
+  `${enter} [animation-delay:100ms]`,
+  `${enter} [animation-delay:200ms]`,
+] as const;
 
 /**
  * 页头：这是哪一页、怎么回去、在这一页能做什么。一页一个。
@@ -44,11 +57,15 @@ export function PageHeader({
   actions,
   divider = false,
   sticky = false,
+  animate = true,
   className,
   children,
   ...props
 }: PageHeaderProps) {
   const Heading = `h${level}` as const;
+  // 入场只动这三行字：面包屑、返回、行动区是能点的，位置在动的东西不好点
+  const reveal = animate && !sticky;
+  const first = meta ? 1 : 0;
 
   return (
     <header
@@ -64,7 +81,16 @@ export function PageHeader({
     >
       {breadcrumb}
       <div className="flex flex-col gap-1">
-        {meta && <p className="font-tech text-xs text-ink-secondary">{meta}</p>}
+        {meta && (
+          <p
+            className={cn(
+              "font-tech text-xs text-ink-secondary",
+              reveal && enterStep[0],
+            )}
+          >
+            {meta}
+          </p>
+        )}
         <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
           {/* 标题这一组至少留 16rem：行动区挤不进来就整块折下去，而不是把标题挤成一个字一行 */}
           <div className="flex min-w-0 flex-1 basis-64 items-start gap-4">
@@ -78,11 +104,21 @@ export function PageHeader({
               </div>
             )}
             <div className="flex min-w-0 flex-col gap-1">
-              <Heading className="min-w-0 text-2xl leading-10 font-bold wrap-anywhere @md:text-3xl @md:leading-12">
+              <Heading
+                className={cn(
+                  "min-w-0 text-2xl leading-10 font-bold wrap-anywhere @md:text-3xl @md:leading-12",
+                  reveal && enterStep[first],
+                )}
+              >
                 {title}
               </Heading>
               {description && (
-                <p className="max-w-prose text-sm text-ink-secondary">
+                <p
+                  className={cn(
+                    "max-w-prose text-sm text-ink-secondary",
+                    reveal && enterStep[first + 1],
+                  )}
+                >
                   {description}
                 </p>
               )}

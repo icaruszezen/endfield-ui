@@ -11,6 +11,7 @@ import {
   Tag,
 } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useState } from "react";
 import { RouterLink } from "./_shared/RouterLink";
 
 /* 文案全部虚构 */
@@ -75,6 +76,34 @@ export const WithBack: Story = {
       }
     />
   ),
+};
+
+export const Entrance: Story = {
+  name: "入场动画",
+  parameters: { controls: { disable: true } },
+  render: function EntranceStory() {
+    const [run, setRun] = useState(0);
+    return (
+      <div className="flex flex-col items-start gap-6">
+        <PageHeader
+          key={run}
+          className="w-full"
+          back={<PageHeaderBack href="#archive" aria-label="返回档案" />}
+          meta="// TR-2041　2026.10.08"
+          title="十月第二批"
+          description="北区仓储站发出，三号管廊转运。"
+          actions={<Button variant="action">签收</Button>}
+        />
+        <Button size="sm" onClick={() => setRun((value) => value + 1)}>
+          重播
+        </Button>
+        <p className="text-sm text-ink-secondary">
+          微文字行 → 标题 → 说明，各自从左边淡入归位；挂上的时候播一次。
+          返回方块和右边的按钮不动；吸顶的页头不播。
+        </p>
+      </div>
+    );
+  },
 };
 
 /* 各格都是可选的：只给标题也成立 */

@@ -78,6 +78,70 @@ describe("PageHeader", () => {
     expect(header).not.toHaveClass("top-0");
     expect(header).toHaveAttribute("id", "page-header");
   });
+
+  it("入场：微文字行 → 标题 → 说明依次晚 100ms，从左边来；能点的不参加", () => {
+    render(
+      <PageHeader
+        breadcrumb={<nav aria-label="面包屑">路径</nav>}
+        meta="// ARCHIVE"
+        back={<PageHeaderBack />}
+        title="档案"
+        description="按站点和月份归档。"
+        actions={<button type="button">新建记录</button>}
+      />,
+    );
+    const enter = [
+      "animate-shift-in",
+      "[--shift-x:calc(var(--motion-shift-lg)*-1)]",
+    ];
+    const meta = screen.getByText("// ARCHIVE");
+    const heading = screen.getByRole("heading");
+    const description = screen.getByText("按站点和月份归档。");
+    expect(meta).toHaveClass(...enter);
+    expect(meta.className).not.toMatch(/animation-delay/);
+    expect(heading).toHaveClass(...enter, "[animation-delay:100ms]");
+    expect(description).toHaveClass(...enter, "[animation-delay:200ms]");
+
+    const header = screen.getByRole("banner");
+    expect(header.className).not.toMatch(/animate-/);
+    for (const still of [
+      screen.getByRole("navigation", { name: "面包屑" }),
+      screen.getByRole("button", { name: "返回" }).parentElement!,
+      header.querySelector("[data-actions]")!,
+    ]) {
+      expect(still.className).not.toMatch(/animate-/);
+    }
+  });
+
+  it("入场：没有微文字行时从标题起", () => {
+    render(<PageHeader title="档案" description="按站点和月份归档。" />);
+    const heading = screen.getByRole("heading");
+    expect(heading).toHaveClass("animate-shift-in");
+    expect(heading.className).not.toMatch(/animation-delay/);
+    expect(screen.getByText("按站点和月份归档。")).toHaveClass(
+      "[animation-delay:100ms]",
+    );
+  });
+
+  it("吸顶的页头、animate=false 的页头不播", () => {
+    const { rerender } = render(
+      <PageHeader title="档案" meta="// ARCHIVE" description="说明" sticky />,
+    );
+    const header = screen.getByRole("banner");
+    expect(header.innerHTML).not.toMatch(/animate-/);
+
+    rerender(
+      <PageHeader
+        title="档案"
+        meta="// ARCHIVE"
+        description="说明"
+        animate={false}
+      />,
+    );
+    expect(header.innerHTML).not.toMatch(/animate-/);
+    // animate 不落到 DOM 上
+    expect(header).not.toHaveAttribute("animate");
+  });
 });
 
 describe("PageHeaderBack", () => {
