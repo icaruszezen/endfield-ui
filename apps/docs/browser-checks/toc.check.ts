@@ -64,9 +64,12 @@ test("滚到哪一节，哪一项亮；差一点没到的不算；滚到底亮�
   }, SCROLLER);
   assert.ok(reached > 10, "这个 story 里最后一节的顶边应该到不了上沿");
   await waitCurrent(page, "站点档案", "滚到底应该亮最后一项");
-  assert.equal(
-    (await page.text("#storybook-root [role=status]"))[0]!.endsWith("station"),
-    true,
+  // 状态行是 story 收到 onActiveChange 之后再渲染的，比目录自己亮起来晚一拍：等它
+  await page.waitFor(
+    async () =>
+      (await page.text("#storybook-root [role=status]"))[0]?.endsWith(
+        "station",
+      ) ?? false,
     "onActiveChange 应该报了最后一节",
   );
 
