@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
+import { stubAnimations } from "../../test/animations";
 import { Checkbox } from "../checkbox/Checkbox";
 import { Input } from "../input/Input";
 import { Radio, RadioGroup } from "../radio/Radio";
@@ -40,6 +41,96 @@ describe("Field", () => {
     const input = screen.getByRole("textbox");
     expect(input).toHaveAttribute("aria-invalid", "true");
     expect(input).toHaveAccessibleDescription("代号不能为空 两到十二个字符");
+  });
+
+  it("错误说明：一上来就带着的是静止的，后来才出现的才从 0 长出来", () => {
+    const start = ["starting:grid-rows-[0fr]", "starting:opacity-0"];
+    const wrapper = (text: string) =>
+      screen.getByText(text).closest("p")!.parentElement!.parentElement!;
+
+    const { container, rerender } = render(
+      <Field label="代号" error="代号不能为空">
+        <Input />
+      </Field>,
+    );
+    expect(wrapper("代号不能为空")).toHaveClass("grid", "grid-rows-[1fr]");
+    expect(wrapper("代号不能为空")).not.toHaveClass(...start);
+
+    rerender(
+      <Field label="代号">
+        <Input />
+      </Field>,
+    );
+    // 没有动效可等的环境里撤掉就不在了，也不留占位
+    expect(screen.queryByText("代号不能为空")).not.toBeInTheDocument();
+    expect(container.firstElementChild!.children).toHaveLength(2);
+
+    rerender(
+      <Field label="代号" error="代号太长">
+        <Input />
+      </Field>,
+    );
+    expect(wrapper("代号太长")).toHaveClass(...start);
+    // 整句话从第一帧就在：读屏照常读到
+    expect(screen.getByRole("textbox")).toHaveAccessibleDescription("代号太长");
+  });
+
+  it("错误说明撤掉：关联和错误态当场断开，那一句留着收完、对读屏隐藏，收完才不在", async () => {
+    const finish = stubAnimations();
+    const { rerender } = render(
+      <Field label="代号" help="两到十二个字符" error="代号不能为空">
+        <Input />
+      </Field>,
+    );
+    const input = screen.getByRole("textbox");
+    const sentence = screen.getByText("代号不能为空");
+    const wrapper = sentence.closest("p")!.parentElement!.parentElement!;
+    expect(wrapper).not.toHaveAttribute("aria-hidden");
+
+    rerender(
+      <Field label="代号" help="两到十二个字符">
+        <Input />
+      </Field>,
+    );
+    // 状态不等动效
+    expect(input).not.toHaveAttribute("aria-invalid");
+    expect(input).toHaveAccessibleDescription("两到十二个字符");
+    expect(input.closest("[data-invalid]")).toBeNull();
+    // 画的还是最后那一句，正在收
+    expect(sentence).toBeInTheDocument();
+    expect(sentence).toHaveTextContent("代号不能为空");
+    expect(wrapper).toHaveAttribute("data-leaving");
+    expect(wrapper).toHaveAttribute("aria-hidden", "true");
+
+    await finish();
+    expect(screen.queryByText("代号不能为空")).not.toBeInTheDocument();
+  });
+
+  it("错误说明收到一半又出错：换成新的那一句，不卸载", async () => {
+    const finish = stubAnimations();
+    const { rerender } = render(
+      <Field label="代号" error="代号不能为空">
+        <Input />
+      </Field>,
+    );
+    rerender(
+      <Field label="代号">
+        <Input />
+      </Field>,
+    );
+    rerender(
+      <Field label="代号" error="代号太长">
+        <Input />
+      </Field>,
+    );
+    const wrapper = screen.getByText("代号太长").closest("p")!.parentElement!
+      .parentElement!;
+    expect(wrapper).not.toHaveAttribute("data-leaving");
+    expect(wrapper).not.toHaveAttribute("aria-hidden");
+    expect(screen.getByRole("textbox")).toHaveAccessibleDescription("代号太长");
+
+    await finish();
+    expect(screen.getByText("代号太长")).toBeInTheDocument();
   });
 
   it("required 交给控件，菱形记号对读屏隐藏", () => {
@@ -115,6 +206,29 @@ describe("Field", () => {
     const [first, second] = screen.getAllByRole("checkbox");
     expect(first).not.toHaveAttribute("id");
     expect(second).not.toHaveAttribute("id");
+  });
+
+  it("group 的错误说明同样先收起再卸载", async () => {
+    const finish = stubAnimations();
+    const { rerender } = render(
+      <Field group label="通知方式" error="至少选一种">
+        <Checkbox>站内信</Checkbox>
+      </Field>,
+    );
+    const group = screen.getByRole("group", { name: "通知方式" });
+    expect(group).toHaveAccessibleDescription("至少选一种");
+
+    rerender(
+      <Field group label="通知方式">
+        <Checkbox>站内信</Checkbox>
+      </Field>,
+    );
+    expect(group).not.toHaveAttribute("aria-describedby");
+    expect(group).not.toHaveAttribute("data-invalid");
+    expect(screen.getByText("至少选一种")).toBeInTheDocument();
+
+    await finish();
+    expect(screen.queryByText("至少选一种")).not.toBeInTheDocument();
   });
 
   it("group 禁用时里面的控件一起禁用", () => {

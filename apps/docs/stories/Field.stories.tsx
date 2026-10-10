@@ -7,6 +7,7 @@ import {
   Textarea,
 } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useState } from "react";
 
 const meta = {
   title: "控件/Field 表单字段",
@@ -85,4 +86,39 @@ export const Groups: Story = {
       </Field>
     </div>
   ),
+};
+
+/* 边打字边校验：错误说明是长出来、收回去的，下面的字段跟着走，不被顶一下 */
+function LiveValidation() {
+  const [value, setValue] = useState("");
+  const wrong = value !== "" && !/^\d{3}$/.test(value);
+
+  return (
+    <div className="flex flex-col gap-6">
+      <Field
+        label="联络频段"
+        required
+        help="三位数字。"
+        error={wrong ? "频段是三位数字，例如 204。" : undefined}
+      >
+        <Input
+          inputMode="numeric"
+          placeholder="204"
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+        />
+      </Field>
+      <Field
+        label="备注"
+        help="上面的错误说明出现、撤掉时，这一个字段是被推着走的。"
+      >
+        <Textarea />
+      </Field>
+    </div>
+  );
+}
+
+export const ErrorMotion: Story = {
+  name: "错误说明的出现与消失",
+  render: () => <LiveValidation />,
 };

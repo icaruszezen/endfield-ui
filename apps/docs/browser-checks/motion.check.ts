@@ -1794,3 +1794,116 @@ test("表格的行展开：明细按高度长出来（300ms）、收回去（200
   await page.click(TOGGLE);
   await page.waitFor(absent, "减少动态效果下收起之后明细也应该不在");
 });
+
+test("字段的错误说明：出现时按高度长出来并淡入（200ms），撤掉时收回去再卸载；关联和错误态不等动效", async () => {
+  const { page } = storybook;
+  const ERROR = "#storybook-root [id$=error]";
+  const WRAP = "#storybook-root div:has(> div > [id$=error])";
+  const HELP = "#storybook-root [id$=help]";
+  const present = () =>
+    page.evaluate((css) => document.querySelector(css) !== null, ERROR);
+  const absent = async () => !(await present());
+  const top = (selector: string) =>
+    page.evaluate(
+      (css) =>
+        Math.round(document.querySelector(css)!.getBoundingClientRect().top),
+      selector,
+    );
+  /** 输入框上现在挂着什么 */
+  const wiring = () =>
+    page.evaluate(() => {
+      const input = document.querySelector("#storybook-root input")!;
+      return {
+        invalid: input.getAttribute("aria-invalid"),
+        described: (input.getAttribute("aria-describedby") ?? "")
+          .split(" ")
+          .map((id) => id.replace(/^.*-/, "")),
+      };
+    });
+
+  await withMotion(page, async () => {
+    await page.story("控件-field-表单字段--error-motion");
+    const rest = await top(HELP);
+    await record(page, "#storybook-root", "div:has(> div > [id$=error])");
+    // 收起的过渡起来的那一刻记一笔
+    await page.evaluate(() => {
+      const seen: unknown[] = [];
+      Object.assign(window, { leaveLog: seen });
+      document
+        .querySelector("#storybook-root")!
+        .addEventListener("transitionrun", (event) => {
+          const wrap = event.target as HTMLElement;
+          if (
+            !wrap.matches("[data-leaving]") ||
+            (event as TransitionEvent).propertyName !== "grid-template-rows"
+          ) {
+            return;
+          }
+          const input = document.querySelector("#storybook-root input")!;
+          seen.push({
+            hidden: wrap.getAttribute("aria-hidden"),
+            text: wrap.textContent,
+            invalid: input.getAttribute("aria-invalid"),
+            described: input.getAttribute("aria-describedby")!.endsWith("help"),
+          });
+        });
+    });
+
+    // 打一位：不够三位，出错
+    await page.key("Tab");
+    await page.type("2");
+    await page.waitFor(present, "不够三位应该出现错误说明");
+    assert.deepEqual(await wiring(), {
+      invalid: "true",
+      described: ["error", "help"],
+    });
+    assert.deepEqual(await transitions(page, WRAP), {
+      "grid-template-rows": 0.2,
+      opacity: 0.2,
+    });
+    await page.settled(WRAP, "错误说明的出现没有走完");
+    assert.deepEqual((await recorded(page)).sort(), [
+      "grid-template-rows",
+      "opacity",
+    ]);
+    assert.equal(await opacity(page, WRAP), 1);
+    const pushed = await top(HELP);
+    assert.ok(
+      pushed - rest >= 20,
+      `帮助文字应该被顶下去一行，实际只动了 ${pushed - rest}px`,
+    );
+
+    // 补齐三位：改对了
+    await page.type("04");
+    await page.waitFor(absent, "改对了错误说明应该收起并卸载");
+    assert.deepEqual((await recorded(page)).sort(), [
+      "grid-template-rows",
+      "opacity",
+    ]);
+    assert.deepEqual(
+      await page.evaluate(
+        () => (window as unknown as { leaveLog: unknown[] }).leaveLog,
+      ),
+      [
+        {
+          hidden: "true",
+          text: "频段是三位数字，例如 204。",
+          invalid: null,
+          described: true,
+        },
+      ],
+      "收起开始的那一刻：错误态和关联已经断开，那一句还画着、对读屏隐藏",
+    );
+    assert.equal(await top(HELP), rest, "收完之后帮助文字回到原来的位置");
+  });
+
+  // 减少动态效果：出错就在，改对就没
+  await page.story("控件-field-表单字段--error-motion");
+  await page.key("Tab");
+  await page.type("2");
+  await page.waitFor(present, "不够三位应该出现错误说明");
+  await page.settled(WRAP);
+  assert.equal(await opacity(page, WRAP), 1);
+  await page.type("04");
+  await page.waitFor(absent, "减少动态效果下改对了也应该卸载");
+});

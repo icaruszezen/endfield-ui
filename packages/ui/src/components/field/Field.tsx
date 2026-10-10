@@ -3,11 +3,14 @@ import {
   useContext,
   useId,
   useMemo,
+  useState,
   type HTMLAttributes,
   type ReactNode,
 } from "react";
+import { usePresence } from "../../hooks/usePresence";
 import { StatusDanger } from "../../icons/StatusDanger";
 import { cn } from "../../lib/cn";
+import { collapse, collapseEnter, collapseInner } from "../../lib/motion";
 
 type FieldContextValue = {
   /** 单个控件的 id；`group` 字段里有多个控件，不提供 */
@@ -106,6 +109,16 @@ export function Field({
     [hasError && errorId, hasHelp && helpId].filter(Boolean).join(" ") ||
     undefined;
 
+  // 错误说明撤掉之后先收起、再卸载。收的时候 `error` 已经空了，画的是最后那一句
+  const {
+    ref: errorRef,
+    mounted: errorMounted,
+    leaving: errorLeaving,
+    entered: errorEntered,
+  } = usePresence<HTMLDivElement>(hasError);
+  const [lastError, setLastError] = useState(error);
+  if (hasError && !Object.is(lastError, error)) setLastError(error);
+
   const context = useMemo<FieldContextValue>(
     () => ({
       controlId: group ? undefined : id,
@@ -143,14 +156,33 @@ export function Field({
 
   const messages = (
     <>
-      {hasError && (
-        <p
-          id={errorId}
-          className="mt-1.5 flex items-start gap-1.5 text-sm text-danger"
+      {errorMounted && (
+        // 出现时按高度把下面的内容顶开并淡入，撤掉时反过来：下面的不会被"啪"地顶一下
+        <div
+          ref={errorRef}
+          data-leaving={errorLeaving ? "" : undefined}
+          // 正在收起的是已经撤掉的那一句，不再读给读屏
+          aria-hidden={errorLeaving || undefined}
+          className={cn(
+            collapse,
+            // 小件：高度和淡入淡出都是 200ms
+            "transition-[grid-template-rows,opacity] duration-(--duration-fast) data-leaving:opacity-0",
+            errorEntered && [collapseEnter, "starting:opacity-0"],
+          )}
         >
-          <StatusDanger size={16} className="mt-0.5 shrink-0" />
-          <span className="min-w-0 wrap-anywhere">{error}</span>
-        </p>
+          <div className={collapseInner}>
+            {/* 和控件之间的 6px 写成内边距，跟着一起收 */}
+            <p
+              id={errorId}
+              className="flex items-start gap-1.5 pt-1.5 text-sm text-danger"
+            >
+              <StatusDanger size={16} className="mt-0.5 shrink-0" />
+              <span className="min-w-0 wrap-anywhere">
+                {hasError ? error : lastError}
+              </span>
+            </p>
+          </div>
+        </div>
       )}
       {hasHelp && (
         <p
