@@ -45,4 +45,15 @@ describe("EmptyState", () => {
     rerender(<EmptyState title="暂无记录" bordered={false} />);
     expect(container.firstElementChild).not.toHaveClass("border-dashed");
   });
+
+  it("入场：挂上时淡入，不位移；animate=false 关掉", () => {
+    const { container, rerender } = render(<EmptyState title="暂无记录" />);
+    const root = container.firstElementChild!;
+    expect(root).toHaveClass("animate-fade-in");
+    expect(root.className).not.toMatch(/shift|translate|opacity-0/);
+
+    rerender(<EmptyState title="暂无记录" animate={false} />);
+    expect(root.className).not.toMatch(/animate-/);
+    expect(root).not.toHaveAttribute("animate");
+  });
 });

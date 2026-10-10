@@ -142,7 +142,7 @@ Base UI 的浮层自带 `data-starting-style` / `data-ending-style` 和 `data-si
   - 要做：线和面从左画出一次。
   - 改哪里：`sparkline/Sparkline.tsx`。
   - 留意：数据行带里一屏有很多张——一起画，不逐张错开。用擦入（`animate-wipe-in`），不用描边虚线那种画法：图是横向拉伸的，按路径长度做虚线各浏览器不一致。折线有半个线宽画在盒子外面，擦的时候留出来（`--wipe-bleed`）。
-- [ ] **3.4 空状态。**
+- [x] **3.4 空状态。**
   - 现在：没有。
   - 要做：淡入。只是为了不"啪"地一下出现，不加位移。
   - 改哪里：`empty-state/EmptyState.tsx`。

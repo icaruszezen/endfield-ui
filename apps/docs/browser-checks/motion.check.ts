@@ -1351,3 +1351,62 @@ test("小型面积图：进视口才画——整张从左擦出来（600ms），
     assert.doesNotMatch(clip, /100%/, "减少动态效果下直接是画完的样子");
   }
 });
+
+test("空状态：挂上时淡入（300ms），不位移；减少动态效果下直接在", async () => {
+  const { page } = storybook;
+  const STORY = "控件-emptystate-空状态--entrance";
+  const EMPTY = "#storybook-root div:has(> h3)";
+  const read = (rewind = false) =>
+    page.evaluate(
+      (css, toStart) => {
+        const empty = document.querySelector(css)!;
+        const animations = empty.getAnimations();
+        if (toStart) {
+          for (const animation of animations) {
+            animation.pause();
+            animation.currentTime = 0;
+          }
+        }
+        const style = getComputedStyle(empty);
+        const found = {
+          name: style.animationName,
+          delay: style.animationDelay,
+          duration: style.animationDuration,
+          opacity: style.opacity,
+          translate: style.translate,
+        };
+        if (toStart) for (const animation of animations) animation.finish();
+        return found;
+      },
+      EMPTY,
+      rewind,
+    );
+
+  await withMotion(page, async () => {
+    await page.story(STORY);
+    await page.settled(EMPTY);
+    await record(page, "body", EMPTY);
+    await page.click("text=重播");
+    await page.waitFor(
+      async () => (await recorded(page)).includes("ef-fade-in"),
+      "重新挂上的空状态应该淡入",
+    );
+    const playing = await read();
+    assert.deepEqual(
+      [playing.name, playing.delay, playing.duration],
+      ["ef-fade-in", "0s", "0.3s"],
+    );
+    await page.settled(EMPTY);
+    assert.equal((await read()).opacity, "1");
+    const start = await read(true);
+    assert.deepEqual(
+      [start.opacity, start.translate],
+      ["0", "none"],
+      "从透明淡入，不位移",
+    );
+  });
+
+  await page.story(STORY);
+  await page.settled(EMPTY);
+  assert.equal((await read()).opacity, "1");
+});

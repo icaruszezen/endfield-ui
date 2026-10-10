@@ -14,6 +14,8 @@ export type EmptyStateProps = Omit<ComponentProps<"div">, "title"> & {
   bordered?: boolean;
   /** 标题层级，默认 3（`<h3>`） */
   level?: 2 | 3 | 4 | 5 | 6;
+  /** 挂上时淡入一次，不"啪"地一下出现。默认开启 */
+  animate?: boolean;
 };
 
 /** 取景角 + 准星：游戏内图鉴用它表示"未获得"，空状态沿用这个符号 */
@@ -45,6 +47,7 @@ export function EmptyState({
   icon,
   bordered = true,
   level = 3,
+  animate = true,
   className,
   children,
   ...props
@@ -58,6 +61,8 @@ export function EmptyState({
       className={cn(
         "flex flex-col items-center px-6 py-10 text-center text-ink",
         bordered && "border border-dashed border-line-strong",
+        // 入场只是淡入，不加位移；挂上就播，不等进视口——它要管的就是挂上的那一刻
+        animate && "animate-fade-in",
         className,
       )}
     >

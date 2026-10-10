@@ -1,5 +1,6 @@
 import { Button, EmptyState } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useState } from "react";
 
 const meta = {
   title: "控件/EmptyState 空状态",
@@ -18,6 +19,24 @@ export const Playground: Story = {};
 export const WithAction: Story = {
   name: "带一个行动",
   args: { action: <Button>新建测绘任务</Button> },
+};
+
+export const Entrance: Story = {
+  name: "入场动画",
+  render: function EntranceStory(args) {
+    const [run, setRun] = useState(0);
+    return (
+      <div className="flex flex-col items-start gap-6">
+        <EmptyState key={run} {...args} className="w-full" />
+        <Button size="sm" onClick={() => setRun((value) => value + 1)}>
+          重播
+        </Button>
+        <p className="text-sm text-ink-secondary">
+          挂上的时候淡入一次：只是为了不"啪"地一下出现，不加位移。
+        </p>
+      </div>
+    );
+  },
 };
 
 export const Cases: Story = {
