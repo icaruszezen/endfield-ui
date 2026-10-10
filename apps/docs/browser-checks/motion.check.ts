@@ -1581,3 +1581,75 @@ test("加载页：就绪后向上滑出（600ms），滑完才卸载；减少动
   assert.ok(seconds < 0.001, `过渡时长应该接近零，实际是 ${seconds}s`);
   await page.waitFor(gone, "减少动态效果下加载页也应该卸载", 10_000);
 });
+
+test("页签面板：切过来的那一块淡入（200ms），不位移；一开始选中的不动", async () => {
+  const { page } = storybook;
+  const PANEL = "#storybook-root [role=tabpanel]:not([hidden])";
+  const shown = () =>
+    page.evaluate((css) => document.querySelector(css)!.textContent, PANEL);
+
+  await withMotion(page, async () => {
+    await page.story("控件-tabs-页签--block");
+    // 载入时那一块是静止的
+    assert.equal(await shown(), "最近的新闻条目。");
+    assert.equal(
+      await page.evaluate(
+        (css) => getComputedStyle(document.querySelector(css)!).animationName,
+        PANEL,
+      ),
+      "none",
+      "一开始选中的面板不该带着动画",
+    );
+
+    await record(page, "#storybook-root", "[role=tabpanel]");
+    await page.click("text=公告");
+    await page.waitFor(
+      async () => (await shown()) === "维护与版本公告。",
+      "点公告应该换成公告的面板",
+    );
+    const declared = await page.evaluate((css) => {
+      const style = getComputedStyle(document.querySelector(css)!);
+      return [style.animationName, style.animationDuration];
+    }, PANEL);
+    assert.deepEqual(declared, ["ef-fade-in", "0.2s"]);
+    await page.settled(PANEL, "面板的淡入没有走完");
+    assert.deepEqual(
+      await recorded(page),
+      ["ef-fade-in"],
+      "只有淡入，没有别的",
+    );
+    assert.equal(await opacity(page, PANEL), 1);
+    assert.deepEqual(await shift(page, PANEL), [0, 0], "面板不位移");
+
+    // 方向键连着切：每换一块都重新淡入，焦点一直在页签上
+    await page.key("ArrowRight");
+    await page.key("ArrowRight");
+    await page.waitFor(
+      async () => (await shown()) === "视频与图集。",
+      "方向键应该一路切到影像",
+    );
+    await page.waitFocused("tab:影像");
+    await page.settled(PANEL);
+    assert.deepEqual(await recorded(page), ["ef-fade-in", "ef-fade-in"]);
+
+    // 切回第一块：它也淡入
+    await page.click("text=新闻");
+    await page.waitFor(
+      async () => (await shown()) === "最近的新闻条目。",
+      "点新闻应该换回去",
+    );
+    await page.settled(PANEL);
+    assert.deepEqual(await recorded(page), ["ef-fade-in"]);
+    assert.equal(await opacity(page, PANEL), 1);
+  });
+
+  // 减少动态效果：换过去就在
+  await page.story("控件-tabs-页签--block");
+  await page.click("text=公告");
+  await page.waitFor(
+    async () => (await shown()) === "维护与版本公告。",
+    "点公告应该换成公告的面板",
+  );
+  await page.settled(PANEL);
+  assert.equal(await opacity(page, PANEL), 1);
+});

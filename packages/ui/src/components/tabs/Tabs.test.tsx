@@ -124,6 +124,52 @@ describe("Tabs", () => {
     expect(screen.getByRole("tabpanel")).toHaveTextContent("乙内容");
   });
 
+  it("面板：一开始选中的那一块不淡入，切过来的才淡入，切回去也是", async () => {
+    render(<Example />);
+    expect(screen.getByRole("tabpanel")).not.toHaveClass("animate-fade-in");
+
+    await userEvent.click(screen.getByRole("tab", { name: "公告" }));
+    const notice = screen.getByRole("tabpanel");
+    expect(notice).toHaveTextContent("公告内容");
+    expect(notice).toHaveClass(
+      "animate-fade-in",
+      "[animation-duration:var(--duration-fast)]",
+    );
+
+    await userEvent.click(screen.getByRole("tab", { name: "新闻" }));
+    const news = screen.getByRole("tabpanel");
+    expect(news).toHaveTextContent("新闻内容");
+    expect(news).toHaveClass("animate-fade-in");
+    // 藏起来的那一块不带着动画的类：下次再出来才会重新播
+    expect(notice).not.toHaveClass("animate-fade-in");
+  });
+
+  it("面板：受控时同样只在换过之后淡入", () => {
+    const { rerender } = render(
+      <Tabs value="a">
+        <TabList aria-label="示例">
+          <Tab value="a">甲</Tab>
+          <Tab value="b">乙</Tab>
+        </TabList>
+        <TabPanel value="a">甲的内容</TabPanel>
+        <TabPanel value="b">乙的内容</TabPanel>
+      </Tabs>,
+    );
+    expect(screen.getByRole("tabpanel")).not.toHaveClass("animate-fade-in");
+
+    rerender(
+      <Tabs value="b">
+        <TabList aria-label="示例">
+          <Tab value="a">甲</Tab>
+          <Tab value="b">乙</Tab>
+        </TabList>
+        <TabPanel value="a">甲的内容</TabPanel>
+        <TabPanel value="b">乙的内容</TabPanel>
+      </Tabs>,
+    );
+    expect(screen.getByRole("tabpanel")).toHaveClass("animate-fade-in");
+  });
+
   it("页签值里的特殊字符不会破坏 id 关联", () => {
     render(
       <Tabs defaultValue="a b/c">

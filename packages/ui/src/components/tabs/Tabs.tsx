@@ -3,6 +3,7 @@ import {
   useContext,
   useId,
   useMemo,
+  useState,
   type ComponentProps,
   type KeyboardEvent,
   type MouseEvent,
@@ -22,6 +23,8 @@ type TabsContextValue = {
   baseId: string;
   variant: TabsVariant;
   size: TabsSize;
+  /** 切换过没有：一开始选中的那一块面板是静止的，切过来的才淡入 */
+  switched: boolean;
 };
 
 const TabsContext = createContext<TabsContextValue | null>(null);
@@ -71,9 +74,13 @@ export function Tabs({
     onChange: onValueChange,
   });
 
+  const [initial] = useState(current);
+  const [switched, setSwitched] = useState(false);
+  if (!switched && current !== initial) setSwitched(true);
+
   const context = useMemo(
-    () => ({ value: current, select, baseId, variant, size }),
-    [current, select, baseId, variant, size],
+    () => ({ value: current, select, baseId, variant, size, switched }),
+    [current, select, baseId, variant, size, switched],
   );
 
   return (
@@ -287,7 +294,10 @@ export type TabPanelProps = ComponentProps<"div"> & {
   value: string;
 };
 
-/** 未选中的面板保留一个隐藏的空容器，让页签的 `aria-controls` 始终有所指。 */
+/**
+ * 未选中的面板保留一个隐藏的空容器，让页签的 `aria-controls` 始终有所指。
+ * 切过来的面板淡入；一开始就选中的那一块不动。
+ */
 export function TabPanel({
   value,
   className,
@@ -305,7 +315,14 @@ export function TabPanel({
       aria-labelledby={toId(context.baseId, "tab", value)}
       hidden={!selected}
       tabIndex={0}
-      className={cn(focusRing, className)}
+      className={cn(
+        focusRing,
+        // 只淡入、不位移：页签本身已经有"让位"的动作
+        selected &&
+          context.switched &&
+          "animate-fade-in [animation-duration:var(--duration-fast)]",
+        className,
+      )}
     >
       {selected ? children : null}
     </div>
