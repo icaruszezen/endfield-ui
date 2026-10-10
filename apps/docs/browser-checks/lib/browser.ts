@@ -139,26 +139,49 @@ let swept = false;
 /**
  * 把以前没删掉的 profile 清掉：进程被强行结束、浏览器迟迟不退，都会留下来。
  * 一个 profile 二三十兆，一遍整套实测是三十几个——曾经攒了两天把系统盘占满。
- * 只碰一个小时以前的：别的会话可能正在跑，它们的 profile 是刚建的
+ * 只碰一个小时以前建的：别的会话可能正在跑，它们的 profile 是刚建的
  */
 function sweepStaleProfiles() {
   if (swept) return;
   swept = true;
   const cutoff = Date.now() - 60 * 60 * 1000;
+  let stale: string[];
   try {
-    for (const name of readdirSync(tmpdir())) {
-      if (!name.startsWith(PROFILE_PREFIX)) continue;
-      const path = join(tmpdir(), name);
+    stale = readdirSync(tmpdir()).filter((name) => {
+      if (!name.startsWith(PROFILE_PREFIX)) return false;
       try {
-        if (statSync(path).mtimeMs < cutoff) {
-          rmSync(path, { recursive: true, force: true });
-        }
+        // 看的是建的时间，不是改的时间：上一次删到一半的，修改时间是那时候的
+        return statSync(join(tmpdir(), name)).birthtimeMs < cutoff;
       } catch {
-        // 还被占着，或者已经被别人删了
+        return false;
       }
-    }
+    });
   } catch {
     // 临时目录读不了就算了：这只是顺手的清理
+    return;
+  }
+  if (stale.length === 0) return;
+
+  if (process.platform === "win32") {
+    // 没关掉的浏览器还占着它的 profile，删不动，自己也一直吃着内存。
+    // 起了一个小时还没退的实测浏览器只可能是孤儿：按 profile 的前缀认出来关掉，
+    // 不碰别的浏览器
+    spawnSync(
+      "powershell",
+      [
+        "-NoProfile",
+        "-Command",
+        `$old = (Get-Date).AddHours(-1); Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*${PROFILE_PREFIX}*' -and $_.CreationDate -lt $old } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }`,
+      ],
+      { stdio: "ignore" },
+    );
+  }
+  for (const name of stale) {
+    try {
+      rmSync(join(tmpdir(), name), { recursive: true, force: true });
+    } catch {
+      // 还被占着，下一次再说
+    }
   }
 }
 
