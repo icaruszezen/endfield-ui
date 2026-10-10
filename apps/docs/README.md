@@ -29,12 +29,15 @@ pnpm dev
 
 工具栏上的**主题**开关有三档：亮色、暗色、**并排**（默认）。并排模式把同一个 story 渲染进两个局部主题容器，用来对比两套取值；亮色 / 暗色模式把主题写到 `<html>`，和真实页面的用法一致。
 
+工具栏的右端是一个到 [GitHub 仓库](https://github.com/icaruszezen/endfield-ui)的链接，开在新标签页。手机那么窄的时候，单个 story 的工具栏放不下、要横着划到头才看得到它；文档页的工具少，不用划。
+
 弹窗、抽屉、全屏菜单、轻提示占的是整个视口，同一个 story 不能并排开两份。这几页在并排模式下只渲染亮色，页面顶上有一行说明，暗色用工具栏切。文字提示、气泡卡片、下拉菜单、展开条这类贴着触发元素的浮层照常并排：暗色那一半里打开的浮层也是暗色的。
 
 ## 怎么接的
 
 - `.storybook/main.ts` 把 `@endfield-ui/react` 别名到 `packages/ui/src/index.ts`，所以改组件源码即热更新，不用先构建。
 - `.storybook/preview.css` 引入 `@endfield-ui/react/tailwind.css`，再用 `@source` 把 stories 里的类名交给 Tailwind。
+- `.storybook/manager.tsx` 管的是预览站自己的界面（侧栏、工具栏），不是画布里的 story：工具栏上到仓库的链接在这里。这个文件由 Storybook 自己打包，JSX 走旧式转换，所以要 `import React`；改了它要重启 `pnpm dev`。
 - `.storybook/preview-head.html` 从 Google Fonts 加载 Archivo、Outfit、Space Grotesk 三款开源字体；断网时回退到系统字体，层级关系仍然成立。
 - 根 README 里的示例页截图（`docs/screenshots/`）由 `browser-checks/readme-shots.ts` 生成。示例页改了样子之后，先 `pnpm build:docs`，再 `pnpm --filter @endfield-ui/docs shots` 重截；换了哪一页、哪个主题，README 里那张图的链接跟着改。
 
@@ -90,6 +93,7 @@ pnpm test:browser
 - CI 的 runner 没接鼠标，无头浏览器会报"不能悬停"，`hover:` 的样式全都不生效。驱动启动浏览器时已经固定成"有一个能悬停的精确指针"；要在本机看没有悬停时的样子，把 `--blink-settings=primaryHoverType=1,availableHoverTypes=1` 放进 `BROWSER_FLAGS`。
 - `page.click()`、`page.moveTo()` 会等到目标的位置不再动、而且这一点上最上面的就是它，才动手：一个正在展开的容器里，元素的位置早就定了，但还被裁在外面，直接点会点到它下面的东西。等上一秒还是点不到就照点，所以点一个本来就被盖住的地方会慢一秒——那种情况直接给坐标。
 - `page.story()` / `page.docs()` 跳转之前会先等当前这一页的字体取完（最多三秒）。预览站的字体是从 Google Fonts 取的：一条检查的最后一步刚让等宽字出现、下一条马上跳走的话，下一页的字体请求会卡上二十来秒——页面早就渲染好了，只是 `document.fonts.ready` 不回来。哪一条检查莫名地慢，先看是不是它。
+- `page.story()` / `page.docs()` 打开的是画布那一页（`iframe.html`），没有侧栏和工具栏。要测预览站自己的界面用 `page.manager(路径)`，路径就是地址栏里 `?path=` 后面那一段；之后读到的是外面这一层。
 - `page.evaluate(函数, 参数…)` 里的函数是转成源码送进页面执行的，**不能引用外面的变量**，要用的值走参数。
 - 只断言行为（焦点在哪、开没开、在不在视口里），不断言具体的像素值：CI 上没有中文字体，文字的宽度和本机不一样。
 - 关掉后还留在 DOM 里的浮层（下拉选择）要问"看得见吗"，不要问"在不在"——`page.visible()` 已经处理了。

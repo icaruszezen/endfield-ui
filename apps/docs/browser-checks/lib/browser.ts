@@ -607,6 +607,18 @@ export async function launch({
       );
     },
 
+    /**
+     * 打开预览站本身（侧栏、工具栏，画布是里面的一个 iframe），等工具栏出来。
+     * 之后 `evaluate` 读的是外面这一层，不是画布里的 story
+     */
+    manager(path: string) {
+      return goto(
+        `${baseUrl}/?path=${encodeURI(path)}`,
+        () =>
+          document.querySelector("[data-testid=sb-preview-toolbar]") !== null,
+      );
+    },
+
     async key(name: string, { shift = false, ctrl = false } = {}) {
       const code = KEY_CODES[name];
       const base = code
