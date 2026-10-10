@@ -87,7 +87,10 @@ const toneText: Record<Exclude<ToastTone, "neutral">, string> = {
  * transform（从元素现在的 transform 出发，加上指针走过的距离），并把过渡关掉；松手
  * 之后交还给这里的变量。位置写在别的属性上的话两处会叠加——提示走的是手指的两倍。
  *
- * 新旧两条在同一个位置交替淡入淡出，所以用绝对定位叠在一起
+ * 进场的位移另写在 translate 上（只在起点有）：两个属性各管各的，"滑入"的过渡碰不到
+ * "跟手"的那一份。底部的从下面来；正中的是官网的做法，只有透明度。
+ *
+ * 新旧两条在同一个位置交替，所以用绝对定位叠在一起：旧的原地淡出，新的升上来
  */
 const placementClass: Record<
   ToastPlacement,
@@ -95,7 +98,7 @@ const placementClass: Record<
 > = {
   bottom: {
     viewport: "bottom-6",
-    root: "bottom-0 transform-[translate(calc(-50%+var(--toast-swipe-movement-x,0px)),var(--toast-swipe-movement-y,0px))]",
+    root: "bottom-0 transform-[translate(calc(-50%+var(--toast-swipe-movement-x,0px)),var(--toast-swipe-movement-y,0px))] data-starting-style:translate-y-(--motion-shift-lg)",
   },
   center: {
     viewport: "top-1/2",
@@ -178,7 +181,10 @@ function ToastHost({ placement, label, closeLabel, children }: ToastHostProps) {
                   // 边线是给暗色页面的：那里黑底和页面几乎一样深，要靠它把提示勾出来。
                   // 亮色页面上它和提示的底几乎同色，看不出来
                   "border border-line bg-black/80 text-base leading-[1.4] text-white",
-                  "transition-opacity duration-(--duration-fast) ease-standard data-ending-style:opacity-0 data-starting-style:opacity-0",
+                  // 三样各走各的：淡入淡出 200ms；进场的位移 300ms；没划够就松手，滑回原位 200ms。
+                  // 拖动中基元把过渡整个关掉，位置贴着手指
+                  "transition-[opacity,translate,transform] duration-[var(--duration-fast),var(--duration-base),var(--duration-fast)] ease-[var(--ease-standard),var(--ease-exit),var(--ease-standard)]",
+                  "data-ending-style:opacity-0 data-starting-style:opacity-0",
                   // 拖的时候不选中文字：用鼠标拖会把字选上，下一次再拖，浏览器当成"拖这段字"，手势就被取消了
                   "data-swiping:select-none",
                   // 焦点环画在里面：它是按深色底取的颜色，画到外面会压在亮色的页面上

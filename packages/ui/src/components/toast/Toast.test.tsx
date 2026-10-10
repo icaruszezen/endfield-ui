@@ -60,9 +60,33 @@ describe("Toast", () => {
       "transform-[translate(calc(-50%+var(--toast-swipe-movement-x,0px)),var(--toast-swipe-movement-y,0px))]",
     );
     // 写在 translate 上的话会和基元的内联 transform 叠加，走成手指的两倍
-    expect(toast.className).not.toMatch(/translate-[xy]-/);
+    expect(toast.className).not.toMatch(/translate-[xy]-\S*toast-swipe/);
     // 拖的时候不选中文字：选上之后再拖，浏览器当成拖文字，手势会被取消
     expect(toast).toHaveClass("data-swiping:select-none");
+  });
+
+  it("底部的从下面滑入；正中的只淡入", async () => {
+    const user = userEvent.setup();
+    const rise = "data-starting-style:translate-y-(--motion-shift-lg)";
+
+    const bottom = setup(["已保存"]);
+    await user.click(screen.getByRole("button", { name: "弹出 1" }));
+    const fromBelow = toastOf("已保存")!.closest("[data-theme]")!;
+    expect(fromBelow).toHaveClass(
+      rise,
+      "transition-[opacity,translate,transform]",
+    );
+    // 退场只淡出
+    expect(fromBelow.className).not.toMatch(/data-ending-style:[^ ]*translate/);
+    bottom.unmount();
+
+    render(
+      <ToastProvider placement="center">
+        <Demo options={["已保存"]} />
+      </ToastProvider>,
+    );
+    await user.click(screen.getByRole("button", { name: "弹出 1" }));
+    expect(toastOf("已保存")!.closest("[data-theme]")).not.toHaveClass(rise);
   });
 
   it("同时只显示一条，新的替换旧的", async () => {

@@ -674,3 +674,96 @@ test("文字提示：悬停出来的从按钮那一侧来（4px，200ms）；移
     assert.deepEqual(await startedFrom(page), []);
   });
 });
+
+test("轻提示：底部的从下面升上来（8px）；正中的只淡入；没划够松手滑回原位", async () => {
+  const { page } = storybook;
+  const TOAST = "[role=region] :is([role=dialog], [role=alertdialog])";
+  const shown = (text: string) =>
+    page.waitFor(
+      () =>
+        page.evaluate(
+          ({ css, wanted }) =>
+            [...document.querySelectorAll(css)].some(
+              (toast) => toast.querySelector("p")?.textContent === wanted,
+            ),
+          { css: TOAST, wanted: text },
+        ),
+      `轻提示"${text}"没有出现`,
+    );
+
+  await withMotion(page, async () => {
+    await page.story("控件-toast-轻提示--playground");
+    await record(page, "body", TOAST);
+    await page.click("text=一直留着");
+    await shown("连接已断开");
+    await page.settled(TOAST);
+    assert.deepEqual(await transitions(page, TOAST), {
+      opacity: 0.2,
+      translate: 0.3,
+      transform: 0.2,
+    });
+    assert.deepEqual(await startedFrom(page), [[0, 8]]);
+    assert.deepEqual(await shift(page, TOAST), [0, 0], "走完应该归位");
+    await recorded(page);
+
+    // 抓着文字往右拖一小段：拖动中基元把过渡整个关掉；松手之后才滑回去
+    const grab = await page.evaluate((css) => {
+      const rect = document.querySelector(`${css} p`)!.getBoundingClientRect();
+      return { x: rect.left + 8, y: rect.top + rect.height / 2 };
+    }, TOAST);
+    const left = () =>
+      page.evaluate(
+        (css) => document.querySelector(css)!.getBoundingClientRect().left,
+        TOAST,
+      );
+    const rest = await left();
+    const held = { button: "left", buttons: 1 };
+    await page.send("Input.dispatchMouseEvent", {
+      type: "mouseMoved",
+      ...grab,
+    });
+    await page.send("Input.dispatchMouseEvent", {
+      type: "mousePressed",
+      ...grab,
+      ...held,
+      clickCount: 1,
+    });
+    for (const dx of [4, 14, 24]) {
+      await page.send("Input.dispatchMouseEvent", {
+        type: "mouseMoved",
+        x: grab.x + dx,
+        y: grab.y,
+        ...held,
+      });
+    }
+    await page.frames();
+    assert.deepEqual(
+      Object.keys((await transitions(page, TOAST))!),
+      ["none"],
+      "拖动中不该有过渡",
+    );
+    assert.deepEqual(await recorded(page), [], "拖动中不该跑过任何过渡");
+    await page.send("Input.dispatchMouseEvent", {
+      type: "mouseReleased",
+      x: grab.x + 24,
+      y: grab.y,
+      button: "left",
+      clickCount: 1,
+    });
+    await page.waitFor(
+      async () => (await recorded(page)).includes("transform"),
+      "没划够就松手，应该是滑回去的",
+    );
+    await page.settled(TOAST);
+    assert.ok(Math.abs((await left()) - rest) < 1, "应该回到原位");
+
+    // 正中的那一种是官网的做法：只有透明度
+    await page.story("控件-toast-轻提示--centered");
+    await record(page, "body", TOAST);
+    await page.click("text=一直留着");
+    await shown("连接已断开");
+    await page.settled(TOAST);
+    assert.deepEqual(await startedFrom(page), []);
+    assert.deepEqual(await recorded(page), ["opacity"]);
+  });
+});
