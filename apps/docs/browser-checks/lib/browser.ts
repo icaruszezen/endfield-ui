@@ -15,7 +15,9 @@ import {
   mkdtempSync,
   openSync,
   readFileSync,
+  readdirSync,
   rmSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -112,13 +114,62 @@ export type Page = Awaited<ReturnType<typeof launch>>;
 /** 等浏览器把调试端口准备好的时间。CI 的机器冷启动时要好几秒 */
 const STARTUP_TIMEOUT = 30_000;
 
+/** 每个浏览器一个临时 profile，建在系统的临时目录里，名字都以这个开头 */
+const PROFILE_PREFIX = "ef-browser-check-";
+
+/**
+ * 删掉一个 profile，删不掉就等一会儿再试。
+ * 浏览器是自己退的，进程要过一阵才真的退干净；这段时间里（尤其是 Windows 上）
+ * profile 里的文件还被它占着。等不到就留给下一次的 sweepStaleProfiles
+ */
+async function removeProfile(profile: string) {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    try {
+      rmSync(profile, { recursive: true, force: true });
+    } catch {
+      // 还被占着
+    }
+    if (!existsSync(profile)) return;
+    await sleep(250);
+  }
+}
+
+let swept = false;
+
+/**
+ * 把以前没删掉的 profile 清掉：进程被强行结束、浏览器迟迟不退，都会留下来。
+ * 一个 profile 二三十兆，一遍整套实测是三十几个——曾经攒了两天把系统盘占满。
+ * 只碰一个小时以前的：别的会话可能正在跑，它们的 profile 是刚建的
+ */
+function sweepStaleProfiles() {
+  if (swept) return;
+  swept = true;
+  const cutoff = Date.now() - 60 * 60 * 1000;
+  try {
+    for (const name of readdirSync(tmpdir())) {
+      if (!name.startsWith(PROFILE_PREFIX)) continue;
+      const path = join(tmpdir(), name);
+      try {
+        if (statSync(path).mtimeMs < cutoff) {
+          rmSync(path, { recursive: true, force: true });
+        }
+      } catch {
+        // 还被占着，或者已经被别人删了
+      }
+    }
+  } catch {
+    // 临时目录读不了就算了：这只是顺手的清理
+  }
+}
+
 /**
  * 起一个无头浏览器，返回它的页面的调试地址。
  * 没起来就把进程和 profile 清掉再报错——留着一个子进程，测试进程永远不会退出。
  */
 async function start(width: number, height: number) {
+  sweepStaleProfiles();
   // 每次用一个新的 profile：复用同一个目录时，后起的进程会把活儿交给还没退出的那个
-  const profile = mkdtempSync(join(tmpdir(), "ef-browser-check-"));
+  const profile = mkdtempSync(join(tmpdir(), PROFILE_PREFIX));
   // 浏览器自己说了什么，写进一个文件：起不来的时候，原因多半在这里。
   // 不能接成管道——Windows 上的 Edge 接了管道就起不来
   const logFile = join(profile, "stderr.log");
@@ -167,12 +218,7 @@ async function start(width: number, height: number) {
         { stdio: "ignore" },
       );
     }
-    await sleep(300);
-    try {
-      rmSync(profile, { recursive: true, force: true });
-    } catch {
-      // 浏览器刚退出时 profile 可能还被占着，留给系统清理
-    }
+    await removeProfile(profile);
   };
 
   let socketUrl: string | undefined;
