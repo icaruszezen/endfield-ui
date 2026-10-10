@@ -205,6 +205,11 @@ async function start(width: number, height: number) {
       "--hide-scrollbars",
       "--no-first-run",
       "--no-default-browser-check",
+      // 每次都是全新的 profile，浏览器一起来就在后台联网（组件更新之类）。网络不顺的时候
+      // 它会把页面的导航也拖住：放慢跑时每个长一点的文件都有一次导航卡七十来秒，
+      // 报"页面没有渲染出来"。关掉之后同一个文件从一百多秒变成二十几秒
+      "--disable-background-networking",
+      "--disable-component-update",
       // 0 = 让浏览器自己挑一个空闲端口，写在 profile 里的 DevToolsActivePort
       "--remote-debugging-port=0",
       `--user-data-dir=${profile}`,
