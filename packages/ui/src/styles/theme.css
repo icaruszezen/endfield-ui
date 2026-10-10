@@ -376,6 +376,7 @@
   --animate-indeterminate: ef-indeterminate 1.2s linear infinite alternate;
   --animate-pulse: ef-pulse 2s ease-in-out infinite;
   --animate-bracket-in: ef-bracket-in 200ms ease-out both;
+  --animate-shift-in: ef-shift-in 300ms ease-out both;
 
   /* 三次短促闪烁后点亮（官网实测的关键帧节奏） */
   @keyframes ef-flicker {
@@ -534,6 +535,18 @@
         var(--_w) 0;
     }
   }
+
+  /*
+   * 位移入场：从偏着的地方淡入归位。往哪边偏、偏多少由用的地方给
+   * （--shift-x / --shift-y，量用 --motion-shift 那两档），不给就只是淡入。
+   * 只写起点：终点就是元素自己的样子
+   */
+  @keyframes ef-shift-in {
+    from {
+      opacity: 0;
+      translate: var(--shift-x, 0) var(--shift-y, 0);
+    }
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -590,6 +603,9 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    /* 延迟也归零：不然错开的入场会变成一项一项蹦出来 */
+    animation-delay: 0s !important;
+    transition-delay: 0s !important;
     scroll-behavior: auto !important;
   }
 }

@@ -25,6 +25,7 @@ const twMerge = extendTailwindMerge({
         "fade-in",
         "indeterminate",
         "bracket-in",
+        "shift-in",
       ],
     },
   },

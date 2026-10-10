@@ -767,3 +767,92 @@ test("轻提示：底部的从下面升上来（8px）；正中的只淡入；�
     assert.deepEqual(await recorded(page), ["opacity"]);
   });
 });
+
+test("全屏菜单：栏目逐条从左滑入（8px），延迟按第几项错开，第六项起一起到；减少动态效果下不等", async () => {
+  const { page } = storybook;
+  const DIALOG = "[role=dialog]";
+  const ITEM = `${DIALOG} nav li`;
+  const items = () =>
+    page.evaluate(
+      (css) =>
+        [...document.querySelectorAll(css)].map((item) => {
+          const style = getComputedStyle(item);
+          return {
+            name: style.animationName,
+            delay: Number.parseFloat(style.animationDelay),
+            opacity: Number(style.opacity),
+            shifted: style.translate !== "none" && style.translate !== "0px",
+          };
+        }),
+      ITEM,
+    );
+
+  await withMotion(page, async () => {
+    await page.story("控件-topbar-顶栏与全屏菜单--with-menu");
+    await record(page, "body", ITEM);
+    await page.click("button[aria-label=打开菜单]");
+    await page.waitVisible(DIALOG);
+    // 入场不挡操作：栏目还在路上，焦点已经在第一项上了
+    await page.waitFocused("a:总览");
+
+    const entering = await items();
+    assert.deepEqual(
+      entering.map((item) => item.name),
+      Array.from({ length: 5 }, () => "ef-shift-in"),
+    );
+    assert.deepEqual(
+      entering.map((item) => item.delay),
+      [0.1, 0.15, 0.2, 0.25, 0.3],
+    );
+
+    await page.settled(DIALOG);
+    assert.equal(
+      (await recorded(page)).filter((name) => name === "ef-shift-in").length,
+      5,
+      "五个栏目应该各播了一次",
+    );
+    assert.ok(
+      (await items()).every((item) => item.opacity === 1 && !item.shifted),
+      "走完应该都不透明、都在原位",
+    );
+
+    // 动画带 fill，走完还留着：把第一项拨回起点看一眼它是从哪来的
+    const start = await page.evaluate((css) => {
+      const item = document.querySelector(css)!;
+      const [animation] = item.getAnimations();
+      animation!.pause();
+      animation!.currentTime = 0;
+      const style = getComputedStyle(item);
+      const from = { opacity: style.opacity, translate: style.translate };
+      animation!.finish();
+      return from;
+    }, ITEM);
+    assert.equal(start.opacity, "0");
+    assert.equal(Number.parseFloat(start.translate), -8, "应该从左边 8px 来");
+
+    // 这个 story 只有五项：再塞三项进去，第六项起的延迟不再往后排
+    const tail = await page.evaluate((css) => {
+      const list = document.querySelector(css)!.parentElement!;
+      for (let extra = 0; extra < 3; extra += 1) {
+        list.append(list.lastElementChild!.cloneNode(true));
+      }
+      return [...list.children]
+        .slice(5)
+        .map((item) =>
+          Number.parseFloat(getComputedStyle(item).animationDelay),
+        );
+    }, ITEM);
+    assert.deepEqual(tail, [0.35, 0.35, 0.35]);
+  });
+
+  // 开回"减少动态效果"：延迟归零——不然栏目会一条一条蹦出来
+  await page.story("控件-topbar-顶栏与全屏菜单--with-menu");
+  await page.click("button[aria-label=打开菜单]");
+  await page.waitVisible(DIALOG);
+  const reduced = await items();
+  assert.ok(reduced.every((item) => item.delay === 0));
+  await page.settled(DIALOG);
+  assert.ok(
+    (await items()).every((item) => item.opacity === 1 && !item.shifted),
+  );
+});

@@ -53,6 +53,30 @@ describe("NavMenu", () => {
     expect(dialog).toHaveClass("fixed", "inset-0", "z-(--z-overlay)");
   });
 
+  it("栏目逐条入场：每一项带着从左滑入的动画，延迟按第几项错开；自己的 className 还在", async () => {
+    const user = userEvent.setup();
+    render(
+      <NavMenu trigger={<button type="button">打开菜单</button>} title="菜单">
+        <NavMenuItem href="#a" className="order-first">
+          总览
+        </NavMenuItem>
+        <NavMenuItem href="#b">调度</NavMenuItem>
+      </NavMenu>,
+    );
+    const dialog = await open(user);
+    const [first, second] = within(dialog).getAllByRole("listitem");
+    for (const item of [first!, second!]) {
+      expect(item).toHaveClass(
+        "animate-shift-in",
+        "[animation-delay:100ms]",
+        "nth-2:[animation-delay:150ms]",
+        // 第六项起一起到，不再往后错
+        "nth-[n+6]:[animation-delay:350ms]",
+      );
+    }
+    expect(first).toHaveClass("order-first");
+  });
+
   it("打开时焦点落在第一个栏目上；Esc 关闭，焦点回到菜单钮", async () => {
     const user = userEvent.setup();
     render(<Menu />);

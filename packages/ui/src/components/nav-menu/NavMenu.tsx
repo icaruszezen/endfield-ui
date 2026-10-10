@@ -85,6 +85,7 @@ export function NavMenu({
           initialFocus={firstFocusableIn(bodyRef)}
           className={cn(
             "fixed inset-0 z-(--z-overlay) flex flex-col overflow-hidden bg-surface text-ink outline-none",
+            // 整层淡入；里面的栏目另有自己的入场（见 itemEnter）
             "transition-opacity duration-(--duration-fast) ease-standard",
             "data-ending-style:opacity-0 data-starting-style:opacity-0",
             className,
@@ -155,6 +156,17 @@ export function NavMenu({
   );
 }
 
+/*
+ * 栏目入场：逐条从左滑入 8px。第一项等层淡入过半（100ms），之后每项晚 50ms，
+ * 第六项起一起到——从第一项动到最后一项停下 550ms。
+ * 只动 <li> 的位置和透明度：焦点一打开就在第一项上，键盘不用等它
+ */
+const itemEnter = [
+  "animate-shift-in [--shift-x:calc(var(--motion-shift-lg)*-1)]",
+  "[animation-delay:100ms] nth-2:[animation-delay:150ms] nth-3:[animation-delay:200ms]",
+  "nth-4:[animation-delay:250ms] nth-5:[animation-delay:300ms] nth-[n+6]:[animation-delay:350ms]",
+].join(" ");
+
 type ItemOwnProps = {
   /** 图标，后面跟一条竖向的分隔线 */
   icon?: ReactNode;
@@ -188,6 +200,7 @@ export function NavMenuItem({
   rel,
   render,
   onClick,
+  className,
   children,
   ...props
 }: NavMenuItemProps) {
@@ -256,7 +269,7 @@ export function NavMenuItem({
   );
 
   return (
-    <li {...props}>
+    <li {...props} className={cn(itemEnter, className)}>
       {isLink ? (
         <LinkElement
           render={render}
