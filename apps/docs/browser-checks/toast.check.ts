@@ -117,3 +117,79 @@ test("不限时的提示一直留着；F6 把焦点带进提示，再 Tab 走到
   await page.key("Enter");
   await waitNoToast(page, "关闭按钮应该收起提示");
 });
+
+test("划走：拖动时提示贴着指针，不多走也不少走；没划够松手回到原位，划够了收起", async () => {
+  const { page } = storybook;
+  await page.story("控件-toast-轻提示--playground");
+  await page.click("text=一直留着");
+  await waitToast(page, "连接已断开");
+  await page.settled();
+
+  // 这一条是警告：角色是 alertdialog
+  const TOAST = "[role=region] :is([role=dialog], [role=alertdialog])";
+  const left = () =>
+    page.evaluate(
+      (css) => document.querySelector(css)!.getBoundingClientRect().left,
+      TOAST,
+    );
+  // 抓文字，不抓按钮：从按钮上起手的不算划
+  const grab = await page.evaluate((css) => {
+    const rect = document.querySelector(`${css} p`)!.getBoundingClientRect();
+    return { x: rect.left + 8, y: rect.top + rect.height / 2 };
+  }, TOAST);
+  const held = { button: "left", buttons: 1 };
+  const move = (dx: number, pressed = true) =>
+    page.send("Input.dispatchMouseEvent", {
+      type: "mouseMoved",
+      x: grab.x + dx,
+      y: grab.y,
+      ...(pressed ? held : {}),
+    });
+  const press = () =>
+    page.send("Input.dispatchMouseEvent", {
+      type: "mousePressed",
+      ...grab,
+      ...held,
+      clickCount: 1,
+    });
+  const release = (dx: number) =>
+    page.send("Input.dispatchMouseEvent", {
+      type: "mouseReleased",
+      x: grab.x + dx,
+      y: grab.y,
+      button: "left",
+      clickCount: 1,
+    });
+
+  const rest = await left();
+  await move(0, false);
+  await press();
+  // 基元从第一次移动的位置起算，所以先挪一小步，再量后面那一段
+  await move(4);
+  await page.frames();
+  const start = await left();
+  await move(14);
+  await move(24);
+  await page.frames();
+  const dragged = (await left()) - start;
+  assert.ok(
+    Math.abs(dragged - 20) <= 1,
+    `指针走了 20px，提示应该也走 20px，实际走了 ${dragged}px`,
+  );
+
+  await release(24);
+  await page.waitFor(
+    async () => Math.abs((await left()) - rest) < 1,
+    "没划够就松手，提示应该回到原位",
+  );
+  assert.equal((await toasts(page)).length, 1, "没划够不该收起");
+
+  await move(0, false);
+  await press();
+  await move(4);
+  for (const dx of [40, 80, 120, 160]) await move(dx);
+  // 真的手指每挪一步都隔着帧：基元是照渲染出来的位移判断"划够了没有"的
+  await page.frames();
+  await release(160);
+  await waitNoToast(page, "往右划够了应该收起");
+});

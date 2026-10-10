@@ -82,6 +82,11 @@ const toneText: Record<Exclude<ToastTone, "neutral">, string> = {
 
 /*
  * 水平居中 + 跟着手指走的位移（可以往下或往右划走）。
+ *
+ * 写在 transform 上，不能写在 translate 上：基元在拖动的时候自己往元素上写内联的
+ * transform（从元素现在的 transform 出发，加上指针走过的距离），并把过渡关掉；松手
+ * 之后交还给这里的变量。位置写在别的属性上的话两处会叠加——提示走的是手指的两倍。
+ *
  * 新旧两条在同一个位置交替淡入淡出，所以用绝对定位叠在一起
  */
 const placementClass: Record<
@@ -90,11 +95,11 @@ const placementClass: Record<
 > = {
   bottom: {
     viewport: "bottom-6",
-    root: "bottom-0 translate-y-[var(--toast-swipe-movement-y,0px)]",
+    root: "bottom-0 transform-[translate(calc(-50%+var(--toast-swipe-movement-x,0px)),var(--toast-swipe-movement-y,0px))]",
   },
   center: {
     viewport: "top-1/2",
-    root: "top-0 translate-y-[calc(-50%+var(--toast-swipe-movement-y,0px))]",
+    root: "top-0 transform-[translate(calc(-50%+var(--toast-swipe-movement-x,0px)),calc(-50%+var(--toast-swipe-movement-y,0px)))]",
   },
 };
 
@@ -169,11 +174,13 @@ function ToastHost({ placement, label, closeLabel, children }: ToastHostProps) {
                 // 黑底白字不随主题变：整条做成暗色的局部主题，图形和焦点环按深色底取值
                 data-theme="dark"
                 className={cn(
-                  "pointer-events-auto absolute left-1/2 w-max max-w-full translate-x-[calc(-50%+var(--toast-swipe-movement-x,0px))]",
+                  "pointer-events-auto absolute left-1/2 w-max max-w-full",
                   // 边线是给暗色页面的：那里黑底和页面几乎一样深，要靠它把提示勾出来。
                   // 亮色页面上它和提示的底几乎同色，看不出来
                   "border border-line bg-black/80 text-base leading-[1.4] text-white",
                   "transition-opacity duration-(--duration-fast) ease-standard data-ending-style:opacity-0 data-starting-style:opacity-0",
+                  // 拖的时候不选中文字：用鼠标拖会把字选上，下一次再拖，浏览器当成"拖这段字"，手势就被取消了
+                  "data-swiping:select-none",
                   // 焦点环画在里面：它是按深色底取的颜色，画到外面会压在亮色的页面上
                   focusRingInset,
                   placementClass[placement].root,

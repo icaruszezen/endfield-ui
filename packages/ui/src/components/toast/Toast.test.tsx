@@ -51,6 +51,20 @@ describe("Toast", () => {
     expect(root).toHaveClass("bg-black/80", "text-white");
   });
 
+  it("位置和划走的位移写在 transform 上：拖动时基元用内联的 transform 接管的就是它", async () => {
+    const user = userEvent.setup();
+    setup(["已保存"]);
+    await user.click(screen.getByRole("button", { name: "弹出 1" }));
+    const toast = toastOf("已保存")!.closest("[data-theme]")!;
+    expect(toast.className).toContain(
+      "transform-[translate(calc(-50%+var(--toast-swipe-movement-x,0px)),var(--toast-swipe-movement-y,0px))]",
+    );
+    // 写在 translate 上的话会和基元的内联 transform 叠加，走成手指的两倍
+    expect(toast.className).not.toMatch(/translate-[xy]-/);
+    // 拖的时候不选中文字：选上之后再拖，浏览器当成拖文字，手势会被取消
+    expect(toast).toHaveClass("data-swiping:select-none");
+  });
+
   it("同时只显示一条，新的替换旧的", async () => {
     const user = userEvent.setup();
     setup(["第一条", "第二条"]);
