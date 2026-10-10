@@ -1,5 +1,6 @@
 import { Button, CompletionBanner, List, ListRow } from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useState } from "react";
 
 const meta = {
   title: "控件/CompletionBanner 完成横幅",
@@ -26,6 +27,29 @@ export const Playground: Story = {};
 export const WithAction: Story = {
   name: "带一个行动",
   args: { action: <Button>领取奖励</Button> },
+};
+
+export const Entrance: Story = {
+  name: "入场动画",
+  render: function EntranceStory(args) {
+    const [run, setRun] = useState(0);
+    return (
+      <div className="flex flex-col items-start gap-6">
+        <CompletionBanner
+          key={run}
+          {...args}
+          action={<Button size="sm">查看报告</Button>}
+          className="w-full"
+        />
+        <Button size="sm" onClick={() => setRun((value) => value + 1)}>
+          重播
+        </Button>
+        <p className="text-sm text-ink-secondary">
+          色带从左擦入 → 标题和按钮出现，进入视口时只播一次。
+        </p>
+      </div>
+    );
+  },
 };
 
 export const TitleOnly: Story = {

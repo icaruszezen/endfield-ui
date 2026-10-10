@@ -1,6 +1,11 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { stubInView } from "../../test/in-view";
 import { CompletionBanner } from "./CompletionBanner";
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe("CompletionBanner", () => {
   it("是一个状态区，标题默认是三级", () => {
@@ -59,5 +64,69 @@ describe("CompletionBanner", () => {
     );
     expect(screen.getByText("共 6 项，用时 3 天")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "领取" })).toBeInTheDocument();
+  });
+
+  it("入场：进视口前整块是裁掉的；进了之后色带擦入，字和按钮晚 200ms 出", () => {
+    const enter = stubInView();
+    render(
+      <CompletionBanner
+        title="全部完成"
+        action={<button type="button">领取</button>}
+      />,
+    );
+    const banner = screen.getByRole("status");
+    const text = screen.getByRole("heading").parentElement!;
+    const action = screen.getByRole("button").parentElement!;
+    expect(banner).toHaveClass("[clip-path:inset(0_100%_0_0)]");
+    expect(banner).not.toHaveClass("animate-wipe-in");
+    expect(text).not.toHaveClass("animate-shift-in");
+
+    enter();
+    expect(banner).toHaveClass("animate-wipe-in");
+    expect(banner).not.toHaveClass("[clip-path:inset(0_100%_0_0)]");
+    expect(text).toHaveClass(
+      "animate-shift-in",
+      "[animation-delay:200ms]",
+      "[--shift-x:calc(var(--motion-shift-lg)*-1)]",
+    );
+    expect(action).toHaveClass("animate-fade-in", "[animation-delay:200ms]");
+  });
+
+  it("没法判断进没进视口时直接播（不会一直裁着）", () => {
+    // jsdom 没有 IntersectionObserver
+    render(<CompletionBanner title="全部完成" />);
+    expect(screen.getByRole("status")).toHaveClass("animate-wipe-in");
+  });
+
+  it("animate=false 时不裁、不播", () => {
+    stubInView();
+    render(
+      <CompletionBanner
+        title="全部完成"
+        animate={false}
+        action={<button type="button">领取</button>}
+      />,
+    );
+    const banner = screen.getByRole("status");
+    expect(banner.className).not.toMatch(/clip-path|animate-/);
+    expect(screen.getByRole("heading").parentElement!.className).not.toMatch(
+      /animate-/,
+    );
+    expect(screen.getByRole("button").parentElement!.className).not.toMatch(
+      /animate-/,
+    );
+  });
+
+  it("转发 ref", () => {
+    let node: HTMLDivElement | null = null;
+    render(
+      <CompletionBanner
+        title="全部完成"
+        ref={(element) => {
+          node = element;
+        }}
+      />,
+    );
+    expect(node).toBe(screen.getByRole("status"));
   });
 });

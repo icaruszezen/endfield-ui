@@ -377,6 +377,7 @@
   --animate-pulse: ef-pulse 2s ease-in-out infinite;
   --animate-bracket-in: ef-bracket-in 200ms ease-out both;
   --animate-shift-in: ef-shift-in 300ms ease-out both;
+  --animate-wipe-in: ef-wipe-in 300ms ease-out both;
 
   /* 三次短促闪烁后点亮（官网实测的关键帧节奏） */
   @keyframes ef-flicker {
@@ -545,6 +546,23 @@
     from {
       opacity: 0;
       translate: var(--shift-x, 0) var(--shift-y, 0);
+    }
+  }
+
+  /*
+   * 擦入：从左往右露出来。两头都要写——"没有裁切"和 inset() 之间插不了值。
+   * 有东西画到盒子外面一点的（小型面积图的折线有半个线宽在外面），用 --wipe-bleed
+   * 把另外几边往外让，不然走完之后那一圈是被裁掉的
+   */
+  @keyframes ef-wipe-in {
+    from {
+      clip-path: inset(
+        calc(0px - var(--wipe-bleed, 0px)) 100%
+          calc(0px - var(--wipe-bleed, 0px)) calc(0px - var(--wipe-bleed, 0px))
+      );
+    }
+    to {
+      clip-path: inset(calc(0px - var(--wipe-bleed, 0px)));
     }
   }
 }

@@ -1,5 +1,7 @@
 import type { ComponentProps, ElementType, ReactNode } from "react";
+import { useInView } from "../../hooks/useInView";
 import { cn } from "../../lib/cn";
+import { mergeRefs } from "../../lib/merge-refs";
 import { GhostText } from "../ghost-text/GhostText";
 
 export type CompletionBannerProps = Omit<ComponentProps<"div">, "title"> & {
@@ -13,6 +15,8 @@ export type CompletionBannerProps = Omit<ComponentProps<"div">, "title"> & {
   action?: ReactNode;
   /** 标题层级，默认 3（`<h3>`） */
   level?: 2 | 3 | 4 | 5 | 6;
+  /** 进入视口时播放一次入场：色带从左擦入，随后出字。默认开启 */
+  animate?: boolean;
 };
 
 /**
@@ -28,19 +32,28 @@ export function CompletionBanner({
   description,
   action,
   level = 3,
+  animate = true,
   className,
   children,
+  ref,
   ...props
 }: CompletionBannerProps) {
   const Heading: ElementType = `h${level}`;
+  const [inViewRef, inView] = useInView<HTMLDivElement>({ disabled: !animate });
+  // 入场：整块从左擦入（背后的描边词在右下角，自然最后露出来），字和按钮等色带过去了再出
+  const pending = animate && !inView;
+  const playing = animate && inView;
 
   return (
     <div
       role="status"
       data-theme="inverse"
       {...props}
+      ref={mergeRefs(inViewRef, ref)}
       className={cn(
         "@container relative isolate overflow-clip bg-surface text-ink",
+        pending && "[clip-path:inset(0_100%_0_0)]",
+        playing && "animate-wipe-in",
         className,
       )}
     >
@@ -56,7 +69,13 @@ export function CompletionBanner({
       )}
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-4 @md:px-6 @md:py-5">
         {/* 强调色跟着这块底走：亮色页面上是黄字压墨底，暗色页面上是深黄字压近白底 */}
-        <div className="min-w-0 border-l-4 border-accent-ink pl-3">
+        <div
+          className={cn(
+            "min-w-0 border-l-4 border-accent-ink pl-3",
+            playing &&
+              "animate-shift-in [animation-delay:200ms] [--shift-x:calc(var(--motion-shift-lg)*-1)]",
+          )}
+        >
           <Heading className="text-lg font-bold wrap-anywhere text-accent-ink @md:text-xl">
             {title}
           </Heading>
@@ -65,7 +84,16 @@ export function CompletionBanner({
           )}
           {children}
         </div>
-        {action && <div className="shrink-0">{action}</div>}
+        {action && (
+          <div
+            className={cn(
+              "shrink-0",
+              playing && "animate-fade-in [animation-delay:200ms]",
+            )}
+          >
+            {action}
+          </div>
+        )}
       </div>
     </div>
   );

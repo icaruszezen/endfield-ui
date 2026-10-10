@@ -1,6 +1,7 @@
 // 正常动效下进出场真的有过渡，过渡走完后停在终态、关闭后被卸载；"减少动态效果"下没有过渡。
 // 状态的记号（勾、细线、连线、括号、填入的字）也在这里。断言三件事：声明了什么过渡（计算样式）、
-// 它真的跑过（浏览器发的 transitionrun / animationstart）、走完之后停在哪——都不靠"正好量到一半"
+// 它真的跑过（浏览器发的 transitionrun / animationstart）、走完之后停在哪——都不靠"正好量到一半"。
+// 最后几条是只播一次的入场：进视口才播的，把 story 推到视口下面再重播，看它等不等
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { useStorybook, type Page } from "./lib/harness.ts";
@@ -112,6 +113,25 @@ const shift = (page: Page, selector: string) =>
       .translate.split(" ")
       .map((part) => Number.parseFloat(part) || 0);
     return [x, y];
+  }, selector);
+
+/**
+ * "入场动画"的 story：把整页推到视口下面，再点"重播"。
+ * 新挂上的那一份一开始不在视口里——进视口才播的东西这时候应该停在起点
+ */
+const replayOffscreen = (page: Page) =>
+  page.evaluate(() => {
+    document.querySelector<HTMLElement>("#storybook-root")!.style.paddingTop =
+      "200vh";
+    scrollTo(0, 0);
+    [...document.querySelectorAll("button")]
+      .find((button) => button.textContent === "重播")!
+      .click();
+  });
+
+const scrollIntoView = (page: Page, selector: string) =>
+  page.evaluate((css) => {
+    document.querySelector(css)!.scrollIntoView({ block: "center" });
   }, selector);
 
 /** 关掉"减少动态效果"跑一段；跑完不管成没成都开回去 */
@@ -965,4 +985,115 @@ test("弹窗：从下面升上来（8px）并淡入，不放大；退场只淡�
       assert.ok(!leaving.includes("translate"), "退场不该再走位移");
     }
   });
+});
+
+test("完成横幅：进视口才播——色带从左擦入，字和按钮晚 200ms 出；滚走再回来不重播", async () => {
+  const { page } = storybook;
+  const STORY = "控件-completionbanner-完成横幅--entrance";
+  const BANNER = "#storybook-root [role=status]";
+  const CLIPPED = "inset(0px 100% 0px 0px)";
+  const parts = (rewind = false) =>
+    page.evaluate(
+      (css, toStart) => {
+        const banner = document.querySelector(css)!;
+        // 动画带 fill，走完还留着：拨回起点读一眼它是从哪来的，再放回终点
+        const animations = banner.getAnimations({ subtree: true });
+        if (toStart) {
+          for (const animation of animations) {
+            animation.pause();
+            animation.currentTime = 0;
+          }
+        }
+        const read = (element: Element) => {
+          const style = getComputedStyle(element);
+          return {
+            name: style.animationName,
+            delay: style.animationDelay,
+            duration: style.animationDuration,
+            clip: style.clipPath,
+            opacity: style.opacity,
+            shift: Number.parseFloat(style.translate) || 0,
+          };
+        };
+        const found = {
+          banner: read(banner),
+          text: read(banner.querySelector("h3")!.parentElement!),
+          action: read(banner.querySelector("button")!.parentElement!),
+        };
+        if (toStart) for (const animation of animations) animation.finish();
+        return found;
+      },
+      BANNER,
+      rewind,
+    );
+
+  await withMotion(page, async () => {
+    await page.story(STORY);
+    await replayOffscreen(page);
+    // 反面的断言：等上一会儿，它仍然没有开始
+    await page.pause(300);
+    const waiting = await parts();
+    assert.equal(waiting.banner.name, "none", "没进视口不应该开始播");
+    assert.equal(waiting.banner.clip, CLIPPED, "没进视口时整块是裁掉的");
+
+    await record(page, "body");
+    await scrollIntoView(page, BANNER);
+    await page.waitFor(
+      async () => (await parts()).banner.name === "ef-wipe-in",
+      "滚进视口之后色带应该开始擦入",
+    );
+    const playing = await parts();
+    assert.deepEqual(
+      [playing.banner.delay, playing.banner.duration],
+      ["0s", "0.3s"],
+    );
+    assert.deepEqual(
+      [playing.text.name, playing.text.delay, playing.text.duration],
+      ["ef-shift-in", "0.2s", "0.3s"],
+      "标题那一组等色带过去了再出",
+    );
+    assert.deepEqual(
+      [playing.action.name, playing.action.delay],
+      ["ef-fade-in", "0.2s"],
+    );
+
+    await page.settled(BANNER);
+    const seen = await recorded(page);
+    for (const name of ["ef-wipe-in", "ef-shift-in", "ef-fade-in"]) {
+      assert.ok(
+        seen.includes(name),
+        `应该播过 ${name}（记到的：${seen.join("、")}）`,
+      );
+    }
+    const done = await parts();
+    assert.equal(done.banner.clip, "inset(0px 0% 0px 0px)", "走完整块都在");
+    assert.deepEqual(
+      [done.text.opacity, done.text.shift, done.action.opacity],
+      ["1", 0, "1"],
+    );
+
+    const start = await parts(true);
+    assert.equal(start.banner.clip, CLIPPED, "色带应该从左边擦过来");
+    assert.deepEqual(
+      [start.text.opacity, start.text.shift, start.action.opacity],
+      ["0", -8, "0"],
+      "标题那一组从左边 8px 淡入，按钮只淡入",
+    );
+    assert.equal(start.action.shift, 0, "能点的东西不做位移");
+
+    // 滚走再滚回来：只播一次
+    await recorded(page);
+    await page.evaluate(() => scrollTo(0, 0));
+    await page.frames(4);
+    await scrollIntoView(page, BANNER);
+    await page.frames(4);
+    assert.deepEqual(await recorded(page), [], "滚回来不应该重播");
+  });
+
+  // 开回"减少动态效果"：直接是终态，不停在裁掉或者透明
+  await page.story(STORY);
+  await page.settled(BANNER);
+  const reduced = await parts();
+  assert.equal(reduced.banner.clip, "inset(0px 0% 0px 0px)");
+  assert.deepEqual([reduced.text.opacity, reduced.action.opacity], ["1", "1"]);
 });
