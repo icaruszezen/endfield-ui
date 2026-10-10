@@ -17,6 +17,12 @@ export type ViewfinderProps = ComponentProps<"div"> & {
   /** 正中放一个小准星，标出焦点 */
   crosshair?: boolean;
   /**
+   * 挂上的时候取景角落位：八段短线各自从角上伸出来，播一次。
+   * 默认不动——取景角平时是静态的装饰。要它晚一点再动（等外面那一层先淡入完），
+   * 在外层设 `--bracket-delay`
+   */
+  animate?: boolean;
+  /**
    * 四个角上的读数：坐标、比例、版本、时间码。
    * 必须是真实的数据；没有就不放。
    */
@@ -44,6 +50,7 @@ const readoutPosition: Record<keyof ViewfinderReadouts, string> = {
 export function Viewfinder({
   size = "sm",
   crosshair = false,
+  animate = false,
   readouts,
   className,
   children,
@@ -58,6 +65,8 @@ export function Viewfinder({
           decor,
           "corner-brackets absolute inset-3 [--bracket-color:currentColor] [--bracket-offset:0px] [--bracket-width:1.5px]",
           armClass[size],
+          animate &&
+            "after:animate-bracket-in after:[animation-delay:var(--bracket-delay,0s)]",
         )}
       />
       {crosshair && (

@@ -856,3 +856,73 @@ test("全屏菜单：栏目逐条从左滑入（8px），延迟按第几项错�
     (await items()).every((item) => item.opacity === 1 && !item.shifted),
   );
 });
+
+test("图片查看：整层淡入完了取景角才落位；大图取到了才露出来", async () => {
+  const { page } = storybook;
+  const LAYER = "[data-image-viewer]";
+  const BRACKETS = `${LAYER} .corner-brackets`;
+
+  await withMotion(page, async () => {
+    await page.story("控件-imageviewer-图片查看--playground");
+    await record(page, "body", `${BRACKETS}, ${LAYER} img`);
+    await page.click("#storybook-root button[aria-haspopup=dialog]");
+    await page.waitVisible(LAYER);
+
+    const brackets = await page.evaluate((css) => {
+      const style = getComputedStyle(document.querySelector(css)!, "::after");
+      return {
+        name: style.animationName,
+        // 等整层的淡入（200ms）走完再动：一起动的话被淡入盖住
+        delay: style.animationDelay,
+        duration: style.animationDuration,
+      };
+    }, BRACKETS);
+    assert.deepEqual(brackets, {
+      name: "ef-bracket-in",
+      delay: "0.2s",
+      duration: "0.2s",
+    });
+
+    // 当前这张取到了：容器标上 data-loaded，图才不透明
+    await page.waitVisible(`${LAYER} [data-current][data-loaded]`);
+    await page.settled(LAYER);
+    assert.ok(
+      (await recorded(page)).includes("ef-bracket-in::after"),
+      "取景角应该是伸出来的",
+    );
+    const image = await page.evaluate((css) => {
+      const style = getComputedStyle(
+        document.querySelector(`${css} [data-current] > img`)!,
+      );
+      return {
+        opacity: style.opacity,
+        property: style.transitionProperty,
+        duration: style.transitionDuration,
+      };
+    }, LAYER);
+    assert.deepEqual(image, {
+      opacity: "1",
+      property: "opacity",
+      duration: "0.2s",
+    });
+
+    // 还没取到的图是透明的：往旁边那一张里换一张取不到头的图，它的容器是新的状态
+    const pending = await page.evaluate((css) => {
+      const slides = [...document.querySelectorAll(`${css} [role=group]`)];
+      const empty = slides.find((slide) => slide.childElementCount === 0);
+      if (!empty) return null;
+      const img = document.createElement("img");
+      img.src = "/never-arrives.png?" + Date.now();
+      empty.append(img);
+      return {
+        loaded: empty.hasAttribute("data-loaded"),
+        opacity: getComputedStyle(img).opacity,
+      };
+    }, LAYER);
+    // 五张图里离当前最远的那几张是空位（只渲染当前和左右各一张）
+    assert.deepEqual(pending, { loaded: false, opacity: "0" });
+
+    await page.key("Escape");
+    await page.waitGone(LAYER);
+  });
+});

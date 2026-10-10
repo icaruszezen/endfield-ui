@@ -3,6 +3,19 @@ import { describe, expect, it } from "vitest";
 import { Viewfinder } from "./Viewfinder";
 
 describe("Viewfinder", () => {
+  it("默认是静态的；animate 让取景角在挂上时落位", () => {
+    const { container, rerender } = render(<Viewfinder />);
+    const brackets = () => container.querySelector(".corner-brackets")!;
+    expect(brackets()).not.toHaveClass("after:animate-bracket-in");
+
+    rerender(<Viewfinder animate />);
+    expect(brackets()).toHaveClass(
+      "after:animate-bracket-in",
+      // 晚多久再动由外层给，默认不等
+      "after:[animation-delay:var(--bracket-delay,0s)]",
+    );
+  });
+
   it("包住内容，取景角是装饰", () => {
     render(
       <Viewfinder data-testid="frame">

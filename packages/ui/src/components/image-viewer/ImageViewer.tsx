@@ -5,6 +5,7 @@ import {
   isValidElement,
   useContext,
   useRef,
+  useState,
   type ComponentProps,
   type KeyboardEvent,
   type ReactElement,
@@ -279,7 +280,12 @@ function Stage({
         </BaseDialog.Close>
       </div>
 
-      <Viewfinder size="md" className="min-h-0 flex-1">
+      {/* 取景角等整层淡入完了再落位：一起动的话被淡入盖住，看不见 */}
+      <Viewfinder
+        size="md"
+        animate
+        className="min-h-0 flex-1 [--bracket-delay:var(--duration-fast)]"
+      >
         <div
           ref={trackRef}
           data-image-viewer-track=""
@@ -287,27 +293,15 @@ function Stage({
           className="absolute inset-0 flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none]"
         >
           {items.map((item, position) => (
-            <div
+            <Slide
               key={position}
-              role="group"
-              aria-roledescription="幻灯片"
-              aria-label={`第 ${position + 1} 张，共 ${count} 张`}
-              // 不在眼前的：Tab 走不进去，读屏也读不到
-              inert={position !== index}
-              data-current={position === index ? "" : undefined}
-              // 点图以外的空处就是关
-              onClick={(event) => {
-                if (event.target === event.currentTarget) onClose();
-              }}
-              className={cn(
-                "flex size-full shrink-0 snap-start items-center justify-center p-6 sm:p-10",
-                // 图按原比例整张放进去：不裁切，也不放大过它自己的尺寸
-                "*:max-h-full *:max-w-full [&>img]:object-contain [&>video]:object-contain",
-              )}
+              label={`第 ${position + 1} 张，共 ${count} 张`}
+              current={position === index}
+              onClose={onClose}
             >
               {/* 只渲染当前这张和左右各一张：二十张图不会一打开就全去取 */}
               {Math.abs(position - index) <= 1 ? item.props.children : null}
-            </div>
+            </Slide>
           ))}
         </div>
       </Viewfinder>
@@ -357,6 +351,52 @@ function Stage({
         </div>
       )}
     </BaseDialog.Popup>
+  );
+}
+
+type SlideProps = {
+  label: string;
+  current: boolean;
+  onClose: () => void;
+  children: ReactNode;
+};
+
+/**
+ * 轨道上的一张。图是使用方给的元素，这里不碰它，只在外面听它的 `load`：
+ * 还没取到的图是透明的，取到了淡入——不是"啪"地一下出现。
+ * 只管直接放进来的 `<img>`；视频、别的内容不等，和原来一样直接在
+ */
+function Slide({ label, current, onClose, children }: SlideProps) {
+  // 取到过一次就算数：翻远了再翻回来，图是现成的，不用再藏一次
+  const [loaded, setLoaded] = useState(false);
+  const settle = () => setLoaded(true);
+
+  return (
+    <div
+      role="group"
+      aria-roledescription="幻灯片"
+      aria-label={label}
+      // 不在眼前的：Tab 走不进去，读屏也读不到
+      inert={!current}
+      data-current={current ? "" : undefined}
+      data-loaded={loaded ? "" : undefined}
+      // load 和 error 不冒泡，但捕获阶段从外往里走，在这一层听得到。
+      // 取不到的图也要露出来：使用方写的替代文字在那里
+      onLoadCapture={settle}
+      onErrorCapture={settle}
+      // 点图以外的空处就是关
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+      className={cn(
+        "flex size-full shrink-0 snap-start items-center justify-center p-6 sm:p-10",
+        // 图按原比例整张放进去：不裁切，也不放大过它自己的尺寸
+        "*:max-h-full *:max-w-full [&>img]:object-contain [&>video]:object-contain",
+        "[&>img]:transition-opacity [&>img]:duration-(--duration-fast) [&>img]:ease-standard not-data-loaded:[&>img]:opacity-0",
+      )}
+    >
+      {children}
+    </div>
   );
 }
 

@@ -69,6 +69,7 @@
 - `readouts` 是四个角上的读数（`topLeft`、`topRight`、`bottomLeft`、`bottomRight`），只渲染给了值的角；
 - **颜色跟的是画面，不是页面**：取景角用 `ink`，画面是深色的就给它加 `data-theme="dark"`，浅色的画面放在暗色页面里则加 `data-theme="light"`；
 - 取景角与准星是装饰（对读屏隐藏，高对比模式与打印时去掉）；读数是真实信息，读屏读得到。
+- 取景角平时是静态的。`animate` 让它在挂上的时候落位一次（八段短线各自从角上伸出来，200ms，同 [角括号](brackets-and-markers.md#角括号选中) 的 `animate-bracket-in`）——给"这一层刚打开"的场合用，[图片查看](../components/card.md#图片查看) 的舞台就是。外面那一层自己有淡入的话，在外层设 `--bracket-delay` 让它等一等。（推断）
 
 ## 坐标读数
 

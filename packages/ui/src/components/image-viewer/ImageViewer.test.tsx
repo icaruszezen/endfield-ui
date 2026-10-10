@@ -1,4 +1,10 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
@@ -231,6 +237,42 @@ describe("ImageViewer", () => {
     await user.click(within(dialog).getByRole("button", { name: "下一张" }));
     expect(rendered()).toEqual([false, true, true, true]);
     expect(slides[2]).not.toHaveAttribute("inert");
+  });
+
+  it("大图取到之前是透明的，取到了才露出来；取不到的也露出来", async () => {
+    const user = userEvent.setup();
+    render(<Photos />);
+    await user.click(thumb("三号管廊入口"));
+    const dialog = await viewer();
+    const [first, second] = [
+      ...dialog.querySelectorAll<HTMLElement>("[aria-roledescription=幻灯片]"),
+    ];
+
+    expect(first).not.toHaveAttribute("data-loaded");
+    expect(first).toHaveClass(
+      "not-data-loaded:[&>img]:opacity-0",
+      "[&>img]:transition-opacity",
+    );
+    // load 不冒泡：这一层是在捕获阶段听到的
+    fireEvent.load(first!.querySelector("img")!);
+    expect(first).toHaveAttribute("data-loaded");
+
+    // 旁边那一张是它自己的事；取不到也要露出来，替代文字在那里
+    expect(second).not.toHaveAttribute("data-loaded");
+    fireEvent.error(second!.querySelector("img")!);
+    expect(second).toHaveAttribute("data-loaded");
+  });
+
+  it("舞台的取景角在打开时落位，等整层淡入完了再动", async () => {
+    const user = userEvent.setup();
+    render(<Photos />);
+    await user.click(thumb("三号管廊入口"));
+    const dialog = await viewer();
+    const brackets = dialog.querySelector(".corner-brackets")!;
+    expect(brackets).toHaveClass("after:animate-bracket-in");
+    expect(brackets.parentElement).toHaveClass(
+      "[--bracket-delay:var(--duration-fast)]",
+    );
   });
 
   it("只有一张：没有翻页钮和计数", async () => {

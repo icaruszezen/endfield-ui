@@ -5,7 +5,7 @@ import { ScenePlaceholder } from "./_shared/Placeholders";
 const meta = {
   title: "母题/Viewfinder 取景角",
   component: Viewfinder,
-  args: { size: "sm", crosshair: false },
+  args: { size: "sm", crosshair: false, animate: false },
   argTypes: {
     size: { control: "inline-radio", options: ["sm", "md"] },
   },
