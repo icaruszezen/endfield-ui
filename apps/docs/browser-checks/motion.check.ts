@@ -2116,3 +2116,224 @@ test("标签输入、文件列表的新项：新加的那一项淡入（200ms）
     1,
   );
 });
+
+/**
+ * 选中指示（画在容器 ::after 上的那一块）现在的样子：标的是什么、位移、宽高、透明度，
+ * 以及它和 `items` 里第几项重合（一项都不重合是 -1）。`inset` 是指示比那一项上下各短多少
+ */
+const indicatorAt = (page: Page, container: string, items: string, inset = 0) =>
+  page.evaluate(
+    (css, itemCss, shrink) => {
+      const node = document.querySelector<HTMLElement>(css)!;
+      const style = getComputedStyle(node, "::after");
+      const [x = 0, y = 0] = style.translate
+        .split(" ")
+        .map((part) => Number.parseFloat(part) || 0);
+      const top = Number.parseFloat(style.top) || 0;
+      const width = Number.parseFloat(style.width);
+      const height = Number.parseFloat(style.height);
+      const box = node.getBoundingClientRect();
+      const near = (a: number, b: number) => Math.abs(a - b) < 0.6;
+      const on = [...node.querySelectorAll(itemCss)].findIndex((item) => {
+        const rect = item.getBoundingClientRect();
+        const left = rect.left - box.left - node.clientLeft + node.scrollLeft;
+        const itemTop = rect.top - box.top - node.clientTop + node.scrollTop;
+        return (
+          near(itemTop + shrink, top + y) &&
+          near(rect.height - 2 * shrink, height) &&
+          // 只有粗条那样的（比项窄）不比横向
+          (shrink > 0 || (near(left, x) && near(rect.width, width)))
+        );
+      });
+      return {
+        state: node.dataset.indicator ?? null,
+        shown: style.display !== "none",
+        opacity: Number(style.opacity),
+        x,
+        y,
+        width,
+        height,
+        on,
+      };
+    },
+    container,
+    items,
+    inset,
+  );
+
+/** 把指示身上正在跑的过渡都停在第 `at` 毫秒；返回停了几条、停下那一刻的位移 */
+const holdIndicator = (page: Page, container: string, at: number) =>
+  page.evaluate(
+    (css, time) => {
+      const node = document.querySelector<HTMLElement>(css)!;
+      const moving = node
+        .getAnimations({ subtree: true })
+        .filter(
+          (animation) =>
+            (animation.effect as KeyframeEffect).pseudoElement === "::after",
+        );
+      for (const animation of moving) {
+        animation.pause();
+        animation.currentTime = time;
+      }
+      const [x = 0, y = 0] = getComputedStyle(node, "::after")
+        .translate.split(" ")
+        .map((part) => Number.parseFloat(part) || 0);
+      return { count: moving.length, x, y };
+    },
+    container,
+    at,
+  );
+
+/** 指示身上那条位移的过渡是从哪儿出发的 [x, y]；没有在跑是 null */
+const indicatorFrom = (page: Page, container: string) =>
+  page.evaluate((css) => {
+    const node = document.querySelector<HTMLElement>(css)!;
+    const moving = node
+      .getAnimations({ subtree: true })
+      .find(
+        (animation) =>
+          animation instanceof CSSTransition &&
+          animation.transitionProperty === "translate" &&
+          (animation.effect as KeyframeEffect).pseudoElement === "::after",
+      );
+    if (!moving) return null;
+    const start = (moving.effect as KeyframeEffect).getKeyframes()[0]
+      ?.translate;
+    const [x = 0, y = 0] = String(start)
+      .split(" ")
+      .map((part) => Number.parseFloat(part) || 0);
+    return [x, y];
+  }, container);
+
+/** 记到的里面，落在指示（::after）上的那几条 */
+const onIndicator = (log: string[]) =>
+  log.filter((entry) => entry.endsWith("::after")).sort();
+
+test("分段选择：选中的墨块滑到新的一段（200ms）；一开始就在的、改了宽度的不滑；中途改道从半路出发", async () => {
+  const { page } = storybook;
+  const GROUP = "#storybook-root [role=radiogroup]";
+  const at = () => indicatorAt(page, GROUP, "label");
+  const pick = (index: number) =>
+    page.evaluate(
+      (css, nth) =>
+        document
+          .querySelectorAll<HTMLInputElement>(`${css} input`)
+          [nth]!.click(),
+      GROUP,
+      index,
+    );
+
+  await withMotion(page, async () => {
+    await page.story("控件-segmentedcontrol-分段选择--playground");
+    await page.settled(GROUP);
+    assert.deepEqual(
+      await transitions(page, GROUP, "::after"),
+      { translate: 0.2, width: 0.2, height: 0.2, opacity: 0.2 },
+      "墨块声明的过渡",
+    );
+    const first = await at();
+    assert.deepEqual(
+      [first.state, first.shown, first.opacity, first.on],
+      ["on", true, 1, 0],
+      "载入时墨块就在选中的那一段上",
+    );
+
+    // 第一次到位不过渡：把轨道藏起来再放出来，位置是重新量的
+    await record(page, "#storybook-root");
+    await page.evaluate((css) => {
+      document.querySelector<HTMLElement>(css)!.style.display = "none";
+    }, GROUP);
+    await page.waitFor(
+      async () => (await at()).state === null,
+      "藏起来量不到：应该撤掉标记，回到各段自己画",
+    );
+    await page.evaluate((css) => {
+      document.querySelector<HTMLElement>(css)!.style.display = "";
+    }, GROUP);
+    await page.waitFor(
+      async () => (await at()).state === "on",
+      "放出来之后应该重新量到",
+    );
+    await page.settled(GROUP);
+    assert.deepEqual(
+      onIndicator(await recorded(page)),
+      [],
+      "第一次到位，墨块不该有过渡",
+    );
+    assert.equal((await at()).on, 0);
+
+    // 换一段：滑过去。各段等宽，只走位置
+    await pick(1);
+    await page.waitFor(
+      async () => (await indicatorFrom(page, GROUP)) !== null,
+      "换了一段，墨块应该有一条位移的过渡在跑",
+    );
+    assert.deepEqual(
+      await indicatorFrom(page, GROUP),
+      [first.x, first.y],
+      "从原来那一段出发",
+    );
+    await page.settled(GROUP);
+    assert.deepEqual(onIndicator(await recorded(page)), ["translate::after"]);
+    const second = await at();
+    assert.equal(second.on, 1, "走完应该和第二段重合");
+
+    // 中途改道：把它停在半路，再换一段——新的过渡从半路出发，不是从第三段
+    await pick(2);
+    const held = await holdIndicator(page, GROUP, 100);
+    assert.equal(held.count, 1);
+    assert.ok(
+      held.x > second.x && held.x < second.x + second.width,
+      `停下的地方应该在半路（${held.x}）`,
+    );
+    await pick(0);
+    const from = await indicatorFrom(page, GROUP);
+    assert.ok(from, "改道之后应该有新的过渡");
+    assert.ok(
+      Math.abs(from[0]! - held.x) < 0.5,
+      `改道应该从半路出发（${from[0]}，停在 ${held.x}）`,
+    );
+    await page.settled(GROUP);
+    assert.equal((await at()).on, 0, "最后停在第一段");
+
+    // 同一项变了大小：直接到位，不滑
+    await recorded(page);
+    await page.evaluate((css) => {
+      document.querySelector<HTMLElement>(css)!.style.width = "480px";
+    }, GROUP);
+    await page.waitFor(
+      async () => (await at()).width > second.width + 10,
+      "轨道变宽了，墨块应该跟着变宽",
+    );
+    await page.settled(GROUP);
+    assert.equal((await at()).on, 0);
+    assert.deepEqual(
+      onIndicator(await recorded(page)),
+      [],
+      "变了大小不是换了一项：不该有过渡",
+    );
+
+    // 从没有到有：原地淡入，不从哪儿滑来
+    await page.story("控件-segmentedcontrol-分段选择--states");
+    await page.settled("#storybook-root");
+    const empty = await at();
+    assert.deepEqual([empty.state, empty.opacity], ["off", 0]);
+    await record(page, "#storybook-root");
+    await pick(2);
+    await page.waitFor(
+      async () => (await at()).state === "on",
+      "选了一段，墨块应该出现",
+    );
+    await page.settled(GROUP);
+    assert.deepEqual(onIndicator(await recorded(page)), ["opacity::after"]);
+    const shown = await at();
+    assert.deepEqual([shown.opacity, shown.on], [1, 2]);
+  });
+
+  // 减少动态效果：直接到位
+  await page.story("控件-segmentedcontrol-分段选择--playground");
+  await pick(2);
+  await page.settled(GROUP);
+  assert.equal((await at()).on, 2);
+});

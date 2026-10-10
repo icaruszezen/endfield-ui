@@ -31,6 +31,31 @@ const waitFocusedValue = (page: Page, value: string, message: string) =>
     message,
   );
 
+/**
+ * 选中的那块底画在轨道的 ::after 上：它和第几段重合（从 0 起）；哪一段都不重合是 -1，
+ * 没画出来是 null
+ */
+const blockOn = (page: Page, selector = GROUP) =>
+  page.evaluate((css) => {
+    const group = document.querySelector<HTMLElement>(css)!;
+    const style = getComputedStyle(group, "::after");
+    if (style.display === "none" || style.opacity === "0") return null;
+    const [x = 0, y = 0] = style.translate
+      .split(" ")
+      .map((part) => Number.parseFloat(part) || 0);
+    const box = group.getBoundingClientRect();
+    const near = (a: number, b: number) => Math.abs(a - b) < 0.5;
+    return [...group.querySelectorAll("label")].findIndex((label) => {
+      const rect = label.getBoundingClientRect();
+      return (
+        near(rect.left - box.left - group.clientLeft, x) &&
+        near(rect.top - box.top - group.clientTop, y) &&
+        near(rect.width, Number.parseFloat(style.width)) &&
+        near(rect.height, Number.parseFloat(style.height))
+      );
+    });
+  }, selector);
+
 test("键盘：Tab 进来停在选中的那一段，方向键换值，到头绕回去", async () => {
   const { page } = storybook;
   await page.story("控件-segmentedcontrol-分段选择--playground");
@@ -105,7 +130,12 @@ test("各段等宽；选中的块和轨道、和没选的段都分得开（亮�
   const { page } = storybook;
   for (const theme of ["light", "dark"] as const) {
     await page.story("控件-segmentedcontrol-分段选择--playground", theme);
-    await page.frames();
+    await page.settled(GROUP);
+    assert.equal(
+      await blockOn(page),
+      0,
+      `${theme}：选中的块应该正好盖住第一段`,
+    );
     const found = await page.evaluate((css) => {
       const group = document.querySelector<HTMLElement>(css)!;
       const segments = [...group.querySelectorAll<HTMLElement>("label")];
@@ -126,22 +156,27 @@ test("各段等宽；选中的块和轨道、和没选的段都分得开（亮�
         return (high! + 0.05) / (low! + 0.05);
       };
       const selected = getComputedStyle(segments[0]!);
+      // 选中的底是轨道上滑动的那一块，那一段自己不画
+      const block = getComputedStyle(group, "::after").backgroundColor;
       return {
         widths: segments.map((segment) => Math.round(segment.offsetWidth)),
         height: group.offsetHeight,
+        ownFill: selected.backgroundColor,
         // 选中的块对轨道
-        block: contrast(
-          selected.backgroundColor,
-          getComputedStyle(group).backgroundColor,
-        ),
+        block: contrast(block, getComputedStyle(group).backgroundColor),
         // 选中块里的字
-        text: contrast(selected.color, selected.backgroundColor),
+        text: contrast(selected.color, block),
         weightSame:
           selected.fontWeight === getComputedStyle(segments[1]!).fontWeight,
       };
     }, GROUP);
     assert.equal(new Set(found.widths).size, 1, `${theme}：各段应该等宽`);
     assert.equal(found.height, 40);
+    assert.equal(
+      found.ownFill,
+      "rgba(0, 0, 0, 0)",
+      `${theme}：量到位置之后，选中的那一段自己不该再画底`,
+    );
     assert.ok(found.block >= 3, `${theme}：选中的块对轨道只有 ${found.block}`);
     assert.ok(found.text >= 4.5, `${theme}：选中块里的字只有 ${found.text}`);
     assert.ok(found.weightSame, "选中不加粗：加粗会让宽度跳");
@@ -162,8 +197,47 @@ test("选中的块换到另一段：整条的宽度不变", async () => {
     async () => (await checked(page)).join() === "auto",
     "点第三段应该选中它",
   );
-  await page.frames();
+  await page.settled(GROUP);
   assert.equal(await width(), before);
+  assert.equal(await blockOn(page), 2, "选中的块应该跟到第三段上");
+});
+
+test("没选时没有块；整组禁用时块是禁用色；第一次选，块出现在点的那一段上", async () => {
+  const { page } = storybook;
+  await page.story("控件-segmentedcontrol-分段选择--states");
+  const nth = (index: number) =>
+    `#storybook-root [role=radiogroup]:nth-child(${index})`;
+  await page.settled("#storybook-root");
+  assert.equal(await blockOn(page, nth(1)), null, "一个都没选：不该有块");
+  assert.equal(await blockOn(page, nth(2)), 1);
+  assert.equal(await blockOn(page, nth(3)), 0);
+
+  const fills = await page.evaluate(() => {
+    const color = (variable: string) => {
+      const probe = document.createElement("i");
+      probe.style.color = `var(${variable})`;
+      document.body.append(probe);
+      const value = getComputedStyle(probe).color;
+      probe.remove();
+      return value;
+    };
+    const groups = [
+      ...document.querySelectorAll("#storybook-root [role=radiogroup]"),
+    ];
+    const fill = (group: Element) =>
+      getComputedStyle(group, "::after").backgroundColor;
+    return {
+      disabled: fill(groups[1]!) === color("--ef-disabled"),
+      enabled: fill(groups[2]!) === color("--ef-surface-inverse"),
+    };
+  });
+  assert.deepEqual(fills, { disabled: true, enabled: true });
+
+  await page.click(`${nth(1)} label:nth-child(2)`);
+  await page.waitFor(
+    async () => (await blockOn(page, nth(1))) === 1,
+    "选了第二段：块应该出现在它上面",
+  );
 });
 
 test("放进字段：名称来自标签；值随表单提交；没选时报错、选了就消", async () => {

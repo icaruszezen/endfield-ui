@@ -7,7 +7,10 @@ import {
   type ReactNode,
 } from "react";
 import { useControllableState } from "../../hooks/useControllableState";
+import { useIndicator } from "../../hooks/useIndicator";
 import { cn } from "../../lib/cn";
+import { mergeRefs } from "../../lib/merge-refs";
+import { indicator, indicatorBox } from "../../lib/motion";
 import { useFieldContext } from "../field/Field";
 import {
   controlSize,
@@ -78,9 +81,12 @@ export function SegmentedControl({
   required: requiredProp,
   invalid: invalidProp,
   className,
+  ref,
   ...props
 }: SegmentedControlProps) {
   const field = useFieldContext();
+  // 选中的那块底画在轨道上：换一段时是同一块滑过去
+  const trackRef = useIndicator<HTMLDivElement>("[data-selected]");
   const autoName = useId();
   const [current, setCurrent] = useControllableState<string | undefined>({
     value,
@@ -119,12 +125,16 @@ export function SegmentedControl({
         aria-required={required || undefined}
         aria-disabled={disabled || undefined}
         {...props}
+        ref={mergeRefs(trackRef, ref)}
         data-variant={variant}
         data-size={size}
         className={cn(
           // 各段等宽，按最宽的那一段定；比容器宽时一起收窄，文字截断
           "inline-grid max-w-full auto-cols-fr grid-flow-col p-0.5 text-ink",
           "transition-colors duration-(--duration-fast) ease-standard",
+          indicator,
+          indicatorBox,
+          "after:bg-surface-inverse has-[[data-selected][data-disabled]]:after:bg-disabled",
           track[variant],
           controlSize[size],
           // 和输入框一样靠边线说状态
@@ -190,9 +200,13 @@ export function Segment({
         disabled ? "cursor-not-allowed" : "cursor-pointer",
         // 选中不加粗：加粗会让这一段变宽，整条跟着跳。靠的是填充反转
         checked
-          ? disabled
-            ? "bg-disabled text-on-disabled"
-            : "bg-surface-inverse text-ink-inverse"
+          ? [
+              disabled
+                ? "bg-disabled text-on-disabled"
+                : "bg-surface-inverse text-ink-inverse",
+              // 轨道量到了位置，底就由轨道上滑动的那一块来画
+              "in-data-indicator:bg-transparent",
+            ]
           : disabled
             ? "text-ink-disabled"
             : "text-ink-secondary hover:bg-ink/5 hover:text-ink",

@@ -92,6 +92,56 @@ describe("SegmentedControl", () => {
     expect(segment("网格")).toBeChecked();
   });
 
+  it("选中的底：轨道上备着滑动的那一块；量不到位置时各段照旧自己画", () => {
+    render(<Example />);
+    const track = screen.getByRole("radiogroup");
+    expect(track).toHaveClass(
+      "after:bg-surface-inverse",
+      "after:translate-x-(--indicator-x)",
+      "after:w-(--indicator-w)",
+      "data-indicator:after:block",
+    );
+    // jsdom 不排版：量不到，不标——选中的那一段自己的底还在
+    expect(track).not.toHaveAttribute("data-indicator");
+    expect(segment("24 小时").closest("label")).toHaveClass(
+      "bg-surface-inverse",
+      "in-data-indicator:bg-transparent",
+    );
+  });
+
+  it("ref 给轨道，不顶掉它自己量位置用的那一个", () => {
+    const rect = (left: number, width: number) => ({
+      left,
+      top: 0,
+      width,
+      height: 40,
+      right: left + width,
+      bottom: 40,
+      x: left,
+      y: 0,
+      toJSON: () => ({}),
+    });
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(
+      function (this: Element) {
+        if (this.getAttribute("role") === "radiogroup") return rect(0, 300);
+        if (this.hasAttribute("data-selected")) return rect(100, 100);
+        return rect(0, 0);
+      },
+    );
+    const ref = { current: null as HTMLDivElement | null };
+    render(
+      <SegmentedControl aria-label="时间显示" defaultValue="12" ref={ref}>
+        <Segment value="24">24 小时</Segment>
+        <Segment value="12">12 小时</Segment>
+      </SegmentedControl>,
+    );
+    const track = screen.getByRole("radiogroup");
+    expect(ref.current).toBe(track);
+    expect(track).toHaveAttribute("data-indicator", "on");
+    expect(track.style.getPropertyValue("--indicator-x")).toBe("100px");
+    vi.restoreAllMocks();
+  });
+
   it("没给初始值时一个都不选", () => {
     render(
       <SegmentedControl aria-label="视图">
