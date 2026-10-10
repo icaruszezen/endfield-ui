@@ -1621,8 +1621,19 @@ test("页签面板：切过来的那一块淡入（200ms），不位移；一开
     assert.equal(await opacity(page, PANEL), 1);
     assert.deepEqual(await shift(page, PANEL), [0, 0], "面板不位移");
 
-    // 方向键连着切：每换一块都重新淡入，焦点一直在页签上
+    // 方向键：每换一块都重新淡入，焦点一直在页签上
     await page.key("ArrowRight");
+    await page.waitFor(
+      async () => (await shown()) === "进行中的活动。",
+      "方向键应该切到活动",
+    );
+    await page.settled(PANEL);
+    assert.deepEqual(await recorded(page), ["ef-fade-in"]);
+    await page.waitFocused("tab:活动");
+
+    // 连着按：中间那几块来不及画出来就被换掉了，不数它们；只看最后停在哪
+    await page.key("ArrowRight");
+    await page.key("ArrowLeft");
     await page.key("ArrowRight");
     await page.waitFor(
       async () => (await shown()) === "视频与图集。",
@@ -1630,7 +1641,8 @@ test("页签面板：切过来的那一块淡入（200ms），不位移；一开
     );
     await page.waitFocused("tab:影像");
     await page.settled(PANEL);
-    assert.deepEqual(await recorded(page), ["ef-fade-in", "ef-fade-in"]);
+    assert.equal(await opacity(page, PANEL), 1);
+    await recorded(page);
 
     // 切回第一块：它也淡入
     await page.click("text=新闻");
