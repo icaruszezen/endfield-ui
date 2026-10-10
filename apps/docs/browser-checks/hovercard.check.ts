@@ -59,11 +59,16 @@ test("悬停：不是立刻出现；指针移进卡片里还开着；移开之�
   const { page } = storybook;
   await page.story("控件-hovercard-悬浮卡--in-text");
 
-  await page.moveTo(await linkPoint(page, 0));
+  const point = await linkPoint(page, 0);
+  // 从悬停的那一刻算起（出现的延迟是 600ms）。以前是悬停 150ms 之后才开始计时、
+  // 要求再等 200ms 以上：机器一慢，前面那几步自己就吃掉了余量
+  const hovered = Date.now();
+  await page.moveTo(point);
   await page.pause(150);
   assert.deepEqual(await cards(page), [], "卡片不应该一悬停就出现");
-  const waited = await waitCard(page, "六人值守");
-  assert.ok(waited > 200, `应该等上一会儿才出现（只等了 ${waited}ms）`);
+  await waitCard(page, "六人值守");
+  const waited = Date.now() - hovered;
+  assert.ok(waited > 400, `应该等上一会儿才出现（只等了 ${waited}ms）`);
 
   // 卡片离链接有 4px 的缝：一路移过去，中途不该关
   const card = await rectOf(page, CARD);
