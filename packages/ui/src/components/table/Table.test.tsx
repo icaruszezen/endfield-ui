@@ -1,6 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { stubAnimations } from "../../test/animations";
 import {
   Table,
   TableBody,
@@ -237,11 +238,11 @@ describe("Table", () => {
     const body = screen.getAllByRole("rowgroup")[1]!;
     // 只数主行：展开的明细也是一个 <tr>，不能把它算进去
     const everyFifth =
-      "[&>tr:nth-child(5n_of_:not([data-detail])):not([data-expanded])>*]:border-line-strong";
+      "[&>tr:nth-child(5n_of_:not([data-detail])):not(:has(+tr[data-detail]))>*]:border-line-strong";
     expect(body).not.toHaveClass(everyFifth);
     rerender(<Shipments ruled />);
     expect(body).toHaveClass(everyFifth);
-    // 第五行展开着：加重的线画在它的明细下面
+    // 第五行后面跟着明细：加重的线画在明细下面
     expect(body).toHaveClass(
       "[&>tr:nth-child(5n_of_:not([data-detail]))+tr[data-detail]>*]:border-line-strong",
     );
@@ -363,11 +364,76 @@ describe("Table", () => {
     expect(ref.current).toBe(row);
     expect(row).toHaveAttribute("id", "row-2041");
     expect(row).toHaveAttribute("aria-selected", "true");
-    expect(row).toHaveClass("[&[data-expanded]>*]:border-b-transparent");
+    // 看的是后面有没有跟着明细，不看开没开：正在收起的那一会儿也不画
+    expect(row).toHaveClass("[&:has(+tr[data-detail])>*]:border-b-transparent");
     // 明细那一行不算选中，也没有悬停底
     const detail = row.nextElementSibling!;
     expect(detail).not.toHaveAttribute("aria-selected");
     expect(detail).not.toHaveClass("group/row");
+  });
+
+  it("行展开：收起时明细先留着走完收起，状态当场就变；走完才不在页面里", async () => {
+    const finish = stubAnimations();
+    const user = userEvent.setup();
+    render(<Expandable first={{ defaultExpanded: true }} />);
+    const toggle = screen.getByRole("button", { name: "TR-2041 的明细" });
+    const row = toggle.closest("tr")!;
+    const detail = row.nextElementSibling as HTMLTableRowElement;
+    const grid = detail.cells[0]!.firstElementChild!;
+    expect(detail).not.toHaveAttribute("inert");
+    expect(grid).not.toHaveAttribute("data-leaving");
+
+    await user.click(toggle);
+    // 状态不等动效
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(toggle).not.toHaveAttribute("aria-controls");
+    expect(row).not.toHaveAttribute("data-expanded");
+    // 明细还在，正在收：点不到、Tab 不进去
+    expect(row.nextElementSibling).toBe(detail);
+    expect(detail).toHaveAttribute("inert");
+    expect(grid).toHaveAttribute("data-leaving");
+    expect(screen.getByText("滤芯 12 件，分两箱")).toBeInTheDocument();
+
+    await finish();
+    expect(screen.queryByText("滤芯 12 件，分两箱")).not.toBeInTheDocument();
+    expect(row.nextElementSibling).not.toHaveAttribute("data-detail");
+  });
+
+  it("行展开：收到一半又点开，明细不卸载", async () => {
+    const finish = stubAnimations();
+    const user = userEvent.setup();
+    render(<Expandable first={{ defaultExpanded: true }} />);
+    const toggle = screen.getByRole("button", { name: "TR-2041 的明细" });
+    const detail = toggle.closest("tr")!.nextElementSibling!;
+
+    await user.click(toggle);
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(toggle).toHaveAttribute("aria-controls", detail.id);
+    expect(detail).not.toHaveAttribute("inert");
+
+    await finish();
+    expect(toggle.closest("tr")!.nextElementSibling).toBe(detail);
+  });
+
+  it("行展开：一开始就开着的不带展开的起点，后来展开的才带", async () => {
+    const user = userEvent.setup();
+    render(<Expandable first={{ defaultExpanded: true }} />);
+    const grid = (name: string) =>
+      screen.getByText(name).closest("td")!.firstElementChild!;
+    const start = "starting:grid-rows-[0fr]";
+
+    expect(grid("滤芯 12 件，分两箱")).toHaveClass("grid", "grid-rows-[1fr]");
+    expect(grid("滤芯 12 件，分两箱")).not.toHaveClass(start);
+
+    await user.click(screen.getByRole("button", { name: "明细" }));
+    expect(grid("信标 49 件")).toHaveClass(start);
+
+    // 收起再展开：这回它是后来出现的
+    const toggle = screen.getByRole("button", { name: "TR-2041 的明细" });
+    await user.click(toggle);
+    await user.click(toggle);
+    expect(grid("滤芯 12 件，分两箱")).toHaveClass(start);
   });
 
   it("展开钮的三角是装饰；点击可以被拦下", async () => {

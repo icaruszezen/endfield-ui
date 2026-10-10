@@ -1665,3 +1665,132 @@ test("页签面板：切过来的那一块淡入（200ms），不位移；一开
   await page.settled(PANEL);
   assert.equal(await opacity(page, PANEL), 1);
 });
+
+test("表格的行展开：明细按高度长出来（300ms）、收回去（200ms），收完才卸载；收的时候状态已经变了、线还在明细下面", async () => {
+  const { page } = storybook;
+  const TOGGLE = "#storybook-root tbody tr:nth-child(1) button";
+  const GRID =
+    "#storybook-root tbody tr:nth-child(1) + tr[data-detail] td > div";
+  const present = () =>
+    page.evaluate((css) => document.querySelector(css) !== null, GRID);
+  const absent = async () => !(await present());
+  /** 收放的那一层多高、里面的内容多高 */
+  const heights = () =>
+    page.evaluate((css) => {
+      const grid = document.querySelector(css)!;
+      const content = grid.firstElementChild!.firstElementChild!;
+      return [
+        Math.round(grid.getBoundingClientRect().height),
+        Math.round(content.getBoundingClientRect().height),
+      ];
+    }, GRID);
+  /** 在页面里连点两下，中间只隔几十毫秒：第二下落在第一下的过渡途中 */
+  const twice = () =>
+    page.evaluate(async (css) => {
+      const toggle = document.querySelector<HTMLElement>(css)!;
+      toggle.click();
+      await new Promise((resolve) => setTimeout(resolve, 60));
+      toggle.click();
+    }, TOGGLE);
+
+  await withMotion(page, async () => {
+    await page.story("控件-table-表格--expandable");
+    await record(page, "#storybook-root", "tr[data-detail] td > div");
+    // 收起的过渡起来的那一刻记一笔：这时候状态该已经变了，明细还在
+    await page.evaluate(() => {
+      const seen: unknown[] = [];
+      Object.assign(window, { leaveLog: seen });
+      document
+        .querySelector("#storybook-root")!
+        .addEventListener("transitionrun", (event) => {
+          const grid = event.target as HTMLElement;
+          if (!grid.matches("tr[data-detail] td > div[data-leaving]")) return;
+          const detail = grid.closest("tr")!;
+          const row = detail.previousElementSibling as HTMLTableRowElement;
+          const toggle = row.querySelector("button")!;
+          seen.push({
+            duration: getComputedStyle(grid).transitionDuration,
+            inert: detail.inert,
+            expanded: toggle.getAttribute("aria-expanded"),
+            controls: toggle.getAttribute("aria-controls"),
+            rowExpanded: row.hasAttribute("data-expanded"),
+            rowLine: getComputedStyle(row.cells[0]!).borderBottomColor,
+            detailLine: getComputedStyle(detail.cells[0]!).borderBottomWidth,
+          });
+        });
+    });
+
+    // 展开
+    await page.click(TOGGLE);
+    await page.waitFor(present, "点展开钮应该多出一行明细");
+    assert.deepEqual(await transitions(page, GRID), {
+      "grid-template-rows": 0.3,
+    });
+    await page.settled(GRID, "展开没有走完");
+    assert.deepEqual(await recorded(page), ["grid-template-rows"]);
+    const [outer, inner] = await heights();
+    assert.ok(inner! > 40, `明细的内容应该有高度，实际是 ${inner}px`);
+    assert.equal(outer, inner, "展开完，收放的那一层和里面的内容一样高");
+
+    // 收起
+    await page.click(TOGGLE);
+    await page.waitFor(absent, "收起之后明细应该不在页面里");
+    assert.deepEqual(await recorded(page), ["grid-template-rows"]);
+    assert.deepEqual(
+      await page.evaluate(
+        () => (window as unknown as { leaveLog: unknown[] }).leaveLog,
+      ),
+      [
+        {
+          duration: "0.2s",
+          inert: true,
+          expanded: "false",
+          controls: null,
+          rowExpanded: false,
+          rowLine: "rgba(0, 0, 0, 0)",
+          detailLine: "1px",
+        },
+      ],
+      "收起开始的那一刻：钮已经说收起了，明细还在但点不到，主行的线仍然让给明细",
+    );
+
+    // 展开到一半就收起：收得干净
+    await twice();
+    await page.waitFor(absent, "展开到一半又收起，明细应该收干净");
+
+    // 收到一半又展开：明细留着，回到满高
+    await page.click(TOGGLE);
+    await page.waitFor(present, "点展开钮应该多出一行明细");
+    await page.settled(GRID);
+    await twice();
+    await page.waitFor(present, "收到一半又展开，明细应该还在");
+    await page.settled(GRID);
+    const state = await page.evaluate(
+      (grid, toggle) => {
+        const node = document.querySelector<HTMLElement>(grid)!;
+        return {
+          leaving: node.hasAttribute("data-leaving"),
+          inert: node.closest("tr")!.inert,
+          expanded: document
+            .querySelector(toggle)!
+            .getAttribute("aria-expanded"),
+        };
+      },
+      GRID,
+      TOGGLE,
+    );
+    assert.deepEqual(state, { leaving: false, inert: false, expanded: "true" });
+    const [backOuter, backInner] = await heights();
+    assert.equal(backOuter, backInner, "折回来之后还是满高");
+  });
+
+  // 减少动态效果：展开就在，收起就没
+  await page.story("控件-table-表格--expandable");
+  await page.click(TOGGLE);
+  await page.waitFor(present, "点展开钮应该多出一行明细");
+  await page.settled(GRID);
+  const [outer, inner] = await heights();
+  assert.equal(outer, inner);
+  await page.click(TOGGLE);
+  await page.waitFor(absent, "减少动态效果下收起之后明细也应该不在");
+});

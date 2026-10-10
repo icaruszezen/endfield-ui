@@ -16,10 +16,12 @@ import {
 } from "react";
 import { useControllableState } from "../../hooks/useControllableState";
 import { useOverflowing } from "../../hooks/useOverflowing";
+import { usePresence, type Presence } from "../../hooks/usePresence";
 import { TriangleRight } from "../../icons/TriangleRight";
 import { cn } from "../../lib/cn";
 import { focusRing, focusRingInset } from "../../lib/focus-ring";
 import { mergeRefs } from "../../lib/merge-refs";
+import { collapse, collapseEnter, collapseInner } from "../../lib/motion";
 
 export type TableHeaderVariant = "band" | "muted";
 export type TableSize = "sm" | "md";
@@ -173,10 +175,11 @@ export type TableBodyProps = ComponentProps<"tbody">;
 
 /*
  * 每隔五行加重一条线。只数主行：展开的明细也是一个 <tr>，不能让它把数数错。
- * 第五行自己展开着的时候，它的下边线没有了，加重的那条画在它的明细下面
+ * 第五行后面跟着明细的时候（展开着，或者正在收起），它的下边线没有了，
+ * 加重的那条画在它的明细下面
  */
 const ruledLines = [
-  "[&>tr:nth-child(5n_of_:not([data-detail])):not([data-expanded])>*]:border-line-strong",
+  "[&>tr:nth-child(5n_of_:not([data-detail])):not(:has(+tr[data-detail]))>*]:border-line-strong",
   "[&>tr:nth-child(5n_of_:not([data-detail]))+tr[data-detail]>*]:border-line-strong",
 ].join(" ");
 
@@ -241,6 +244,8 @@ export function TableRow({
   const expandable =
     detail !== undefined && detail !== null && detail !== false;
   const open = expandable && expanded;
+  // 收起：明细先按高度收回去，收完再卸载
+  const detailPresence = usePresence<HTMLDivElement>(open);
 
   const context = useMemo(
     () =>
@@ -269,18 +274,19 @@ export function TableRow({
         className={cn(
           "group/row transition-colors duration-(--duration-fast) ease-standard",
           selected ? rowSelected : rowIdle,
-          // 展开着：它和下面的明细是一块，中间不画线
-          "[&[data-expanded]>*]:border-b-transparent",
+          // 后面跟着明细（展开着，或者正在收起）：它们是一块，中间不画线
+          "[&:has(+tr[data-detail])>*]:border-b-transparent",
           className,
         )}
       >
         <RowContext value={context}>{children}</RowContext>
       </tr>
-      {open && (
+      {detailPresence.mounted && (
         <DetailRow
           id={detailId}
           rowRef={rowRef}
           estimate={countCells(children)}
+          presence={detailPresence}
         >
           {detail}
         </DetailRow>
@@ -303,11 +309,13 @@ function DetailRow({
   id,
   rowRef,
   estimate,
+  presence,
   children,
 }: {
   id: string;
   rowRef: RefObject<HTMLTableRowElement | null>;
   estimate: number;
+  presence: Presence<HTMLDivElement>;
   children: ReactNode;
 }) {
   const [measured, setMeasured] = useState<number | null>(null);
@@ -323,14 +331,30 @@ function DetailRow({
   });
 
   return (
-    <tr id={id} data-detail="">
+    // 正在收起的明细点不到、Tab 不进去
+    <tr id={id} data-detail="" inert={presence.leaving}>
       <td
         colSpan={measured ?? estimate}
         className="border-b border-line bg-surface-sunken p-0 [tr:last-child>&]:border-b-0"
       >
-        {/* 表格横向滚动时明细不跟着滚走：钉在容器的左缘，宽度是容器看得见的那一段 */}
-        <div className="sticky left-0 w-[var(--table-viewport,100%)] px-4 py-3 text-sm whitespace-normal">
-          {children}
+        {/*
+         * 表格横向滚动时明细不跟着滚走：钉在容器的左缘，宽度是容器看得见的那一段。
+         * 收放也在这一层上——表格行的高度过渡不了，过渡的是单元格里的它
+         */}
+        <div
+          ref={presence.ref}
+          data-leaving={presence.leaving ? "" : undefined}
+          className={cn(
+            "sticky left-0 w-[var(--table-viewport,100%)]",
+            collapse,
+            presence.entered && collapseEnter,
+          )}
+        >
+          <div className={collapseInner}>
+            <div className="px-4 py-3 text-sm whitespace-normal">
+              {children}
+            </div>
+          </div>
         </div>
       </td>
     </tr>
