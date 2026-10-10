@@ -1907,3 +1907,116 @@ test("字段的错误说明：出现时按高度长出来并淡入（200ms），
   await page.type("04");
   await page.waitFor(absent, "减少动态效果下改对了也应该卸载");
 });
+
+test("提示条的关闭：高度收到 0 并淡出（200ms），连间距一起收，收完才卸载；卸载的那一刻后面的内容不跳", async () => {
+  const { page } = storybook;
+  const ALERT = "#storybook-root [role=status]";
+  const AFTER = "#storybook-root [data-after]";
+  const present = () =>
+    page.evaluate((css) => document.querySelector(css) !== null, ALERT);
+  const absent = async () => !(await present());
+  const top = () =>
+    page.evaluate(
+      (css) => document.querySelector(css)!.getBoundingClientRect().top,
+      AFTER,
+    );
+
+  await withMotion(page, async () => {
+    await page.story("控件-alert-提示条--closable");
+    const before = await top();
+    const height = await page.evaluate(
+      (css) => document.querySelector(css)!.getBoundingClientRect().height,
+      ALERT,
+    );
+    await record(page, "#storybook-root", "[role=status]");
+    // 收起的过渡起来的那一刻、走完的那一刻各记一笔
+    await page.evaluate(
+      (alertCss, afterCss) => {
+        const alert = document.querySelector<HTMLElement>(alertCss)!;
+        const after = document.querySelector(afterCss)!;
+        const log: Record<string, unknown> = {};
+        Object.assign(window, { closeLog: log });
+        alert.addEventListener("transitionrun", (event) => {
+          if (event.propertyName !== "height") return;
+          const style = getComputedStyle(alert);
+          log.start = {
+            inert: alert.inert,
+            durations: [...new Set(style.transitionDuration.split(", "))],
+            to: [
+              alert.style.height,
+              alert.style.marginBottom,
+              alert.style.opacity,
+            ],
+          };
+        });
+        alert.addEventListener("transitionend", (event) => {
+          if (event.propertyName !== "height") return;
+          // 这时候它还在页面里，已经收到头了
+          log.end = {
+            connected: alert.isConnected,
+            top: after.getBoundingClientRect().top,
+          };
+        });
+      },
+      ALERT,
+      AFTER,
+    );
+
+    await page.click("[aria-label=关闭]");
+    await page.waitFor(absent, "点关闭之后提示条应该收起并卸载");
+    const seen = await recorded(page);
+    for (const property of [
+      "height",
+      "opacity",
+      "padding-top",
+      "padding-bottom",
+      "margin-bottom",
+    ]) {
+      assert.ok(seen.includes(property), `收起时 ${property} 应该有过渡`);
+    }
+    const log = await page.evaluate(
+      () =>
+        (
+          window as unknown as {
+            closeLog: {
+              start: unknown;
+              end: { connected: boolean; top: number };
+            };
+          }
+        ).closeLog,
+    );
+    assert.deepEqual(
+      log.start,
+      // 这个 story 里父容器的行间距是 12px
+      { inert: true, durations: ["0.2s"], to: ["0px", "-12px", "0"] },
+      "收起开始的那一刻：点不到了，目标是高度 0、下外边距负的行间距、透明",
+    );
+    const rest = await top();
+    assert.equal(log.end.connected, true, "走完的那一刻它还没卸载");
+    assert.ok(
+      Math.abs(log.end.top - rest) < 0.5,
+      `卸载的那一刻后面的内容不该再动：收到头时在 ${log.end.top}，卸载后在 ${rest}`,
+    );
+    assert.ok(
+      Math.abs(before - rest - (height + 12)) < 0.5,
+      "后面的内容一共上移了提示条的高度加一个行间距",
+    );
+
+    // 再显示一次：回得来，干干净净
+    await page.click("text=再显示一次");
+    await page.waitFor(present, "再显示一次应该回来");
+    assert.deepEqual(
+      await page.evaluate((css) => {
+        const alert = document.querySelector<HTMLElement>(css)!;
+        return [alert.getAttribute("style"), alert.inert];
+      }, ALERT),
+      [null, false],
+    );
+    assert.ok(Math.abs((await top()) - before) < 0.5);
+  });
+
+  // 减少动态效果：关了就没
+  await page.story("控件-alert-提示条--closable");
+  await page.click("[aria-label=关闭]");
+  await page.waitFor(absent, "减少动态效果下点关闭也应该卸载");
+});

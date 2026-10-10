@@ -53,19 +53,20 @@ export const WithTitle: Story = {
   ),
 };
 
+/* 把 open 交给提示条：点关闭时它先收起、淡出，再从页面里拿掉；后面的内容跟着补上来 */
 function Dismissible() {
   const [open, setOpen] = useState(true);
   return (
     <div className="flex max-w-xl flex-col items-start gap-3">
-      {open ? (
-        <Alert className="w-full" onClose={() => setOpen(false)}>
-          新的勘探路线建议已开放征集。
-        </Alert>
-      ) : (
-        <Button variant="light" onClick={() => setOpen(true)}>
-          再显示一次
-        </Button>
-      )}
+      <Alert className="w-full" open={open} onClose={() => setOpen(false)}>
+        新的勘探路线建议已开放征集。
+      </Alert>
+      <p data-after="" className="text-sm text-ink-secondary">
+        提示条收起时，这一段是跟着补上来的，最后不会再跳一下。
+      </p>
+      <Button variant="light" disabled={open} onClick={() => setOpen(true)}>
+        再显示一次
+      </Button>
     </div>
   );
 }

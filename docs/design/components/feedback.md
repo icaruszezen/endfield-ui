@@ -13,7 +13,7 @@
 | 进度条 | `<Progress value max size showValue animate>` | 已实现 |
 | 分段进度 | `<Progress segments={6} value={3}>` | 已实现 |
 | 不确定进度 | `<Progress>`（不传 `value`） | 已实现 |
-| 提示条 | `<Alert tone title action onClose>` | 已实现 |
+| 提示条 | `<Alert tone title action onClose open>` | 已实现 |
 | 骨架 | `<Skeleton variant lines pulse>` | 已实现 |
 | 空状态 | `<EmptyState title description action>` | 已实现 |
 | 按钮提交中 | `<Button loading>`，见 [按钮](button.md) | 已实现 |
@@ -121,6 +121,10 @@
 - 四个图标是原创的 `StatusInfo`、`StatusSuccess`、`StatusWarning`、`StatusDanger`，外形依次是方框、圆、三角、菱形；输入框的错误图标用的也是这个菱形。
 - 有标题时标题加粗、正文降为 `ink-secondary`；没有标题时正文就是 `ink`。
 - 提示条自己不隐藏：`onClose` 只负责通知，显示与否由使用方决定。
+- **要收起的过程，把 `open` 交给它**（受控，默认 `true`，写法同加载页）：置为 `false` 时先收起高度、淡出（`--duration-fast`），再从页面里拿掉，收完触发 `onExited`。直接不渲染它（`{open && <Alert />}`）照旧能用，只是立刻消失。（推断，见 [动效](../foundations/motion.md#展开与增删)）
+  - 收的不只是高度：它自己的外边距、它在纵向排的父容器里占的那个行间距一起收，卸载的那一刻后面的内容不会再跳一下。
+  - 收起途中点不到、`Tab` 不进去；焦点原来在关闭钮上的，收起一开始就离开了——关掉之后焦点该去哪由使用方定（在 `onClose` 里移过去）。
+  - 只做了关闭。再显示出来是直接出现的。
 
 ## 轻提示
 
