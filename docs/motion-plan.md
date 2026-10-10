@@ -90,7 +90,7 @@ Base UI 的浮层自带 `data-starting-style` / `data-ending-style` 和 `data-si
   - 改哪里：位移量的令牌（`--motion-shift` 4px、`--motion-shift-lg` 8px）进 [theme.css](../packages/ui/src/styles/theme.css)；按侧位移的类收在 `lib/motion.ts` 的 `enterFromSide`，2.2 也用它；面板在 `dropdown-menu/menu-style.ts`。**一处改动，下面这些一起生效**：下拉菜单与子菜单、右键菜单、下拉选择、组合框、日期选择与日期范围、气泡卡片、悬浮卡、侧轨收起时的二级。
   - 留意：子菜单是从侧面出来的（基元报的是 `inline-end`）；只过渡透明度和位移，组合框边打字边变高时面板不跟着抖。
   - 规范：[浮层](design/components/overlay.md)、[表单](design/components/form.md)。
-- [ ] **2.2 文字提示。**
+- [x] **2.2 文字提示。**
   - 现在：只有淡入淡出。
   - 要做：同 2.1 的小位移，进出都是 200ms。相邻两个提示之间切换时的"不过渡"（`data-instant`）保持不变——键盘聚焦打开的也是它，规范写的就是"立刻出现"，所以位移只在悬停打开时看得到。
   - 改哪里：`tooltip/Tooltip.tsx`。

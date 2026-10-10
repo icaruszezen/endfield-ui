@@ -26,6 +26,27 @@ describe("Tooltip", () => {
     await waitFor(() => expect(popup("复制到剪贴板")).not.toBeInTheDocument());
   });
 
+  it("带着方向：基元报告提示在触发元素的哪一侧，进场的位移按这一侧给", async () => {
+    const user = userEvent.setup();
+    render(
+      <Tooltip content="复制到剪贴板" delay={0}>
+        <button type="button" aria-label="复制">
+          C
+        </button>
+      </Tooltip>,
+    );
+    await user.hover(screen.getByRole("button"));
+    await waitFor(() => expect(popup("复制到剪贴板")).toBeInTheDocument());
+    const tip = popup("复制到剪贴板")!;
+    expect(tip).toHaveAttribute("data-side", "top");
+    expect(tip).toHaveClass(
+      "transition-[opacity,translate]",
+      "data-starting-style:data-[side=top]:translate-y-(--motion-shift)",
+      // 相邻的提示之间切换、键盘聚焦：不过渡，位移也就没有
+      "data-instant:transition-none",
+    );
+  });
+
   it("键盘聚焦时出现，Esc 关掉", async () => {
     const user = userEvent.setup();
     render(

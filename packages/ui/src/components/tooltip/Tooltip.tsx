@@ -11,6 +11,7 @@ import {
 import { createPortal } from "react-dom";
 import { usePortalScope } from "../../hooks/usePortalScope";
 import { cn } from "../../lib/cn";
+import { enterFromSide } from "../../lib/motion";
 
 export type TooltipSide = "top" | "bottom" | "left" | "right";
 export type TooltipAlign = "start" | "center" | "end";
@@ -152,8 +153,11 @@ export function Tooltip({
             className={cn(
               // 透明的边线：高对比模式下背景色被系统覆盖，边线会自己显形
               "relative max-w-64 border border-transparent bg-surface-raised px-2.5 py-1.5 text-sm wrap-anywhere text-ink",
-              "origin-(--transform-origin) transition-opacity duration-(--duration-fast) ease-standard",
+              // 进场从触发元素那一侧挪过来 4px，退场只淡出。小件：进出都是 200ms。
+              // data-instant（键盘聚焦、移到相邻的提示）时基元要它立刻出现，整个不过渡
+              "origin-(--transform-origin) transition-[opacity,translate] duration-(--duration-fast) ease-standard",
               "data-ending-style:opacity-0 data-instant:transition-none data-starting-style:opacity-0",
+              enterFromSide,
               className,
             )}
           >

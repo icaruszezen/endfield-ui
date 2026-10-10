@@ -548,12 +548,13 @@ test("菜单面板一族：从触发处那一侧来（4px），走完归位；�
     await record(page, "body", MENU);
     await page.click("button[aria-haspopup]");
     await page.waitVisible(MENU);
-    // 透明度和位移各走各的时长：200ms 淡入，300ms 归位（和顶上那条强调条同一拍）
+    await page.settled(MENU);
+    // 透明度和位移各走各的时长：200ms 淡入，300ms 归位（和顶上那条强调条同一拍）。
+    // 走完了再读：基元在进场的第一帧往面板上写内联的 transition: none，读早了读到的是它
     assert.deepEqual(await transitions(page, MENU), {
       opacity: 0.2,
       translate: 0.3,
     });
-    await page.settled(MENU);
     assert.deepEqual(await startedFrom(page), [[0, -4]]);
     assert.deepEqual(await shift(page, MENU), [0, 0], "走完应该归位");
     const entering = await recorded(page);
@@ -625,4 +626,51 @@ test("菜单面板一族：从触发处那一侧来（4px），走完归位；�
   assert.deepEqual(await shift(page, MENU), [0, 0]);
   const reduced = await transitions(page, MENU);
   assert.ok(reduced!.translate! < 0.001 && reduced!.opacity! < 0.001);
+});
+
+test("文字提示：悬停出来的从按钮那一侧来（4px，200ms）；移到相邻的按钮是换过去的，不过渡", async () => {
+  const { page } = storybook;
+  // 定位层是 presentation，小三角对读屏隐藏，剩下带 data-side 的就是提示本身
+  const TIP =
+    "[data-side][data-open]:not([role=presentation]):not([aria-hidden])";
+  const showing = () =>
+    page.evaluate(
+      (css) =>
+        [...document.querySelectorAll(css)].map((tip) =>
+          (tip.textContent ?? "").trim(),
+        ),
+      TIP,
+    );
+
+  await withMotion(page, async () => {
+    await page.story("控件-tooltip-文字提示--toolbar");
+    await record(page, "body", TIP);
+    await page.moveTo("text=上一条");
+    await page.waitFor(
+      async () => (await showing()).includes("上一条"),
+      "提示没有出现",
+    );
+    await page.settled(TIP);
+    assert.deepEqual(await transitions(page, TIP), {
+      opacity: 0.2,
+      translate: 0.2,
+    });
+    // 提示在按钮上方：从下面（按钮那一侧）来
+    assert.deepEqual(await startedFrom(page), [[0, 4]]);
+    assert.deepEqual(await shift(page, TIP), [0, 0], "走完应该归位");
+    await recorded(page);
+
+    await page.moveTo("text=下一条");
+    await page.waitFor(
+      async () => (await showing()).includes("下一条"),
+      "相邻的提示没有出现",
+    );
+    await page.settled();
+    assert.deepEqual(
+      (await recorded(page)).filter((name) => name === "translate"),
+      [],
+      "从相邻的提示移过来不该再走一遍位移",
+    );
+    assert.deepEqual(await startedFrom(page), []);
+  });
 });
