@@ -13,6 +13,7 @@ import { mergeRefs } from "../../lib/merge-refs";
 import { indicator, indicatorBox } from "../../lib/motion";
 import { useFieldContext } from "../field/Field";
 import {
+  controlLine,
   controlSize,
   type ControlSize,
   type ControlVariant,
@@ -140,12 +141,11 @@ export function SegmentedControl({
           "forced-colors:after:bg-[Highlight] forced-colors:has-[[data-selected][data-disabled]]:after:bg-[GrayText]",
           track[variant],
           controlSize[size],
-          // 和输入框一样靠边线说状态
           disabled
             ? "border-line"
             : invalid
               ? "border-danger"
-              : "border-line-strong focus-within:border-ink",
+              : ["border-line-strong", controlLine(variant)],
           className,
         )}
       />

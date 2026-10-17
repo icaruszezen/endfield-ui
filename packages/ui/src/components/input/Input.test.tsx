@@ -114,4 +114,41 @@ describe("Input", () => {
       "lg",
     );
   });
+
+  it("聚焦的墨线从左往右擦出：sunken 是底边线上的一条线，outline 是整圈", () => {
+    const { rerender } = render(<Input aria-label="代号" />);
+    let box = screen.getByRole("textbox").parentElement!;
+    expect(box).toHaveClass(
+      "before:origin-left",
+      "before:scale-x-0",
+      "before:bg-ink",
+      "focus-within:before:scale-x-100",
+      "focus-within:before:duration-(--duration-base)",
+      "before:duration-(--duration-fast)",
+    );
+
+    rerender(<Input aria-label="代号" variant="outline" />);
+    box = screen.getByRole("textbox").parentElement!;
+    expect(box).toHaveClass(
+      "before:-inset-px",
+      "before:border",
+      "before:border-ink",
+      "before:[clip-path:inset(0_100%_0_0)]",
+      "focus-within:before:[clip-path:inset(0)]",
+    );
+  });
+
+  it("报错、禁用、只读时不画那条聚焦的线", () => {
+    const { rerender } = render(<Input aria-label="代号" invalid />);
+    const line = () => screen.getByRole("textbox").parentElement!;
+    expect(line()).not.toHaveClass("before:scale-x-0");
+
+    for (const props of [{ disabled: true }, { readOnly: true }]) {
+      rerender(<Input aria-label="代号" {...props} />);
+      expect(line()).not.toHaveClass("before:scale-x-0");
+    }
+
+    rerender(<Input aria-label="代号" />);
+    expect(line()).toHaveClass("before:scale-x-0");
+  });
 });

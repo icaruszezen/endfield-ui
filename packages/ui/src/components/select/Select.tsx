@@ -191,8 +191,6 @@ export function Select(props: SelectProps) {
         data-invalid={invalid ? "" : undefined}
         className={cn(
           controlBox({ variant, invalid, disabled, readOnly: false }),
-          // 面板开着的时候边线保持聚焦的墨色
-          !disabled && !invalid && "has-data-popup-open:border-ink",
           controlSize[size],
           className,
         )}

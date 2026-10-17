@@ -5,7 +5,7 @@ import { focusRingWithin } from "../../lib/focus-ring";
  * 输入框与多行文本共用的外框，直角，两种画法：
  * - `sunken` 凹陷的底 + 一条 2px 的底边线，默认；
  * - `outline` 四边 1px 的描边 + 页面底色，放在凹陷底色的区域里时用。
- * 状态都靠边线的颜色变化：默认灰 → 悬停深一档 → 聚焦墨 → 错误红。
+ * 状态靠边线说：默认灰 → 悬停深一档 → 错误红；聚焦另画一条墨线。
  */
 
 export type ControlVariant = "sunken" | "outline";
@@ -41,11 +41,29 @@ const fill: Record<ControlVariant, string> = {
   outline: "bg-surface",
 };
 
-/**
- * 只读时留着占位的那条透明边线，高对比模式下写成页面色：系统会把透明的边线也换成字色
- * 显出来，而底色本来就都没了——只读的就和能填的一个样。输入框和验证码输入共用
- */
-export const readOnlyFrame = "forced-colors:border-[Canvas]";
+/* 画在 `::before` 上：分段选择的 `::after` 是选中的那块底 */
+const lineFrame: Record<ControlVariant, string> = {
+  sunken:
+    "before:pointer-events-none before:absolute before:inset-x-0 before:-bottom-[2px] before:h-[2px] before:origin-left before:scale-x-0 before:bg-ink before:content-[''] forced-colors:before:bg-[Highlight]",
+  outline:
+    "before:pointer-events-none before:absolute before:-inset-px before:border before:border-ink before:[clip-path:inset(0_100%_0_0)] before:content-['']",
+};
+
+const lineOpen: Record<ControlVariant, string> = {
+  sunken:
+    "focus-within:before:scale-x-100 has-data-popup-open:before:scale-x-100",
+  outline:
+    "focus-within:before:[clip-path:inset(0)] has-data-popup-open:before:[clip-path:inset(0)]",
+};
+
+/* 擦出 300ms、收回 200ms */
+const lineMotion =
+  "before:transition-[scale,clip-path] before:duration-(--duration-fast) before:ease-standard focus-within:before:duration-(--duration-base) focus-within:before:ease-exit has-data-popup-open:before:duration-(--duration-base) has-data-popup-open:before:ease-exit";
+
+/** 聚焦的墨线，接在带 `relative` 的外框上用 */
+export function controlLine(variant: ControlVariant = "sunken") {
+  return cn(lineFrame[variant], lineOpen[variant], lineMotion);
+}
 
 export function controlBox({
   variant = "sunken",
@@ -54,7 +72,7 @@ export function controlBox({
   readOnly,
 }: BoxState) {
   return cn(
-    "flex w-full min-w-0 text-ink",
+    "relative flex w-full min-w-0 text-ink",
     frame[variant],
     "transition-colors duration-(--duration-fast) ease-standard",
     focusRingWithin,
@@ -62,15 +80,17 @@ export function controlBox({
       ? // 只读：没有边线、底变透明。边线留透明的，尺寸不跳
         "border-transparent bg-transparent"
       : fill[variant],
-    // 只在透明的那条线真的作数时：禁用、错误各有自己的边线颜色，排在后面盖掉它
-    readOnly && !disabled && !invalid && readOnlyFrame,
+    // 高对比模式下系统会把透明的边线也换成字色显出来，而底色本来就都没了：
+    // 只读的写成页面色，不然和能填的一个样
+    readOnly && !disabled && !invalid && "forced-colors:border-[Canvas]",
     disabled
       ? "cursor-not-allowed border-line text-ink-disabled"
       : invalid
         ? "border-danger"
         : !readOnly &&
           // 悬停只在没聚焦时生效：生成的 CSS 里 hover 排在 focus-within 之后，会盖掉聚焦的墨色
-          "border-line-strong hover:not-focus-within:border-ink-secondary focus-within:border-ink",
+          "border-line-strong hover:not-focus-within:border-ink-secondary",
+    !disabled && !invalid && !readOnly && controlLine(variant),
   );
 }
 

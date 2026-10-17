@@ -37,7 +37,10 @@ export const States: Story = {
   name: "状态",
   render: () => (
     <div className="flex flex-col gap-6">
-      <Field label="默认" help="悬停时底边线深一档，聚焦时变墨色并出现焦点环。">
+      <Field
+        label="默认"
+        help="悬停时底边线深一档，聚焦时墨线从左往右擦出并出现焦点环。"
+      >
         <Input placeholder="例如 SEVENTH" />
       </Field>
       <Field label="已填写">

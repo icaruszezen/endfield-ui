@@ -1,10 +1,10 @@
 import { OTPField as BaseOtpField } from "@base-ui/react/otp-field";
 import { Fragment, useId, type ComponentProps } from "react";
 import { cn } from "../../lib/cn";
-import { focusRing } from "../../lib/focus-ring";
 import { useFieldContext, useFieldControl } from "../field/Field";
 import {
-  readOnlyFrame,
+  controlBox,
+  controlElement,
   type ControlSize,
   type ControlVariant,
 } from "../input/control-box";
@@ -53,21 +53,17 @@ export type OtpInputProps = Omit<
   slotLabel?: (position: number, length: number) => string;
 };
 
-/* 格子见方；容器窄了宽度可以让，高度不变 */
+/* 格子见方；容器窄了宽度可以让，高度不变。字号在里面那个 <input> 上 */
 const slotSize: Record<ControlSize, string> = {
-  sm: "h-8 w-8 text-base",
-  md: "h-10 w-10 text-lg",
-  lg: "h-14 w-14 text-2xl",
+  sm: "h-8 w-8",
+  md: "h-10 w-10",
+  lg: "h-14 w-14",
 };
 
-const slotFrame: Record<ControlVariant, string> = {
-  sunken: "border-b-2",
-  outline: "border",
-};
-
-const slotFill: Record<ControlVariant, string> = {
-  sunken: "bg-surface-sunken",
-  outline: "bg-surface",
+const slotText: Record<ControlSize, string> = {
+  sm: "text-base",
+  md: "text-lg",
+  lg: "text-2xl",
 };
 
 const gapClass: Record<ControlSize, string> = {
@@ -132,27 +128,12 @@ export function OtpInput({
   const ownLabel = ariaLabelledBy ?? (ariaLabel ? labelId : undefined);
   const groupLabel = ownLabel ?? fieldContext?.labelId;
 
-  const slotClass = cn(
-    // 字色：空格是透明的，填上（基元给的 data-filled）才有颜色。下面那条颜色的过渡
-    // 本来是给边线的，字色跟着它走——所以填进去的那一位是淡入的。光标另有自己的颜色
-    "min-w-0 shrink text-center font-tech font-medium tabular-nums text-transparent caret-ink",
+  const inputClass = cn(
+    controlElement,
+    "h-full w-full text-center font-tech font-medium tabular-nums caret-ink text-transparent",
     "transition-colors duration-(--duration-fast) ease-standard",
     disabled ? "data-filled:text-ink-disabled" : "data-filled:text-ink",
-    focusRing,
-    slotSize[size],
-    slotFrame[variant],
-    readOnly
-      ? // 只读：没有边线、底变透明。边线留透明的，尺寸不跳
-        "border-transparent bg-transparent"
-      : slotFill[variant],
-    readOnly && !disabled && !invalid && readOnlyFrame,
-    disabled
-      ? "cursor-not-allowed border-line"
-      : invalid
-        ? "border-danger"
-        : !readOnly &&
-          // 悬停只在没聚焦时生效：聚焦中的格子不会因为鼠标经过而变浅
-          "border-line-strong hover:not-focus:border-ink-secondary focus:border-ink",
+    slotText[size],
   );
 
   const group = groupSize !== undefined && groupSize > 0 ? groupSize : 0;
@@ -203,16 +184,27 @@ export function OtpInput({
               className="h-0.5 w-2 shrink-0 bg-line-strong forced-colors:bg-[CanvasText]"
             />
           )}
-          <BaseOtpField.Input
-            // 第一格的名称是字段的标签（或者上面那段隐藏的文字），说明文字也挂在它上面
-            {...(index === 0
-              ? { "aria-labelledby": ownLabel, "aria-describedby": describedBy }
-              : { "aria-label": slotLabel(index + 1, length) })}
-            aria-invalid={invalid || undefined}
-            autoFocus={autoFocus && index === 0}
-            autoCapitalize={uppercase ? "characters" : "none"}
-            className={slotClass}
-          />
+          <span
+            className={cn(
+              controlBox({ variant, invalid, disabled, readOnly }),
+              "shrink items-center justify-center",
+              slotSize[size],
+            )}
+          >
+            <BaseOtpField.Input
+              // 第一格的名称是字段的标签（或者上面那段隐藏的文字），说明文字也挂在它上面
+              {...(index === 0
+                ? {
+                    "aria-labelledby": ownLabel,
+                    "aria-describedby": describedBy,
+                  }
+                : { "aria-label": slotLabel(index + 1, length) })}
+              aria-invalid={invalid || undefined}
+              autoFocus={autoFocus && index === 0}
+              autoCapitalize={uppercase ? "characters" : "none"}
+              className={inputClass}
+            />
+          </span>
         </Fragment>
       ))}
     </BaseOtpField.Root>

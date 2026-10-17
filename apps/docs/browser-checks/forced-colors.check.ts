@@ -1542,9 +1542,9 @@ test("只读的输入框：占位的那条透明边线不显形，能填的照�
   await shows(page, await bottom(tags), "Canvas", "只读的标签输入底下不该有线");
   await declares(page, tags, "borderBottomColor", "Canvas");
 
-  // 三个字段：错误、禁用、只读。每一格是一个 <input>，线在它自己身上
+  // 三个字段：错误、禁用、只读。每一格的外框在包着输入框的盒子上
   await open(page, "控件-otpinput-验证码输入--states");
-  const slot = `${ROOT} input[readonly]`;
+  const slot = `${ROOT} div[data-variant] span:has(> input[readonly])`;
   await shows(
     page,
     await bottom(slot),

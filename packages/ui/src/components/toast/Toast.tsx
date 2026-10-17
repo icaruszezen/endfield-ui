@@ -178,9 +178,8 @@ function ToastHost({ placement, label, closeLabel, children }: ToastHostProps) {
                 data-theme="dark"
                 className={cn(
                   "pointer-events-auto absolute left-1/2 w-max max-w-full",
-                  // 边线是给暗色页面的：那里黑底和页面几乎一样深，要靠它把提示勾出来。
-                  // 亮色页面上它和提示的底几乎同色，看不出来
-                  "border border-line bg-black/80 text-base leading-[1.4] text-white",
+                  // 暗色页面上黑底和页面只差一档，靠环境阴影分开
+                  "bg-black/80 shadow-sm text-base leading-[1.4] text-white",
                   // 三样各走各的：淡入淡出 200ms；进场的位移 300ms；没划够就松手，滑回原位 200ms。
                   // 拖动中基元把过渡整个关掉，位置贴着手指
                   "transition-[opacity,translate,transform] duration-[var(--duration-fast),var(--duration-base),var(--duration-fast)] ease-[var(--ease-standard),var(--ease-exit),var(--ease-standard)]",

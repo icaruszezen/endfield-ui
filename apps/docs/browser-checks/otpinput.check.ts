@@ -48,7 +48,7 @@ const token = (page: Page, value: string) =>
     return computed;
   }, value);
 
-/** 某一格底边线的颜色 */
+/** 某一格底边线的颜色（外框长在包着输入框的盒子上，见 OtpInput） */
 const borderOf = (page: Page, index: number, group = 0) =>
   page.evaluate(
     ({ nth, slot }) => {
@@ -56,7 +56,7 @@ const borderOf = (page: Page, index: number, group = 0) =>
         nth
       ]!;
       return getComputedStyle(
-        root.querySelectorAll("input:not([aria-hidden])")[slot]!,
+        root.querySelectorAll("input:not([aria-hidden])")[slot]!.parentElement!,
       ).borderBottomColor;
     },
     { nth: group, slot: index },
@@ -196,8 +196,23 @@ test("粘贴一整串：分到各格，空白去掉，多出来的不要", async
   );
 });
 
-test("聚焦的那一格：底边线变墨色，带焦点环；别的格还是平时的线（亮暗两套）", async () => {
+test("聚焦的那一格：墨线从左往右擦出来，带焦点环；别的格还是平时的线（亮暗两套）", async () => {
   const { page } = storybook;
+  const lineOf = (index: number, group = 0) =>
+    page.evaluate(
+      ({ nth, slot }) => {
+        const root = document.querySelectorAll("#storybook-root [role=group]")[
+          nth
+        ]!;
+        const box = root.querySelectorAll("input:not([aria-hidden])")[slot]!
+          .parentElement!;
+        const style = getComputedStyle(box, "::before");
+        const x = (style.scale || "1").split(" ").map(Number)[0];
+        return { color: style.backgroundColor, x };
+      },
+      { nth: group, slot: index },
+    );
+
   for (const theme of ["light", "dark"] as const) {
     await page.story("控件-otpinput-验证码输入--playground", theme);
     const ink = await token(page, "var(--ef-ink)");
@@ -205,22 +220,41 @@ test("聚焦的那一格：底边线变墨色，带焦点环；别的格还是�
     assert.notEqual(ink, rest);
 
     await page.waitEqual(() => borderOf(page, 0), rest, `${theme}：平时的线`);
+    await page.waitEqual(
+      async () => (await lineOf(0)).x,
+      0,
+      `${theme}：没聚焦时墨线收着`,
+    );
+
     await page.key("Tab");
     await page.waitFor(async () => (await read(page)).focus === 0, "Tab 进来");
     await page.waitEqual(
-      () => borderOf(page, 0),
+      async () => (await lineOf(0)).color,
       ink,
-      `${theme}：聚焦的那一格底边线是墨色`,
+      `${theme}：聚焦的那一格墨线是墨色`,
+    );
+    await page.waitEqual(
+      async () => (await lineOf(0)).x,
+      1,
+      `${theme}：聚焦的那一格墨线伸满`,
     );
     await page.waitEqual(
       () => borderOf(page, 1),
       rest,
       `${theme}：没聚焦的格还是平时的线`,
     );
+    await page.waitEqual(
+      async () => (await lineOf(1)).x,
+      0,
+      `${theme}：没聚焦的格不该有墨线`,
+    );
     await page.waitFor(
       () =>
         page.evaluate(() => {
-          const style = getComputedStyle(document.activeElement!);
+          // 焦点环画在包着输入框的盒子上，和输入框共用同一个外框
+          const style = getComputedStyle(
+            document.activeElement!.parentElement!,
+          );
           return style.outlineStyle === "solid" && style.outlineWidth === "2px";
         }),
       `${theme}：聚焦的那一格应该有焦点环`,
@@ -233,20 +267,21 @@ test("格子见方；三位一组的短横在第三、四格之间，上下居�
   await page.story("控件-otpinput-验证码输入--grouped");
   const found = await page.evaluate(() => {
     const root = document.querySelector("#storybook-root [role=group]")!;
-    const slots = [...root.querySelectorAll("input:not([aria-hidden])")].map(
-      (slot) => slot.getBoundingClientRect(),
+    // 见方的是格子：边线和底都长在包着输入框的那一层上
+    const cells = [...root.querySelectorAll("input:not([aria-hidden])")].map(
+      (slot) => slot.parentElement!.getBoundingClientRect(),
     );
     const dash = root
       .querySelector("[data-separator]")!
       .getBoundingClientRect();
     const middle = (rect: DOMRect) => (rect.top + rect.bottom) / 2;
     return {
-      sizes: [...new Set(slots.map((rect) => `${rect.width}x${rect.height}`))],
-      between: dash.left >= slots[2]!.right && dash.right <= slots[3]!.left,
-      centered: Math.abs(middle(dash) - middle(slots[2]!)) < 0.5,
+      sizes: [...new Set(cells.map((rect) => `${rect.width}x${rect.height}`))],
+      between: dash.left >= cells[2]!.right && dash.right <= cells[3]!.left,
+      centered: Math.abs(middle(dash) - middle(cells[2]!)) < 0.5,
       dash: [dash.width, dash.height],
       // 同一组里格子之间 8px
-      gap: slots[1]!.left - slots[0]!.right,
+      gap: cells[1]!.left - cells[0]!.right,
     };
   });
   assert.deepEqual(found, {
@@ -264,15 +299,15 @@ test("窄容器：大号的格子变窄、高度不变，整排不伸出容器",
   const found = await page.evaluate(() => {
     const root = document.querySelector("#storybook-root [role=group]")!;
     const box = root.parentElement!.getBoundingClientRect();
-    const slots = [...root.querySelectorAll("input:not([aria-hidden])")].map(
-      (slot) => slot.getBoundingClientRect(),
+    const cells = [...root.querySelectorAll("input:not([aria-hidden])")].map(
+      (slot) => slot.parentElement!.getBoundingClientRect(),
     );
     return {
-      count: slots.length,
-      heights: [...new Set(slots.map((rect) => rect.height))],
-      narrower: slots.every((rect) => rect.width < 56 && rect.width > 12),
-      inside: slots.at(-1)!.right <= box.right + 0.5,
-      oneRow: new Set(slots.map((rect) => rect.top)).size === 1,
+      count: cells.length,
+      heights: [...new Set(cells.map((rect) => rect.height))],
+      narrower: cells.every((rect) => rect.width < 56 && rect.width > 12),
+      inside: cells.at(-1)!.right <= box.right + 0.5,
+      oneRow: new Set(cells.map((rect) => rect.top)).size === 1,
     };
   });
   // 容器里只有 198px：六格各 56px 怎么都放不下（和字体无关）

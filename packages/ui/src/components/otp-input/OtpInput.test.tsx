@@ -192,9 +192,13 @@ describe("OtpInput", () => {
     const separators = container.querySelectorAll("[data-separator]");
     expect(separators).toHaveLength(1);
     expect(separators[0]).toHaveAttribute("aria-hidden", "true");
-    // 短横在第三格和第四格之间
-    expect(separators[0]!.previousElementSibling).toBe(slots()[2]);
-    expect(separators[0]!.nextElementSibling).toBe(slots()[3]);
+    // 短横在第三格和第四格之间（每一格外面包着一层同宽的盒子，墨线画在盒子上）
+    expect(separators[0]!.previousElementSibling!.firstElementChild).toBe(
+      slots()[2],
+    );
+    expect(separators[0]!.nextElementSibling!.firstElementChild).toBe(
+      slots()[3],
+    );
   });
 
   it("高对比模式：短横是底色画的，写明页面的字色", () => {
@@ -213,7 +217,7 @@ describe("OtpInput", () => {
     render(<Code length={3} invalid />);
     for (const slot of slots()) {
       expect(slot).toHaveAttribute("aria-invalid", "true");
-      expect(slot).toHaveClass("border-danger");
+      expect(slot.parentElement).toHaveClass("border-danger");
     }
     expect(screen.getByRole("group")).toHaveAttribute("data-invalid");
   });
@@ -235,7 +239,7 @@ describe("OtpInput", () => {
   it("高对比模式：只读时每格占位的透明边线写成页面色，不让系统显形", () => {
     const { rerender } = render(<Code length={3} readOnly />);
     for (const slot of slots()) {
-      expect(slot).toHaveClass(
+      expect(slot.parentElement).toHaveClass(
         "border-transparent",
         "forced-colors:border-[Canvas]",
       );
@@ -244,7 +248,9 @@ describe("OtpInput", () => {
     // 能填的那条线要留着
     rerender(<Code length={3} />);
     for (const slot of slots()) {
-      expect(slot).not.toHaveClass("forced-colors:border-[Canvas]");
+      expect(slot.parentElement).not.toHaveClass(
+        "forced-colors:border-[Canvas]",
+      );
     }
   });
 
@@ -254,7 +260,13 @@ describe("OtpInput", () => {
     expect(group).toHaveAttribute("data-size", "lg");
     expect(group).toHaveAttribute("data-variant", "outline");
     expect(group).toHaveClass("justify-center");
-    expect(slots()[0]).toHaveClass("h-14", "border");
+    expect(slots()[0]!.parentElement).toHaveClass(
+      "h-14",
+      "w-14",
+      "border",
+      "bg-surface",
+    );
+    expect(slots()[0]).toHaveClass("text-2xl");
   });
 
   it("第一格带 one-time-code，数字的那种唤出数字键盘", () => {

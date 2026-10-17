@@ -126,7 +126,7 @@ export function Alert({
       // 正在收起的提示条点不到、Tab 不进去
       inert={leaving}
       className={cn(
-        "flex items-start gap-3 border border-l-4 border-line bg-surface-raised py-3 pr-3 pl-3 text-sm text-ink",
+        "flex items-start gap-3 border-l-4 bg-surface-raised py-3 pr-3 pl-3 text-sm text-ink",
         toneBar[tone],
         leaving && [
           "pointer-events-none overflow-hidden",
