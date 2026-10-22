@@ -101,11 +101,7 @@ before(async () => {
     cwd: temporary,
     stdio: "pipe",
   });
-  symlinkSync(
-    join(root, "node_modules"),
-    join(packed, "node_modules"),
-    "dir",
-  );
+  symlinkSync(join(root, "node_modules"), join(packed, "node_modules"), "dir");
   const source = ["index.js", "game.js"]
     .map((file) => `export * from ${JSON.stringify(join(dist, file))};`)
     .join("\n");
