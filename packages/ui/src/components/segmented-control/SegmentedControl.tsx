@@ -1,5 +1,4 @@
 import {
-  createContext,
   useContext,
   useId,
   useMemo,
@@ -18,6 +17,7 @@ import {
   type ControlSize,
   type ControlVariant,
 } from "../input/control-box";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 export type SegmentedControlSize = ControlSize;
 export type SegmentedControlVariant = ControlVariant;
@@ -32,7 +32,8 @@ type SegmentedContextValue = {
   invalid: boolean;
 };
 
-const SegmentedContext = createContext<SegmentedContextValue | null>(null);
+const getSegmentedContext =
+  /* @__PURE__ */ createLazyContext<SegmentedContextValue | null>(null);
 
 export type SegmentedControlProps = Omit<
   ComponentProps<"div">,
@@ -85,6 +86,7 @@ export function SegmentedControl({
   ref,
   ...props
 }: SegmentedControlProps) {
+  const SegmentedContext = getSegmentedContext();
   const field = useFieldContext();
   // 选中的那块底画在轨道上：换一段时是同一块滑过去
   const trackRef = useIndicator<HTMLDivElement>("[data-selected]");
@@ -116,7 +118,7 @@ export function SegmentedControl({
   );
 
   return (
-    <SegmentedContext value={context}>
+    <SegmentedContext.Provider value={context}>
       <div
         role="radiogroup"
         // 字段是 <fieldset> 时名称由 <legend> 给；否则指向字段的标签
@@ -149,7 +151,7 @@ export function SegmentedControl({
           className,
         )}
       />
-    </SegmentedContext>
+    </SegmentedContext.Provider>
   );
 }
 
@@ -182,7 +184,7 @@ export function Segment({
   children,
   ...props
 }: SegmentProps) {
-  const context = useContext(SegmentedContext);
+  const context = useContext(getSegmentedContext());
   if (!context) {
     throw new Error("<Segment> 必须放在 <SegmentedControl> 里");
   }

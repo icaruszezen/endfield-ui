@@ -1,7 +1,6 @@
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import {
   Children,
-  createContext,
   isValidElement,
   useContext,
   useRef,
@@ -22,6 +21,7 @@ import { useSnapTrack } from "../carousel/snap-track";
 import { overlayClose, overlayHeader } from "../dialog/overlay-style";
 import { IconButton } from "../icon-button/IconButton";
 import { Viewfinder } from "../viewfinder/Viewfinder";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 export type ImageViewerRatio = "16/9" | "4/3" | "1/1" | "3/4";
 
@@ -38,7 +38,7 @@ type ItemLike = {
   children?: ReactNode;
 };
 
-const ItemContext = createContext<{
+const getItemContext = /* @__PURE__ */ createLazyContext<{
   position: number;
   count: number;
   ratio: ImageViewerRatio;
@@ -93,6 +93,7 @@ export function ImageViewer({
   children,
   ...props
 }: ImageViewerProps) {
+  const ItemContext = getItemContext();
   // 标题、说明和大图都从子元素上读，所以子元素必须直接是 ImageViewerItem
   const items = Children.toArray(children).filter((child) =>
     isValidElement<ItemLike>(child),
@@ -133,7 +134,7 @@ export function ImageViewer({
         )}
       >
         {items.map((item, position) => (
-          <ItemContext
+          <ItemContext.Provider
             key={position}
             value={{
               position,
@@ -145,7 +146,7 @@ export function ImageViewer({
             }}
           >
             {item}
-          </ItemContext>
+          </ItemContext.Provider>
         ))}
       </ul>
       <BaseDialog.Root open={open} onOpenChange={(next) => setOpen(next)}>
@@ -427,7 +428,7 @@ export function ImageViewerItem({
   children,
   ...props
 }: ImageViewerItemProps) {
-  const item = useContext(ItemContext);
+  const item = useContext(getItemContext());
   if (!item) {
     throw new Error("ImageViewerItem 要直接放在 ImageViewer 里面");
   }

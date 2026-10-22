@@ -71,7 +71,7 @@ function nameFontSize(name: string) {
 }
 
 /** Wiki 物品卡片：名称横条或库存数量横条，共用完整图层图标。 */
-export const ItemCard = memo(function ItemCard({
+export const ItemCard = /* @__PURE__ */ memo(function ItemCard({
   kind,
   name,
   imageUrl,

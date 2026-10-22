@@ -1,6 +1,5 @@
 import { Toast as BaseToast } from "@base-ui/react/toast";
 import {
-  createContext,
   isValidElement,
   useContext,
   useMemo,
@@ -15,6 +14,7 @@ import { StatusSuccess } from "../../icons/StatusSuccess";
 import { StatusWarning } from "../../icons/StatusWarning";
 import { cn } from "../../lib/cn";
 import { focusRing, focusRingInset } from "../../lib/focus-ring";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 export type ToastTone = "neutral" | "info" | "success" | "warning" | "danger";
 export type ToastPlacement = "bottom" | "center";
@@ -51,11 +51,13 @@ type ToastData = {
 /* 带操作的提示默认停留的时间：要留出读完再去点的工夫 */
 const ACTION_DURATION = 8000;
 
-const ToastContext = createContext<ToastApi | null>(null);
+const getToastContext = /* @__PURE__ */ createLazyContext<ToastApi | null>(
+  null,
+);
 
 /** 弹出轻提示。要在 `ToastProvider` 里面用。 */
 export function useToast(): ToastApi {
-  const toast = useContext(ToastContext);
+  const toast = useContext(getToastContext());
   if (!toast) {
     throw new Error("useToast 要在 <ToastProvider> 里面用");
   }
@@ -125,6 +127,7 @@ type ToastHostProps = {
 };
 
 function ToastHost({ placement, label, closeLabel, children }: ToastHostProps) {
+  const ToastContext = getToastContext();
   const { toasts, add, close } = BaseToast.useToastManager<ToastData>();
 
   const api = useMemo<ToastApi>(() => {
@@ -157,7 +160,7 @@ function ToastHost({ placement, label, closeLabel, children }: ToastHostProps) {
   }, [add, close]);
 
   return (
-    <ToastContext value={api}>
+    <ToastContext.Provider value={api}>
       {children}
       <BaseToast.Portal>
         <BaseToast.Viewport
@@ -234,7 +237,7 @@ function ToastHost({ placement, label, closeLabel, children }: ToastHostProps) {
           })}
         </BaseToast.Viewport>
       </BaseToast.Portal>
-    </ToastContext>
+    </ToastContext.Provider>
   );
 }
 

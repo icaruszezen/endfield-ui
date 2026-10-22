@@ -33,6 +33,7 @@
     "!src/**/*.test.*",
     "!src/test",
     "!src/game",
+    "!src/**/*.md",
     "NOTICE.md"
   ],
   "exports": {
@@ -53,13 +54,14 @@
   },
   "scripts": {
     "build": "tsdown && pnpm build:css && pnpm build:game",
-    "build:css": "tailwindcss -i src/styles/index.css -o dist/styles.css --minify",
-    "build:game": "tailwindcss -i src/game/styles.css -o dist/game/styles.css --minify && node scripts/copy-game-assets.mjs",
+    "build:css": "node scripts/build-css.mjs src/styles/index.css dist/styles.css",
+    "build:game": "node scripts/build-css.mjs src/game/styles.css dist/game/styles.css && node scripts/copy-game-assets.mjs",
     "test": "vitest run",
+    "test:package": "node --test scripts/package.test.mjs",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "prepack": "node -e \"for (const f of ['LICENSE', 'NOTICE.md']) fs.copyFileSync('../../' + f, f)\"",
-    "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build"
+    "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build && pnpm test:package"
   },
   "peerDependencies": {
     "react": "^19.0.0",
@@ -72,24 +74,28 @@
     }
   },
   "dependencies": {
-    "@base-ui/react": "^1.8.0",
+    "@base-ui/react": "^1.9.0",
     "clsx": "^2.1.1",
     "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.3.3",
+    "@rollup/plugin-commonjs": "^29.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@tailwindcss/node": "^4.3.3",
+    "@tailwindcss/oxide": "^4.3.3",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
-    "@testing-library/user-event": "^14.6.7",
+    "@testing-library/user-event": "^14.6.8",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "jsdom": "^30.1.2",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
+    "jsdom": "^30.1.3",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "rollup": "^4.64.12",
     "tailwindcss": "^4.3.3",
-    "tsdown": "^0.23.0",
+    "tsdown": "^0.23.1",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.5"
   }
 }

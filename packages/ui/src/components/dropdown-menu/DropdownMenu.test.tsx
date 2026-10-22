@@ -474,6 +474,9 @@ describe("DropdownMenu", () => {
     await user.tab();
     await user.keyboard("{Enter}");
     await screen.findByRole("menu");
+    await waitFor(() =>
+      expect(screen.getByRole("menuitem", { name: "导出为" })).toHaveFocus(),
+    );
     await user.keyboard("{ArrowRight}");
     await waitFor(() => expect(screen.getAllByRole("menu")).toHaveLength(2));
     for (const menu of screen.getAllByRole("menu")) {

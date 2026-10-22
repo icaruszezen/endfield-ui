@@ -1,6 +1,6 @@
-import { createContext } from "react";
 import { focusRingInset } from "../../lib/focus-ring";
 import { enterFromSide } from "../../lib/motion";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 /*
  * 下拉菜单与下拉选择共用的面板和选项。
@@ -11,7 +11,8 @@ import { enterFromSide } from "../../lib/motion";
 export type MenuVariant = "plain" | "strong";
 
 /** 选项要知道自己在哪种面板里，才知道"当前项"怎么画 */
-export const MenuVariantContext = createContext<MenuVariant>("plain");
+export const getMenuVariantContext =
+  /* @__PURE__ */ createLazyContext<MenuVariant>("plain");
 
 /**
  * 面板：直角、1px 线、环境阴影；顶部一条半宽的行动色细条，展开时从 0 伸到一半宽。

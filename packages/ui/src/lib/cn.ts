@@ -5,7 +5,7 @@ import { extendTailwindMerge } from "tailwind-merge";
  * theme.css 里的自定义令牌名需要登记，否则 tailwind-merge 会把 `text-micro`
  * 当成颜色，与 `text-ink` 互相覆盖。改动 theme.css 的令牌名时同步改这里。
  */
-const twMerge = extendTailwindMerge({
+const twMerge = /* @__PURE__ */ extendTailwindMerge({
   extend: {
     theme: {
       text: ["micro", "ghost"],

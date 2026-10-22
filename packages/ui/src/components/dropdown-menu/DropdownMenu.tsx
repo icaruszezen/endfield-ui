@@ -13,7 +13,7 @@ import { defined } from "../../lib/defined";
 import type { LinkRender } from "../link-element/LinkElement";
 import { MenuCheck } from "./MenuCheck";
 import {
-  MenuVariantContext,
+  getMenuVariantContext,
   menuGroupLabel,
   menuItem,
   menuItemCurrent,
@@ -66,6 +66,7 @@ export function DropdownMenu({
   className,
   children,
 }: DropdownMenuProps) {
+  const MenuVariantContext = getMenuVariantContext();
   const { anchorRef, portalRef } = usePortalScope();
 
   return (
@@ -91,7 +92,9 @@ export function DropdownMenu({
               className,
             )}
           >
-            <MenuVariantContext value={variant}>{children}</MenuVariantContext>
+            <MenuVariantContext.Provider value={variant}>
+              {children}
+            </MenuVariantContext.Provider>
           </BaseMenu.Popup>
         </BaseMenu.Positioner>
       </BaseMenu.Portal>
@@ -296,7 +299,7 @@ export function DropdownMenuRadioItem({
   children,
   ...props
 }: DropdownMenuRadioItemProps) {
-  const variant = useContext(MenuVariantContext);
+  const variant = useContext(getMenuVariantContext());
 
   return (
     <BaseMenu.RadioItem
@@ -385,7 +388,7 @@ export function DropdownMenuSub({
   className,
   children,
 }: DropdownMenuSubProps) {
-  const variant = useContext(MenuVariantContext);
+  const variant = useContext(getMenuVariantContext());
   // 子面板也挂在 <body> 下：从这一行往上找，能找到主面板带着的主题
   const { anchorRef, portalRef } = usePortalScope();
 

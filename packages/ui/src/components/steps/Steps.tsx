@@ -1,6 +1,5 @@
 import {
   Children,
-  createContext,
   useContext,
   type ComponentProps,
   type MouseEventHandler,
@@ -11,6 +10,7 @@ import { StatusDanger } from "../../icons/StatusDanger";
 import { cn } from "../../lib/cn";
 import { focusRingWithin } from "../../lib/focus-ring";
 import { LinkElement, type LinkRender } from "../link-element/LinkElement";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 export type StepsOrientation = "horizontal" | "vertical";
 export type StepsSize = "sm" | "md";
@@ -37,7 +37,8 @@ type StepContextValue = {
   labels: StepStatusLabels;
 };
 
-const StepContext = createContext<StepContextValue | null>(null);
+const getStepContext =
+  /* @__PURE__ */ createLazyContext<StepContextValue | null>(null);
 
 export type StepsProps = Omit<ComponentProps<"ol">, "aria-label"> & {
   /** 这是哪件事的步骤，比如"建站流程" */
@@ -107,6 +108,7 @@ export function Steps({
   children,
   ...props
 }: StepsProps) {
+  const StepContext = getStepContext();
   const labels = { ...defaultLabels, ...statusLabels };
   const steps = Children.toArray(children);
 
@@ -118,7 +120,7 @@ export function Steps({
     >
       <ol {...props} className={cn("flex", listLayout[orientation])}>
         {steps.map((step, index) => (
-          <StepContext
+          <StepContext.Provider
             // 步骤是按位置认的：序号、状态都从位置来
             key={index}
             value={{
@@ -135,7 +137,7 @@ export function Steps({
             }}
           >
             {step}
-          </StepContext>
+          </StepContext.Provider>
         ))}
       </ol>
     </div>
@@ -203,7 +205,7 @@ export function Step({
   className,
   ...props
 }: StepProps) {
-  const context = useContext(StepContext);
+  const context = useContext(getStepContext());
   if (!context) {
     throw new Error("<Step> 必须放在 <Steps> 里");
   }

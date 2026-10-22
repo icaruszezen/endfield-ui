@@ -1,5 +1,4 @@
 import {
-  createContext,
   useContext,
   type ComponentProps,
   type MouseEvent,
@@ -9,11 +8,13 @@ import { TriangleRight } from "../../icons/TriangleRight";
 import { cn } from "../../lib/cn";
 import { focusRing } from "../../lib/focus-ring";
 import { LinkElement, type LinkRender } from "../link-element/LinkElement";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 export type NavActionLayout = "inline" | "block" | "stacked";
 
 /** 侧轨和全屏菜单用它告诉里面的主行动块该怎么摆。不对外导出 */
-export const NavActionContext = createContext<NavActionLayout | null>(null);
+export const getNavActionContext =
+  /* @__PURE__ */ createLazyContext<NavActionLayout | null>(null);
 
 type OwnProps = {
   /** 换掉默认的实心三角 */
@@ -65,7 +66,7 @@ export function NavAction({
   children,
   ...props
 }: NavActionProps) {
-  const inherited = useContext(NavActionContext);
+  const inherited = useContext(getNavActionContext());
   const layout = layoutProp ?? inherited ?? "inline";
   const stacked = layout === "stacked";
 

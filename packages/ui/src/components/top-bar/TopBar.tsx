@@ -1,6 +1,6 @@
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "../../lib/cn";
-import { NavActionContext } from "../nav-action/NavAction";
+import { getNavActionContext } from "../nav-action/NavAction";
 
 export type TopBarProps = ComponentProps<"header"> & {
   /** 最左边的标志。本库不带标志，传你自己的 */
@@ -28,6 +28,7 @@ export function TopBar({
   children,
   ...props
 }: TopBarProps) {
+  const NavActionContext = getNavActionContext();
   return (
     <header
       {...props}
@@ -40,7 +41,11 @@ export function TopBar({
       {brand && <div className="flex min-w-0 items-center">{brand}</div>}
       <div className="min-w-0 flex-1">{children}</div>
       {tools && <div className="flex shrink-0 items-center gap-1">{tools}</div>}
-      {action && <NavActionContext value="inline">{action}</NavActionContext>}
+      {action && (
+        <NavActionContext.Provider value="inline">
+          {action}
+        </NavActionContext.Provider>
+      )}
       {menu}
     </header>
   );

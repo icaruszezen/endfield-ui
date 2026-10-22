@@ -23,7 +23,7 @@ import {
 export const dottedDate = (date: string) => date.replaceAll("-", ".");
 
 /** 面板底下那一行里的文字钮 */
-export const dateFooterButton = cn(
+export const dateFooterButton = /* @__PURE__ */ cn(
   "px-2 py-1 text-sm font-medium text-ink underline underline-offset-4 hover:text-ink-secondary",
   "disabled:cursor-not-allowed disabled:text-ink-disabled disabled:no-underline",
   focusRing,

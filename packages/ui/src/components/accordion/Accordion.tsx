@@ -1,6 +1,5 @@
 import { Accordion as BaseAccordion } from "@base-ui/react/accordion";
 import {
-  createContext,
   useContext,
   useMemo,
   type ComponentProps,
@@ -9,11 +8,12 @@ import {
 import { Minus } from "../../icons/Minus";
 import { cn } from "../../lib/cn";
 import { focusRingInset } from "../../lib/focus-ring";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 export type AccordionSize = "sm" | "md";
 export type AccordionLevel = 2 | 3 | 4 | 5 | 6;
 
-const AccordionContext = createContext<{
+const getAccordionContext = /* @__PURE__ */ createLazyContext<{
   size: AccordionSize;
   level: AccordionLevel;
 }>({ size: "md", level: 3 });
@@ -59,10 +59,11 @@ export function Accordion({
   children,
   ...props
 }: AccordionProps) {
+  const AccordionContext = getAccordionContext();
   const context = useMemo(() => ({ size, level }), [size, level]);
 
   return (
-    <AccordionContext value={context}>
+    <AccordionContext.Provider value={context}>
       <BaseAccordion.Root
         {...props}
         multiple={multiple}
@@ -78,7 +79,7 @@ export function Accordion({
       >
         {children}
       </BaseAccordion.Root>
-    </AccordionContext>
+    </AccordionContext.Provider>
   );
 }
 
@@ -112,7 +113,7 @@ export function AccordionItem({
   children,
   ...props
 }: AccordionItemProps) {
-  const { size, level } = useContext(AccordionContext);
+  const { size, level } = useContext(getAccordionContext());
   const Heading = `h${level}` as const;
 
   return (
@@ -124,6 +125,13 @@ export function AccordionItem({
     >
       <BaseAccordion.Header render={<Heading />} className="flex">
         <BaseAccordion.Trigger
+          render={(props, state) => (
+            <button
+              {...props}
+              disabled={false}
+              aria-disabled={state.disabled || undefined}
+            />
+          )}
           className={cn(
             "group/trigger flex w-full items-center gap-3 px-4 text-left font-medium",
             "transition-colors duration-(--duration-fast) ease-standard",

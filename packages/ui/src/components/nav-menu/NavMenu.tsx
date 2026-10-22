@@ -1,6 +1,5 @@
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import {
-  createContext,
   useContext,
   useRef,
   type ComponentProps,
@@ -18,10 +17,13 @@ import { firstFocusableIn } from "../dialog/initial-focus";
 import { GhostText } from "../ghost-text/GhostText";
 import { IconButton } from "../icon-button/IconButton";
 import { LinkElement, type LinkRender } from "../link-element/LinkElement";
-import { NavActionContext } from "../nav-action/NavAction";
+import { getNavActionContext } from "../nav-action/NavAction";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 /** 导航项点了之后要把菜单关上 */
-const NavMenuContext = createContext<() => void>(() => {});
+const getNavMenuContext = /* @__PURE__ */ createLazyContext<() => void>(
+  () => {},
+);
 
 export type NavMenuProps = {
   /** 菜单钮，通常是顶栏最右边的 `<IconButton>`。不传就用 `open` / `onOpenChange` 自己控制 */
@@ -68,6 +70,8 @@ export function NavMenu({
   className,
   children,
 }: NavMenuProps) {
+  const NavMenuContext = getNavMenuContext();
+  const NavActionContext = getNavActionContext();
   const [isOpen, setOpen] = useControllableState({
     value: open,
     defaultValue: defaultOpen,
@@ -114,11 +118,11 @@ export function NavMenu({
             ref={bodyRef}
             className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain"
           >
-            <NavMenuContext value={() => setOpen(false)}>
+            <NavMenuContext.Provider value={() => setOpen(false)}>
               <nav aria-label={navLabel}>
                 <ul className="flex flex-col gap-1 p-4">{children}</ul>
               </nav>
-            </NavMenuContext>
+            </NavMenuContext.Provider>
 
             {tools && (
               <div className="mx-4 flex flex-wrap gap-1 bg-surface-muted p-1">
@@ -146,7 +150,9 @@ export function NavMenu({
 
             {footer && (
               <div className="flex shrink-0 flex-col gap-2 p-4">
-                <NavActionContext value="block">{footer}</NavActionContext>
+                <NavActionContext.Provider value="block">
+                  {footer}
+                </NavActionContext.Provider>
               </div>
             )}
           </div>
@@ -204,7 +210,7 @@ export function NavMenuItem({
   children,
   ...props
 }: NavMenuItemProps) {
-  const close = useContext(NavMenuContext);
+  const close = useContext(getNavMenuContext());
   const isLink = href !== undefined || render !== undefined;
 
   const handleClick = (event: MouseEvent<HTMLElement>) => {

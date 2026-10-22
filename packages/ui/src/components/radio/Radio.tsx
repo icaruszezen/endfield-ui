@@ -1,5 +1,4 @@
 import {
-  createContext,
   useContext,
   useId,
   useMemo,
@@ -18,6 +17,7 @@ import {
   choiceMark,
 } from "../checkbox/choice-style";
 import { useFieldContext } from "../field/Field";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 type RadioGroupContextValue = {
   name: string;
@@ -28,7 +28,8 @@ type RadioGroupContextValue = {
   invalid: boolean;
 };
 
-const RadioGroupContext = createContext<RadioGroupContextValue | null>(null);
+const getRadioGroupContext =
+  /* @__PURE__ */ createLazyContext<RadioGroupContextValue | null>(null);
 
 export type RadioGroupOrientation = "vertical" | "horizontal";
 
@@ -64,6 +65,7 @@ export function RadioGroup({
   className,
   ...props
 }: RadioGroupProps) {
+  const RadioGroupContext = getRadioGroupContext();
   const field = useFieldContext();
   const autoName = useId();
   const [current, setCurrent] = useControllableState<string | undefined>({
@@ -92,7 +94,7 @@ export function RadioGroup({
   );
 
   return (
-    <RadioGroupContext value={context}>
+    <RadioGroupContext.Provider value={context}>
       <div
         role="radiogroup"
         // 字段是 <fieldset> 时名称由 <legend> 给；否则指向字段的标签
@@ -109,7 +111,7 @@ export function RadioGroup({
           className,
         )}
       />
-    </RadioGroupContext>
+    </RadioGroupContext.Provider>
   );
 }
 
@@ -134,7 +136,7 @@ export function Radio({
   children,
   ...props
 }: RadioProps) {
-  const group = useContext(RadioGroupContext);
+  const group = useContext(getRadioGroupContext());
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     onChange?.(event);

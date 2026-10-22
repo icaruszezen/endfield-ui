@@ -1,5 +1,4 @@
 import {
-  createContext,
   useContext,
   type ComponentProps,
   type MouseEvent,
@@ -10,6 +9,7 @@ import { focusRingInset } from "../../lib/focus-ring";
 import { GhostText } from "../ghost-text/GhostText";
 import { LinkElement, type LinkRender } from "../link-element/LinkElement";
 import { bandCanvas, bandGap, bandRow } from "./band-style";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 export type ListVariant = "plain" | "band";
 
@@ -21,12 +21,14 @@ export type ListProps = ComponentProps<"ul"> & {
   variant?: ListVariant;
 };
 
-const ListVariantContext = createContext<ListVariant>("plain");
+const getListVariantContext =
+  /* @__PURE__ */ createLazyContext<ListVariant>("plain");
 
 /** 列表行的容器，外圈不描边。里面只放 `ListRow`。 */
 export function List({ variant = "plain", className, ...props }: ListProps) {
+  const ListVariantContext = getListVariantContext();
   return (
-    <ListVariantContext value={variant}>
+    <ListVariantContext.Provider value={variant}>
       <ul
         {...props}
         data-variant={variant}
@@ -38,7 +40,7 @@ export function List({ variant = "plain", className, ...props }: ListProps) {
           className,
         )}
       />
-    </ListVariantContext>
+    </ListVariantContext.Provider>
   );
 }
 
@@ -103,7 +105,7 @@ export function ListRow({
   children,
   ...props
 }: ListRowProps) {
-  const band = useContext(ListVariantContext) === "band";
+  const band = useContext(getListVariantContext()) === "band";
   const isLink = href !== undefined || render !== undefined;
   const isButton = !isLink && onClick !== undefined;
   const interactive = (isLink || isButton) && !disabled;

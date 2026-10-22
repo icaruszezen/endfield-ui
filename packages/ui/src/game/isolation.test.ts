@@ -74,7 +74,6 @@ describe("主库和 Game 实机风格之间只有一个方向", () => {
   });
 
   it("lib/core.ts 里的都是主入口公开导出的名字", () => {
-    // 构建 game 入口时它们被换成对 ./index.js 的引用：主入口没导出的，产物里就是个坏引用
     for (const [name, value] of Object.entries(core)) {
       expect(main, `主入口没有导出 ${name}`).toHaveProperty(name);
       expect((main as Record<string, unknown>)[name], name).toBe(value);

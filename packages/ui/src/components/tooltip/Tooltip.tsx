@@ -1,7 +1,6 @@
 import { Tooltip as BaseTooltip } from "@base-ui/react/tooltip";
 import {
   cloneElement,
-  createContext,
   useContext,
   useId,
   useSyncExternalStore,
@@ -12,6 +11,7 @@ import { createPortal } from "react-dom";
 import { usePortalScope } from "../../hooks/usePortalScope";
 import { cn } from "../../lib/cn";
 import { enterFromSide } from "../../lib/motion";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 export type TooltipSide = "top" | "bottom" | "left" | "right";
 export type TooltipAlign = "start" | "center" | "end";
@@ -19,7 +19,7 @@ export type TooltipAlign = "start" | "center" | "end";
 /* 规范：出现前约 300ms，消失不延迟 */
 const DEFAULT_DELAY = 300;
 
-const InProviderContext = createContext(false);
+const getInProviderContext = /* @__PURE__ */ createLazyContext(false);
 
 export type TooltipProviderProps = {
   /** 这一组提示统一的延迟，毫秒 */
@@ -37,9 +37,12 @@ export function TooltipProvider({
   timeout,
   children,
 }: TooltipProviderProps) {
+  const InProviderContext = getInProviderContext();
   return (
     <BaseTooltip.Provider delay={delay} timeout={timeout}>
-      <InProviderContext value={true}>{children}</InProviderContext>
+      <InProviderContext.Provider value={true}>
+        {children}
+      </InProviderContext.Provider>
     </BaseTooltip.Provider>
   );
 }
@@ -107,7 +110,7 @@ export function Tooltip({
   className,
 }: TooltipProps) {
   const descriptionId = useId();
-  const inProvider = useContext(InProviderContext);
+  const inProvider = useContext(getInProviderContext());
   // 提示是一块和页面相反的颜色。做成相反主题的局部主题，而不是直接用反转色：
   // 里面的键位提示、着色词因此也按这块底色取值，不会和底融在一起
   const { anchorRef, portalRef } = usePortalScope({ invertTheme: true });

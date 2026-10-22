@@ -53,6 +53,9 @@ jobs:
       - name: 构建组件库
         run: pnpm build
 
+      - name: 发布产物与按需打包检查
+        run: pnpm test:package
+
       - name: 构建 Storybook
         run: pnpm build:docs
 

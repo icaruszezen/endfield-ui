@@ -2,7 +2,6 @@ import { Collapsible as BaseCollapsible } from "@base-ui/react/collapsible";
 import { Menu as BaseMenu } from "@base-ui/react/menu";
 import {
   Children,
-  createContext,
   isValidElement,
   useContext,
   useEffect,
@@ -25,10 +24,13 @@ import {
   menuPanel,
 } from "../dropdown-menu/menu-style";
 import { LinkElement, type LinkRender } from "../link-element/LinkElement";
-import { RailIcon, railItemClass, SideRailContext } from "./SideRail";
+import { RailIcon, railItemClass, getSideRailContext } from "./SideRail";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 /** 子项要知道自己是排在侧轨里，还是在收起时弹出的那块菜单里 */
-const SubContext = createContext<"list" | "menu">("list");
+const getSubContext = /* @__PURE__ */ createLazyContext<"list" | "menu">(
+  "list",
+);
 
 type SubOwnProps = {
   /** 图标。收起时只剩它 */
@@ -63,7 +65,8 @@ export function SideRailSub({
   children,
   ...props
 }: SideRailSubProps) {
-  const { collapsed } = useContext(SideRailContext);
+  const SubContext = getSubContext();
+  const { collapsed } = useContext(getSideRailContext());
   const { anchorRef, portalRef } = usePortalScope();
 
   // 当前项在不在里面：从子元素上读，所以 SideRailSubItem 要直接放在这里
@@ -121,7 +124,9 @@ export function SideRailSub({
                   <BaseMenu.GroupLabel className={menuGroupLabel}>
                     {label}
                   </BaseMenu.GroupLabel>
-                  <SubContext value="menu">{children}</SubContext>
+                  <SubContext.Provider value="menu">
+                    {children}
+                  </SubContext.Provider>
                 </BaseMenu.Group>
               </BaseMenu.Popup>
             </BaseMenu.Positioner>
@@ -167,7 +172,7 @@ export function SideRailSub({
             aria-label={label}
             className="relative before:absolute before:inset-y-0 before:left-8 before:w-px before:bg-line before:content-['']"
           >
-            <SubContext value="list">{children}</SubContext>
+            <SubContext.Provider value="list">{children}</SubContext.Provider>
           </ul>
         </BaseCollapsible.Panel>
       </BaseCollapsible.Root>
@@ -208,7 +213,7 @@ export function SideRailSubItem({
   children,
   ...props
 }: SideRailSubItemProps) {
-  const placement = useContext(SubContext);
+  const placement = useContext(getSubContext());
   const isLink = href !== undefined || render !== undefined;
 
   const content = (

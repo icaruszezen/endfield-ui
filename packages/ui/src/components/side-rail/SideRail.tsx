@@ -1,6 +1,5 @@
 import { Tooltip as BaseTooltip } from "@base-ui/react/tooltip";
 import {
-  createContext,
   useContext,
   useMemo,
   type ComponentProps,
@@ -11,9 +10,14 @@ import { usePortalScope } from "../../hooks/usePortalScope";
 import { cn } from "../../lib/cn";
 import { focusRingInset } from "../../lib/focus-ring";
 import { LinkElement, type LinkRender } from "../link-element/LinkElement";
-import { NavActionContext } from "../nav-action/NavAction";
+import { getNavActionContext } from "../nav-action/NavAction";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
-export const SideRailContext = createContext({ collapsed: false });
+export const getSideRailContext = /* @__PURE__ */ createLazyContext<{
+  collapsed: boolean;
+}>({
+  collapsed: false,
+});
 
 /**
  * 一行栏目的样子：普通栏目和二级的父项共用。
@@ -92,10 +96,12 @@ export function SideRail({
   children,
   ...props
 }: SideRailProps) {
+  const SideRailContext = getSideRailContext();
+  const NavActionContext = getNavActionContext();
   const context = useMemo(() => ({ collapsed }), [collapsed]);
 
   return (
-    <SideRailContext value={context}>
+    <SideRailContext.Provider value={context}>
       <nav
         {...props}
         data-collapsed={collapsed ? "" : undefined}
@@ -137,9 +143,9 @@ export function SideRail({
           <div
             className={cn("flex shrink-0 p-3", collapsed && "justify-center")}
           >
-            <NavActionContext value={collapsed ? "stacked" : "block"}>
+            <NavActionContext.Provider value={collapsed ? "stacked" : "block"}>
               {action}
-            </NavActionContext>
+            </NavActionContext.Provider>
           </div>
         )}
 
@@ -154,7 +160,7 @@ export function SideRail({
           </div>
         )}
       </nav>
-    </SideRailContext>
+    </SideRailContext.Provider>
   );
 }
 
@@ -195,7 +201,7 @@ export function SideRailItem({
   children,
   ...props
 }: SideRailItemProps) {
-  const { collapsed } = useContext(SideRailContext);
+  const { collapsed } = useContext(getSideRailContext());
   const { anchorRef, portalRef } = usePortalScope();
   const isLink = href !== undefined || render !== undefined;
 
@@ -294,7 +300,7 @@ export function SideRailGroup({
   children,
   ...props
 }: SideRailGroupProps) {
-  const { collapsed } = useContext(SideRailContext);
+  const { collapsed } = useContext(getSideRailContext());
 
   return (
     <li {...props} className={cn("not-first:mt-2", className)}>

@@ -37,7 +37,7 @@ pnpm add @endfield-ui/react
 | 样式 | Tailwind CSS v4（CSS-first，`@theme` 令牌，不使用 `tailwind.config.js`） |
 | 变体 | 手写的 `Record<Variant, string>` + `cn()`（`clsx` + `tailwind-merge`） |
 | 无障碍基元 | [Base UI](https://base-ui.com)（`@base-ui/react`），用在浮层和几个行为复杂的控件上：文字提示、气泡卡片、悬浮卡、弹窗、抽屉、全屏菜单、图片查看的大图层、轻提示、下拉选择、组合框、日期选择的面板、下拉菜单、右键菜单、展开条、折叠面板、侧轨的二级、工具栏、滑块、验证码输入、滚动区、头像。其余控件建立在原生元素上（月历是手写的：Base UI 还没有公开的日历基元） |
-| 构建 | tsdown（ESM + 类型声明）+ `@tailwindcss/cli`（预编译 CSS） |
+| 构建 | tsdown（ESM + 类型声明）+ `@tailwindcss/node`（预编译 CSS） |
 | 测试 | Vitest + Testing Library（jsdom） |
 
 ## 使用
@@ -942,10 +942,11 @@ packages/ui/
 | --- | --- |
 | `pnpm dev` | 启动 Storybook（`http://localhost:6106`），直接读本包源码，改了即热更新 |
 | `pnpm test` | 跑单元测试 |
+| `pnpm test:package` | 先 `pnpm build`，再检查发布产物、主入口与 Game 共享上下文，以及 Rollup 按需打包（模块版和重新合并的单文件版） |
 | `pnpm test:browser` | 在真的浏览器里测键盘、焦点与布局（先 `pnpm build:docs`），见 [apps/docs](https://github.com/icaruszezen/endfield-ui/blob/main/apps/docs/README.md#浏览器实测) |
 | `pnpm typecheck` | 类型检查全部工作区包 |
 | `pnpm lint` | 用 oxlint 查写错的地方：漏掉的 `await`、钩子的用法、已弃用的接口等 |
-| `pnpm build` | 生成 `dist/index.js`、`dist/index.d.ts`、`dist/styles.css`，以及 Game 入口的 `dist/game.js`、`dist/game.d.ts` 和 `dist/game/`（样式、图片、来源清单） |
+| `pnpm build` | 按源码模块结构输出 JS 与类型声明；保留 `dist/index.js`、`dist/game.js` 两个公共入口，以及主库和 Game 的样式、图片、来源清单 |
 | `pnpm format` | 用 Prettier 格式化全仓库；`pnpm format:check` 只检查不改，CI 跑的是它 |
 
 格式用 Prettier 的默认配置，提交前跑一次 `pnpm format`。Markdown 不在它的范围里（它会把表格逐列补空格对齐）；Tailwind 的类名顺序也不归它管。
@@ -954,11 +955,15 @@ packages/ui/
 
 TypeScript 用的是 7.0。tsdown 在这个版本下生成类型声明时会提示"API 尚不稳定"，目前产物正常；如果以后出问题，退路是 `tsc --emitDeclarationOnly`。
 
+构建保留模块边界并压缩 JS，公共导入路径保持兼容。Context 统一通过 `createLazyContext` 缓存，纯工厂调用保留 tree-shaking 标记。源码用于 Tailwind 扫描，发布包只将 CSS 标为副作用。
+
+`pnpm test:package` 检查真实 npm tarball 的导出、类型、共享上下文，以及六种用量下的模块版和单文件版按需打包，已接入 CI 和 `prepublishOnly`。测量范围与数据见 [PACKAGING.md](PACKAGING.md)。
+
 ### 发布
 
 1. 改本目录 `package.json` 里的 `version`，在根目录的 [CHANGELOG.md](https://github.com/icaruszezen/endfield-ui/blob/main/CHANGELOG.md) 里写上这一版改了什么，提交并推到 `main`，等 CI 跑完。
 2. 打一个和版本号对应的标签推上去：`git tag v1.0.0`，`git push origin v1.0.0`。
-3. [publish.yml](https://github.com/icaruszezen/endfield-ui/blob/main/.github/workflows/publish.yml) 核对标签与版本号，跑类型检查、测试与构建（`prepublishOnly`），然后发布到 npm。
+3. [publish.yml](https://github.com/icaruszezen/endfield-ui/blob/main/.github/workflows/publish.yml) 核对标签与版本号，跑类型检查、单元测试、构建与发布产物检查（`prepublishOnly`），然后发布到 npm。
 
 认证用的是 npm 的 Trusted Publishing，仓库里不存 token：npm 上这个包的设置里登记了本仓库和 `publish.yml` 这个文件名，两边任何一个改名都要同步。
 

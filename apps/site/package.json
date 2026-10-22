@@ -13,16 +13,16 @@
   },
   "dependencies": {
     "@endfield-ui/react": "workspace:*",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
     "@fontsource-variable/archivo": "^5.3.0",
     "@fontsource-variable/outfit": "^5.3.0",
     "@fontsource-variable/space-grotesk": "^5.3.0",
     "@tailwindcss/vite": "^4.3.3",
-    "@types/hast": "^3.0.4",
-    "@types/node": "^24.0.0",
+    "@types/hast": "^3.0.5",
+    "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "hast-util-to-string": "^3.0.1",
@@ -35,6 +35,6 @@
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
     "unified": "^11.0.5",
-    "vite": "^8.3.3"
+    "vite": "^8.3.5"
   }
 }

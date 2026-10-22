@@ -112,32 +112,44 @@ async function pixel(page: Page, { x, y }: Point): Promise<string> {
   return data;
 }
 
-/**
- * 系统色画出来是什么样：这个浏览器开着的时候不会变，量一次记住。
- *
- * 量的是它画在页面底色上的样子，所以拿去比的那一点，底下也得只有页面底色。
- * Windows 以外的 Chromium 把 Highlight 按白底折算成了半透明的（模拟的亮色那套配色里，
- * `#37006e` 成了 `rgba(5, 0, 73, 0.8)`：画在白底上看着差不多，压着别的东西就透出来）。
- * 本机是 Windows，量不出这件事；CI 是 Linux
- */
-const palette = new Map<SystemColor, string>();
-async function painted(page: Page, keyword: SystemColor): Promise<string> {
-  const known = palette.get(keyword);
-  if (known) return known;
-  const point = await page.evaluate((color) => {
-    const probe = document.createElement("i");
-    probe.id = "forced-colors-probe";
-    probe.style.cssText = `position:fixed;left:0;top:0;width:8px;height:8px;z-index:2147483647;forced-color-adjust:none;background:${color}`;
-    document.body.append(probe);
-    return { x: scrollX + 4, y: scrollY + 4 };
-  }, keyword);
-  await page.frames();
-  const color = await pixel(page, point);
+// 系统色在局部主题中取样，避免不同主题的色板混用。
+const palette = new Map<string, string>();
+async function painted(
+  page: Page,
+  keyword: SystemColor,
+  at?: Point,
+): Promise<string> {
+  const point = await page.evaluate(
+    (color, at) => {
+      const probe = document.createElement("i");
+      probe.id = "forced-colors-probe";
+      probe.style.cssText = `position:fixed;left:0;top:0;width:8px;height:8px;z-index:2147483647;forced-color-adjust:none;background:${color}`;
+      const scope = at
+        ? document
+            .elementFromPoint(at.x - scrollX, at.y - scrollY)
+            ?.closest("[data-theme]")
+        : null;
+      (scope ?? document.body).append(probe);
+      const rect = probe.getBoundingClientRect();
+      return {
+        x: rect.left + scrollX + 4,
+        y: rect.top + scrollY + 4,
+        key: getComputedStyle(probe).backgroundColor,
+      };
+    },
+    keyword,
+    at ?? null,
+  );
+  let color = palette.get(point.key);
+  if (!color) {
+    await page.frames();
+    color = await pixel(page, point);
+  }
   await page.evaluate(() =>
     document.getElementById("forced-colors-probe")?.remove(),
   );
   await page.frames();
-  palette.set(keyword, color);
+  palette.set(point.key, color);
   return color;
 }
 
@@ -179,7 +191,7 @@ async function shows(
   keyword: SystemColor,
   message: string,
 ) {
-  const expected = await painted(page, keyword);
+  const expected = await painted(page, keyword, point);
   let last = expected;
   try {
     await page.waitFor(
@@ -202,7 +214,7 @@ async function differs(
   keyword: SystemColor,
   message: string,
 ) {
-  const unexpected = await painted(page, keyword);
+  const unexpected = await painted(page, keyword, point);
   await page.settled();
   await page.waitFor(
     async () => (await pixel(page, point)) !== unexpected,
@@ -251,7 +263,7 @@ const declared = (
       if (!element) return false;
       const probe = document.createElement("i");
       probe.style.color = color;
-      document.body.append(probe);
+      (element.closest("[data-theme]") ?? document.body).append(probe);
       const expected = getComputedStyle(probe).color;
       probe.remove();
       return getComputedStyle(element, pseudoElement)[name] === expected;

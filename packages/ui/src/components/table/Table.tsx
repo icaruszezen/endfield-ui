@@ -1,6 +1,5 @@
 import {
   Children,
-  createContext,
   isValidElement,
   useContext,
   useEffect,
@@ -22,6 +21,7 @@ import { cn } from "../../lib/cn";
 import { focusRing, focusRingInset } from "../../lib/focus-ring";
 import { mergeRefs } from "../../lib/merge-refs";
 import { collapse, collapseEnter, collapseInner } from "../../lib/motion";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 export type TableHeaderVariant = "band" | "muted";
 export type TableSize = "sm" | "md";
@@ -36,7 +36,7 @@ type TableContextValue = {
   ruled: boolean;
 };
 
-const TableContext = createContext<TableContextValue>({
+const getTableContext = /* @__PURE__ */ createLazyContext<TableContextValue>({
   headerVariant: "band",
   size: "md",
   sticky: false,
@@ -45,10 +45,12 @@ const TableContext = createContext<TableContextValue>({
 });
 
 /** 单元格要知道自己在表头里还是表身里 */
-const SectionContext = createContext<"head" | "body">("body");
+const getSectionContext = /* @__PURE__ */ createLazyContext<"head" | "body">(
+  "body",
+);
 
 /** 能展开的行交给里面的展开钮 */
-const RowContext = createContext<{
+const getRowContext = /* @__PURE__ */ createLazyContext<{
   expanded: boolean;
   toggle: () => void;
   detailId: string;
@@ -97,6 +99,7 @@ export function Table({
   className,
   ...props
 }: TableProps) {
+  const TableContext = getTableContext();
   const [scrollerRef, overflowing] = useOverflowing();
   const scrollable = overflowing.x || overflowing.y;
 
@@ -123,7 +126,7 @@ export function Table({
   );
 
   return (
-    <TableContext value={context}>
+    <TableContext.Provider value={context}>
       <div
         ref={scrollerRef}
         // 冻结列右缘的那条线只看横向
@@ -151,23 +154,24 @@ export function Table({
           className="w-full border-separate border-spacing-0 text-left text-sm text-ink"
         />
       </div>
-    </TableContext>
+    </TableContext.Provider>
   );
 }
 
 export type TableHeadProps = ComponentProps<"thead">;
 
 export function TableHead(props: TableHeadProps) {
-  const { headerVariant } = useContext(TableContext);
+  const SectionContext = getSectionContext();
+  const { headerVariant } = useContext(getTableContext());
   return (
-    <SectionContext value="head">
+    <SectionContext.Provider value="head">
       <thead
         // 反转的标题带整个换成反转主题：列头的焦点环、排序的三角、
         // 放在里面的复选框都按这条带子的底色取值
         data-theme={headerVariant === "band" ? "inverse" : undefined}
         {...props}
       />
-    </SectionContext>
+    </SectionContext.Provider>
   );
 }
 
@@ -184,11 +188,12 @@ const ruledLines = [
 ].join(" ");
 
 export function TableBody({ className, ...props }: TableBodyProps) {
-  const { ruled } = useContext(TableContext);
+  const SectionContext = getSectionContext();
+  const { ruled } = useContext(getTableContext());
   return (
-    <SectionContext value="body">
+    <SectionContext.Provider value="body">
       <tbody {...props} className={cn(ruled && ruledLines, className)} />
-    </SectionContext>
+    </SectionContext.Provider>
   );
 }
 
@@ -233,7 +238,8 @@ export function TableRow({
   children,
   ...props
 }: TableRowProps) {
-  const section = useContext(SectionContext);
+  const RowContext = getRowContext();
+  const section = useContext(getSectionContext());
   const rowRef = useRef<HTMLTableRowElement>(null);
   const detailId = useId();
   const [expanded, setExpanded] = useControllableState({
@@ -279,7 +285,7 @@ export function TableRow({
           className,
         )}
       >
-        <RowContext value={context}>{children}</RowContext>
+        <RowContext.Provider value={context}>{children}</RowContext.Provider>
       </tr>
       {detailPresence.mounted && (
         <DetailRow
@@ -377,7 +383,7 @@ export function TableExpander({
   onClick,
   ...props
 }: TableExpanderProps) {
-  const row = useContext(RowContext);
+  const row = useContext(getRowContext());
   if (!row) return null;
 
   return (
@@ -460,7 +466,7 @@ export function TableHeaderCell({
   children,
   ...props
 }: TableHeaderCellProps) {
-  const { headerVariant, sticky, stickyHeader } = useContext(TableContext);
+  const { headerVariant, sticky, stickyHeader } = useContext(getTableContext());
 
   return (
     <th
@@ -542,7 +548,7 @@ export function TableCell({
   children,
   ...props
 }: TableCellProps) {
-  const { size, sticky } = useContext(TableContext);
+  const { size, sticky } = useContext(getTableContext());
   const Cell = rowHeader ? "th" : "td";
 
   return (

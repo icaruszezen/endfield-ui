@@ -1,5 +1,4 @@
 import {
-  createContext,
   useContext,
   useMemo,
   type ComponentProps,
@@ -14,6 +13,7 @@ import { decor } from "../../lib/decor";
 import { focusRingInset } from "../../lib/focus-ring";
 import { LinkElement, type LinkRender } from "../link-element/LinkElement";
 import { Tag } from "../tag/Tag";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 type ScheduleContextValue = {
   start: string;
@@ -23,10 +23,11 @@ type ScheduleContextValue = {
   describe: (start: string, end: string) => string;
 };
 
-const ScheduleContext = createContext<ScheduleContextValue | null>(null);
+const getScheduleContext =
+  /* @__PURE__ */ createLazyContext<ScheduleContextValue | null>(null);
 
 function useSchedule(part: string) {
-  const context = useContext(ScheduleContext);
+  const context = useContext(getScheduleContext());
   if (!context) throw new Error(`${part} 要放在 Schedule 里面`);
   return context;
 }
@@ -86,6 +87,7 @@ export function Schedule({
   children,
   ...props
 }: ScheduleProps) {
+  const ScheduleContext = getScheduleContext();
   const [scrollerRef, overflowing] = useOverflowing();
   const dates = useMemo(() => eachDay(start, end), [start, end]);
   const days = dates.length;
@@ -125,7 +127,7 @@ export function Schedule({
       : null;
 
   return (
-    <ScheduleContext value={context}>
+    <ScheduleContext.Provider value={context}>
       <div
         ref={scrollerRef}
         {...props}
@@ -257,7 +259,7 @@ export function Schedule({
           )}
         </div>
       </div>
-    </ScheduleContext>
+    </ScheduleContext.Provider>
   );
 }
 

@@ -213,7 +213,7 @@ test("只有溢出才有滚动条、才让出 12px、才占 Tab；给的是上�
       role: short.role,
       tabIndex: short.tabIndex,
     },
-    { bars: 0, margin: "0px", role: "presentation", tabIndex: -1 },
+    { bars: 0, margin: "0px", role: null, tabIndex: -1 },
     "不溢出的：没有滚动条、不让位、不是区域、不占 Tab",
   );
   assert.deepEqual(

@@ -1,6 +1,5 @@
 import { Select as BaseSelect } from "@base-ui/react/select";
 import {
-  createContext,
   Fragment,
   useContext,
   useRef,
@@ -13,7 +12,7 @@ import { StatusDanger } from "../../icons/StatusDanger";
 import { TriangleRight } from "../../icons/TriangleRight";
 import { cn } from "../../lib/cn";
 import {
-  MenuVariantContext,
+  getMenuVariantContext,
   menuGroupLabel,
   menuItem,
   menuItemCurrent,
@@ -31,6 +30,7 @@ import {
   type ControlSize,
   type ControlVariant,
 } from "../input/control-box";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 export type SelectSize = ControlSize;
 export type SelectVariant = ControlVariant;
@@ -107,7 +107,7 @@ export type SelectMultipleProps = SelectCommonProps & {
 export type SelectProps = SelectSingleProps | SelectMultipleProps;
 
 /** 面板里的选项要知道自己在不在多选的下拉里 */
-const SelectMultipleContext = createContext(false);
+const getSelectMultipleContext = /* @__PURE__ */ createLazyContext(false);
 
 function joinedLabels(selected: SelectOption[]) {
   return (
@@ -137,6 +137,8 @@ function joinedLabels(selected: SelectOption[]) {
  * 选项只有两三个、又都该一眼看到时，用单选或页签，不用它。
  */
 export function Select(props: SelectProps) {
+  const MenuVariantContext = getMenuVariantContext();
+  const SelectMultipleContext = getSelectMultipleContext();
   const {
     items,
     placeholder,
@@ -253,8 +255,8 @@ export function Select(props: SelectProps) {
             className={cn(menuPanel, "min-w-(--anchor-width)")}
           >
             <BaseSelect.List className="max-h-[min(var(--available-height),20rem)] overflow-y-auto overscroll-contain">
-              <MenuVariantContext value={panelVariant}>
-                <SelectMultipleContext value={multiple}>
+              <MenuVariantContext.Provider value={panelVariant}>
+                <SelectMultipleContext.Provider value={multiple}>
                   {children ??
                     items.map((item) => (
                       <SelectItem
@@ -265,8 +267,8 @@ export function Select(props: SelectProps) {
                         {item.label}
                       </SelectItem>
                     ))}
-                </SelectMultipleContext>
-              </MenuVariantContext>
+                </SelectMultipleContext.Provider>
+              </MenuVariantContext.Provider>
             </BaseSelect.List>
           </BaseSelect.Popup>
         </BaseSelect.Positioner>
@@ -320,8 +322,8 @@ export function SelectItem({
   children,
   ...props
 }: SelectItemProps) {
-  const variant = useContext(MenuVariantContext);
-  const multiple = useContext(SelectMultipleContext);
+  const variant = useContext(getMenuVariantContext());
+  const multiple = useContext(getSelectMultipleContext());
 
   return (
     <BaseSelect.Item

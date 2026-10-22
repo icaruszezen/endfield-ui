@@ -1,5 +1,4 @@
 import {
-  createContext,
   useContext,
   useId,
   useMemo,
@@ -16,6 +15,7 @@ import { focusRing, focusRingInset } from "../../lib/focus-ring";
 import { mergeRefs } from "../../lib/merge-refs";
 import { fadeInFast, indicator, indicatorBox } from "../../lib/motion";
 import { capsuleBase, capsuleSize, capsuleState } from "../chip/capsule-style";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 export type TabsVariant = "block" | "capsule" | "wedge";
 export type TabsSize = "sm" | "md";
@@ -30,10 +30,11 @@ type TabsContextValue = {
   switched: boolean;
 };
 
-const TabsContext = createContext<TabsContextValue | null>(null);
+const getTabsContext =
+  /* @__PURE__ */ createLazyContext<TabsContextValue | null>(null);
 
 function useTabsContext(component: string): TabsContextValue {
-  const context = useContext(TabsContext);
+  const context = useContext(getTabsContext());
   if (!context) {
     throw new Error(`<${component}> 必须放在 <Tabs> 里`);
   }
@@ -70,6 +71,7 @@ export function Tabs({
   size = "md",
   ...props
 }: TabsProps) {
+  const TabsContext = getTabsContext();
   const baseId = useId();
   const [current, select] = useControllableState({
     value,
@@ -87,9 +89,9 @@ export function Tabs({
   );
 
   return (
-    <TabsContext value={context}>
+    <TabsContext.Provider value={context}>
       <div {...props} data-variant={variant} />
-    </TabsContext>
+    </TabsContext.Provider>
   );
 }
 

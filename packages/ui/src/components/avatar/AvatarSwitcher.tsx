@@ -1,6 +1,5 @@
 import {
   Children,
-  createContext,
   isValidElement,
   useContext,
   useEffect,
@@ -17,6 +16,7 @@ import { ChevronRight } from "../../icons/ChevronRight";
 import { cn } from "../../lib/cn";
 import { IconButton } from "../icon-button/IconButton";
 import { Avatar, type AvatarSize } from "./Avatar";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 export type AvatarSwitcherOrientation = "vertical" | "horizontal";
 
@@ -27,7 +27,8 @@ type SwitcherContextValue = {
   select: (value: string) => void;
 };
 
-const SwitcherContext = createContext<SwitcherContextValue | null>(null);
+const getSwitcherContext =
+  /* @__PURE__ */ createLazyContext<SwitcherContextValue | null>(null);
 
 export type AvatarSwitcherProps = Omit<
   ComponentProps<"div">,
@@ -74,6 +75,7 @@ export function AvatarSwitcher({
   children,
   ...props
 }: AvatarSwitcherProps) {
+  const SwitcherContext = getSwitcherContext();
   const generatedName = useId();
   const name = nameProp ?? generatedName;
   const vertical = orientation === "vertical";
@@ -138,7 +140,7 @@ export function AvatarSwitcher({
   const Next = vertical ? ChevronDown : ChevronRight;
 
   return (
-    <SwitcherContext value={context}>
+    <SwitcherContext.Provider value={context}>
       <div
         {...props}
         role="radiogroup"
@@ -185,7 +187,7 @@ export function AvatarSwitcher({
           <Next />
         </IconButton>
       </div>
-    </SwitcherContext>
+    </SwitcherContext.Provider>
   );
 }
 
@@ -213,7 +215,7 @@ export function AvatarSwitcherItem({
   children,
   ...props
 }: AvatarSwitcherItemProps) {
-  const context = useContext(SwitcherContext);
+  const context = useContext(getSwitcherContext());
   if (!context) {
     throw new Error("AvatarSwitcherItem 要放在 AvatarSwitcher 里面");
   }

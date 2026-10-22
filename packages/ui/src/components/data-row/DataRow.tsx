@@ -1,5 +1,4 @@
 import {
-  createContext,
   useContext,
   type ComponentProps,
   type CSSProperties,
@@ -9,6 +8,7 @@ import { cn } from "../../lib/cn";
 import { focusRing } from "../../lib/focus-ring";
 import { bandCanvas, bandGap, bandRow } from "../list/band-style";
 import { Sparkline } from "../sparkline/Sparkline";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 export type DataRowColumns = {
   /** 名称那一列的列名 */
@@ -32,7 +32,10 @@ export type DataRowListProps = Omit<ComponentProps<"div">, "children"> & {
 
 type Layout = { trend: boolean; reference: boolean };
 
-const LayoutContext = createContext<Layout>({ trend: false, reference: false });
+const getLayoutContext = /* @__PURE__ */ createLazyContext<Layout>({
+  trend: false,
+  reference: false,
+});
 
 /*
  * 列的模板。容器变窄时先收起走势列（@lg 以下），再收起参考值列（@sm 以下）；
@@ -87,6 +90,7 @@ export function DataRowList({
   children,
   ...props
 }: DataRowListProps) {
+  const LayoutContext = getLayoutContext();
   const layout: Layout = {
     trend: columns.trend !== undefined,
     reference: columns.reference !== undefined,
@@ -121,7 +125,9 @@ export function DataRowList({
             </HeaderCell>
           )}
         </div>
-        <LayoutContext value={layout}>{children}</LayoutContext>
+        <LayoutContext.Provider value={layout}>
+          {children}
+        </LayoutContext.Provider>
       </div>
     </div>
   );
@@ -187,7 +193,7 @@ export function DataRow({
   style,
   ...props
 }: DataRowProps) {
-  const layout = useContext(LayoutContext);
+  const layout = useContext(getLayoutContext());
   const hasFavorite = favorite !== undefined || onFavoriteChange !== undefined;
   const dotClass = cn(favoriteDot, favorite ? favoriteOn : favoriteOff);
 

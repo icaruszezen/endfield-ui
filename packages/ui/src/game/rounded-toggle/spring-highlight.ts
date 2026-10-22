@@ -15,10 +15,13 @@ export function roundedSpringProgress(milliseconds: number) {
   );
 }
 
-const offsets = Array.from({ length: SAMPLES + 1 }, (_, index) => ({
-  offset: index / SAMPLES,
-  time: (index / SAMPLES) * DURATION,
-}));
+const offsets = /* @__PURE__ */ Array.from(
+  { length: SAMPLES + 1 },
+  (_, index) => ({
+    offset: index / SAMPLES,
+    time: (index / SAMPLES) * DURATION,
+  }),
+);
 
 function springPosition(
   time: number,

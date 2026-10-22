@@ -101,7 +101,7 @@ type ItemOwnProps = {
 export type FlyoutBarItemProps = ItemOwnProps &
   Omit<ComponentProps<"div">, keyof ItemOwnProps | "id" | "style">;
 
-const itemClass = cn(
+const itemClass = /* @__PURE__ */ cn(
   "flex min-w-10 cursor-default items-center justify-center gap-2 px-2.5 text-sm select-none",
   "transition-colors duration-(--duration-fast) ease-standard",
   "data-disabled:text-ink-disabled data-highlighted:text-ink",

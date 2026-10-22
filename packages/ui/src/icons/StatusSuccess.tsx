@@ -1,7 +1,7 @@
 import { createIcon } from "./createIcon";
 
 /** 圆 + 对勾：成功 */
-export const StatusSuccess = createIcon(
+export const StatusSuccess = /* @__PURE__ */ createIcon(
   "StatusSuccess",
   <>
     <circle cx="12" cy="12" r="9" />

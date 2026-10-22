@@ -2,7 +2,6 @@ import { Toggle as BaseToggle } from "@base-ui/react/toggle";
 import { ToggleGroup as BaseToggleGroup } from "@base-ui/react/toggle-group";
 import { Toolbar as BaseToolbar } from "@base-ui/react/toolbar";
 import {
-  createContext,
   useContext,
   useMemo,
   type ComponentProps,
@@ -13,12 +12,13 @@ import {
 import { cn } from "../../lib/cn";
 import { focusRing } from "../../lib/focus-ring";
 import type { LinkRender } from "../link-element/LinkElement";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 export type ToolbarSize = "sm" | "md";
 export type ToolbarVariant = "sunken" | "outline";
 export type ToolbarOrientation = "horizontal" | "vertical";
 
-const ToolbarContext = createContext<{
+const getToolbarContext = /* @__PURE__ */ createLazyContext<{
   size: ToolbarSize;
   orientation: ToolbarOrientation;
 }>({ size: "md", orientation: "horizontal" });
@@ -76,6 +76,7 @@ export function Toolbar({
   onKeyDown,
   ...props
 }: ToolbarProps) {
+  const ToolbarContext = getToolbarContext();
   const context = useMemo(() => ({ size, orientation }), [size, orientation]);
 
   // 基元只管方向键，Home / End 在这里补上：到第一个、最后一个
@@ -97,7 +98,7 @@ export function Toolbar({
   };
 
   return (
-    <ToolbarContext value={context}>
+    <ToolbarContext.Provider value={context}>
       <BaseToolbar.Root
         {...props}
         orientation={orientation}
@@ -114,7 +115,7 @@ export function Toolbar({
           className,
         )}
       />
-    </ToolbarContext>
+    </ToolbarContext.Provider>
   );
 }
 
@@ -171,7 +172,7 @@ const itemIcon = [
 ].join(" ");
 
 function useItemClass(iconOnly: boolean, className: string | undefined) {
-  const { size } = useContext(ToolbarContext);
+  const { size } = useContext(getToolbarContext());
   return cn(
     itemBase,
     itemSize[size],
@@ -359,7 +360,7 @@ export function ToolbarToggleGroup({
   className,
   ...props
 }: ToolbarToggleGroupProps) {
-  const { orientation } = useContext(ToolbarContext);
+  const { orientation } = useContext(getToolbarContext());
 
   return (
     <BaseToggleGroup

@@ -1,5 +1,4 @@
 import {
-  createContext,
   useContext,
   useId,
   useMemo,
@@ -11,6 +10,7 @@ import { usePresence } from "../../hooks/usePresence";
 import { StatusDanger } from "../../icons/StatusDanger";
 import { cn } from "../../lib/cn";
 import { collapse, collapseEnter, collapseInner } from "../../lib/motion";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 type FieldContextValue = {
   /** 单个控件的 id；`group` 字段里有多个控件，不提供 */
@@ -23,11 +23,12 @@ type FieldContextValue = {
   group: boolean;
 };
 
-const FieldContext = createContext<FieldContextValue | null>(null);
+const getFieldContext =
+  /* @__PURE__ */ createLazyContext<FieldContextValue | null>(null);
 
 /** 给成组的控件（单选组）读取所在字段的状态。不在 `Field` 里时返回 `null`。 */
 export function useFieldContext(): FieldContextValue | null {
-  return useContext(FieldContext);
+  return useContext(getFieldContext());
 }
 
 type ControlProps = {
@@ -50,7 +51,7 @@ export function useFieldControl({
   invalid,
   "aria-describedby": describedBy,
 }: ControlProps) {
-  const field = useContext(FieldContext);
+  const field = useContext(getFieldContext());
   const mergedDescribedBy =
     [describedBy, field?.describedBy].filter(Boolean).join(" ") || undefined;
 
@@ -97,6 +98,7 @@ export function Field({
   children,
   ...props
 }: FieldProps) {
+  const FieldContext = getFieldContext();
   const baseId = useId();
   const id = controlId ?? `${baseId}-control`;
   const labelId = `${baseId}-label`;
@@ -212,7 +214,9 @@ export function Field({
         </legend>
         {/* 组里的控件默认竖排；要横排就自己包一层，作为这里唯一的子元素 */}
         <div className="flex flex-col items-start">
-          <FieldContext value={context}>{children}</FieldContext>
+          <FieldContext.Provider value={context}>
+            {children}
+          </FieldContext.Provider>
         </div>
         {messages}
       </fieldset>
@@ -228,7 +232,7 @@ export function Field({
       <label id={labelId} htmlFor={id} className={cn(labelClass, "mb-1.5")}>
         {labelContent}
       </label>
-      <FieldContext value={context}>{children}</FieldContext>
+      <FieldContext.Provider value={context}>{children}</FieldContext.Provider>
       {messages}
     </div>
   );

@@ -3,7 +3,7 @@ import type { ReactElement, ReactNode } from "react";
 import { usePortalScope } from "../../hooks/usePortalScope";
 import { cn } from "../../lib/cn";
 import {
-  MenuVariantContext,
+  getMenuVariantContext,
   menuPanel,
   type MenuVariant,
 } from "../dropdown-menu/menu-style";
@@ -42,6 +42,7 @@ export function ContextMenu({
   disabled,
   className,
 }: ContextMenuProps) {
+  const MenuVariantContext = getMenuVariantContext();
   const { anchorRef, portalRef } = usePortalScope();
 
   return (
@@ -61,7 +62,9 @@ export function ContextMenu({
               className,
             )}
           >
-            <MenuVariantContext value={variant}>{menu}</MenuVariantContext>
+            <MenuVariantContext.Provider value={variant}>
+              {menu}
+            </MenuVariantContext.Provider>
           </BaseContextMenu.Popup>
         </BaseContextMenu.Positioner>
       </BaseContextMenu.Portal>

@@ -1,6 +1,5 @@
 import {
   Children,
-  createContext,
   useCallback,
   useContext,
   useEffect,
@@ -24,10 +23,11 @@ import { dropEmptyStyle } from "../../lib/inline-style";
 import { mergeRefs } from "../../lib/merge-refs";
 import { indicator } from "../../lib/motion";
 import { LinkElement, type LinkRender } from "../link-element/LinkElement";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 export type TocLevel = 1 | 2 | 3;
 
-const TocContext = createContext<{
+const getTocContext = /* @__PURE__ */ createLazyContext<{
   active: string | null;
   pick: (section: string) => void;
 }>({ active: null, pick: () => {} });
@@ -110,6 +110,7 @@ export function Toc({
   children,
   ...props
 }: TocProps) {
+  const TocContext = getTocContext();
   const navRef = useRef<HTMLElement>(null);
   // 当前项的粗条画在列表上：换一项时是同一段沿引线滑过去
   const listRef = useIndicator<HTMLUListElement>("[aria-current]");
@@ -262,7 +263,7 @@ export function Toc({
           "forced-colors:after:bg-[Highlight]",
         )}
       >
-        <TocContext value={context}>{children}</TocContext>
+        <TocContext.Provider value={context}>{children}</TocContext.Provider>
       </ul>
     </nav>
   );
@@ -310,7 +311,7 @@ export function TocItem({
   children,
   ...props
 }: TocItemProps) {
-  const { active, pick } = useContext(TocContext);
+  const { active, pick } = useContext(getTocContext());
   const current = section !== undefined && section === active;
 
   return (

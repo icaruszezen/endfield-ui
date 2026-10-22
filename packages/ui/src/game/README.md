@@ -31,7 +31,7 @@ Game 实机风格：照游戏内界面复刻的一组控件，外加一个带官
 
 目录怎么分、测试放哪、stories 放在 [apps/docs/stories/game](../../../../apps/docs/README.md)，这些和 [components](../components/README.md) 一样。不一样的是下面几条：
 
-- **和主库只有一个方向的关系。** 主库（`components/`、`hooks/`、`lib/`、`styles/`、`index.ts`）不许引这个目录里的任何东西。这个目录用主库的东西只经 [`lib/core.ts`](lib/core.ts) 一处，并且只用主入口公开导出的名字——构建时它们被换成对 `./index.js` 的引用（见 [`tsdown.config.ts`](../../tsdown.config.ts)），所以主入口的产物不因为多了这个入口而变，`Field` 的上下文也只有一份。
+- **和主库只有一个方向的关系。** 主库（`components/`、`hooks/`、`lib/`、`styles/`、`index.ts`）不许引这个目录里的任何东西。这个目录用主库的东西只经 [`lib/core.ts`](lib/core.ts) 一处，并且只用主入口公开导出的名字。两个入口在同一次 unbundle 构建中共用内部模块（见 [`tsdown.config.ts`](../../tsdown.config.ts)），`Field` 的上下文只有一份，使用方也能按模块剔除未使用的组件。
 - **样式是每个控件一份纯 CSS**，不用工具类，由 [`styles.css`](styles.css) 汇总进 `components` 层。主样式入口不扫这个目录（`@source not`）。
 - **固定配色，可以写十六进制色值。** 这一类复刻的是游戏里的样子，不随主题变；"只用令牌"在这里不适用。会落在页面底色上的东西（控件外面的焦点环）仍然取主题的令牌，并且带回退值。
 - **类名以 `ef-` 开头，私有变量以 `--ef-game-` 开头，`@keyframes` 以 `ef-` 开头。** 顶层规则只许以 `.ef-` 类起头；唯一的例外是主题范围上的那几条（`:root`、`[data-theme]`），它们只许声明 `--ef-game-*` 变量——亮暗两套图要"最近的主题说了算"，只能靠继承。

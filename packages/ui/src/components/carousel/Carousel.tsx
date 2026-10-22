@@ -1,6 +1,5 @@
 import {
   Children,
-  createContext,
   isValidElement,
   useContext,
   type ComponentProps,
@@ -15,6 +14,7 @@ import { focusRing } from "../../lib/focus-ring";
 import { DashIndicator } from "../dash-indicator/DashIndicator";
 import { IconButton } from "../icon-button/IconButton";
 import { useSnapTrack } from "./snap-track";
+import { createLazyContext } from "../../lib/create-lazy-context";
 
 export type CarouselRatio = "16/9" | "4/3" | "1/1" | "3/4" | "21/9";
 
@@ -26,7 +26,7 @@ const ratioClass: Record<CarouselRatio, string> = {
   "21/9": "aspect-21/9",
 };
 
-const SlideContext = createContext<{
+const getSlideContext = /* @__PURE__ */ createLazyContext<{
   position: number;
   count: number;
   current: boolean;
@@ -73,6 +73,7 @@ export function Carousel({
   children,
   ...props
 }: CarouselProps) {
+  const SlideContext = getSlideContext();
   // 标题和说明从子元素上读，所以子元素必须直接是 CarouselSlide
   const slides = Children.toArray(children).filter((child) =>
     isValidElement<SlideLike>(child),
@@ -151,12 +152,12 @@ export function Carousel({
           )}
         >
           {slides.map((slide, position) => (
-            <SlideContext
+            <SlideContext.Provider
               key={position}
               value={{ position, count, current: position === index }}
             >
               {slide}
-            </SlideContext>
+            </SlideContext.Provider>
           ))}
         </div>
         {/* 压在媒体左下角的一对圆钮。它们在轨道外面：轨道滚的时候不跟着走 */}
@@ -228,7 +229,7 @@ export function CarouselSlide({
   children,
   ...props
 }: CarouselSlideProps) {
-  const slide = useContext(SlideContext);
+  const slide = useContext(getSlideContext());
   if (!slide) {
     throw new Error("CarouselSlide 要直接放在 Carousel 里面");
   }

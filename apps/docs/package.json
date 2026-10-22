@@ -12,21 +12,21 @@
   },
   "dependencies": {
     "@endfield-ui/react": "workspace:*",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
-    "@storybook/addon-a11y": "^10.6.1",
-    "@storybook/addon-docs": "^10.6.1",
-    "@storybook/icons": "^2.1.0",
-    "@storybook/react-vite": "^10.6.1",
+    "@storybook/addon-a11y": "^10.6.3",
+    "@storybook/addon-docs": "^10.6.3",
+    "@storybook/icons": "^2.2.0",
+    "@storybook/react-vite": "^10.6.3",
     "@tailwindcss/vite": "^4.3.3",
-    "@types/node": "^24.0.0",
+    "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "storybook": "^10.6.1",
+    "storybook": "^10.6.3",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
-    "vite": "^8.3.3"
+    "vite": "^8.3.5"
   }
 }
