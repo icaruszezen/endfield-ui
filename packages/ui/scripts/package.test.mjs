@@ -31,6 +31,10 @@ const flat = join(packed, "flat.js");
 let flatCode;
 let coldCode;
 
+function quote(value) {
+  return process.platform === "win32" ? `"${value}"` : value;
+}
+
 function walk(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((item) => {
     const file = join(dir, item.name);
@@ -80,19 +84,28 @@ async function bundle(
 
 before(async () => {
   const [archive] = JSON.parse(
-    execFileSync("npm", ["pack", "--json", "--pack-destination", temporary], {
-      cwd: root,
-      encoding: "utf8",
-      stdio: "pipe",
-    }),
+    // Windows 上 npm 是 .cmd，要经过 shell；路径加引号，防止用户名里有空格
+    execFileSync(
+      "npm",
+      ["pack", "--json", "--pack-destination", quote(temporary)],
+      {
+        cwd: root,
+        encoding: "utf8",
+        stdio: "pipe",
+        shell: process.platform === "win32",
+      },
+    ),
   );
-  execFileSync("tar", [
-    "-xf",
-    join(temporary, archive.filename),
-    "-C",
-    temporary,
-  ]);
-  symlinkSync(join(root, "node_modules"), join(packed, "node_modules"), "dir");
+  // 在压缩包所在目录里用相对路径解压：GNU tar 会把带盘符的路径（C:…）当成远程主机
+  execFileSync("tar", ["-xf", archive.filename], {
+    cwd: temporary,
+    stdio: "pipe",
+  });
+  symlinkSync(
+    join(root, "node_modules"),
+    join(packed, "node_modules"),
+    "dir",
+  );
   const source = ["index.js", "game.js"]
     .map((file) => `export * from ${JSON.stringify(join(dist, file))};`)
     .join("\n");
@@ -163,9 +176,11 @@ test("已打包的两个入口及其声明可供外部 TypeScript 项目使用",
     export const game = <Field label="声音"><RoundedSwitch {...toggle} /></Field>;
   `,
   );
+  // .bin/tsc 在 Windows 上是脚本，不能直接执行；用 node 跑它背后的入口
   execFileSync(
-    join(root, "node_modules/.bin/tsc"),
+    process.execPath,
     [
+      join(root, "node_modules/typescript/bin/tsc"),
       "--noEmit",
       "--strict",
       "--target",
