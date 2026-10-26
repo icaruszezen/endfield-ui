@@ -285,6 +285,19 @@ test("放进字段：名称来自标签；值随表单提交；没选时报错�
     async () => (await groups())[1]!.invalid === null,
     "选了之后错误应该消掉",
   );
+  // 错误态先消，错误说明后走：它先收起、再卸载，卸载那一下"保存"往上挪 26px。
+  // 等它卸载完再点——不然驱动定好的位置在按钮挪走之后成了空白，点下去什么都没提交
+  // （CI 上碰到过一次：原来的正中正好在挪过去之后的按钮下沿外面）
+  await page.waitFor(
+    () =>
+      page.evaluate(
+        () =>
+          !document
+            .querySelector("#storybook-root")!
+            .textContent.includes("还没选班次"),
+      ),
+    "选了之后错误说明应该收起、卸载",
+  );
   await page.click("text=保存");
   await page.waitFor(
     async () =>
