@@ -30,6 +30,8 @@
 | 阴影 | 无 | 实测 |
 | 内边距 | 16 – 24px | 推断 |
 
+云游戏页的卡片带圆角和阴影：采购中心的商品卡 4px 圆角、`0 0 12px` 黑 25% 的环境阴影，时长记录的记录行 4px 圆角、`0 0 12px` 黑 20%（实测（云游戏页））。这里仍是直角、不加阴影，见 [云游戏页](../surfaces/cloud.md#登录后的页面)。
+
 ### 标题带
 
 面板的标题是一条深色横带，左端一条黄色短竖条（社区：游戏界面的数据列分组头）。
@@ -434,4 +436,5 @@
 ## 来源
 
 - 面板底色、新闻卡圆角：[measurements.md](../references/measurements.md) 第 3、9 节。
+- 云游戏页的商品卡与记录行：[measurements-cloud.md](../references/measurements-cloud.md) 第 9.3、9.4 节；对照见 [云游戏页](../surfaces/cloud.md#登录后的页面)。
 - 物品格的稀有度渐变、选中与锁定、分组标题带：[Statrue/endfield-design-skill](https://github.com/Statrue/endfield-design-skill)。
