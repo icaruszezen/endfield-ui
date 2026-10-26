@@ -10,13 +10,14 @@
 | --- | --- |
 | 快速了解这套风格 | [设计总纲](design/overview.md) |
 | 做一个官网气质的页面 | [官网](design/surfaces/website.md) → [色彩](design/foundations/color.md) → [分节标题](design/elements/section-title.md) |
+| 做下载页、产品落地页 | [云游戏页](design/surfaces/cloud.md) → [按钮](design/components/button.md) → [斜纹与色条](design/elements/stripes-and-strips.md) |
 | 做游戏风格的界面 | [游戏界面](design/surfaces/game-ui.md) → [形状](design/foundations/shape.md) → [切角与斜楔](design/elements/corner-and-wedge.md) |
 | 做一张长图或活动页 | [宣传物料](design/surfaces/promotional.md) → [纹理](design/foundations/texture.md) |
 | 用现成的组件 | [packages/ui](../packages/ui/README.md) |
 | 用照游戏内界面复刻的那一组控件 | [Game 实机风格](design/game/README.md)——独立入口，带官方图片，先读里面的风险一节 |
 | 接着写组件 | [组件规范](design/components/README.md) → [组件约定](../packages/ui/src/components/README.md) → [theme.css](../packages/ui/src/styles/theme.css) |
 | 给控件加动效，或者想知道某处为什么这么动 | [动效](design/foundations/motion.md) → [动效补全计划](motion-plan.md)——35 步都做完了，留着的是每一步怎么定的 |
-| 核对某个数值的依据 | [官网实测数据](design/references/measurements.md) |
+| 核对某个数值的依据 | [官网实测数据](design/references/measurements.md)；云游戏页的看 [云游戏页实测数据](design/references/measurements-cloud.md) |
 
 ## 全部文档
 
@@ -51,9 +52,10 @@
 
 ### 载体
 
-三种载体各自的整体面貌。
+三种载体各自的整体面貌；官网的云游戏页单独一篇。
 
 - [官网](design/surfaces/website.md)——证据等级：实测
+- [云游戏页](design/surfaces/cloud.md)——证据等级：实测
 - [游戏界面](design/surfaces/game-ui.md)——证据等级：社区
 - [宣传物料](design/surfaces/promotional.md)——证据等级：观察 + 社区
 
@@ -84,7 +86,8 @@
 
 ### 依据
 
-- [官网实测数据](design/references/measurements.md)——全部原始数值
+- [官网实测数据](design/references/measurements.md)——官网首页的全部原始数值
+- [云游戏页实测数据](design/references/measurements-cloud.md)——云游戏页（/cloud）和页面里的鹰角账号弹窗的原始数值
 - [官方来源索引](design/references/official-sources.md)——来源等级的定义、官方渠道入口
 - [开源项目调研](design/references/open-source-projects.md)——GitHub 上的相关项目与可借鉴之处
 
@@ -96,8 +99,8 @@
 | --- | --- |
 | `palette/` | 中性阶、信号黄与角色色、亮暗表面 |
 | `typography/` | 字体角色、字阶 |
-| `elements/` | 形状语义、切角、括号、斜纹、分节标题与分节标签组、镂空字、底纹、测绘叠层、图标网格 |
-| `layout/` | 官网桌面 / 移动线框、偏心构图、游戏界面分区与家族、版本日历结构、图像处理 |
+| `elements/` | 形状语义、切角、括号、斜纹、分节标题与分节标签组、镂空字、底纹、测绘叠层、图标网格、云游戏页的几样母题 |
+| `layout/` | 官网桌面 / 移动线框、云游戏页首页与"更多"线框、偏心构图、游戏界面分区与家族、版本日历结构、图像处理 |
 | `components/` | 按钮、导航、标签、卡片、表单、反馈、浮层、数据展示 |
 | `motion/` | 时长与悬停分镜、闪烁曲线与加载阶段 |
 
@@ -116,7 +119,7 @@
 
 ### 更新文档
 
-- 官网改版后，重新测量并更新 [measurements.md](design/references/measurements.md) 的日期与数值，再检查引用它的文档。
+- 官网改版后，重新测量并更新 [measurements.md](design/references/measurements.md) 的日期与数值，再检查引用它的文档。云游戏页是另一套构建，改版节奏不同，复测记在 [measurements-cloud.md](design/references/measurements-cloud.md)。
 - 改动任何令牌值时，同步修改 [theme.css](../packages/ui/src/styles/theme.css) 与对应文档里的表格。`pnpm check:docs` 会核对两边对不对得上，连同链接、锚点和图；文档站构建之前也会跑它。
 - 组件的实现取值与规范不一致时（多半是为了适配暗色主题），把取值和理由写回对应的组件文档。
 - 把"社区"级别的结论升级为"观察"时，注明游戏版本与观察日期。

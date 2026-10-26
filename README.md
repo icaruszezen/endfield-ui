@@ -117,10 +117,10 @@ endfield-ui/
 │   │   ├── overview.md        设计总纲
 │   │   ├── foundations/       基础：色彩、字体、形状、布局、动效、纹理、图标、图像
 │   │   ├── elements/          母题：切角、括号、斜纹、分节标题、镂空字、底纹、测绘叠层
-│   │   ├── surfaces/          载体：官网、游戏界面、宣传物料
+│   │   ├── surfaces/          载体：官网、云游戏页、游戏界面、宣传物料
 │   │   ├── components/        组件：按钮、导航、卡片、表单、反馈、浮层、数据展示
 │   │   ├── game/              Game 实机风格：总览与风险说明，六篇控件文档
-│   │   ├── references/        依据：官网实测数据、官方来源、开源项目调研
+│   │   ├── references/        依据：官网与云游戏页的实测数据、官方来源、开源项目调研
 │   │   └── assets/            原创 SVG 图解
 │   ├── motion-plan.md         动效是怎么一步步补上的（已做完，留作记录）
 │   └── screenshots/           这一页用的示例页截图
@@ -202,7 +202,7 @@ import { Button, Field, Input, Tag } from "@endfield-ui/react";
 
 ## 文档的依据
 
-- **官网**：直接测量 [endfield.hypergryph.com](https://endfield.hypergryph.com/) 的样式，原始数据记录在 [measurements.md](docs/design/references/measurements.md)。
+- **官网**：直接测量 [endfield.hypergryph.com](https://endfield.hypergryph.com/) 的样式，原始数据记录在 [measurements.md](docs/design/references/measurements.md)；云游戏页（/cloud）另记在 [measurements-cloud.md](docs/design/references/measurements-cloud.md)。
 - **游戏界面与宣传物料**：本仓库没有实机截图，这部分主要整理自社区开源项目的归纳，文档中一律标注为"社区"。
 - **开源项目**：调研了 GitHub 上十余个相关项目，逐项记录了可借鉴之处与许可证，见 [open-source-projects.md](docs/design/references/open-source-projects.md)。
 

@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="960" height="440" role="img" aria-labelledby="t d" font-family="'HarmonyOS Sans SC','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+  <title id="t">云游戏页"更多"视图线框</title>
+  <desc id="d">黑色顶栏下是白底的卖点介绍。左侧白色侧栏：标志、五项目录，当前项是一块浅灰底块，左缘一根墨色竖条，名称下一根黄色下划线；栏底一个深色的下载按钮。右侧一节卖点：顶上一根刻度尺和一根黄色斜纹长条，端头一块灰色装饰；左边一张带灰斜纹镶边的标题卡，标题压在黄横条上，上方一个黄描边的倒三角，标题被一对 L 形角括号框住；右边一张主图，右上和左下各一个黑边黄芯的角块；背景是带对角线的网格。</desc>
+  <defs>
+    <pattern id="grid-x" width="64" height="80" patternUnits="userSpaceOnUse" x="111" y="70">
+      <path d="M0 0H64M0 0V80M0 0L64 80M64 0L0 80" stroke="#bdbdbd" stroke-opacity="0.35" stroke-width="0.8" fill="none"/>
+    </pattern>
+    <pattern id="hatch-y" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="8" height="8" fill="#fefe63"/>
+      <rect width="4.6" height="8" fill="#fdfd1f"/>
+    </pattern>
+    <pattern id="hatch-g" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="5" height="5" fill="#dddddd"/>
+      <rect width="3" height="5" fill="#d0d0d0"/>
+    </pattern>
+    <pattern id="dots" width="6" height="6" patternUnits="userSpaceOnUse">
+      <rect width="6" height="6" fill="#f3f3f3"/>
+      <circle cx="1.5" cy="1.5" r="0.8" fill="#d8d8d8"/>
+      <circle cx="4.5" cy="4.5" r="0.8" fill="#d8d8d8"/>
+    </pattern>
+    <linearGradient id="fade" x1="0" x2="1">
+      <stop offset="0.75" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+    <clipPath id="view"><rect x="40" y="40" width="640" height="360"/></clipPath>
+  </defs>
+  <rect width="960" height="440" fill="#fafafa"/>
+
+  <g clip-path="url(#view)">
+    <!-- 内容底：白底 + 网格 -->
+    <rect x="40" y="40" width="640" height="360" fill="#ffffff"/>
+    <rect x="111" y="70" width="569" height="330" fill="url(#grid-x)"/>
+    <path d="M598 70V400" stroke="#d1d1d1" stroke-width="1"/>
+
+    <!-- 频率条：刻度尺 + 黄斜纹长条 + 端头装饰 -->
+    <g stroke="#cfcfcf" stroke-width="1">
+      <path d="M116 92v3.5M122 92v3.5M128 92v3.5M134 92v3.5M146 92v3.5M152 92v3.5M158 92v3.5M164 92v3.5M176 92v3.5M182 92v3.5M188 92v3.5M194 92v3.5M206 92v3.5M212 92v3.5M218 92v3.5M224 92v3.5M236 92v3.5M242 92v3.5M248 92v3.5M254 92v3.5M266 92v3.5M272 92v3.5M278 92v3.5M284 92v3.5M296 92v3.5M302 92v3.5M308 92v3.5M314 92v3.5M326 92v3.5M332 92v3.5M338 92v3.5M344 92v3.5M356 92v3.5M362 92v3.5M368 92v3.5M374 92v3.5M386 92v3.5M392 92v3.5M398 92v3.5M404 92v3.5M416 92v3.5M422 92v3.5M428 92v3.5M434 92v3.5M446 92v3.5M452 92v3.5M458 92v3.5M464 92v3.5M476 92v3.5M482 92v3.5M488 92v3.5M494 92v3.5M506 92v3.5M512 92v3.5M518 92v3.5M524 92v3.5M536 92v3.5M542 92v3.5M548 92v3.5M554 92v3.5M566 92v3.5M572 92v3.5M578 92v3.5M584 92v3.5M596 92v3.5"/>
+    </g>
+    <g stroke="#999999" stroke-width="1.5">
+      <path d="M140 91v5M170 91v5M200 91v5M230 91v5M260 91v5M290 91v5M320 91v5M350 91v5M380 91v5M410 91v5M440 91v5M470 91v5M500 91v5M530 91v5M560 91v5M590 91v5"/>
+    </g>
+    <rect x="111" y="109" width="9" height="12.5" fill="#e6e6e6"/>
+    <rect x="120" y="109" width="487" height="12.5" fill="url(#hatch-y)"/>
+    <rect x="111" y="88" width="497" height="34" fill="url(#fade)"/>
+    <rect x="614" y="87" width="52" height="30" fill="#f2f2f2"/>
+    <g fill="#cccccc"><rect x="618" y="92" width="34" height="2"/><rect x="618" y="97" width="26" height="2"/><rect x="618" y="102" width="30" height="2"/><rect x="618" y="108" width="20" height="5"/></g>
+    <rect x="662" y="87" width="2.5" height="30" fill="#fffa00"/>
+
+    <!-- 标题卡 -->
+    <rect x="111" y="142" width="183" height="211" fill="url(#hatch-g)"/>
+    <rect x="111" y="175" width="183" height="122" fill="url(#dots)"/>
+    <rect x="141" y="209.5" width="150" height="14" fill="#fdfd1f"/>
+    <rect x="141" y="209.5" width="7" height="14" fill="#cccccc"/>
+    <polygon points="160,193 206,193 183,226" fill="#ffffff" stroke="#fdfd1f" stroke-width="4" stroke-linejoin="miter"/>
+    <rect x="189" y="201" width="76" height="17" fill="#191919"/>
+    <rect x="141" y="228" width="135" height="13" fill="#3c3c3c"/>
+    <path d="M181 207v-10h10" stroke="#1a1a1a" stroke-width="3" fill="none"/>
+    <path d="M273 212v10h-10" stroke="#1a1a1a" stroke-width="3" fill="none"/>
+
+    <!-- 主图 + 两角的角块 -->
+    <rect x="294.5" y="142" width="375" height="211" fill="#d9d9d9"/>
+    <polygon points="330,353 380,240 430,205 480,250 520,353" fill="#c4c4c4"/>
+    <circle cx="430" cy="225" r="22" fill="#b3b3b3"/>
+    <rect x="665.75" y="138.25" width="7.5" height="7.5" fill="#fdfd1f" stroke="#000000" stroke-width="1"/>
+    <rect x="290.75" y="349.25" width="7.5" height="7.5" fill="#fdfd1f" stroke="#000000" stroke-width="1"/>
+
+    <!-- 浅灰大字 -->
+    <g fill="#f2f2f2"><rect x="452" y="358" width="28" height="36"/><rect x="486" y="358" width="28" height="36"/><rect x="520" y="358" width="28" height="36"/><rect x="554" y="358" width="28" height="36"/><rect x="588" y="358" width="28" height="36"/><rect x="622" y="358" width="28" height="36"/></g>
+
+    <!-- 侧栏 -->
+    <rect x="40" y="70" width="71" height="330" fill="#ffffff"/>
+    <path d="M111 70V400" stroke="#d9d9d9"/>
+    <rect x="45" y="75" width="54" height="12" fill="#191919"/>
+    <rect x="40" y="107" width="67" height="25" fill="#e6e6e6"/>
+    <rect x="40" y="107" width="2" height="25" fill="#191919"/>
+    <path d="M48 111h4v4" stroke="#000000" stroke-width="1.2" fill="none" transform="rotate(90 50 113)"/>
+    <rect x="48" y="117" width="34" height="5" fill="#000000"/>
+    <rect x="48" y="125" width="37" height="1.6" fill="#fff100"/>
+    <rect x="49" y="128" width="26" height="1" fill="#bfbfbf"/>
+    <g fill="#a7a7a7">
+      <rect x="48" y="145" width="34" height="5"/><rect x="48" y="173" width="34" height="5"/><rect x="48" y="201" width="34" height="5"/><rect x="48" y="229" width="34" height="5"/>
+    </g>
+    <rect x="44" y="374" width="63" height="14" rx="1" fill="#141414"/>
+    <rect x="49" y="378" width="6" height="6" fill="#eeeeee"/>
+    <rect x="59" y="377" width="0.6" height="8" fill="#ffffff" fill-opacity="0.3"/>
+    <rect x="68" y="379" width="28" height="4" fill="#eeeeee"/>
+
+    <!-- 顶栏 -->
+    <rect x="40" y="40" width="640" height="30" fill="#191919"/>
+    <rect x="49" y="45" width="48" height="20" fill="#eeeeee"/>
+    <text x="73" y="59" font-size="9" font-weight="700" fill="#191919" text-anchor="middle" font-family="'Space Grotesk',Consolas,monospace">LOGO</text>
+    <text x="128" y="58" font-size="9" fill="#737373" text-anchor="middle">首页</text>
+    <text x="156" y="58" font-size="9" fill="#eeeeee" text-anchor="middle">更多</text>
+    <rect x="148" y="63" width="16" height="1.2" fill="#eeeeee"/>
+    <polygon points="154.5,64.2 157.5,64.2 156,66" fill="#eeeeee"/>
+  </g>
+
+  <!-- 标注点 -->
+  <g font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle" font-family="'Space Grotesk',Consolas,monospace">
+    <circle cx="40" cy="160" r="10" fill="#191919" stroke="#fafafa" stroke-width="2"/><text x="40" y="164">1</text>
+    <circle cx="111" cy="119" r="10" fill="#191919" stroke="#fafafa" stroke-width="2"/><text x="111" y="123">2</text>
+    <circle cx="360" cy="104" r="10" fill="#191919"/><text x="360" y="108">3</text>
+    <circle cx="111" cy="250" r="10" fill="#191919" stroke="#fafafa" stroke-width="2"/><text x="111" y="254">4</text>
+    <circle cx="669.5" cy="168" r="10" fill="#191919"/><text x="669.5" y="172">5</text>
+    <circle cx="300" cy="380" r="10" fill="#191919"/><text x="300" y="384">6</text>
+  </g>
+
+  <text x="40" y="420" font-size="11" fill="#191919" font-family="'Space Grotesk',Consolas,monospace">按 2560 宽的设计稿画，再整体缩放；1440 宽时 × 0.5625</text>
+
+  <!-- 图例 -->
+  <g font-size="13" fill="#191919">
+    <text x="712" y="64"><tspan font-weight="700" font-family="'Space Grotesk',Consolas,monospace">1</tspan>　侧栏目录</text>
+    <text x="712" y="124"><tspan font-weight="700" font-family="'Space Grotesk',Consolas,monospace">2</tspan>　当前项</text>
+    <text x="712" y="184"><tspan font-weight="700" font-family="'Space Grotesk',Consolas,monospace">3</tspan>　频率条</text>
+    <text x="712" y="244"><tspan font-weight="700" font-family="'Space Grotesk',Consolas,monospace">4</tspan>　标题卡</text>
+    <text x="712" y="304"><tspan font-weight="700" font-family="'Space Grotesk',Consolas,monospace">5</tspan>　主图与角块</text>
+    <text x="712" y="364"><tspan font-weight="700" font-family="'Space Grotesk',Consolas,monospace">6</tspan>　网格底纹</text>
+  </g>
+  <g font-size="12" fill="#626262">
+    <text x="736" y="84">吸顶的白栏，五项目录，</text>
+    <text x="736" y="101">栏底一个深色下载按钮</text>
+    <text x="736" y="144">灰底块和墨色竖条整块</text>
+    <text x="736" y="161">滑过去，黄下划线再长出</text>
+    <text x="736" y="204">刻度尺一直向左走，下面</text>
+    <text x="736" y="221">一根黄色斜纹长条</text>
+    <text x="736" y="264">标题压在黄横条上，被一对</text>
+    <text x="736" y="281">L 形角括号框住；都是图片</text>
+    <text x="736" y="324">两个对角各一个黑边</text>
+    <text x="736" y="341">黄芯的方块</text>
+    <text x="736" y="384">方格加对角线，浅灰；</text>
+    <text x="736" y="401">每节一根细竖线</text>
+  </g>
+</svg>
