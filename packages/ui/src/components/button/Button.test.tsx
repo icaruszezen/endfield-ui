@@ -239,6 +239,33 @@ describe("Button", () => {
     );
   });
 
+  it("高对比模式：底色的变化看不见，悬停时字加下划线；禁用的和 text 不加", () => {
+    for (const variant of [
+      "control",
+      "action",
+      "light",
+      "back",
+      "danger",
+    ] as const) {
+      const { unmount } = render(<Button variant={variant}>确认</Button>);
+      expect(screen.getByRole("button")).toHaveClass(
+        "forced-colors:hover:underline",
+      );
+      unmount();
+    }
+
+    const disabled = render(<Button disabled>确认</Button>);
+    expect(screen.getByRole("button")).not.toHaveClass(
+      "forced-colors:hover:underline",
+    );
+    disabled.unmount();
+
+    render(<Button variant="text">查看全部</Button>);
+    expect(screen.getByRole("button")).not.toHaveClass(
+      "forced-colors:hover:underline",
+    );
+  });
+
   it("高对比模式：禁用的线、字、记号都是灰字色，链接形态也是", () => {
     const { container, unmount } = render(
       <Button disabled iconStart={<svg />}>

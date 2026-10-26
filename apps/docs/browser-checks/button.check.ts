@@ -132,6 +132,16 @@ test("control：亮色主题是 #383838；暗色主题下是半透明的白，�
     "rgb(255, 255, 255)",
     "悬停时字变白",
   );
+  // 下划线只是高对比模式下的悬停反馈，平时不出现
+  assert.equal(
+    await page.evaluate(
+      (css) =>
+        getComputedStyle(document.querySelector(css)!).textDecorationLine,
+      control,
+    ),
+    "none",
+    "平时悬停不加下划线",
+  );
 });
 
 test("danger 和 light 两个主题下取值一样：danger 是红底白字；light 是浅灰底叠点阵，悬停变浅、不变黄", async () => {

@@ -142,6 +142,8 @@ const forcedOutline = "forced-colors:border";
 const forcedEnabled = "forced-colors:border-[ButtonText]";
 const forcedDisabled =
   "forced-colors:border-[GrayText] forced-colors:text-[GrayText]";
+const forcedHover =
+  "forced-colors:hover:underline forced-colors:hover:underline-offset-3";
 
 export function Button(props: ButtonProps) {
   const {
@@ -184,6 +186,8 @@ export function Button(props: ButtonProps) {
     // text 变体靠下划线成形，不补线；它的下划线跟着字色走，禁用时一起写明
     !isText && forcedOutline,
     disabled ? forcedDisabled : !isText && forcedEnabled,
+    // 底色的变化系统不画，悬停就没有反馈了：字加一条下划线（不用"选中"色，那是留给选中的）
+    !disabled && !isText && forcedHover,
     // 加载中不是禁用：线和字照旧。链接形态这时候同样去掉了地址，字色写明，和线一个颜色
     loading && !disabled && "forced-colors:text-[ButtonText]",
     loading && "pointer-events-none",

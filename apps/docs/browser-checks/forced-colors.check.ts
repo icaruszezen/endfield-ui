@@ -1801,6 +1801,19 @@ test("按钮：带底色的变体各有一圈线，分隔线和细竖线看得�
     await declared(page, divider, "backgroundColor", "ButtonText"),
     "指针停在主行动上：分隔线不该被悬停那一档的颜色盖掉",
   );
+  // 底色的变化系统不画：悬停的反馈是字下面一条线。text 本来就有下划线，不另加
+  await page.moveTo(button("control"));
+  await hovering(page, button("control"));
+  await page.waitFor(
+    () =>
+      page.evaluate(
+        (css) =>
+          getComputedStyle(document.querySelector(css)!).textDecorationLine ===
+          "underline",
+        button("control"),
+      ),
+    "指针停在按钮上：字应该加一条下划线",
+  );
 
   // 每种变体一行：平时、禁用、加载中
   await open(page, "控件-button-按钮--states");
