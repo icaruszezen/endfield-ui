@@ -57,7 +57,7 @@ Game 实机风格的样式不在这个目录里，也不在主样式里：源码
 | `dot-grid` | 点阵底纹 | `--dot-color`、`--dot-size`、`--dot-gap` |
 | `blueprint-grid` | 工程网格底纹 | `--grid-color`、`--grid-gap` |
 | `contour` | 等高线底纹，贴在右下角、朝左上淡出 | `--contour-color`、`--contour-size`、`--contour-position`、`--contour-image` |
-| `marker-bar`、`marker-arrow` | 按钮里竖条变箭头的两个形状 | `--marker-bar` |
+| `marker-bar`、`marker-arrow` | 竖条变箭头的两个形状（官网首页按钮的做法；库里的按钮已经不用，留给自己搭的控件） | `--marker-bar` |
 
 - 跟着主题走的颜色（斜纹、角括号、镂空字、三种底纹）默认取 `--ef-ink`；警示条纹和斜纹的"中"档有意不随主题变。
 - `cut-*` 与 `wedge*` 用的是 `clip-path`，会把焦点环一起裁掉。可聚焦的元素把它们写在伪元素上：`before:cut-tr before:bg-action`。

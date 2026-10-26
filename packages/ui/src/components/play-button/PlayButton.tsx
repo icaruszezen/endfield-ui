@@ -79,7 +79,7 @@ export function PlayButton({
         className,
       )}
     >
-      {/* 悬停：记号让一步，和按钮的竖条变箭头是同一种做法 */}
+      {/* 悬停：记号让一步，和 text 按钮的斜箭头悬停时挪一下是同一种做法 */}
       <TriangleRight
         className={cn(
           "transition-[translate] duration-(--duration-base) ease-standard",

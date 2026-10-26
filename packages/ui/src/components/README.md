@@ -134,6 +134,7 @@ components/
   - **带状态的类盖得住单写的 `forced-colors:`**：`hover:`、`group-hover:`、`data-disabled:` 都多一层选择器，优先级更高或一样高。颜色会随状态换的地方，高对比模式下那几档各写一份（`forced-colors:group-hover:bg-[ButtonText]`、`forced-colors:data-disabled:text-[GrayText]`）；能在组件里按属性分支的（`disabled ? … : …`），就只放其中一份，不靠优先级。
   - **不是真的 `disabled` 的禁用**（去掉了地址的链接、工具栏里还走得到的钮）系统不会替它把字换灰，`GrayText` 要自己写。
   - 放在控件里的 [`Spinner`](spinner/Spinner.tsx) 自己写的是页面的字色：要它和控件上的字一个颜色，用 `className` 换成 `forced-colors:bg-[ButtonText]`。
+  - **半透明画的细线**（按钮里图标和文字之间的竖线是 `bg-current opacity-30`）：系统换掉的是颜色，透明度还在，线会淡到看不清。写成实色的系统色，再加 `forced-colors:opacity-100`。
 - 组件 API 用语义命名（`variant="action"`、`tone="danger"`），不把颜色名写进属性（不要 `yellow`）。
 - **能当链接用的控件，`href` 之外同时收 `render`**（路由库的链接组件）。链接形态里的那个 `<a>` 换成 [`LinkElement`](link-element/LinkElement.tsx)，判断写成 `href !== undefined || render !== undefined`；转给 Base UI 部件的（菜单项）用 [`defined()`](../lib/defined.ts) 去掉没有值的属性，免得把那个元素自己的地址盖掉。
 - 变体写成 `Record<Variant, string>`，用 [`cn()`](../lib/cn.ts) 合并，使用方传入的 `className` 排在最后、可以覆盖内置类。

@@ -47,7 +47,7 @@ const groupIcons: Record<string, ReactNode> = {
 const focusRing =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
-/** 站名。不是标志：一个墨色方块加一条强调色竖条，是库里按钮的那个记号 */
+/** 站名。不是标志：一个墨色方块加一条强调色竖条，是官网首页按钮上的那个记号 */
 function Brand({ data }: { data: SiteData }) {
   return (
     <a

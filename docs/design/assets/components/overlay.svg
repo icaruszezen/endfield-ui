@@ -27,12 +27,10 @@
   <g fill="#191919"><rect x="116" y="180" width="120" height="9"/></g>
   <g fill="#b3b3b3"><rect x="116" y="200" width="360" height="5"/><rect x="116" y="212" width="330" height="5"/><rect x="116" y="224" width="348" height="5"/><rect x="116" y="236" width="220" height="5"/></g>
   <!-- 底部按钮 -->
-  <rect x="270" y="296" width="110" height="38" fill="#ffffff" stroke="#d9d9d9"/>
-  <rect x="280" y="306" width="3" height="18" fill="#8a8a8a"/>
-  <text x="330" y="320" font-size="14" font-weight="500" fill="#191919" text-anchor="middle">取消</text>
-  <rect x="390" y="296" width="110" height="38" fill="#383838"/>
-  <rect x="400" y="306" width="3" height="18" fill="#fffa00"/>
-  <text x="450" y="320" font-size="14" font-weight="500" fill="#eeeeee" text-anchor="middle">确认</text>
+  <rect x="270" y="296" width="110" height="38" rx="4" fill="#f2f2f2" stroke="#d9d9d9"/>
+  <text x="325" y="320" font-size="14" font-weight="500" fill="#191919" text-anchor="middle">取消</text>
+  <rect x="390" y="296" width="110" height="38" rx="4" fill="#383838"/>
+  <text x="445" y="320" font-size="14" font-weight="500" fill="#eeeeee" text-anchor="middle">确认</text>
   <!-- 左下装饰 -->
   <path d="M92 340h30M92 340v-16" stroke="#b3b3b3" stroke-width="1.5" fill="none"/>
 

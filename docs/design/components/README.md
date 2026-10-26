@@ -108,7 +108,7 @@
 
 | 组件 | 规范 | 要点 |
 | --- | --- | --- |
-| Button | [按钮](button.md) | 竖条变箭头的悬停是标志性细节 |
+| Button | [按钮](button.md) | 4px 圆角，图标和文字之间一条细竖线，悬停只换色；照官网云游戏页的顶栏 |
 | IconButton | [按钮](button.md) | 圆形与方形两种 |
 | Tag / TagPair / Badge | [数据展示](data-display.md) | 名值对、类型标签、日期块、通知角标 |
 | SectionTitle | [分节标题](../elements/section-title.md) | 标准、色带、竖排三种形态，外加一个简化版 |
