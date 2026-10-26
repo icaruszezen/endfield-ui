@@ -1,6 +1,6 @@
 # 分节标题
 
-版块开头的标题。官网有三种形态，分工明确。
+版块开头的标题。官网首页有三种形态，分工明确。
 
 ![三种分节标题](../assets/elements/section-title.svg)
 
@@ -139,6 +139,8 @@ background-image: linear-gradient(
 
 组件里四种形态对应 `SectionTitle` 的 `variant`：`standard`（A）、`band`（B）、`side`（C）、`plain`（简化版）。
 
+云游戏页"更多"里的卖点标题是那一页自己的版式：HarmonyOS Sans SC Black 的大标题压在一根黄横条上，下接一行标语；横条上方一个黄描边的倒三角，再用左上、右下一对 L 形角括号把标题框住；标题和标语是字，其余都画在一张图里——实测、观察（云游戏页）。这里不为它加变体，见 [云游戏页](../surfaces/cloud.md#更多)。
+
 ## 宜 / 忌
 
 **宜**
@@ -157,4 +159,5 @@ background-image: linear-gradient(
 ## 来源
 
 - 各部件的尺寸与入场变换：[measurements.md](../references/measurements.md) 第 8.8、8.9、9 节。
+- 云游戏页的卖点标题：[measurements-cloud.md](../references/measurements-cloud.md) 第 8.9 节；[云游戏页](../surfaces/cloud.md#更多)。
 - 相关规范：[字体](../foundations/typography.md) 的"中英搭配"。
