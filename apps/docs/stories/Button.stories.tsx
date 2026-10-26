@@ -1,4 +1,12 @@
-import { ArrowRight, Button, ButtonGroup, Plus } from "@endfield-ui/react";
+import {
+  ArrowRight,
+  Button,
+  ButtonGroup,
+  Close,
+  Lock,
+  Plus,
+  Upload,
+} from "@endfield-ui/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { RouterLink } from "./_shared/RouterLink";
@@ -105,7 +113,7 @@ export const Loading: Story = {
           确认提交
         </Button>
         <p className="text-sm text-ink-secondary">
-          点任意一个：记号变成旋转指示，按钮尺寸不跳动。
+          点任意一个：出现旋转指示，按钮尺寸不跳动。
         </p>
       </div>
     );
@@ -117,6 +125,15 @@ export const WithIcons: Story = {
   render: () => (
     <div className="flex flex-wrap items-center gap-4">
       <Button iconStart={<Plus size={16} />}>新建条目</Button>
+      <Button variant="light" iconStart={<Upload size={16} />}>
+        上传
+      </Button>
+      <Button variant="danger" iconStart={<Close size={16} />}>
+        移除
+      </Button>
+      <Button iconStart={<Lock size={16} />} disabled>
+        已锁定
+      </Button>
       <Button variant="light" iconEnd={<ArrowRight size={16} />}>
         下一步
       </Button>

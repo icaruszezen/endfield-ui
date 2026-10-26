@@ -91,7 +91,115 @@ describe("Button", () => {
     expect(button).not.toHaveClass("min-w-24");
   });
 
-  it("高对比模式：带底色的变体补一圈线，竖条和分隔线用按钮的字色；text 靠下划线，不补", () => {
+  it("text 以外都是 4px 圆角，左侧不再有竖条", () => {
+    for (const variant of [
+      "control",
+      "action",
+      "light",
+      "back",
+      "danger",
+    ] as const) {
+      const { container, unmount } = render(
+        <Button variant={variant}>确认</Button>,
+      );
+      expect(screen.getByRole("button")).toHaveClass("rounded-sm");
+      expect(container.querySelector(".marker-bar")).toBeNull();
+      unmount();
+    }
+
+    render(<Button variant="text">查看全部</Button>);
+    expect(screen.getByRole("button")).not.toHaveClass("rounded-sm");
+  });
+
+  it("配色：control 用按钮令牌，danger 是红底白字，light 是浅灰底加点阵", () => {
+    const control = render(<Button>确认</Button>);
+    expect(screen.getByRole("button")).toHaveClass(
+      "bg-button",
+      "text-on-button",
+      "hover:bg-button-hover",
+    );
+    control.unmount();
+
+    const danger = render(<Button variant="danger">删除</Button>);
+    expect(screen.getByRole("button")).toHaveClass(
+      "bg-alert-fill",
+      "text-white",
+      "hover:bg-alert-fill-hover",
+    );
+    danger.unmount();
+
+    render(<Button variant="light">取消</Button>);
+    expect(screen.getByRole("button")).toHaveClass(
+      "dot-grid",
+      "bg-neutral-100",
+      "hover:bg-neutral-50",
+    );
+  });
+
+  it("有 iconStart 时图标和文字之间一条细竖线；text 变体和 iconEnd 不加", () => {
+    const icon = <svg data-testid="icon" />;
+    const { container, unmount } = render(
+      <Button iconStart={icon}>下载</Button>,
+    );
+    const divider = container.querySelector("[data-button-divider]");
+    expect(divider).toHaveAttribute("aria-hidden", "true");
+    expect(divider).toHaveClass("w-px", "h-3.5", "bg-current", "opacity-30");
+    // 竖线排在图标和文字之间
+    expect(divider?.previousElementSibling).toBe(screen.getByTestId("icon"));
+    expect(screen.getByRole("button")).toHaveAccessibleName("下载");
+    unmount();
+
+    // back 默认的左箭头也是 iconStart
+    const back = render(<Button variant="back">返回</Button>);
+    expect(
+      back.container.querySelector("[data-button-divider]"),
+    ).not.toBeNull();
+    back.unmount();
+
+    for (const props of [
+      { variant: "text" as const, iconStart: icon },
+      { iconEnd: icon },
+      { iconStart: null },
+    ]) {
+      const other = render(<Button {...props}>查看</Button>);
+      expect(other.container.querySelector("[data-button-divider]")).toBeNull();
+      other.unmount();
+    }
+  });
+
+  it("加载中：有图标时旋转方块换掉图标；没有图标时放在左侧留白里", () => {
+    const icon = <svg data-testid="icon" />;
+    const withIcon = render(
+      <Button iconStart={icon} loading>
+        下载
+      </Button>,
+    );
+    expect(screen.queryByTestId("icon")).toBeNull();
+    expect(withIcon.container.querySelectorAll(".animate-spin")).toHaveLength(
+      1,
+    );
+    // 竖线还在，宽度不变
+    expect(
+      withIcon.container.querySelector("[data-button-divider]"),
+    ).not.toBeNull();
+    withIcon.unmount();
+
+    const bare = render(<Button loading>提交</Button>);
+    const spinner = bare.container.querySelector(".animate-spin");
+    expect(spinner?.parentElement).toHaveClass("absolute", "left-2", "size-2");
+    bare.unmount();
+
+    // action 的旋转方块在分隔线右边：图标照旧，不会有两个
+    const action = render(
+      <Button variant="action" iconStart={icon} loading>
+        提交
+      </Button>,
+    );
+    expect(screen.getByTestId("icon")).toBeInTheDocument();
+    expect(action.container.querySelectorAll(".animate-spin")).toHaveLength(1);
+  });
+
+  it("高对比模式：带底色的变体补一圈线，细竖线和分隔线用按钮的字色；text 靠下划线，不补", () => {
     for (const variant of [
       "control",
       "action",
@@ -107,10 +215,11 @@ describe("Button", () => {
       unmount();
     }
 
-    const control = render(<Button>确认</Button>);
-    expect(control.container.querySelector(".marker-bar")).toHaveClass(
-      "forced-colors:bg-[ButtonText]",
-    );
+    // 平时是字色的 30%；高对比模式下底色画的线会被换掉，要写成实色的系统色
+    const control = render(<Button iconStart={<svg />}>确认</Button>);
+    expect(
+      control.container.querySelector("[data-button-divider]"),
+    ).toHaveClass("forced-colors:bg-[ButtonText]", "forced-colors:opacity-100");
     control.unmount();
 
     // 分隔线平时悬停、按下各深一档：那两档带着状态，高对比模式下要各写一份才盖得住
@@ -131,7 +240,11 @@ describe("Button", () => {
   });
 
   it("高对比模式：禁用的线、字、记号都是灰字色，链接形态也是", () => {
-    const { container, unmount } = render(<Button disabled>确认</Button>);
+    const { container, unmount } = render(
+      <Button disabled iconStart={<svg />}>
+        确认
+      </Button>,
+    );
     const button = screen.getByRole("button");
     expect(button).toHaveClass(
       "forced-colors:border",
@@ -139,9 +252,9 @@ describe("Button", () => {
       "forced-colors:text-[GrayText]",
     );
     expect(button).not.toHaveClass("forced-colors:border-[ButtonText]");
-    const bar = container.querySelector(".marker-bar");
-    expect(bar).toHaveClass("forced-colors:bg-[GrayText]");
-    expect(bar).not.toHaveClass("forced-colors:bg-[ButtonText]");
+    const startDivider = container.querySelector("[data-button-divider]");
+    expect(startDivider).toHaveClass("forced-colors:bg-[GrayText]");
+    expect(startDivider).not.toHaveClass("forced-colors:bg-[ButtonText]");
     unmount();
 
     const action = render(
@@ -182,7 +295,7 @@ describe("Button", () => {
     expect(text).not.toHaveClass("forced-colors:border");
   });
 
-  it("高对比模式：加载中线和字照旧，占着记号位的方块用按钮的字色", () => {
+  it("高对比模式：加载中线和字照旧，旋转方块用按钮的字色", () => {
     for (const variant of [
       "control",
       "action",

@@ -56,6 +56,15 @@
   --ef-control-pressed: #282828;
   --ef-on-control: #eeeeee;
 
+  /*
+   * 按钮（Button 的 control 变体）：亮色就是中性控件那一档；暗色换成压在页面上的
+   * 半透明白（官网 /cloud 顶栏的按钮）。其余用 control 的控件不跟着变
+   */
+  --ef-button: #383838;
+  --ef-button-hover: #484848;
+  --ef-button-pressed: #282828;
+  --ef-on-button: #eeeeee;
+
   /* 禁用控件的填充与其上的文字 */
   --ef-disabled: #b3b3b3;
   --ef-on-disabled: #626262;
@@ -83,6 +92,10 @@
   --ef-x-ink-disabled: #626262;
   --ef-x-line: #383838;
   --ef-x-line-strong: #626262;
+  --ef-x-button: rgb(255 255 255 / 0.2);
+  --ef-x-button-hover: rgb(255 255 255 / 0.3);
+  --ef-x-button-pressed: rgb(255 255 255 / 0.15);
+  --ef-x-on-button: #d9d9d9;
   --ef-x-disabled: #282828;
   --ef-x-focus: #fffa00;
   --ef-x-scrim: rgb(0 0 0 / 0.7);
@@ -122,6 +135,12 @@
   --ef-control-pressed: #282828;
   --ef-on-control: #eeeeee;
 
+  /* 半透明白：压在哪种暗色面上都比那一面亮一档。字比官网的 #bfbfbf 亮一点，压在 surface-muted 上也有 4.5:1 */
+  --ef-button: rgb(255 255 255 / 0.2);
+  --ef-button-hover: rgb(255 255 255 / 0.3);
+  --ef-button-pressed: rgb(255 255 255 / 0.15);
+  --ef-on-button: #d9d9d9;
+
   --ef-disabled: #282828;
   --ef-on-disabled: #626262;
 
@@ -143,6 +162,10 @@
   --ef-x-ink-disabled: #b3b3b3;
   --ef-x-line: #d9d9d9;
   --ef-x-line-strong: #b3b3b3;
+  --ef-x-button: #383838;
+  --ef-x-button-hover: #484848;
+  --ef-x-button-pressed: #282828;
+  --ef-x-on-button: #eeeeee;
   --ef-x-disabled: #b3b3b3;
   --ef-x-focus: #191919;
   --ef-x-scrim: rgb(0 0 0 / 0.5);
@@ -199,6 +222,11 @@
   --ef-accent-ink: var(--ef-x-accent-ink);
   --ef-accent-ink-inverse: var(--ef-x-accent-ink-inverse);
 
+  --ef-button: var(--ef-x-button);
+  --ef-button-hover: var(--ef-x-button-hover);
+  --ef-button-pressed: var(--ef-x-button-pressed);
+  --ef-on-button: var(--ef-x-on-button);
+
   --ef-disabled: var(--ef-x-disabled);
 
   --ef-focus: var(--ef-x-focus);
@@ -248,6 +276,10 @@
   --color-data: #2a84b4; /* 蓝：量值图表 */
   --color-region: #06a2a2; /* 青：地区主题 */
   --color-alert: #f62a2a; /* 红：危险 */
+  /* 红色按钮的底：两个主题同一个红，白字 5.1:1 起，悬停、按下各深一档 */
+  --color-alert-fill: #de0909;
+  --color-alert-fill-hover: #c40808;
+  --color-alert-fill-pressed: #a80707;
   --color-confirm: #00d872; /* 绿：确认 */
   --color-special: #904ef0; /* 紫：特殊 */
 
@@ -608,6 +640,11 @@
   --color-control-hover: var(--ef-control-hover);
   --color-control-pressed: var(--ef-control-pressed);
   --color-on-control: var(--ef-on-control);
+
+  --color-button: var(--ef-button);
+  --color-button-hover: var(--ef-button-hover);
+  --color-button-pressed: var(--ef-button-pressed);
+  --color-on-button: var(--ef-on-button);
 
   --color-disabled: var(--ef-disabled);
   --color-on-disabled: var(--ef-on-disabled);

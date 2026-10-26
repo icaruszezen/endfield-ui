@@ -12,20 +12,20 @@ export type ButtonSize = "sm" | "md" | "lg";
 
 type OwnProps = {
   /**
-   * - `control` 深灰底 + 黄色竖条，默认；
+   * - `control` 深灰底，默认；暗色主题下是半透明的白；
    * - `action` 信号黄底，一屏只用一个；
-   * - `light` 白底，用在深色底上或作次要项；
+   * - `light` 浅灰底加一层点阵，用在深色底上或作次要项；
    * - `back` 深灰斜纹底 + 左箭头，返回上一级；
    * - `text` 无底、下划线、斜箭头，低强调；
-   * - `danger` 同 `control`，竖条为红色，用于不可逆操作。
+   * - `danger` 红底白字，用于不可逆操作。
    */
   variant?: ButtonVariant;
   size?: ButtonSize;
-  /** 文字左侧的图标 */
+  /** 文字左侧的图标，和文字之间隔一条细竖线 */
   iconStart?: ReactNode;
   /** 文字右侧的图标；`text` 变体默认是斜箭头，传 `null` 去掉 */
   iconEnd?: ReactNode;
-  /** 提交中：记号变成旋转指示，尺寸不变，不响应点击 */
+  /** 提交中：显示旋转指示，尺寸不变，不响应点击 */
   loading?: boolean;
   /** 提交中显示的文字，如"处理中"。传了之后按钮按两段文字里较宽的一段定宽 */
   loadingText?: ReactNode;
@@ -57,12 +57,12 @@ type ButtonAsRendered = OwnProps &
 
 export type ButtonProps = ButtonAsButton | ButtonAsLink | ButtonAsRendered;
 
-/** 左侧带竖条的变体：竖条绝对定位，不参与文字居中 */
-const markerColor: Partial<Record<ButtonVariant, string>> = {
-  control: "bg-action",
-  light: "bg-neutral-500",
-  danger: "bg-alert",
-};
+/** 没有记号的三种：左右留白对称，悬停只换底色 */
+const plainVariants: ReadonlySet<ButtonVariant> = new Set([
+  "control",
+  "light",
+  "danger",
+]);
 
 const sizeClass: Record<ButtonSize, string> = {
   sm: "h-8 gap-1.5 text-sm",
@@ -70,32 +70,24 @@ const sizeClass: Record<ButtonSize, string> = {
   lg: "h-14 gap-2.5 text-lg",
 };
 
-/*
- * 带竖条的变体左右留白对称，并且比规格表的"水平内边距"更宽：
- * 要给"箭头盒 + 悬停位移"留出位置，文字再长也不会被箭头压到。
- */
-const markerPadding: Record<ButtonSize, string> = {
-  sm: "min-w-16 px-7",
-  md: "min-w-24 px-10",
-  lg: "min-w-40 px-13",
+const plainPadding: Record<ButtonSize, string> = {
+  sm: "min-w-16 px-4",
+  md: "min-w-24 px-6",
+  lg: "min-w-40 px-8",
 };
 
-const markerBox: Record<ButtonSize, string> = {
-  sm: "left-3 h-4 w-2 [--marker-bar:2px]",
-  md: "left-4 h-5 w-2.5",
-  lg: "left-6 h-7 w-3",
+/* 没有图标时，加载中的旋转方块放在左侧留白的正中：不挤文字，宽度也不变 */
+const paddingSpinner: Record<ButtonSize, string> = {
+  sm: "left-[5px] size-1.5",
+  md: "left-2 size-2",
+  lg: "left-[11px] size-2.5",
 };
 
-const markerShift: Record<ButtonSize, string> = {
-  sm: "group-hover:translate-x-1 group-active:translate-x-1",
-  md: "group-hover:translate-x-1.5 group-active:translate-x-1.5",
-  lg: "group-hover:translate-x-2 group-active:translate-x-2",
-};
-
-const markerSpinner: Record<ButtonSize, string> = {
-  sm: "left-3 size-2",
-  md: "left-4 size-2.5",
-  lg: "left-6 size-3",
+/* 图标和文字之间的细竖线（官网 /cloud 顶栏的按钮）；两边的空由 gap 给 */
+const dividerSize: Record<ButtonSize, string> = {
+  sm: "h-3",
+  md: "h-3.5",
+  lg: "h-4",
 };
 
 /* action：文字在分隔线左侧的区域里居中，分隔线右侧留一窄条 */
@@ -127,12 +119,13 @@ const inlineIconSize: Record<ButtonSize, number> = { sm: 14, md: 16, lg: 20 };
 
 const enabledClass: Record<ButtonVariant, string> = {
   control:
-    "bg-control text-on-control shadow-xs hover:bg-control-hover hover:text-white active:bg-control-pressed active:text-white",
+    "bg-button text-on-button shadow-xs hover:bg-button-hover hover:text-white active:bg-button-pressed active:text-white",
+  // 两个主题下是同一个红：暗色主题的 danger 是文字色，配白字不到 4.5:1
   danger:
-    "bg-control text-on-control shadow-xs hover:bg-control-hover hover:text-white active:bg-control-pressed active:text-white",
-  // 有意不随主题翻转：它本来就是给深色底用的
+    "bg-alert-fill text-white shadow-xs hover:bg-alert-fill-hover active:bg-alert-fill-pressed",
+  // 有意不随主题翻转：它本来就是给深色底用的。点阵也写成固定的墨色比例，悬停、按下只换底色
   light:
-    "bg-neutral-0 text-neutral-900 shadow-xs hover:bg-neutral-100 active:bg-neutral-200",
+    "dot-grid bg-neutral-100 text-neutral-900 shadow-xs [--dot-color:color-mix(in_srgb,var(--color-neutral-900)_8%,transparent)] [--dot-gap:4px] [--dot-size:0.5px] hover:bg-neutral-50 active:bg-neutral-200",
   // 黄色按钮悬停时底色不变，只有分隔线加深
   action: "bg-action text-on-action shadow-md active:bg-action-pressed",
   back: "hatch hatch-mid bg-control text-white shadow-xs hover:bg-neutral-600 active:bg-control-pressed",
@@ -141,7 +134,7 @@ const enabledClass: Record<ButtonVariant, string> = {
 
 /*
  * 高对比模式（forced-colors）下底色被系统换成页面色，带底色的变体只剩一行字：
- * 补一圈线，竖条、分隔线、加载中的方块这些底色画的记号改用按钮的字色。
+ * 补一圈线，细竖线、分隔线、加载中的方块这些底色画的记号改用按钮的字色。
  * 禁用的线、字、记号都是灰字色——链接形态禁用时是一个去掉了地址的 <a>，
  * 系统不会替它把字换灰，所以字色也写明
  */
@@ -167,9 +160,9 @@ export function Button(props: ButtonProps) {
 
   const inert = disabled || loading;
   const isText = variant === "text";
-  const marker = markerColor[variant];
+  const plain = plainVariants.has(variant);
   const iconSize = inlineIconSize[size];
-  // 记号在高对比模式下的颜色：竖条、分隔线、占着记号位的旋转方块共用
+  // 记号在高对比模式下的颜色：细竖线、分隔线、旋转方块共用
   const forcedMark = disabled
     ? "forced-colors:bg-[GrayText]"
     : "forced-colors:bg-[ButtonText]";
@@ -179,10 +172,10 @@ export function Button(props: ButtonProps) {
     "transition-colors duration-(--duration-fast) ease-standard",
     focusRing,
     sizeClass[size],
-    marker && markerPadding[size],
+    plain && plainPadding[size],
     variant === "action" && actionPadding[size],
     variant === "back" && backPadding[size],
-    isText && "h-auto border-b border-current py-1",
+    isText ? "h-auto border-b border-current py-1" : "rounded-sm",
     disabled
       ? isText
         ? "cursor-not-allowed text-ink-disabled"
@@ -198,29 +191,28 @@ export function Button(props: ButtonProps) {
     className,
   );
 
-  // 每个变体自己的记号在加载时变成旋转指示，所以按钮的宽度不会变
+  // 加载时旋转指示占一个已经有的位置（图标、留白、分隔线右侧的窄条），所以按钮的宽度不会变
+  const spinnerBox = (
+    <span
+      className="inline-flex items-center justify-center"
+      style={{ width: iconSize, height: iconSize }}
+    >
+      <Spinner label={null} className={cn("size-2", forcedMark)} />
+    </span>
+  );
   let start = iconStart;
   let end = iconEnd;
   if (variant === "back" && start === undefined) {
-    start = loading ? (
-      <span
-        className="inline-flex items-center justify-center"
-        style={{ width: iconSize, height: iconSize }}
-      >
-        <Spinner label={null} className={cn("size-2", forcedMark)} />
-      </span>
-    ) : (
-      <ChevronLeft size={iconSize} />
-    );
+    start = <ChevronLeft size={iconSize} />;
+  }
+  const hasStart = start !== undefined && start !== null && start !== false;
+  // action 的旋转方块在分隔线右边，text 的在末尾：它们的图标照旧
+  if (loading && hasStart && !isText && variant !== "action") {
+    start = spinnerBox;
   }
   if (isText && end === undefined) {
     end = loading ? (
-      <span
-        className="inline-flex items-center justify-center"
-        style={{ width: iconSize, height: iconSize }}
-      >
-        <Spinner label={null} className={cn("size-2", forcedMark)} />
-      </span>
+      spinnerBox
     ) : (
       <ArrowCorner
         size={iconSize}
@@ -256,38 +248,29 @@ export function Button(props: ButtonProps) {
 
   const content = (
     <>
-      {marker &&
-        (loading ? (
-          <span
-            className={cn(
-              "pointer-events-none absolute top-1/2 -translate-y-1/2",
-              markerSpinner[size],
-            )}
-          >
-            <Spinner
-              label={null}
-              className={cn("block size-full", marker, forcedMark)}
-            />
-          </span>
-        ) : (
-          <span
-            aria-hidden="true"
-            className={cn(
-              "marker-bar pointer-events-none absolute top-1/2 -translate-y-1/2",
-              "transition-[clip-path,translate] duration-(--duration-base) ease-standard",
-              markerBox[size],
-              forcedMark,
-              disabled
-                ? "bg-on-disabled"
-                : [
-                    marker,
-                    "group-hover:marker-arrow group-active:marker-arrow",
-                    markerShift[size],
-                  ],
-            )}
-          />
-        ))}
+      {plain && loading && !hasStart && (
+        <span
+          className={cn(
+            "pointer-events-none absolute top-1/2 -translate-y-1/2",
+            paddingSpinner[size],
+          )}
+        >
+          <Spinner label={null} className={cn("block size-full", forcedMark)} />
+        </span>
+      )}
       {start}
+      {hasStart && !isText && (
+        <span
+          aria-hidden="true"
+          data-button-divider=""
+          className={cn(
+            // 高对比模式下是实色的一条：底色画的线系统会换掉，半透明也看不清
+            "w-px shrink-0 bg-current opacity-30 forced-colors:opacity-100",
+            dividerSize[size],
+            forcedMark,
+          )}
+        />
+      )}
       {label}
       {end}
       {variant === "action" && (
