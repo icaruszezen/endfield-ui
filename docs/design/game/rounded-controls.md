@@ -6,6 +6,8 @@
 
 文字按钮默认最小宽度 112px，字号 16px，上下内边距 0.3em，默认高度约 33.6px。`primary` 使用 `#2A2728` 底、`#FEFCFC` 字和浅色图标圆片；`default` 使用 `#F2F1EF` 底、`#4D4D4D` 字和深色圆片。鼠标进入或离开时，背景与内外边线在 200ms 内按原来的四个色阶闪动，触屏和减少动态效果下不闪动。
 
+云游戏页的登录弹窗用的是账号 SDK 的终末地皮肤：次按钮也是 `#F2F1EF` 底、`#4D4D4D` 字，和 `default` 相同，悬停是 `#FCFBF9`，和这里不同；主按钮 `#262626`，和 `primary` 的 `#2A2728` 接近、不相等；主、次按钮里都内缩 2.4px 描一圈 1.2px 的 `#9F9EA0` 线（1440 宽）——实测（账号 SDK）。云游戏页首屏那对胶囊按钮里也有一圈内线，内缩 2px、1px 的黑 20%——实测（云游戏页）。这里的内边线贴着按钮边缘，宽 0.1em，`primary` 是 `#81807F`、`default` 是 `#A0A2A3`。只记相同与不同，不推因果；这里的取值不变。见 [云游戏页](../surfaces/cloud.md#账号-sdk-弹窗)，数值在 [measurements-cloud.md](../references/measurements-cloud.md) 第 8.3、11.2、11.6、11.7 节。
+
 ```tsx
 import { Check } from "@endfield-ui/react";
 import { RoundedButton } from "@endfield-ui/react/game";

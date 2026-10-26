@@ -26,7 +26,7 @@ import { BannerAlert, RoundedButton } from "@endfield-ui/react/game";
 
 ## FullWidthAlert
 
-通栏面板横贯视口，默认最小高 10em，正文居中；按钮在下沿向外突出 16px，后面保留白色圆角托底。顶部有三色色条和镜像横幅，左下方是本地底图，遮罩为 50% 黑色。
+通栏面板横贯视口，默认最小高 10em，正文居中；按钮在下沿向外突出 16px，后面保留白色圆角托底。顶部有三色色条和镜像横幅，左下方是本地底图，遮罩为 50% 黑色。（云游戏页也有三色条：品红、薄荷绿、黄三段，多是贴在标题栏或卡片左上缘的竖条，色值和比例都和这里不同，见 [云游戏页](../surfaces/cloud.md#几样母题)，数值在 [measurements-cloud.md](../references/measurements-cloud.md) 第 3.4 节；这里的色条不变。）
 
 ```tsx
 import { FullWidthAlert, RoundedButton } from "@endfield-ui/react/game";
