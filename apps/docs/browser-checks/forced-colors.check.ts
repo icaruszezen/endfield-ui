@@ -1748,12 +1748,12 @@ const hovering = (page: Page, selector: string) =>
     `指针应该停在 ${selector} 上`,
   );
 
-test("按钮：带底色的变体各有一圈线，竖条和分隔线看得见，悬停时竖条变成箭头；禁用的是灰字色，加载中的照旧", async () => {
+test("按钮：带底色的变体各有一圈线，分隔线和细竖线看得见；禁用的是灰字色，加载中的照旧", async () => {
   const { page } = storybook;
   await open(page, "控件-button-按钮--variants");
   const button = (variant: string) => `${ROOT} [data-variant=${variant}]`;
   // 按钮纵向的位置是整数，横向跟着前面几个的字宽走：线取上沿那一条，不取左边那一条。
-  // 离左边 6px 的地方没有记号也没有字
+  // 离左边 6px 的地方已经过了 4px 的圆角，也没有字
   const edge = (selector: string, nth = 0) => at(page, selector, 6, 0, nth);
   const inside = (selector: string, nth = 0) => at(page, selector, 6, 4, nth);
 
@@ -1784,32 +1784,6 @@ test("按钮：带底色的变体各有一圈线，竖条和分隔线看得见�
     "text 变体不该多出一圈线",
   );
 
-  // 竖条只有 3px 宽：往右 4px 的地方平时是空的，变成箭头之后才盖得到
-  const bar = `${button("control")} .marker-bar`;
-  await shows(
-    page,
-    await at(page, bar, 1, "center"),
-    "ButtonText",
-    "左侧的竖条应该看得见",
-  );
-  await declares(page, bar, "backgroundColor", "ButtonText");
-  await differs(
-    page,
-    await at(page, bar, 4, "center"),
-    "ButtonText",
-    "竖条右边平时应该是空的",
-  );
-  await page.moveTo(button("control"));
-  await hovering(page, button("control"));
-  // 箭头是连着位移一起过渡过去的：等它停下再取点
-  await page.settled();
-  await shows(
-    page,
-    await at(page, bar, 4, "center"),
-    "ButtonText",
-    "指针停在按钮上：竖条应该变成箭头",
-  );
-
   const divider = `${button("action")} > span[aria-hidden=true]`;
   await shows(
     page,
@@ -1838,13 +1812,6 @@ test("按钮：带底色的变体各有一圈线，竖条和分隔线看得见�
     "禁用的按钮应该是灰字色的线",
   );
   await declares(page, control, "borderTopColor", "GrayText", { nth: 1 });
-  // 加载中的那个没有竖条（换成了方块），所以第二根竖条就是禁用的那个的
-  await shows(
-    page,
-    await at(page, `${control} .marker-bar`, 1, "center", 1),
-    "GrayText",
-    "禁用的按钮：竖条也是灰字色",
-  );
   await shows(
     page,
     await at(
@@ -1863,13 +1830,28 @@ test("按钮：带底色的变体各有一圈线，竖条和分隔线看得见�
     "ButtonText",
     "加载中的按钮线照旧：它不是禁用",
   );
-  // 占着记号位的方块，"减少动态效果"下停成一个菱形：取正中
+  // 左侧留白里的旋转方块，"减少动态效果"下停成一个菱形：取正中
   await shows(
     page,
     await at(page, `${control} .animate-spin`, "center", "center"),
     "ButtonText",
     "加载中的方块应该看得见",
   );
+
+  // 有图标时图标和文字之间一条细竖线。平时是字色的 30%，高对比模式下要写成实色：
+  // 底色画的线会被系统换掉，半透明也看不清
+  await open(page, "控件-button-按钮--with-icons");
+  const rule = `${ROOT} [data-button-divider]`;
+  // 第一个按钮的竖线横向在整数位置上（外壳留白、按钮留白、图标、间距都是整数）
+  await shows(
+    page,
+    await at(page, rule, 0, "center"),
+    "ButtonText",
+    "图标和文字之间的细竖线应该看得见",
+  );
+  await declares(page, rule, "backgroundColor", "ButtonText");
+  // 第四个是禁用的。前面几个跟着字宽走，横向不一定落在整数上：只核对声明
+  await declares(page, rule, "backgroundColor", "GrayText", { nth: 3 });
 
   // 链接形态禁用时是一个去掉了地址的 <a>：不是真的禁用，系统不会替它把字换灰
   await open(page, "控件-button-按钮--as-link");
