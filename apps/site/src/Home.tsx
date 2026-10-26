@@ -89,8 +89,10 @@ export function Home({ data, page }: { data: SiteData; page: HomePage }) {
     nav.flatMap((group) => group.items.map((item) => item.route)),
   );
   const overview = nav.find((group) => group.key === "overview")?.items[0];
-  const surfaceItems =
-    nav.find((group) => group.key === "surfaces")?.items ?? [];
+  // 只画写了简介的那三个载体；云游戏页是官网底下的一页，从侧栏和官网那篇进
+  const surfaceItems = (
+    nav.find((group) => group.key === "surfaces")?.items ?? []
+  ).filter((item) => item.route in surfaces);
 
   return (
     <div>
