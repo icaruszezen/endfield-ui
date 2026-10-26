@@ -171,7 +171,7 @@ export function PageHeaderBack({
   ...props
 }: PageHeaderBackProps) {
   const classes = cn(
-    "relative inline-flex size-10 shrink-0 items-center justify-center",
+    "relative inline-flex size-10 shrink-0 items-center justify-center rounded-sm",
     "transition-colors duration-(--duration-fast) ease-standard",
     focusRing,
     disabled

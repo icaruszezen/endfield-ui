@@ -17,9 +17,10 @@ describe("NavAction", () => {
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
-  it("反转的一整块，悬停变信号黄", () => {
+  it("反转的一整块，4px 圆角，悬停变信号黄", () => {
     render(<NavAction>前往控制台</NavAction>);
     expect(screen.getByRole("button")).toHaveClass(
+      "rounded-sm",
       "bg-surface-inverse",
       "text-ink-inverse",
       "hover:bg-action",

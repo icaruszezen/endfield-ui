@@ -15,6 +15,33 @@ describe("IconButton", () => {
     expect(button.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
   });
 
+  it("方形的三种是 4px 圆角，floating 是圆，按下、禁用时也一样", () => {
+    for (const variant of ["plain", "accent", "inverse"] as const) {
+      for (const state of [{}, { pressed: true }, { disabled: true }]) {
+        const { unmount } = render(
+          <IconButton aria-label="关闭" variant={variant} {...state}>
+            <Close />
+          </IconButton>,
+        );
+        const button = screen.getByRole("button");
+        expect(button).toHaveClass("rounded-sm");
+        expect(button).not.toHaveClass("rounded-full");
+        unmount();
+      }
+    }
+    for (const state of [{}, { pressed: true }, { disabled: true }]) {
+      const { unmount } = render(
+        <IconButton aria-label="下一页" variant="floating" {...state}>
+          <Close />
+        </IconButton>,
+      );
+      const button = screen.getByRole("button");
+      expect(button).toHaveClass("rounded-full");
+      expect(button).not.toHaveClass("rounded-sm");
+      unmount();
+    }
+  });
+
   it("pressed 输出 aria-pressed", () => {
     const { rerender } = render(
       <IconButton aria-label="静音" pressed={false}>

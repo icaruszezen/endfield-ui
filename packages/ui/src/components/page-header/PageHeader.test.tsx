@@ -177,7 +177,7 @@ describe("PageHeaderBack", () => {
     const back = screen.getByRole("link", { name: "返回档案" });
     expect(back).toHaveAttribute("href", "/app/archive");
     expect(back).toHaveAttribute("data-router-link");
-    expect(back).toHaveClass("size-10");
+    expect(back).toHaveClass("size-10", "rounded-sm");
   });
 
   it("禁用的按钮点不动", async () => {

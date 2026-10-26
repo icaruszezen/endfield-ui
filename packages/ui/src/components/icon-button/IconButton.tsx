@@ -35,7 +35,7 @@ const enabledClass: Record<IconButtonVariant, string> = {
   plain: restClass,
   // 有意不随主题翻转：它要压在图像和深色版块上
   floating:
-    "rounded-full bg-neutral-50 text-neutral-900 shadow-sm hover:bg-neutral-200 active:bg-neutral-300",
+    "bg-neutral-50 text-neutral-900 shadow-sm hover:bg-neutral-200 active:bg-neutral-300",
   accent:
     "bg-surface-sunken text-ink-secondary hover:bg-action hover:text-on-action active:bg-action-pressed",
   inverse:
@@ -45,8 +45,7 @@ const enabledClass: Record<IconButtonVariant, string> = {
 
 const pressedClass: Record<IconButtonVariant, string> = {
   plain: "bg-surface-muted text-ink active:bg-line",
-  floating:
-    "rounded-full bg-neutral-200 text-neutral-900 shadow-sm active:bg-neutral-300",
+  floating: "bg-neutral-200 text-neutral-900 shadow-sm active:bg-neutral-300",
   accent: "bg-action text-on-action active:bg-action-pressed",
   inverse: "bg-surface-inverse text-accent-ink-inverse",
 };
@@ -64,8 +63,7 @@ const disabledForced = "forced-colors:border-[GrayText]";
 
 const disabledClass: Record<IconButtonVariant, string> = {
   plain: "cursor-not-allowed bg-surface-sunken text-ink-disabled",
-  floating:
-    "cursor-not-allowed rounded-full bg-neutral-50 text-neutral-400 shadow-sm",
+  floating: "cursor-not-allowed bg-neutral-50 text-neutral-400 shadow-sm",
   accent: "cursor-not-allowed bg-surface-sunken text-ink-disabled",
   inverse: "cursor-not-allowed bg-surface-sunken text-ink-disabled",
 };
@@ -90,6 +88,8 @@ export function IconButton({
       data-size={size}
       className={cn(
         "relative inline-flex shrink-0 items-center justify-center",
+        // 方形的三种和按钮一样是 4px 微圆角；浮动的那种是圆
+        variant === "floating" ? "rounded-full" : "rounded-sm",
         "transition-colors duration-(--duration-fast) ease-standard",
         focusRing,
         sizeClass[size],

@@ -71,7 +71,8 @@ export function NavAction({
   const stacked = layout === "stacked";
 
   const classes = cn(
-    "shrink-0 font-medium whitespace-nowrap select-none",
+    // 4px 微圆角：官网"前往游戏"块就是这样，也和按钮一致
+    "shrink-0 rounded-sm font-medium whitespace-nowrap select-none",
     "transition-colors duration-(--duration-fast) ease-standard",
     focusRing,
     layoutClass[layout],
